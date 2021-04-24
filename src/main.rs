@@ -1,32 +1,23 @@
 use std::error::Error;
 use std::io;
 
-use crate::event::{Event, Events};
 use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
 use tui::{
     backend::TermionBackend,
     layout::{Constraint, Direction, Layout},
-    style::{Color, Style},
-    text::Spans,
-    widgets::{Block, Borders, Paragraph, Tabs},
+    widgets::{Block, Borders, Paragraph},
     Terminal,
 };
 
+use crate::app::{App, MenuItem};
+use crate::event::{Event, Events};
+use crate::help::render_help;
+
+mod app;
 #[allow(dead_code)]
 mod event;
-
-#[derive(Copy, Clone, Debug)]
-enum MenuItem {
-    Scoreboard,
-    GameDay,
-    Stats,
-    Standings,
-}
-
-struct App<'a> {
-    tabs: Vec<&'a str>,
-    active_tab: MenuItem,
-}
+mod help;
+mod tabs;
 
 fn main() -> Result<(), Box<dyn Error>> {
     // Terminal initialization
@@ -40,6 +31,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut app = App {
         tabs: vec!["Scoreboard", "GameDay", "Stats", "Standings"],
         active_tab: MenuItem::Scoreboard,
+        previous_state: MenuItem::Scoreboard,
     };
 
     loop {
@@ -49,12 +41,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .constraints([Constraint::Length(3), Constraint::Percentage(100)].as_ref())
                 .split(f.size());
 
-            let titles = app.tabs.iter().map(|t| Spans::from(*t)).collect();
-            let tabs = Tabs::new(titles)
-                .block(Block::default().borders(Borders::ALL))
-                .style(Style::default().fg(Color::White));
-            f.render_widget(tabs, chunks[0]);
+            tabs::render_top_bar(f, &app, chunks[0]);
 
+            let tempblock = Block::default().borders(Borders::ALL);
             match app.active_tab {
                 MenuItem::Scoreboard => {
                     // Create block for rendering boxscore and schedule
@@ -63,16 +52,27 @@ fn main() -> Result<(), Box<dyn Error>> {
                         .constraints([Constraint::Length(7), Constraint::Percentage(100)].as_ref())
                         .split(chunks[1]);
 
-                    let boxscore = Paragraph::new("boxscore");
-                    let schedule = Paragraph::new("schedule");
+                    let boxscore = Paragraph::new("boxscore").block(tempblock.clone());
+                    let schedule = Paragraph::new("schedule").block(tempblock.clone());
                     f.render_widget(boxscore, main[0]);
                     f.render_widget(schedule, main[1]);
                 }
                 MenuItem::GameDay => {
-                    let gameday = Paragraph::new("gameday");
+                    let gameday = Paragraph::new("gameday").block(tempblock.clone());
                     f.render_widget(gameday, chunks[1]);
                 }
-                _ => unimplemented!(),
+                MenuItem::Stats => {
+                    let gameday = Paragraph::new("stats").block(tempblock.clone());
+                    f.render_widget(gameday, chunks[1]);
+                }
+                MenuItem::Standings => {
+                    let gameday = Paragraph::new("standings").block(tempblock.clone());
+                    f.render_widget(gameday, chunks[1]);
+                }
+                MenuItem::Help => {
+                    app.previous_state = app.active_tab;
+                    render_help(f)
+                }
             }
         })?;
 
@@ -80,11 +80,13 @@ fn main() -> Result<(), Box<dyn Error>> {
             match key {
                 Key::Char('q') => break,
 
-                Key::Char('1') => app.active_tab = MenuItem::Scoreboard,
-                Key::Char('2') => app.active_tab = MenuItem::GameDay,
-                Key::Char('3') => app.active_tab = MenuItem::Stats,
-                Key::Char('4') => app.active_tab = MenuItem::Standings,
+                Key::Char('1') => app.update_tab(MenuItem::Scoreboard),
+                Key::Char('2') => app.update_tab(MenuItem::GameDay),
+                Key::Char('3') => app.update_tab(MenuItem::Stats),
+                Key::Char('4') => app.update_tab(MenuItem::Standings),
 
+                Key::Char('?') => app.update_tab(MenuItem::Help),
+                Key::Esc => app.exit_help(),
                 _ => {}
             }
         };
