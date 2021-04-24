@@ -29,7 +29,7 @@ impl Default for Config {
     fn default() -> Config {
         Config {
             exit_key: Key::Char('q'),
-            tick_rate: Duration::from_secs(250),
+            tick_rate: Duration::from_secs(20), // TODO need to setup separate tick rate for API calls
         }
     }
 }

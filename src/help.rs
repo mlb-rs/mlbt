@@ -14,6 +14,9 @@ pub fn get_help_docs() -> Vec<Vec<String>> {
         vec!["GameDay".to_string(), "2".to_string()],
         vec!["Stats".to_string(), "3".to_string()],
         vec!["Standings".to_string(), "4".to_string()],
+        vec!["".to_string(), "".to_string()],
+        vec!["Move down in scoreboard".to_string(), "j".to_string()],
+        vec!["Move up in scoreboard".to_string(), "k".to_string()],
     ]
 }
 
@@ -52,10 +55,7 @@ where
             Block::default()
                 .borders(Borders::ALL)
                 .style(help_menu_style)
-                .title(Span::styled(
-                    "Help - press another key to exit",
-                    help_menu_style,
-                ))
+                .title(Span::styled("Help - press <Esc> to exit", help_menu_style))
                 .border_style(help_menu_style),
         );
 
