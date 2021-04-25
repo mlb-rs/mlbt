@@ -1,5 +1,6 @@
 mod app;
 mod banner;
+mod boxscore;
 #[allow(dead_code)]
 mod event;
 mod help;
@@ -7,6 +8,7 @@ mod schedule;
 mod tabs;
 
 use crate::app::{App, MenuItem};
+use crate::boxscore::render_boxscore;
 use crate::event::{Event, Events};
 use crate::help::render_help;
 use crate::schedule::{render_schedule, StatefulSchedule};
@@ -45,6 +47,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         active_tab: MenuItem::Scoreboard,
         previous_state: MenuItem::Scoreboard,
         schedule: &mut schedule_table,
+        api: &mlb,
     };
 
     loop {
@@ -65,14 +68,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                         .constraints([Constraint::Length(7), Constraint::Percentage(100)].as_ref())
                         .split(chunks[1]);
 
-                    // Hit the API to update the schedule TODO move this somewhere else
-                    app.schedule.update_schedule(&mlb);
+                    // Hit the API to update the schedule
+                    app.update_schedule();
                     render_schedule(f, main[1], &mut app);
 
-                    // TODO render boxscore
+                    // Hit the API to get live game data TODO add error handling
                     let game_id = app.schedule.get_selected_game();
-                    let boxscore = Paragraph::new(game_id.to_string()).block(tempblock.clone());
-                    f.render_widget(boxscore, main[0]);
+                    let live_game = app.api.get_live_data(game_id).unwrap();
+                    let game_data = live_game.live_data.unwrap().linescore;
+                    render_boxscore(f, main[0], &game_data);
                 }
                 MenuItem::GameDay => {
                     let gameday = Paragraph::new("gameday").block(tempblock.clone());

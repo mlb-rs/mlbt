@@ -1,4 +1,5 @@
-use crate::schedule::StatefulSchedule;
+use crate::schedule::{create_table, get_game_pks, StatefulSchedule};
+use mlb_api::MLBApi;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum MenuItem {
@@ -14,6 +15,7 @@ pub struct App<'a, 'b> {
     pub previous_state: MenuItem,
     pub active_tab: MenuItem,
     pub schedule: &'b mut StatefulSchedule,
+    pub api: &'a MLBApi,
 }
 
 impl App<'_, '_> {
@@ -25,5 +27,10 @@ impl App<'_, '_> {
         if self.active_tab == MenuItem::Help {
             self.active_tab = self.previous_state;
         }
+    }
+    pub fn update_schedule(&mut self) {
+        let schedule = self.api.get_todays_schedule().unwrap(); // TODO add error handling
+        self.schedule.items = create_table(&schedule);
+        self.schedule.game_ids = get_game_pks(&schedule);
     }
 }

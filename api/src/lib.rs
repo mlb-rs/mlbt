@@ -1,8 +1,10 @@
+pub mod live;
 pub mod schedule;
 
 use derive_builder::Builder;
 use reqwest::blocking::Client;
 
+use crate::live::LiveResponse;
 use crate::schedule::ScheduleResponse;
 use chrono::NaiveDate;
 
@@ -36,6 +38,16 @@ impl MLBApi {
         let res = self.client.get(url).send()?;
         // println!("Status: {}", res.status());
         let json: schedule::ScheduleResponse = res.json()?;
+        Ok(json)
+    }
+
+    pub fn get_live_data(&self, game_id: u64) -> Result<LiveResponse, reqwest::Error> {
+        let url = format!(
+            "{}v1.1/game/{}/feed/live?language=en",
+            self.base_url, game_id
+        );
+        let res = self.client.get(url).send()?;
+        let json: live::LiveResponse = res.json()?;
         Ok(json)
     }
 }

@@ -2,12 +2,10 @@ use crate::app::App;
 use chrono::{DateTime, FixedOffset, Local};
 use core::option::Option::{None, Some};
 use mlb_api::schedule::{Game, ScheduleResponse};
-use mlb_api::MLBApi;
 use std::collections::HashMap;
-use tui::backend::Backend;
-use tui::layout::Rect;
 use tui::{
-    layout::Constraint,
+    backend::Backend,
+    layout::{Constraint, Rect},
     style::{Color, Modifier, Style},
     widgets::{Block, Borders, Cell, Row, Table, TableState},
     Frame,
@@ -27,12 +25,6 @@ impl StatefulSchedule {
             items: create_table(schedule),
             game_ids: get_game_pks(schedule),
         }
-    }
-
-    pub fn update_schedule(&mut self, api: &MLBApi) {
-        let schedule = api.get_todays_schedule().unwrap(); // TODO add error handling
-        self.items = create_table(&schedule);
-        self.game_ids = get_game_pks(&schedule);
     }
 
     pub fn get_selected_game(&self) -> u64 {
