@@ -1,4 +1,5 @@
 mod app;
+mod banner;
 #[allow(dead_code)]
 mod event;
 mod help;

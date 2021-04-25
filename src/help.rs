@@ -1,3 +1,6 @@
+use crate::banner::BANNER;
+use tui::layout::Alignment;
+use tui::widgets::Paragraph;
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -59,9 +62,22 @@ where
                 .border_style(help_menu_style),
         );
 
-    let area = centered_rect(60, 20, f.size());
+    let area = centered_rect(60, 40, f.size());
+    let vert = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(70), Constraint::Length(15)].as_ref())
+        .split(f.size());
+
+    let logo = Paragraph::new(format!("{}\nv {}", BANNER, env!("CARGO_PKG_VERSION")))
+        .alignment(Alignment::Center)
+        .block(
+            Block::default()
+                .borders(Borders::NONE)
+                .style(help_menu_style),
+        );
     f.render_widget(Clear, area); //this clears out the background
     f.render_widget(help_menu, area);
+    f.render_widget(logo, vert[1]);
 }
 
 /// Helper function to create a centered rect using up certain percentage of the available rect `r`
