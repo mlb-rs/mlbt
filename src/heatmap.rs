@@ -1,14 +1,22 @@
+use crate::utils::centered_rect;
 use mlb_api::live::LiveResponse;
 
 use tui::{
-    layout::Constraint,
+    backend::Backend,
+    layout::{Constraint, Rect},
     style::{Color, Style},
     widgets::{Block, Borders, Cell, Row, Table},
+    Frame,
 };
 
-pub fn render_heatmap(live_game: &LiveResponse) -> Table<'static> {
+pub fn render_heatmap<B>(f: &mut Frame<B>, rect: Rect, live_game: &LiveResponse)
+where
+    B: Backend,
+{
+    // these should be determined by the terminal size
+    let width = 5;
+    let height = 3;
     let colors = temp_zones(live_game);
-    let height = 2;
     // TODO figure out why these don't work
     // let cells: Vec<Cell> = colors
     //     .iter()
@@ -42,16 +50,20 @@ pub fn render_heatmap(live_game: &LiveResponse) -> Table<'static> {
     ])
     .height(height);
 
+    let widths = [
+        Constraint::Length(width),
+        Constraint::Length(width),
+        Constraint::Length(width),
+    ];
     // let t = Table::new(rows)
     let t = Table::new(vec![top, middle, bottom])
-        .block(Block::default().borders(Borders::ALL).title("heatmap"))
-        .widths(&[
-            // TODO review these on different width terminals
-            Constraint::Length(5),
-            Constraint::Length(5),
-            Constraint::Length(5),
-        ]);
-    t
+        .block(Block::default().borders(Borders::NONE).title("heatmap"))
+        .widths(&widths)
+        .column_spacing(0);
+
+    // TODO the size of the centered rect needs to be dynamic
+    let area = centered_rect(15, 15, rect);
+    f.render_widget(t, area);
 }
 
 // starting to figure out how the heatmaps are represented in the API
@@ -110,10 +122,9 @@ fn convert_color(s: String) -> Color {
 }
 
 #[test]
-#[rustfmt::skip] // keep test cases on one line
 fn test_color_conversion() {
     let tests = vec![
-        ("rgba(0, 0, 0, .55)", Color::Rgb(0,0,0)),
+        ("rgba(0, 0, 0, .55)", Color::Rgb(0, 0, 0)),
         ("rgba(6, 90, 238, .55)", Color::Rgb(6, 90, 238)),
         ("rgba(150, 188, 255, .55)", Color::Rgb(150, 188, 255)),
         ("rgba(214, 41, 52, .55)", Color::Rgb(214, 41, 52)),
@@ -122,10 +133,10 @@ fn test_color_conversion() {
     for t in tests {
         assert_eq!(convert_color(t.0.to_string()), t.1);
     }
-    
+
     let bad = ("rgba(55, 255, 255, 0.55)", Color::Rgb(255, 255, 255));
     assert_ne!(convert_color(bad.0.to_string()), bad.1);
-    
+
     let nonsense = ("rgba(-5, 255, 255, 0.55)", Color::Rgb(0, 255, 255));
     assert_eq!(convert_color(nonsense.0.to_string()), nonsense.1);
 }

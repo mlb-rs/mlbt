@@ -7,6 +7,7 @@ mod heatmap;
 mod help;
 mod schedule;
 mod tabs;
+mod utils;
 
 use crate::app::{App, MenuItem};
 use crate::boxscore::render_boxscore;
@@ -80,11 +81,12 @@ fn main() -> Result<(), Box<dyn Error>> {
                     render_boxscore(f, main[0], &live_game.live_data.linescore);
                 }
                 MenuItem::GameDay => {
-                    // let gameday = Paragraph::new("gameday").block(tempblock.clone());
                     let game_id = app.schedule.get_selected_game();
                     let live_game = app.api.get_live_data(game_id);
-                    let gameday = render_heatmap(&live_game);
-                    f.render_widget(gameday, chunks[1]);
+                    render_heatmap(f, chunks[1], &live_game);
+
+                    let gamedayp = Paragraph::new("gameday").block(tempblock.clone());
+                    f.render_widget(gamedayp, chunks[1]);
                 }
                 MenuItem::Stats => {
                     let gameday = Paragraph::new("stats").block(tempblock.clone());
