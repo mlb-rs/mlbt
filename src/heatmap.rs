@@ -28,14 +28,14 @@ impl Heatmap {
     ///
     /// It is super nested, and unclear how robust this will be.
     pub fn from_live_data(live_game: &LiveResponse) -> Heatmap {
-        let mut heatmap = Heatmap::new();
         let zones = match live_game.live_data.plays.current_play.as_ref() {
             Some(c) => match &c.matchup.batter_hot_cold_zone_stats.as_ref() {
                 Some(z) => &z.stats,
-                None => return heatmap,
+                None => return Heatmap::default(),
             },
-            None => return heatmap,
+            None => return Heatmap::default(),
         };
+        let mut heatmap = Heatmap::new();
         heatmap.transform_zones(zones);
         heatmap
     }
