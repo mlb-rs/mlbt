@@ -4,10 +4,11 @@ version = "0.0.2"
 authors = ["Andrew Schneider <andjschneider@gmail.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[workspace]
+members = [".", "api"]
 
 [dependencies]
-mlb-api = {path = "api/"}
+mlb-api = {path = "api/", version = "0.1.0"}
 chrono = "0.4"
 tui = "0.14"
 termion = "1.5"

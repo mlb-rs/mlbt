@@ -29,7 +29,7 @@ extern crate lazy_static;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mlb = MLBApiBuilder::default().build().unwrap();
-    let schedule = mlb.get_todays_schedule()?;
+    let schedule = mlb.get_todays_schedule();
 
     // Terminal initialization
     let stdout = io::stdout().into_raw_mode()?;
@@ -74,8 +74,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
                     // Hit the API to get live game data TODO add error handling
                     let game_id = app.schedule.get_selected_game();
-                    let live_game = app.api.get_live_data(game_id).unwrap();
-                    let game_data = live_game.live_data.unwrap().linescore;
+                    let live_game = app.api.get_live_data(game_id);
+                    render_boxscore(f, main[0], &live_game.live_data.linescore);
                     render_boxscore(f, main[0], &game_data);
                 }
                 MenuItem::GameDay => {

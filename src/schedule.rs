@@ -35,7 +35,7 @@ impl StatefulSchedule {
                     .selected()
                     .expect("there is always a selected game"),
             )
-            .expect("a game always has an id")
+            .unwrap_or(&0)
     }
 
     pub fn next(&mut self) {
@@ -116,6 +116,7 @@ pub fn create_matchup(game: &Game) -> Vec<String> {
 
     // TODO format date for nicer output, this makes return a Vec<&str> impossible. Is this bad?
     let start_time = &game.game_date;
+    // TODO let timezone be configurable
     // let est = FixedOffset::west(5 * 60 * 60);
     let pst = FixedOffset::west(8 * 60 * 60);
     let datetime: DateTime<Local> = DateTime::from_utc(
@@ -136,24 +137,24 @@ pub fn create_matchup(game: &Game) -> Vec<String> {
 
 /// Generate the scoreboard data to be used to render a table widget.
 pub fn create_table(schedule: &ScheduleResponse) -> Vec<Vec<String>> {
-    // TODO expecting only to grab one day of schedule at a time, but this is kind of brittle
-    let today = &schedule.dates[0];
     let mut todays_games: Vec<Vec<String>> = vec![];
-    for game in &today.games {
-        for g in game {
-            todays_games.push(create_matchup(g));
+    if let Some(games) = &schedule.dates.get(0) {
+        for game in &games.games {
+            for g in game {
+                todays_games.push(create_matchup(&g));
+            }
         }
     }
     todays_games
 }
 
 pub fn get_game_pks(schedule: &ScheduleResponse) -> Vec<u64> {
-    // TODO expecting only to grab one day of schedule at a time, but this is kind of brittle
-    let today = &schedule.dates[0];
     let mut game_pks: Vec<u64> = vec![];
-    for game in &today.games {
-        for g in game {
-            game_pks.push(g.game_pk);
+    if let Some(games) = &schedule.dates.get(0) {
+        for game in &games.games {
+            for g in game {
+                game_pks.push(g.game_pk);
+            }
         }
     }
     game_pks

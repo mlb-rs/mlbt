@@ -29,7 +29,7 @@ impl App<'_, '_> {
         }
     }
     pub fn update_schedule(&mut self) {
-        let schedule = self.api.get_todays_schedule().unwrap(); // TODO add error handling
+        let schedule = self.api.get_todays_schedule();
         self.schedule.items = create_table(&schedule);
         self.schedule.game_ids = get_game_pks(&schedule);
     }
