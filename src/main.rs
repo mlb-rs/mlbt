@@ -3,6 +3,7 @@ mod banner;
 mod boxscore;
 #[allow(dead_code)]
 mod event;
+mod heatmap;
 mod help;
 mod schedule;
 mod tabs;
@@ -14,6 +15,7 @@ use crate::help::render_help;
 use crate::schedule::{render_schedule, StatefulSchedule};
 use mlb_api::MLBApiBuilder;
 
+use crate::heatmap::render_heatmap;
 use std::error::Error;
 use std::io;
 use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
@@ -44,7 +46,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut app = App {
         tabs: vec!["Scoreboard", "GameDay", "Stats", "Standings"],
-        active_tab: MenuItem::Scoreboard,
+        active_tab: MenuItem::GameDay,
         previous_state: MenuItem::Scoreboard,
         schedule: &mut schedule_table,
         api: &mlb,
@@ -76,10 +78,12 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let game_id = app.schedule.get_selected_game();
                     let live_game = app.api.get_live_data(game_id);
                     render_boxscore(f, main[0], &live_game.live_data.linescore);
-                    render_boxscore(f, main[0], &game_data);
                 }
                 MenuItem::GameDay => {
-                    let gameday = Paragraph::new("gameday").block(tempblock.clone());
+                    // let gameday = Paragraph::new("gameday").block(tempblock.clone());
+                    let game_id = app.schedule.get_selected_game();
+                    let live_game = app.api.get_live_data(game_id);
+                    let gameday = render_heatmap(&live_game);
                     f.render_widget(gameday, chunks[1]);
                 }
                 MenuItem::Stats => {

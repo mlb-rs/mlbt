@@ -8,7 +8,7 @@ edition = "2018"
 members = [".", "api"]
 
 [dependencies]
-mlb-api = {path = "api/", version = "0.1.0"}
+mlb-api = {path = "api/", version = "0.0.1"}
 chrono = "0.4"
 tui = "0.14"
 termion = "1.5"

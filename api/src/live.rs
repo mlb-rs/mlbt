@@ -3,20 +3,32 @@ use serde::{Deserialize, Serialize};
 #[derive(Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LiveResponse {
-    pub game_pk: i64,
+    pub game_pk: u64,
     pub link: String,
-    pub meta_data: Option<MetaData>,
-    pub game_data: Option<GameData>,
-    pub live_data: Option<LiveData>,
+    pub meta_data: MetaData,
+    pub game_data: GameData,
+    pub live_data: LiveData,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LiveData {
-    // pub plays: Plays,
+    pub plays: Plays,
     pub linescore: Linescore,
     pub boxscore: Boxscore,
     // pub leaders: Leaders,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct Plays {
+    // #[serde(rename = "allPlays")]
+    // pub all_plays: Option<Vec<AllPlay>>,
+    #[serde(rename = "currentPlay")]
+    pub current_play: Option<CurrentPlay>,
+    // #[serde(rename = "scoringPlays")]
+    // pub scoring_plays: Option<Vec<i64>>,
+    // #[serde(rename = "playsByInning")]
+    // pub plays_by_inning: Option<Vec<PlaysByInning>>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -145,4 +157,101 @@ pub struct Team {
     // pub spring_league: SpringLeague,
     pub all_star_status: String,
     pub active: bool,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct Person {
+    pub id: u64,
+    #[serde(rename = "fullName")]
+    pub full_name: Option<String>,
+    pub link: Option<String>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct Matchup {
+    pub batter: Person,
+    #[serde(rename = "batSide")]
+    pub bat_side: Side,
+    pub pitcher: Person,
+    #[serde(rename = "pitchHand")]
+    pub pitch_hand: Side,
+    // #[serde(rename = "batterHotColdZones")]
+    // pub batter_hot_cold_zones: Option<Vec<Zone>>,
+    // #[serde(rename = "pitcherHotColdZones")]
+    // pub pitcher_hot_cold_zones: Option<Vec<Option<serde_json::Value>>>,
+    #[serde(rename = "batterHotColdZoneStats")]
+    pub batter_hot_cold_zone_stats: Option<BatterHotColdZoneStats>,
+}
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct Side {
+    pub code: Option<SideOptions>,
+}
+#[derive(Debug, Serialize, Deserialize)]
+pub enum SideOptions {
+    R,
+    L,
+}
+#[derive(Debug, Serialize, Deserialize)]
+pub enum HalfInning {
+    #[serde(rename = "bottom")]
+    Bottom,
+    #[serde(rename = "top")]
+    Top,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct Result {
+    // #[serde(rename = "type")]
+    // pub result_type: Option<ResultType>,
+    pub event: Option<String>,
+    #[serde(rename = "eventType")]
+    pub event_type: Option<String>,
+    pub description: Option<String>,
+    pub rbi: Option<u64>,
+    #[serde(rename = "awayScore")]
+    pub away_score: Option<u8>,
+    #[serde(rename = "homeScore")]
+    pub home_score: Option<u8>,
+}
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct CurrentPlay {
+    pub result: Result,
+    pub count: Count,
+    pub matchup: Matchup,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct BatterHotColdZoneStats {
+    pub stats: Vec<StatElement>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct StatElement {
+    pub splits: Vec<Split>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct Split {
+    pub stat: SplitStat,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct SplitStat {
+    pub name: String,
+    pub zones: Vec<Zone>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Zone {
+    pub zone: String,
+    pub color: String, // this is what I want: "rgba(255, 255, 255, 0.55)" -> need to convert it to a color
+    // pub temp: Temp,
+    pub value: String,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct Count {
+    pub balls: u8,
+    pub strikes: u8,
+    pub outs: u8,
 }
