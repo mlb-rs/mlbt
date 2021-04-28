@@ -7,6 +7,7 @@ mod heatmap;
 mod help;
 mod schedule;
 mod tabs;
+mod ui;
 mod utils;
 
 use crate::app::{App, MenuItem};
@@ -14,9 +15,9 @@ use crate::boxscore::render_boxscore;
 use crate::event::{Event, Events};
 use crate::help::render_help;
 use crate::schedule::{render_schedule, StatefulSchedule};
+use crate::ui::heatmap::render_heatmap;
 use mlb_api::MLBApiBuilder;
 
-use crate::heatmap::render_heatmap;
 use std::error::Error;
 use std::io;
 use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
