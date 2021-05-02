@@ -10,7 +10,7 @@ mod tabs;
 mod ui;
 mod utils;
 
-use crate::app::{App, MenuItem};
+use crate::app::{App, DebugInfo, MenuItem};
 use crate::boxscore::render_boxscore;
 use crate::event::{Event, Events};
 use crate::help::render_help;
@@ -18,9 +18,12 @@ use crate::schedule::{render_schedule, StatefulSchedule};
 use crate::ui::heatmap::render_heatmap;
 use mlb_api::MLBApiBuilder;
 
+use crate::ui::debug::render_debug;
+use crate::ui::layout::LayoutAreas;
 use std::error::Error;
 use std::io;
 use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
+use tui::layout::Alignment;
 use tui::{
     backend::TermionBackend,
     layout::{Constraint, Direction, Layout},
@@ -47,6 +50,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     schedule_table.state.select(Some(0));
 
     let mut app = App {
+        layout: LayoutAreas::new(terminal.size().unwrap()), // TODO don't unwrap this?
+        debug_state: DebugInfo::None,
         tabs: vec!["Scoreboard", "GameDay", "Stats", "Standings"],
         active_tab: MenuItem::GameDay,
         previous_state: MenuItem::Scoreboard,
@@ -56,12 +61,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     loop {
         terminal.draw(|f| {
-            let chunks = Layout::default()
-                .direction(Direction::Vertical)
-                .constraints([Constraint::Length(3), Constraint::Percentage(100)].as_ref())
-                .split(f.size());
-
-            tabs::render_top_bar(f, &app, chunks[0]);
+            tabs::render_top_bar(f, &app);
 
             let tempblock = Block::default().borders(Borders::ALL);
             match app.active_tab {
@@ -70,7 +70,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let main = Layout::default()
                         .direction(Direction::Vertical)
                         .constraints([Constraint::Length(7), Constraint::Percentage(100)].as_ref())
-                        .split(chunks[1]);
+                        .split(app.layout.main);
 
                     // Hit the API to update the schedule
                     app.update_schedule();
@@ -84,20 +84,24 @@ fn main() -> Result<(), Box<dyn Error>> {
                 MenuItem::GameDay => {
                     let game_id = app.schedule.get_selected_game();
                     let live_game = app.api.get_live_data(game_id);
-                    render_heatmap(f, chunks[1], &live_game);
+                    render_heatmap(f, app.layout.main, &live_game);
 
                     let gamedayp = Paragraph::new("gameday").block(tempblock.clone());
-                    f.render_widget(gamedayp, chunks[1]);
+                    f.render_widget(gamedayp, app.layout.main);
                 }
                 MenuItem::Stats => {
                     let gameday = Paragraph::new("stats").block(tempblock.clone());
-                    f.render_widget(gameday, chunks[1]);
+                    f.render_widget(gameday, app.layout.main);
                 }
                 MenuItem::Standings => {
                     let gameday = Paragraph::new("standings").block(tempblock.clone());
-                    f.render_widget(gameday, chunks[1]);
+                    f.render_widget(gameday, app.layout.main);
                 }
                 MenuItem::Help => render_help(f),
+            }
+            match app.debug_state {
+                DebugInfo::Test => render_debug(f, app.layout.top_bar[1]),
+                _ => {}
             }
         })?;
 
@@ -115,6 +119,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
                 Key::Char('?') => app.update_tab(MenuItem::Help),
                 Key::Esc => app.exit_help(),
+
+                Key::Char('d') => app.debug_state = DebugInfo::Test,
                 _ => {}
             }
         };

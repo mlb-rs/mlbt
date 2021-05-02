@@ -1,4 +1,5 @@
 use crate::schedule::{create_table, get_game_pks, StatefulSchedule};
+use crate::ui::layout::LayoutAreas;
 use mlb_api::MLBApi;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -10,10 +11,18 @@ pub enum MenuItem {
     Help,
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum DebugInfo {
+    Test,
+    None,
+}
+
 pub struct App<'a, 'b> {
+    pub layout: LayoutAreas,
     pub tabs: Vec<&'a str>,
     pub previous_state: MenuItem,
     pub active_tab: MenuItem,
+    pub debug_state: DebugInfo,
     pub schedule: &'b mut StatefulSchedule,
     pub api: &'a MLBApi,
 }
