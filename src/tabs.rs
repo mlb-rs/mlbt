@@ -30,5 +30,5 @@ where
         .alignment(Alignment::Right)
         .block(right_block)
         .style(style);
-    f.render_widget(help, app.layout.top_bar[2]);
+    f.render_widget(help, app.layout.top_bar[1]);
 }

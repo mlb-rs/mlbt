@@ -1,32 +1,35 @@
-use super::super::heatmap::Heatmap;
-use super::super::utils::centered_rect;
-use mlb_api::live::LiveResponse;
-use tui::layout::Alignment;
-use tui::style::Color;
-use tui::widgets::Paragraph;
+use crate::debug::DebugInfo;
 use tui::{
     backend::Backend,
-    layout::{Constraint, Rect},
-    style::Style,
-    widgets::{Block, Borders, Cell, Row, Table},
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
+    style::{Color, Style},
+    widgets::{Block, Borders, Paragraph},
     Frame,
 };
 
-pub fn render_debug<B>(f: &mut Frame<B>, rect: Rect)
-where
-    B: Backend,
-{
-    let border_style = Style::default();
+impl DebugInfo {
+    pub fn render_debug<B>(&self, f: &mut Frame<B>, rect: Rect)
+    where
+        B: Backend,
+    {
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
+            .split(rect);
 
-    let center_block = Block::default()
-        .borders(Borders::LEFT | Borders::BOTTOM | Borders::TOP)
-        .border_style(border_style);
+        let border_style = Style::default();
 
-    let style = Style::default().fg(Color::White);
+        let bottom_block = Block::default()
+            .borders(Borders::ALL)
+            .border_style(border_style);
 
-    let help = Paragraph::new("debug")
-        .alignment(Alignment::Center)
-        .block(center_block)
-        .style(style);
-    f.render_widget(help, rect);
+        let style = Style::default().fg(Color::White);
+
+        let help = Paragraph::new(self.to_string())
+            .alignment(Alignment::Left)
+            .block(bottom_block)
+            .style(style);
+
+        f.render_widget(help, chunks[1]);
+    }
 }

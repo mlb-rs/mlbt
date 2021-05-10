@@ -1,6 +1,7 @@
 mod app;
 mod banner;
 mod boxscore;
+mod debug;
 #[allow(dead_code)]
 mod event;
 mod heatmap;
@@ -10,7 +11,7 @@ mod tabs;
 mod ui;
 mod utils;
 
-use crate::app::{App, DebugInfo, MenuItem};
+use crate::app::{App, DebugState, MenuItem};
 use crate::boxscore::render_boxscore;
 use crate::event::{Event, Events};
 use crate::help::render_help;
@@ -18,12 +19,11 @@ use crate::schedule::{render_schedule, StatefulSchedule};
 use crate::ui::heatmap::render_heatmap;
 use mlb_api::MLBApiBuilder;
 
-use crate::ui::debug::render_debug;
+use crate::debug::DebugInfo;
 use crate::ui::layout::LayoutAreas;
 use std::error::Error;
 use std::io;
 use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
-use tui::layout::Alignment;
 use tui::{
     backend::TermionBackend,
     layout::{Constraint, Direction, Layout},
@@ -51,7 +51,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut app = App {
         layout: LayoutAreas::new(terminal.size().unwrap()), // TODO don't unwrap this?
-        debug_state: DebugInfo::None,
+        debug_state: DebugState::Off,
         tabs: vec!["Scoreboard", "GameDay", "Stats", "Standings"],
         active_tab: MenuItem::GameDay,
         previous_state: MenuItem::Scoreboard,
@@ -61,6 +61,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     loop {
         terminal.draw(|f| {
+            app.layout.update(f.size());
             tabs::render_top_bar(f, &app);
 
             let tempblock = Block::default().borders(Borders::ALL);
@@ -99,9 +100,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
                 MenuItem::Help => render_help(f),
             }
-            match app.debug_state {
-                DebugInfo::Test => render_debug(f, app.layout.top_bar[1]),
-                _ => {}
+            if app.debug_state == DebugState::On {
+                let mut dbi = DebugInfo::new();
+                dbi.gather_info(f, &app);
+                dbi.render_debug(f, app.layout.main)
             }
         })?;
 
@@ -120,7 +122,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 Key::Char('?') => app.update_tab(MenuItem::Help),
                 Key::Esc => app.exit_help(),
 
-                Key::Char('d') => app.debug_state = DebugInfo::Test,
+                Key::Char('d') => app.toggle_debug(),
                 _ => {}
             }
         };
