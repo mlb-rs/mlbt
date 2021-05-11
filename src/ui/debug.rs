@@ -8,7 +8,7 @@ use tui::{
 };
 
 impl DebugInfo {
-    pub fn render_debug<B>(&self, f: &mut Frame<B>, rect: Rect)
+    pub fn render<B>(&self, f: &mut Frame<B>, rect: Rect)
     where
         B: Backend,
     {

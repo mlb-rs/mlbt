@@ -12,7 +12,7 @@ mod ui;
 mod utils;
 
 use crate::app::{App, DebugState, MenuItem};
-use crate::boxscore::render_boxscore;
+use crate::boxscore::BoxScore;
 use crate::event::{Event, Events};
 use crate::help::render_help;
 use crate::schedule::{render_schedule, StatefulSchedule};
@@ -80,7 +80,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                     // Hit the API to get live game data TODO add error handling
                     let game_id = app.schedule.get_selected_game();
                     let live_game = app.api.get_live_data(game_id);
-                    render_boxscore(f, main[0], &live_game.live_data.linescore);
+                    let boxscore = BoxScore::new(&live_game.live_data.linescore);
+                    boxscore.render(f, app.layout.main);
                 }
                 MenuItem::GameDay => {
                     let game_id = app.schedule.get_selected_game();
@@ -103,7 +104,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             if app.debug_state == DebugState::On {
                 let mut dbi = DebugInfo::new();
                 dbi.gather_info(f, &app);
-                dbi.render_debug(f, app.layout.main)
+                dbi.render(f, app.layout.main)
             }
         })?;
 
