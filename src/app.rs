@@ -1,4 +1,4 @@
-use crate::schedule::{create_table, get_game_pks, StatefulSchedule};
+use crate::schedule::StatefulSchedule;
 use crate::ui::layout::LayoutAreas;
 use mlb_api::MLBApi;
 
@@ -40,8 +40,7 @@ impl App<'_, '_> {
     }
     pub fn update_schedule(&mut self) {
         let schedule = self.api.get_todays_schedule();
-        self.schedule.items = create_table(&schedule);
-        self.schedule.game_ids = get_game_pks(&schedule);
+        self.schedule.update(&schedule);
     }
     pub fn toggle_debug(&mut self) {
         match self.debug_state {

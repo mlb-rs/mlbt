@@ -5,7 +5,6 @@ mod debug;
 #[allow(dead_code)]
 mod event;
 mod heatmap;
-mod help;
 mod schedule;
 mod tabs;
 mod ui;
@@ -13,14 +12,12 @@ mod utils;
 
 use crate::app::{App, DebugState, MenuItem};
 use crate::boxscore::BoxScore;
+use crate::debug::DebugInfo;
 use crate::event::{Event, Events};
-use crate::help::render_help;
-use crate::schedule::{render_schedule, StatefulSchedule};
-use crate::ui::heatmap::render_heatmap;
+use crate::schedule::StatefulSchedule;
+use crate::ui::{heatmap::render_heatmap, help::render_help, layout::LayoutAreas};
 use mlb_api::MLBApiBuilder;
 
-use crate::debug::DebugInfo;
-use crate::ui::layout::LayoutAreas;
 use std::error::Error;
 use std::io;
 use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
@@ -47,7 +44,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let events = Events::new();
 
     let mut schedule_table = StatefulSchedule::new(&schedule);
-    schedule_table.state.select(Some(0));
 
     let mut app = App {
         layout: LayoutAreas::new(terminal.size().unwrap()), // TODO don't unwrap this?
@@ -75,13 +71,14 @@ fn main() -> Result<(), Box<dyn Error>> {
 
                     // Hit the API to update the schedule
                     app.update_schedule();
-                    render_schedule(f, main[1], &mut app);
+                    app.schedule.render(f, main[1]);
+                    // render_schedule(f, main[1], &mut app);
 
                     // Hit the API to get live game data TODO add error handling
                     let game_id = app.schedule.get_selected_game();
                     let live_game = app.api.get_live_data(game_id);
                     let boxscore = BoxScore::new(&live_game.live_data.linescore);
-                    boxscore.render(f, app.layout.main);
+                    boxscore.render(f, main[0]);
                 }
                 MenuItem::GameDay => {
                     let game_id = app.schedule.get_selected_game();
