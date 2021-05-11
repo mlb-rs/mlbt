@@ -9,8 +9,8 @@ use tui::{
     Frame,
 };
 
+use super::utils::centered_rect;
 use crate::banner::BANNER;
-use crate::utils::centered_rect;
 
 pub fn get_help_docs() -> Vec<Vec<String>> {
     vec![

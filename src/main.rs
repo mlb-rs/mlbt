@@ -1,23 +1,22 @@
 mod app;
 mod banner;
 mod boxscore;
+mod debug;
 #[allow(dead_code)]
 mod event;
 mod heatmap;
-mod help;
 mod schedule;
-mod tabs;
 mod ui;
-mod utils;
 
-use crate::app::{App, MenuItem};
-use crate::boxscore::render_boxscore;
+use crate::app::{App, DebugState, MenuItem};
+use crate::boxscore::BoxScore;
+use crate::debug::DebugInfo;
 use crate::event::{Event, Events};
-use crate::help::render_help;
-use crate::schedule::{render_schedule, StatefulSchedule};
-use crate::ui::heatmap::render_heatmap;
+use crate::schedule::StatefulSchedule;
+use crate::ui::{help::render_help, layout::LayoutAreas, tabs::render_top_bar};
 use mlb_api::MLBApiBuilder;
 
+use crate::heatmap::Heatmap;
 use std::error::Error;
 use std::io;
 use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
@@ -34,6 +33,7 @@ extern crate lazy_static;
 fn main() -> Result<(), Box<dyn Error>> {
     let mlb = MLBApiBuilder::default().build().unwrap();
     let schedule = mlb.get_todays_schedule();
+    let mut schedule_table = StatefulSchedule::new(&schedule);
 
     // Terminal initialization
     let stdout = io::stdout().into_raw_mode()?;
@@ -43,25 +43,20 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let events = Events::new();
 
-    let mut schedule_table = StatefulSchedule::new(&schedule);
-    schedule_table.state.select(Some(0));
-
     let mut app = App {
+        api: &mlb,
+        layout: LayoutAreas::new(terminal.size().unwrap()), // TODO don't unwrap this?
         tabs: vec!["Scoreboard", "GameDay", "Stats", "Standings"],
         active_tab: MenuItem::GameDay,
         previous_state: MenuItem::Scoreboard,
         schedule: &mut schedule_table,
-        api: &mlb,
+        debug_state: DebugState::Off,
     };
 
     loop {
         terminal.draw(|f| {
-            let chunks = Layout::default()
-                .direction(Direction::Vertical)
-                .constraints([Constraint::Length(3), Constraint::Percentage(100)].as_ref())
-                .split(f.size());
-
-            tabs::render_top_bar(f, &app, chunks[0]);
+            app.layout.update(f.size());
+            render_top_bar(f, &app);
 
             let tempblock = Block::default().borders(Borders::ALL);
             match app.active_tab {
@@ -70,34 +65,41 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let main = Layout::default()
                         .direction(Direction::Vertical)
                         .constraints([Constraint::Length(7), Constraint::Percentage(100)].as_ref())
-                        .split(chunks[1]);
+                        .split(app.layout.main);
 
                     // Hit the API to update the schedule
                     app.update_schedule();
-                    render_schedule(f, main[1], &mut app);
+                    app.schedule.render(f, main[1]);
 
                     // Hit the API to get live game data TODO add error handling
                     let game_id = app.schedule.get_selected_game();
                     let live_game = app.api.get_live_data(game_id);
-                    render_boxscore(f, main[0], &live_game.live_data.linescore);
+                    let boxscore = BoxScore::new(&live_game.live_data.linescore);
+                    boxscore.render(f, main[0]);
                 }
                 MenuItem::GameDay => {
                     let game_id = app.schedule.get_selected_game();
                     let live_game = app.api.get_live_data(game_id);
-                    render_heatmap(f, chunks[1], &live_game);
+                    let heatmap = Heatmap::from_live_data(&live_game);
+                    heatmap.render(f, app.layout.main);
 
                     let gamedayp = Paragraph::new("gameday").block(tempblock.clone());
-                    f.render_widget(gamedayp, chunks[1]);
+                    f.render_widget(gamedayp, app.layout.main);
                 }
                 MenuItem::Stats => {
                     let gameday = Paragraph::new("stats").block(tempblock.clone());
-                    f.render_widget(gameday, chunks[1]);
+                    f.render_widget(gameday, app.layout.main);
                 }
                 MenuItem::Standings => {
                     let gameday = Paragraph::new("standings").block(tempblock.clone());
-                    f.render_widget(gameday, chunks[1]);
+                    f.render_widget(gameday, app.layout.main);
                 }
                 MenuItem::Help => render_help(f),
+            }
+            if app.debug_state == DebugState::On {
+                let mut dbi = DebugInfo::new();
+                dbi.gather_info(f, &app);
+                dbi.render(f, app.layout.main)
             }
         })?;
 
@@ -115,6 +117,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
                 Key::Char('?') => app.update_tab(MenuItem::Help),
                 Key::Esc => app.exit_help(),
+
+                Key::Char('d') => app.toggle_debug(),
                 _ => {}
             }
         };
