@@ -6,7 +6,7 @@ use tui::text::Spans;
 use tui::widgets::{Block, Borders, Paragraph, Tabs};
 use tui::Frame;
 
-pub fn render_top_bar<'a, B>(f: &mut Frame<B>, app: &'a App)
+pub fn render_top_bar<B>(f: &mut Frame<B>, app: &App)
 where
     B: Backend,
 {

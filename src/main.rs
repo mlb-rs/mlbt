@@ -6,18 +6,17 @@ mod debug;
 mod event;
 mod heatmap;
 mod schedule;
-mod tabs;
 mod ui;
-mod utils;
 
 use crate::app::{App, DebugState, MenuItem};
 use crate::boxscore::BoxScore;
 use crate::debug::DebugInfo;
 use crate::event::{Event, Events};
 use crate::schedule::StatefulSchedule;
-use crate::ui::{heatmap::render_heatmap, help::render_help, layout::LayoutAreas};
+use crate::ui::{help::render_help, layout::LayoutAreas, tabs::render_top_bar};
 use mlb_api::MLBApiBuilder;
 
+use crate::heatmap::Heatmap;
 use std::error::Error;
 use std::io;
 use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
@@ -34,6 +33,7 @@ extern crate lazy_static;
 fn main() -> Result<(), Box<dyn Error>> {
     let mlb = MLBApiBuilder::default().build().unwrap();
     let schedule = mlb.get_todays_schedule();
+    let mut schedule_table = StatefulSchedule::new(&schedule);
 
     // Terminal initialization
     let stdout = io::stdout().into_raw_mode()?;
@@ -43,22 +43,20 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let events = Events::new();
 
-    let mut schedule_table = StatefulSchedule::new(&schedule);
-
     let mut app = App {
+        api: &mlb,
         layout: LayoutAreas::new(terminal.size().unwrap()), // TODO don't unwrap this?
-        debug_state: DebugState::Off,
         tabs: vec!["Scoreboard", "GameDay", "Stats", "Standings"],
         active_tab: MenuItem::GameDay,
         previous_state: MenuItem::Scoreboard,
         schedule: &mut schedule_table,
-        api: &mlb,
+        debug_state: DebugState::Off,
     };
 
     loop {
         terminal.draw(|f| {
             app.layout.update(f.size());
-            tabs::render_top_bar(f, &app);
+            render_top_bar(f, &app);
 
             let tempblock = Block::default().borders(Borders::ALL);
             match app.active_tab {
@@ -72,7 +70,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                     // Hit the API to update the schedule
                     app.update_schedule();
                     app.schedule.render(f, main[1]);
-                    // render_schedule(f, main[1], &mut app);
 
                     // Hit the API to get live game data TODO add error handling
                     let game_id = app.schedule.get_selected_game();
@@ -83,7 +80,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                 MenuItem::GameDay => {
                     let game_id = app.schedule.get_selected_game();
                     let live_game = app.api.get_live_data(game_id);
-                    render_heatmap(f, app.layout.main, &live_game);
+                    let heatmap = Heatmap::from_live_data(&live_game);
+                    heatmap.render(f, app.layout.main);
 
                     let gamedayp = Paragraph::new("gameday").block(tempblock.clone());
                     f.render_widget(gamedayp, app.layout.main);

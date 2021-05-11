@@ -1,12 +1,12 @@
 use mlb_api::live::Linescore;
 
-/// TableInning is used to store the game state for a single team. It is meant
-/// to be used to fill out the boxscore table.
+/// BoxScore stores the needed information to create a box score. If the game hasn't played more
+/// than 9 innings yet, it will still render a 9 inning game.
 #[derive(Default, Debug)]
 pub struct BoxScore {
-    pub home: BoxScoreLine,
-    pub away: BoxScoreLine,
     pub header: Vec<String>,
+    pub away: BoxScoreLine,
+    pub home: BoxScoreLine,
 }
 
 impl BoxScore {
@@ -14,7 +14,7 @@ impl BoxScore {
         let (home, away) = BoxScore::generate_boxscore_info(&linescore);
         let played = linescore.current_inning.unwrap_or(0);
         let header = BoxScoreLine::create_header_vec(played);
-        BoxScore { home, away, header }
+        BoxScore { header, away, home }
     }
 
     fn generate_boxscore_info(linescore: &Linescore) -> (BoxScoreLine, BoxScoreLine) {
