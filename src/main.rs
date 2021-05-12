@@ -49,7 +49,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         api: &mlb,
         layout: LayoutAreas::new(terminal.size().unwrap()), // TODO don't unwrap this?
         tabs: vec!["Scoreboard", "GameDay", "Stats", "Standings"],
-        active_tab: MenuItem::GameDay,
+        active_tab: MenuItem::Scoreboard,
         previous_state: MenuItem::Scoreboard,
         schedule: &mut schedule_table,
         debug_state: DebugState::Off,
