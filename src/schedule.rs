@@ -1,47 +1,49 @@
-use crate::app::App;
 use chrono::{DateTime, FixedOffset, Local};
 use core::option::Option::{None, Some};
 use mlb_api::schedule::{Game, ScheduleResponse};
 use std::collections::HashMap;
-use tui::{
-    backend::Backend,
-    layout::{Constraint, Rect},
-    style::{Color, Modifier, Style},
-    widgets::{Block, Borders, Cell, Row, Table, TableState},
-    Frame,
-};
+use tui::widgets::TableState;
 
 pub struct StatefulSchedule {
     pub state: TableState,
-    // items: Vec<Vec<&'a str>>, // TODO use &str or String?
-    pub items: Vec<Vec<String>>,
-    pub game_ids: Vec<u64>,
+    pub schedule: Schedule,
 }
 
 impl StatefulSchedule {
     pub fn new(schedule: &ScheduleResponse) -> StatefulSchedule {
-        StatefulSchedule {
+        let s = Schedule {
+            game_info: Schedule::create_table(schedule),
+            game_ids: Schedule::get_game_pks(schedule),
+        };
+        let mut ss = StatefulSchedule {
             state: TableState::default(),
-            items: create_table(schedule),
-            game_ids: get_game_pks(schedule),
-        }
+            schedule: s,
+        };
+        ss.state.select(Some(0));
+        ss
+    }
+
+    pub fn update(&mut self, schedule: &ScheduleResponse) {
+        self.schedule.game_info = Schedule::create_table(schedule);
+        self.schedule.game_ids = Schedule::get_game_pks(schedule);
     }
 
     pub fn get_selected_game(&self) -> u64 {
         *self
+            .schedule
             .game_ids
             .get(
                 self.state
                     .selected()
                     .expect("there is always a selected game"),
             )
-            .expect("a game always has an id")
+            .unwrap_or(&0)
     }
 
     pub fn next(&mut self) {
         let i = match self.state.selected() {
             Some(i) => {
-                if i >= self.items.len() - 1 {
+                if i >= self.schedule.game_info.len() - 1 {
                     0
                 } else {
                     i + 1
@@ -56,7 +58,7 @@ impl StatefulSchedule {
         let i = match self.state.selected() {
             Some(i) => {
                 if i == 0 {
-                    self.items.len() - 1
+                    self.schedule.game_info.len() - 1
                 } else {
                     i - 1
                 }
@@ -67,96 +69,71 @@ impl StatefulSchedule {
     }
 }
 
-pub fn render_schedule<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
-where
-    B: Backend,
-{
-    let selected_style = Style::default().add_modifier(Modifier::REVERSED);
-    let normal_style = Style::default().bg(Color::White);
-    let header_cells = ["away", "home", "time [PST]", "status"]
-        .iter()
-        .map(|h| Cell::from(*h).style(Style::default().fg(Color::Black)));
-
-    let header = Row::new(header_cells)
-        .style(normal_style)
-        .height(1)
-        .bottom_margin(1);
-
-    let rows = app
-        .schedule
-        .items
-        .iter()
-        .map(|r| Row::new(r.clone()).height(1).bottom_margin(1));
-
-    let t = Table::new(rows)
-        .header(header)
-        .block(Block::default().borders(Borders::ALL).title("scoreboard"))
-        .highlight_style(selected_style)
-        .highlight_symbol(">> ")
-        .widths(&[
-            // TODO review these on different width terminals
-            Constraint::Percentage(15),
-            Constraint::Percentage(15),
-            Constraint::Percentage(25),
-            Constraint::Percentage(45),
-        ]);
-
-    f.render_stateful_widget(t, rect, &mut app.schedule.state);
+pub struct Schedule {
+    // items: Vec<Vec<&'a str>>, // TODO use &str or String?
+    pub game_info: Vec<Vec<String>>,
+    pub game_ids: Vec<u64>,
 }
 
-pub fn create_matchup(game: &Game) -> Vec<String> {
-    let h_short = TEAM_NAME_MAP
-        .get(&*game.teams.home.team.name)
-        .unwrap()
-        .to_string();
-    let a_short = TEAM_NAME_MAP
-        .get(&*game.teams.away.team.name)
-        .unwrap()
-        .to_string();
-
-    // TODO format date for nicer output, this makes return a Vec<&str> impossible. Is this bad?
-    let start_time = &game.game_date;
-    // let est = FixedOffset::west(5 * 60 * 60);
-    let pst = FixedOffset::west(8 * 60 * 60);
-    let datetime: DateTime<Local> = DateTime::from_utc(
-        DateTime::<FixedOffset>::parse_from_rfc3339(start_time)
+impl Schedule {
+    /// Create the matchup information to be displayed in the table. The current information that is
+    /// extracted from the game data:
+    /// away team name, home team name, start time, and game status
+    fn create_matchup(game: &Game) -> Vec<String> {
+        let home = TEAM_NAME_MAP
+            .get(&*game.teams.home.team.name)
             .unwrap()
-            .naive_utc(),
-        pst,
-    );
-    let formatted = datetime.format("%l:%M %P").to_string();
+            .to_string();
+        let away = TEAM_NAME_MAP
+            .get(&*game.teams.away.team.name)
+            .unwrap()
+            .to_string();
 
-    let status = match &game.status.detailed_state {
-        Some(s) => s.to_string(),
-        _ => "unknown".to_string(),
-    };
+        // TODO format date for nicer output, this makes return a Vec<&str> impossible. Is this bad?
+        let start_time = &game.game_date;
+        // TODO let timezone be configurable
+        // let est = FixedOffset::west(5 * 60 * 60);
+        let pst = FixedOffset::west(8 * 60 * 60);
+        let datetime: DateTime<Local> = DateTime::from_utc(
+            DateTime::<FixedOffset>::parse_from_rfc3339(start_time)
+                .unwrap()
+                .naive_utc(),
+            pst,
+        );
+        let formatted = datetime.format("%l:%M %P").to_string();
 
-    vec![a_short, h_short, formatted, status]
-}
+        let status = match &game.status.detailed_state {
+            Some(s) => s.to_string(),
+            _ => "unknown".to_string(),
+        };
 
-/// Generate the scoreboard data to be used to render a table widget.
-pub fn create_table(schedule: &ScheduleResponse) -> Vec<Vec<String>> {
-    // TODO expecting only to grab one day of schedule at a time, but this is kind of brittle
-    let today = &schedule.dates[0];
-    let mut todays_games: Vec<Vec<String>> = vec![];
-    for game in &today.games {
-        for g in game {
-            todays_games.push(create_matchup(g));
-        }
+        vec![away, home, formatted, status]
     }
-    todays_games
-}
 
-pub fn get_game_pks(schedule: &ScheduleResponse) -> Vec<u64> {
-    // TODO expecting only to grab one day of schedule at a time, but this is kind of brittle
-    let today = &schedule.dates[0];
-    let mut game_pks: Vec<u64> = vec![];
-    for game in &today.games {
-        for g in game {
-            game_pks.push(g.game_pk);
+    /// Generate the scoreboard data to be used to render a table widget.
+    fn create_table(schedule: &ScheduleResponse) -> Vec<Vec<String>> {
+        let mut todays_games: Vec<Vec<String>> = vec![];
+        if let Some(games) = &schedule.dates.get(0) {
+            for game in &games.games {
+                for g in game {
+                    todays_games.push(Schedule::create_matchup(&g));
+                }
+            }
         }
+        todays_games
     }
-    game_pks
+
+    fn get_game_pks(schedule: &ScheduleResponse) -> Vec<u64> {
+        let mut game_pks: Vec<u64> = vec![];
+        if let Some(games) = &schedule.dates.get(0) {
+            for game in &games.games {
+                for g in game {
+                    game_pks.push(g.game_pk);
+                }
+            }
+        }
+        game_pks
+    }
 }
 
 lazy_static! {
