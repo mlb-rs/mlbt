@@ -5,6 +5,7 @@ mod debug;
 #[allow(dead_code)]
 mod event;
 mod heatmap;
+mod matchup;
 mod schedule;
 mod ui;
 
@@ -17,6 +18,7 @@ use crate::ui::{help::render_help, layout::LayoutAreas, tabs::render_top_bar};
 use mlb_api::MLBApiBuilder;
 
 use crate::heatmap::Heatmap;
+use crate::matchup::Matchup;
 use std::error::Error;
 use std::io;
 use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
@@ -78,13 +80,16 @@ fn main() -> Result<(), Box<dyn Error>> {
                     boxscore.render(f, main[0]);
                 }
                 MenuItem::GameDay => {
+                    let gamedayp = Paragraph::new("").block(tempblock.clone());
+                    f.render_widget(gamedayp, app.layout.main);
+
                     let game_id = app.schedule.get_selected_game();
                     let live_game = app.api.get_live_data(game_id);
                     let heatmap = Heatmap::from_live_data(&live_game);
                     heatmap.render(f, app.layout.main);
 
-                    let gamedayp = Paragraph::new("gameday").block(tempblock.clone());
-                    f.render_widget(gamedayp, app.layout.main);
+                    let matchup = Matchup::from_live_data(&live_game);
+                    matchup.render(f, app.layout.main);
                 }
                 MenuItem::Stats => {
                     let gameday = Paragraph::new("stats").block(tempblock.clone());

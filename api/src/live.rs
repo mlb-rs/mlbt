@@ -163,7 +163,7 @@ pub struct Team {
 pub struct Person {
     pub id: u64,
     #[serde(rename = "fullName")]
-    pub full_name: Option<String>,
+    pub full_name: String,
     pub link: Option<String>,
 }
 
@@ -249,7 +249,7 @@ pub struct Zone {
     pub value: String,
 }
 
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize)]
 pub struct Count {
     pub balls: u8,
     pub strikes: u8,
