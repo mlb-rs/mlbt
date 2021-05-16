@@ -6,6 +6,7 @@ mod debug;
 mod event;
 mod heatmap;
 mod matchup;
+mod pitches;
 mod schedule;
 mod ui;
 
@@ -19,6 +20,7 @@ use mlb_api::MLBApiBuilder;
 
 use crate::heatmap::Heatmap;
 use crate::matchup::Matchup;
+use crate::pitches::Pitches;
 use std::error::Error;
 use std::io;
 use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
@@ -87,6 +89,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let live_game = app.api.get_live_data(game_id);
                     let heatmap = Heatmap::from_live_data(&live_game);
                     heatmap.render(f, app.layout.main);
+
+                    let test = Pitches::from_live_data(&live_game);
+                    test.render(f, app.layout.main);
 
                     let matchup = Matchup::from_live_data(&live_game);
                     matchup.render(f, app.layout.main);

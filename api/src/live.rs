@@ -1,3 +1,4 @@
+use derive_builder::export::core::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -207,7 +208,7 @@ pub struct Result {
     #[serde(rename = "eventType")]
     pub event_type: Option<String>,
     pub description: Option<String>,
-    pub rbi: Option<u64>,
+    pub rbi: Option<u8>,
     #[serde(rename = "awayScore")]
     pub away_score: Option<u8>,
     #[serde(rename = "homeScore")]
@@ -218,6 +219,8 @@ pub struct CurrentPlay {
     pub result: Result,
     pub count: Count,
     pub matchup: Matchup,
+    #[serde(rename = "playEvents")]
+    pub play_events: Vec<PlayEvent>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -245,7 +248,6 @@ pub struct SplitStat {
 pub struct Zone {
     pub zone: String,
     pub color: String, // this is what I want: "rgba(255, 255, 255, 0.55)" -> need to convert it to a color
-    // pub temp: Temp,
     pub value: String,
 }
 
@@ -254,4 +256,61 @@ pub struct Count {
     pub balls: u8,
     pub strikes: u8,
     pub outs: u8,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct PlayEvent {
+    pub details: Details,
+    pub count: Count,
+    #[serde(rename = "pitchData")]
+    pub pitch_data: Option<PitchData>,
+    #[serde(rename = "isPitch")]
+    pub is_pitch: bool,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Details {
+    pub description: String,
+    pub call: Option<CodeDescription>,
+    pub ball_color: Option<String>,
+    pub trail_color: Option<String>,
+    pub is_in_play: Option<bool>,
+    pub is_strike: Option<bool>,
+    pub is_ball: Option<bool>,
+    #[serde(rename = "type")]
+    pub pitch_type: Option<CodeDescription>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct CodeDescription {
+    pub code: String,
+    pub description: String,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct PitchData {
+    #[serde(rename = "startSpeed")]
+    pub start_speed: Option<f64>,
+    #[serde(rename = "endSpeed")]
+    pub end_speed: Option<f64>,
+    #[serde(rename = "strikeZoneTop")]
+    pub strike_zone_top: Option<f64>,
+    #[serde(rename = "strikeZoneBottom")]
+    pub strike_zone_bottom: Option<f64>,
+    pub coordinates: HashMap<String, f64>,
+    pub breaks: Option<Breaks>,
+    pub zone: Option<u8>,
+    #[serde(rename = "plateTime")]
+    pub plate_time: Option<f64>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Breaks {
+    pub break_angle: Option<f64>,
+    pub break_length: Option<f64>,
+    pub break_y: Option<f64>,
+    pub spin_rate: Option<u32>,
+    pub spin_direction: Option<u32>,
 }

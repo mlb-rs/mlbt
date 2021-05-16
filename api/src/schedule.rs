@@ -158,6 +158,8 @@ pub enum CodedGameState {
     S,
     // manager challenge
     M,
+    // unknown
+    N,
 }
 
 #[derive(Debug, strum_macros::Display, Serialize, Deserialize)]
