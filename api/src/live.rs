@@ -266,6 +266,8 @@ pub struct PlayEvent {
     pub pitch_data: Option<PitchData>,
     #[serde(rename = "isPitch")]
     pub is_pitch: bool,
+    #[serde(rename = "pitchNumber")]
+    pub pitch_number: Option<u8>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]

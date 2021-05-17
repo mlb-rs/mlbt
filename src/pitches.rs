@@ -7,6 +7,7 @@ pub struct Pitch {
     pub color: Color,
     pub description: String, // fastball, slider, ect.
     pub location: (f64, f64),
+    pub index: u8,
 }
 
 #[derive(Default)]
@@ -35,8 +36,9 @@ impl Pitches {
                 let pitch_data = play.pitch_data.as_ref().unwrap(); // TODO
 
                 let info = &pitch_data.coordinates;
-                let x_coord = info.get("pX").unwrap();
-                let z_coord = info.get("pZ").unwrap();
+                // TODO scale?
+                let x_coord = info.get("pX").unwrap() * 10.0;
+                let z_coord = info.get("pZ").unwrap() * 10.0;
                 // x coordinate is left/right
                 // z coordinate is up/down
                 // y coordinate is catcher looking towards pitcher
@@ -46,7 +48,8 @@ impl Pitches {
                         play.details.ball_color.clone().unwrap_or_default(),
                     ),
                     description: play.details.description.to_string(),
-                    location: (*x_coord, *z_coord),
+                    location: (x_coord, z_coord),
+                    index: play.pitch_number.unwrap_or_default(),
                 };
                 self.pitches.push(pitch);
                 // println!("{:?}", pitch_data)

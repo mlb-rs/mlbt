@@ -215,6 +215,9 @@ pub enum StatusCode {
     // manager challenge
     #[serde(rename = "MA")]
     Ma,
+    // manager challenge
+    #[serde(rename = "MF")]
+    Mf,
 }
 
 // #[derive(Serialize, Deserialize)]
