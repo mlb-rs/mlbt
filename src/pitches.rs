@@ -36,9 +36,8 @@ impl Pitches {
                 let pitch_data = play.pitch_data.as_ref().unwrap(); // TODO
 
                 let info = &pitch_data.coordinates;
-                // TODO scale?
-                let x_coord = info.get("pX").unwrap() * 10.0;
-                let z_coord = info.get("pZ").unwrap() * 10.0;
+                let x_coord = info.get("pX").unwrap();
+                let z_coord = info.get("pZ").unwrap();
                 // x coordinate is left/right
                 // z coordinate is up/down
                 // y coordinate is catcher looking towards pitcher
@@ -48,7 +47,7 @@ impl Pitches {
                         play.details.ball_color.clone().unwrap_or_default(),
                     ),
                     description: play.details.description.to_string(),
-                    location: (x_coord, z_coord),
+                    location: (*x_coord, *z_coord),
                     index: play.pitch_number.unwrap_or_default(),
                 };
                 self.pitches.push(pitch);

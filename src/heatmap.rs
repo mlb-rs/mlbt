@@ -4,19 +4,24 @@ use tui::style::Color;
 
 pub struct Heatmap {
     pub cells: Vec<Color>,
+    pub colors: Vec<Color>,
 }
 
 impl Default for Heatmap {
     fn default() -> Self {
         Heatmap {
             cells: Heatmap::all_black(),
+            colors: Heatmap::all_black(),
         }
     }
 }
 
 impl Heatmap {
     pub fn new() -> Self {
-        Heatmap { cells: vec![] }
+        Heatmap {
+            cells: vec![],
+            colors: vec![],
+        }
     }
 
     /// Generate a heatmap from live game data. If there is no heatmap data the
@@ -57,6 +62,7 @@ impl Heatmap {
                     for zone in &split.stat.zones {
                         let c = Heatmap::convert_color(zone.color.clone());
                         self.cells.push(c);
+                        self.colors.push(c);
                         // print!("{:?} ", c);
                     }
                     // println!();
