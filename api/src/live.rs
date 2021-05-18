@@ -284,7 +284,7 @@ pub struct Details {
     pub pitch_type: Option<CodeDescription>,
 }
 
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize)]
 pub struct CodeDescription {
     pub code: String,
     pub description: String,

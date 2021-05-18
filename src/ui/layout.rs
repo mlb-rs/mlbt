@@ -12,6 +12,7 @@ impl LayoutAreas {
     pub fn new(size: Rect) -> Self {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
+            .margin(1)
             .constraints(
                 [
                     Constraint::Length(TOP_BAR_HEIGHT),

@@ -90,11 +90,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let heatmap = Heatmap::from_live_data(&live_game);
                     heatmap.render(f, app.layout.main);
 
-                    let test = Pitches::from_live_data(&live_game);
-                    test.render(f, app.layout.main);
-
                     let matchup = Matchup::from_live_data(&live_game);
                     matchup.render(f, app.layout.main);
+
+                    let test = Pitches::from_live_data(&live_game);
+                    test.render(f, app.layout.main);
                 }
                 MenuItem::Stats => {
                     let gameday = Paragraph::new("stats").block(tempblock.clone());

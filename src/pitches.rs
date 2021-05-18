@@ -5,9 +5,10 @@ use tui::style::Color;
 pub struct Pitch {
     pub strike: bool,
     pub color: Color,
-    pub description: String, // fastball, slider, ect.
+    pub description: String, // called strike, hit, strike out, ect.
     pub location: (f64, f64),
     pub index: u8,
+    pub pitch_type: String, // fastball, slider, ect.
 }
 
 #[derive(Default)]
@@ -34,6 +35,7 @@ impl Pitches {
         for play in plays {
             if play.is_pitch {
                 let pitch_data = play.pitch_data.as_ref().unwrap(); // TODO
+                let pitch_details = &play.details;
 
                 let info = &pitch_data.coordinates;
                 let x_coord = info.get("pX").unwrap();
@@ -42,11 +44,17 @@ impl Pitches {
                 // z coordinate is up/down
                 // y coordinate is catcher looking towards pitcher
                 let pitch = Pitch {
-                    strike: play.details.is_strike.unwrap(),
+                    strike: pitch_details.is_strike.unwrap(),
                     color: Pitches::convert_color(
-                        play.details.ball_color.clone().unwrap_or_default(),
+                        pitch_details.ball_color.clone().unwrap_or_default(),
                     ),
-                    description: play.details.description.to_string(),
+                    description: pitch_details.description.to_string(),
+                    pitch_type: pitch_details
+                        .pitch_type
+                        .clone()
+                        .unwrap_or_default()
+                        .description
+                        .clone(),
                     location: (*x_coord, *z_coord),
                     index: play.pitch_number.unwrap_or_default(),
                 };
