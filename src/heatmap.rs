@@ -49,7 +49,7 @@ impl Heatmap {
     /// usually 13 zones that are supplied, although I'm unsure why there are
     /// that many. I am only grabbing the first 9 to create a 3x3 heatmap. My
     /// theory is that the last 4 are used for coloring the edges of the real
-    /// heatmap shown on MLB GameDay?
+    /// heatmap shown on MLB Gameday?
     fn transform_zones(&mut self, zones: &[StatElement]) {
         for z in zones {
             // splits has 3 elements:

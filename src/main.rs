@@ -50,7 +50,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut app = App {
         api: &mlb,
         layout: LayoutAreas::new(terminal.size().unwrap()), // TODO don't unwrap this?
-        tabs: vec!["Scoreboard", "GameDay", "Stats", "Standings"],
+        tabs: vec!["Scoreboard", "Gameday", "Stats", "Standings"],
         active_tab: MenuItem::Scoreboard,
         previous_state: MenuItem::Scoreboard,
         schedule: &mut schedule_table,
@@ -81,7 +81,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let boxscore = BoxScore::new(&live_game.live_data.linescore);
                     boxscore.render(f, main[0]);
                 }
-                MenuItem::GameDay => {
+                MenuItem::Gameday => {
                     let gamedayp = Paragraph::new("").block(tempblock.clone());
                     f.render_widget(gamedayp, app.layout.main);
 
@@ -118,7 +118,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 Key::Char('q') => break,
 
                 Key::Char('1') => app.update_tab(MenuItem::Scoreboard),
-                Key::Char('2') => app.update_tab(MenuItem::GameDay),
+                Key::Char('2') => app.update_tab(MenuItem::Gameday),
                 Key::Char('3') => app.update_tab(MenuItem::Stats),
                 Key::Char('4') => app.update_tab(MenuItem::Standings),
 
