@@ -1,7 +1,9 @@
+use crate::util::convert_color;
 use mlb_api::live::{LiveResponse, PlayEvent};
 
 use tui::style::Color;
 
+#[derive(Debug)]
 pub struct Pitch {
     pub strike: bool,
     pub color: Color,
@@ -11,9 +13,24 @@ pub struct Pitch {
     pub pitch_type: String, // fastball, slider, ect.
 }
 
-#[derive(Default)]
+#[derive(Debug)]
 pub struct Pitches {
     pub pitches: Vec<Pitch>,
+}
+
+impl Default for Pitches {
+    fn default() -> Self {
+        Pitches {
+            pitches: vec![Pitch {
+                strike: false,
+                color: Color::Black,
+                description: "error".to_string(),
+                location: (0.0, 0.0),
+                index: 0,
+                pitch_type: "error".to_string(),
+            }],
+        }
+    }
 }
 
 impl Pitches {
@@ -35,19 +52,18 @@ impl Pitches {
         for play in plays {
             if play.is_pitch {
                 let pitch_data = play.pitch_data.as_ref().unwrap(); // TODO
+                let pitch_coords = &pitch_data.coordinates;
                 let pitch_details = &play.details;
 
-                let info = &pitch_data.coordinates;
-                let x_coord = info.get("pX").unwrap();
-                let z_coord = info.get("pZ").unwrap();
                 // x coordinate is left/right
                 // z coordinate is up/down
                 // y coordinate is catcher looking towards pitcher
+                let x_coord = pitch_coords.get("pX").unwrap();
+                let z_coord = pitch_coords.get("pZ").unwrap();
+
                 let pitch = Pitch {
                     strike: pitch_details.is_strike.unwrap(),
-                    color: Pitches::convert_color(
-                        pitch_details.ball_color.clone().unwrap_or_default(),
-                    ),
+                    color: convert_color(pitch_details.ball_color.clone().unwrap_or_default()),
                     description: pitch_details.description.to_string(),
                     pitch_type: pitch_details
                         .pitch_type
@@ -59,24 +75,15 @@ impl Pitches {
                     index: play.pitch_number.unwrap_or_default(),
                 };
                 self.pitches.push(pitch);
-                // println!("{:?}", pitch_data)
             }
         }
     }
+}
 
-    /// Convert a string from the API to a Color::Rgb. The string starts out as:
-    /// "rgba(255, 255, 255, 0.55)".
-    fn convert_color(s: String) -> Color {
-        if let Some(s) = s.strip_prefix("rgba(") {
-            let c: Vec<&str> = s.split(", ").collect();
-            Color::Rgb(
-                c[0].parse().unwrap_or(0),
-                c[1].parse().unwrap_or(0),
-                c[2].parse().unwrap_or(0),
-            )
-        } else {
-            eprintln!("color doesn't start with 'rgba(' {:?}", s);
-            Color::Rgb(0, 0, 0)
-        }
-    }
+#[test]
+fn test_pitches_with_defaults() {
+    // Testing what happens if there is no pitch data - TODO
+    let play_event = vec![PlayEvent::default()];
+    let mut pitches = Pitches::new();
+    pitches.transform_pitches(&play_event);
 }

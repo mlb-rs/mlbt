@@ -9,6 +9,7 @@ mod matchup;
 mod pitches;
 mod schedule;
 mod ui;
+mod util;
 
 use crate::app::{App, DebugState, MenuItem};
 use crate::boxscore::BoxScore;
