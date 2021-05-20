@@ -169,19 +169,16 @@ pub struct Person {
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Matchup {
     pub batter: Person,
-    #[serde(rename = "batSide")]
     pub bat_side: Side,
     pub pitcher: Person,
-    #[serde(rename = "pitchHand")]
     pub pitch_hand: Side,
-    // #[serde(rename = "batterHotColdZones")]
-    // pub batter_hot_cold_zones: Option<Vec<Zone>>,
-    // #[serde(rename = "pitcherHotColdZones")]
-    // pub pitcher_hot_cold_zones: Option<Vec<Option<serde_json::Value>>>,
-    #[serde(rename = "batterHotColdZoneStats")]
     pub batter_hot_cold_zone_stats: Option<BatterHotColdZoneStats>,
+    pub post_on_first: Option<Person>,
+    pub post_on_second: Option<Person>,
+    pub post_on_third: Option<Person>,
 }
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Side {
@@ -192,12 +189,15 @@ pub enum SideOptions {
     R,
     L,
 }
-#[derive(Debug, Serialize, Deserialize)]
-pub enum HalfInning {
-    #[serde(rename = "bottom")]
-    Bottom,
-    #[serde(rename = "top")]
-    Top,
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct CurrentPlay {
+    pub result: Result,
+    pub about: About,
+    pub count: Count,
+    pub matchup: Matchup,
+    #[serde(rename = "playEvents")]
+    pub play_events: Vec<PlayEvent>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -214,13 +214,16 @@ pub struct Result {
     #[serde(rename = "homeScore")]
     pub home_score: Option<u8>,
 }
+
 #[derive(Default, Debug, Serialize, Deserialize)]
-pub struct CurrentPlay {
-    pub result: Result,
-    pub count: Count,
-    pub matchup: Matchup,
-    #[serde(rename = "playEvents")]
-    pub play_events: Vec<PlayEvent>,
+#[serde(rename_all = "camelCase")]
+pub struct About {
+    pub at_bat_index: u8,
+    pub half_inning: String,
+    pub is_top_inning: bool,
+    pub inning: u8,
+    pub is_complete: bool,
+    pub is_scoring_play: Option<bool>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -259,14 +262,12 @@ pub struct Count {
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PlayEvent {
     pub details: Details,
     pub count: Count,
-    #[serde(rename = "pitchData")]
     pub pitch_data: Option<PitchData>,
-    #[serde(rename = "isPitch")]
     pub is_pitch: bool,
-    #[serde(rename = "pitchNumber")]
     pub pitch_number: Option<u8>,
 }
 
@@ -291,19 +292,15 @@ pub struct CodeDescription {
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PitchData {
-    #[serde(rename = "startSpeed")]
     pub start_speed: Option<f64>,
-    #[serde(rename = "endSpeed")]
     pub end_speed: Option<f64>,
-    #[serde(rename = "strikeZoneTop")]
     pub strike_zone_top: Option<f64>,
-    #[serde(rename = "strikeZoneBottom")]
     pub strike_zone_bottom: Option<f64>,
     pub coordinates: HashMap<String, f64>,
     pub breaks: Option<Breaks>,
     pub zone: Option<u8>,
-    #[serde(rename = "plateTime")]
     pub plate_time: Option<f64>,
 }
 

@@ -24,10 +24,10 @@ impl Default for Pitches {
             pitches: vec![Pitch {
                 strike: false,
                 color: Color::Black,
-                description: "error".to_string(),
+                description: "no pitch".to_string(),
                 location: (0.0, 0.0),
                 index: 0,
-                pitch_type: "error".to_string(),
+                pitch_type: "no pitch".to_string(),
             }],
         }
     }
