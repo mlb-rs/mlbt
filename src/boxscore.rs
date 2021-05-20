@@ -1,4 +1,4 @@
-use mlb_api::live::Linescore;
+use mlb_api::live::LiveResponse;
 
 /// BoxScore stores the needed information to create a box score. If the game hasn't played more
 /// than 9 innings yet, it will still render a 9 inning game.
@@ -10,24 +10,26 @@ pub struct BoxScore {
 }
 
 impl BoxScore {
-    pub fn new(linescore: &Linescore) -> Self {
-        let (home, away) = BoxScore::generate_boxscore_info(&linescore);
-        let played = linescore.current_inning.unwrap_or(0);
+    pub fn from_live_data(live_game: &LiveResponse) -> Self {
+        let (home, away) = BoxScore::generate_boxscore_info(&live_game);
+        let played = live_game.live_data.linescore.current_inning.unwrap_or(0);
         let header = BoxScoreLine::create_header_vec(played);
         BoxScore { header, away, home }
     }
 
-    fn generate_boxscore_info(linescore: &Linescore) -> (BoxScoreLine, BoxScoreLine) {
-        // TODO save team name with inning
+    fn generate_boxscore_info(live_game: &LiveResponse) -> (BoxScoreLine, BoxScoreLine) {
         let mut home = BoxScoreLine {
             home: true,
+            name: live_game.game_data.teams.home.team_name.to_string(),
             ..Default::default()
         };
         let mut away = BoxScoreLine {
             home: false,
+            name: live_game.game_data.teams.away.team_name.to_string(),
             ..Default::default()
         };
-        for inning in &linescore.innings {
+
+        for inning in &live_game.live_data.linescore.innings {
             // println!("{:?}", inn);
             let hr = inning.home.runs.unwrap_or(0);
             home.inning_score.push(hr);
@@ -49,6 +51,7 @@ impl BoxScore {
 #[derive(Default, Debug)]
 pub struct BoxScoreLine {
     pub home: bool,
+    pub name: String,
     pub runs: u8,
     pub hits: u8,
     pub errors: u8,
@@ -57,13 +60,7 @@ pub struct BoxScoreLine {
 
 impl BoxScoreLine {
     pub fn create_score_vec(&self) -> Vec<String> {
-        // TODO replace with actual team name
-        let team = match self.home {
-            true => "Home".to_string(),
-            false => "Away".to_string(),
-        };
-
-        let mut row = vec![team];
+        let mut row = vec![self.name.clone()];
         let scores = self
             .inning_score
             .iter()

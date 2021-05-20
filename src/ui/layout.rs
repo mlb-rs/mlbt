@@ -50,4 +50,13 @@ impl LayoutAreas {
             .constraints([Constraint::Percentage(90), Constraint::Percentage(10)].as_ref())
             .split(area)
     }
+
+    /// Create a split in the `main` section so that the top Rect is sized correctly to display a
+    /// box score.
+    pub fn for_boxscore(&self) -> Vec<Rect> {
+        Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Length(7), Constraint::Percentage(100)].as_ref())
+            .split(self.main)
+    }
 }
