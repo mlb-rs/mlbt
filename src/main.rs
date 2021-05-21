@@ -4,6 +4,7 @@ mod boxscore;
 mod debug;
 #[allow(dead_code)]
 mod event;
+mod gameday;
 mod heatmap;
 mod matchup;
 mod pitches;
@@ -15,13 +16,11 @@ use crate::app::{App, DebugState, MenuItem};
 use crate::boxscore::BoxScore;
 use crate::debug::DebugInfo;
 use crate::event::{Event, Events};
-use crate::heatmap::Heatmap;
-use crate::matchup::Matchup;
-use crate::pitches::Pitches;
 use crate::schedule::StatefulSchedule;
 use crate::ui::{help::render_help, layout::LayoutAreas, tabs::render_top_bar};
 use mlb_api::MLBApiBuilder;
 
+use crate::gameday::Gameday;
 use std::error::Error;
 use std::io;
 use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
@@ -51,8 +50,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         api: &mlb,
         layout: LayoutAreas::new(terminal.size().unwrap()), // TODO don't unwrap this?
         tabs: vec!["Scoreboard", "Gameday", "Stats", "Standings"],
-        active_tab: MenuItem::Scoreboard,
+        active_tab: MenuItem::Gameday,
         previous_state: MenuItem::Scoreboard,
+        gameday: &mut Gameday::new(),
         schedule: &mut schedule_table,
         debug_state: DebugState::Off,
     };
@@ -80,21 +80,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                     boxscore.render(f, layout[0]);
                 }
                 MenuItem::Gameday => {
-                    let layout = app.layout.for_boxscore();
                     let game_id = app.schedule.get_selected_game();
                     let live_game = app.api.get_live_data(game_id);
 
-                    let boxscore = BoxScore::from_live_data(&live_game);
-                    boxscore.render(f, layout[0]);
-
-                    let heatmap = Heatmap::from_live_data(&live_game);
-                    heatmap.render(f, layout[1]);
-
-                    let matchup = Matchup::from_live_data(&live_game);
-                    matchup.render(f, layout[1]);
-
-                    let pitches = Pitches::from_live_data(&live_game);
-                    pitches.render(f, layout[1]);
+                    app.gameday.load_live_data(&live_game);
+                    app.gameday.render(f, app.layout.main);
                 }
                 MenuItem::Stats => {
                     let gameday = Paragraph::new("stats").block(tempblock.clone());
@@ -114,6 +104,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         })?;
 
         if let Event::Input(key) = events.next()? {
+            if app.active_tab == MenuItem::Gameday {
+                match key {
+                    Key::Char('i') => app.gameday.toggle_info(),
+                    Key::Char('h') => app.gameday.toggle_heat(),
+                    Key::Char('b') => app.gameday.toggle_box(),
+                    _ => {}
+                }
+            }
             match key {
                 Key::Char('q') => break,
 

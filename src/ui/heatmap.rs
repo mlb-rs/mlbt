@@ -2,7 +2,7 @@ use super::super::heatmap::Heatmap;
 
 use tui::{
     backend::Backend,
-    layout::Rect,
+    layout::{Constraint, Direction, Layout, Rect},
     widgets::canvas::{Canvas, Rectangle},
     widgets::{Block, Borders},
     Frame,
@@ -16,6 +16,17 @@ impl Heatmap {
     where
         B: Backend,
     {
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Percentage(50), // heatmap/pitches
+                    Constraint::Percentage(50), // pitch info
+                ]
+                .as_ref(),
+            )
+            .split(rect);
+
         // these should be determined by the terminal size
         let width = 30; // x
         let height = 45; // y
@@ -23,7 +34,7 @@ impl Heatmap {
         let coords = build_coords(width, height);
 
         let canvas = Canvas::default()
-            .block(Block::default().borders(Borders::ALL))
+            .block(Block::default().borders(Borders::LEFT | Borders::RIGHT))
             .paint(|ctx| {
                 for (i, coord) in coords.iter().enumerate() {
                     let r = Rectangle {
@@ -37,10 +48,10 @@ impl Heatmap {
                 }
             })
             // TODO figure out bounds
-            .x_bounds([-100.0, 100.0])
-            .y_bounds([-100.0, 100.0]);
+            .x_bounds([-20.0, 50.0])
+            .y_bounds([-20.0, 50.0]);
 
-        f.render_widget(canvas, rect);
+        f.render_widget(canvas, chunks[0]);
     }
 }
 

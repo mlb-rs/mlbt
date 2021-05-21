@@ -34,7 +34,7 @@ impl BoxScore {
         .column_spacing(1)
         .style(Style::default().fg(Color::White))
         .header(header)
-        .block(Block::default().borders(Borders::ALL).title("box score"));
+        .block(Block::default().borders(Borders::ALL));
 
         f.render_widget(t, rect);
     }

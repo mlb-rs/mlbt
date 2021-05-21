@@ -1,3 +1,4 @@
+use crate::gameday::Gameday;
 use crate::schedule::StatefulSchedule;
 use crate::ui::layout::LayoutAreas;
 use mlb_api::MLBApi;
@@ -17,17 +18,18 @@ pub enum DebugState {
     Off,
 }
 
-pub struct App<'a, 'b> {
+pub struct App<'a, 'b, 'c> {
     pub layout: LayoutAreas,
     pub tabs: Vec<&'a str>,
-    pub previous_state: MenuItem,
     pub active_tab: MenuItem,
+    pub previous_state: MenuItem,
     pub debug_state: DebugState,
     pub schedule: &'b mut StatefulSchedule,
     pub api: &'a MLBApi,
+    pub gameday: &'c mut Gameday,
 }
 
-impl App<'_, '_> {
+impl App<'_, '_, '_> {
     pub fn update_tab(&mut self, next: MenuItem) {
         self.previous_state = self.active_tab;
         self.active_tab = next;

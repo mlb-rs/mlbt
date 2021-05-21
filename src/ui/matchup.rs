@@ -15,13 +15,12 @@ impl Matchup {
     where
         B: Backend,
     {
-        let chunks = Layout::default()
-            .direction(Direction::Horizontal)
+        let _chunks = Layout::default()
+            .direction(Direction::Vertical)
             .constraints(
                 [
-                    Constraint::Percentage(30), // left
-                    Constraint::Percentage(40), // heatmap
-                    Constraint::Percentage(30), // right
+                    Constraint::Percentage(30), // game info
+                    Constraint::Percentage(70), // inning plays
                 ]
                 .as_ref(),
             )
@@ -30,7 +29,7 @@ impl Matchup {
         let border_style = Style::default();
 
         let bottom_block = Block::default()
-            .borders(Borders::ALL)
+            .borders(Borders::LEFT)
             .border_style(border_style);
 
         let style = Style::default().fg(Color::White);
@@ -40,6 +39,6 @@ impl Matchup {
             .block(bottom_block)
             .style(style);
 
-        f.render_widget(help, chunks[0]);
+        f.render_widget(help, rect);
     }
 }
