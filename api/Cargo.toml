@@ -1,6 +1,6 @@
 [package]
 name = "mlb-api"
-version = "0.0.2"
+version = "0.0.3"
 authors = ["Andrew Schneider <andjschneider@gmail.com>"]
 edition = "2018"
 
