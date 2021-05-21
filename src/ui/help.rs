@@ -16,7 +16,7 @@ pub fn get_help_docs() -> Vec<Vec<String>> {
     vec![
         vec!["Quit".to_string(), "q".to_string()],
         vec!["Scoreboard".to_string(), "1".to_string()],
-        vec!["GameDay".to_string(), "2".to_string()],
+        vec!["Gameday".to_string(), "2".to_string()],
         vec!["Stats".to_string(), "3".to_string()],
         vec!["Standings".to_string(), "4".to_string()],
         vec!["".to_string(), "".to_string()],

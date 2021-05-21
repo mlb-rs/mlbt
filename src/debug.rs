@@ -5,6 +5,7 @@ use tui::Frame;
 
 pub struct DebugInfo {
     pub game_id: u64,
+    pub gameday_url: String,
     pub terminal_width: u16,
     pub terminal_height: u16,
 }
@@ -13,8 +14,8 @@ impl fmt::Display for DebugInfo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "game id: {}\nterminal height: {} , width {}",
-            self.game_id, self.terminal_height, self.terminal_width
+            "game id: {}\ngameday: {}\nterminal height: {} width: {}",
+            self.game_id, self.gameday_url, self.terminal_height, self.terminal_width
         )
     }
 }
@@ -23,6 +24,7 @@ impl DebugInfo {
     pub fn new() -> Self {
         DebugInfo {
             game_id: 0,
+            gameday_url: "https://www.mlb.com/scores".to_string(),
             terminal_width: 0,
             terminal_height: 0,
         }
@@ -35,6 +37,7 @@ impl DebugInfo {
         B: Backend,
     {
         self.game_id = app.schedule.get_selected_game();
+        self.gameday_url = format!("https://www.mlb.com/gameday/{}", self.game_id);
         self.terminal_width = f.size().width;
         self.terminal_height = f.size().height;
     }

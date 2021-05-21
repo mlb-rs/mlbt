@@ -5,7 +5,7 @@ use mlb_api::MLBApi;
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum MenuItem {
     Scoreboard,
-    GameDay,
+    Gameday,
     Stats,
     Standings,
     Help,

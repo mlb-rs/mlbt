@@ -158,6 +158,8 @@ pub enum CodedGameState {
     S,
     // manager challenge
     M,
+    // unknown
+    N,
 }
 
 #[derive(Debug, strum_macros::Display, Serialize, Deserialize)]
@@ -213,6 +215,9 @@ pub enum StatusCode {
     // manager challenge
     #[serde(rename = "MA")]
     Ma,
+    // manager challenge
+    #[serde(rename = "MF")]
+    Mf,
 }
 
 // #[derive(Serialize, Deserialize)]

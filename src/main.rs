@@ -6,25 +6,27 @@ mod debug;
 mod event;
 mod heatmap;
 mod matchup;
+mod pitches;
 mod schedule;
 mod ui;
+mod util;
 
 use crate::app::{App, DebugState, MenuItem};
 use crate::boxscore::BoxScore;
 use crate::debug::DebugInfo;
 use crate::event::{Event, Events};
+use crate::heatmap::Heatmap;
+use crate::matchup::Matchup;
+use crate::pitches::Pitches;
 use crate::schedule::StatefulSchedule;
 use crate::ui::{help::render_help, layout::LayoutAreas, tabs::render_top_bar};
 use mlb_api::MLBApiBuilder;
 
-use crate::heatmap::Heatmap;
-use crate::matchup::Matchup;
 use std::error::Error;
 use std::io;
 use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
 use tui::{
     backend::TermionBackend,
-    layout::{Constraint, Direction, Layout},
     widgets::{Block, Borders, Paragraph},
     Terminal,
 };
@@ -48,7 +50,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut app = App {
         api: &mlb,
         layout: LayoutAreas::new(terminal.size().unwrap()), // TODO don't unwrap this?
-        tabs: vec!["Scoreboard", "GameDay", "Stats", "Standings"],
+        tabs: vec!["Scoreboard", "Gameday", "Stats", "Standings"],
         active_tab: MenuItem::Scoreboard,
         previous_state: MenuItem::Scoreboard,
         schedule: &mut schedule_table,
@@ -64,32 +66,35 @@ fn main() -> Result<(), Box<dyn Error>> {
             match app.active_tab {
                 MenuItem::Scoreboard => {
                     // Create block for rendering boxscore and schedule
-                    let main = Layout::default()
-                        .direction(Direction::Vertical)
-                        .constraints([Constraint::Length(7), Constraint::Percentage(100)].as_ref())
-                        .split(app.layout.main);
+                    let layout = app.layout.for_boxscore();
 
                     // Hit the API to update the schedule
                     app.update_schedule();
-                    app.schedule.render(f, main[1]);
+                    app.schedule.render(f, layout[1]);
 
                     // Hit the API to get live game data TODO add error handling
                     let game_id = app.schedule.get_selected_game();
                     let live_game = app.api.get_live_data(game_id);
-                    let boxscore = BoxScore::new(&live_game.live_data.linescore);
-                    boxscore.render(f, main[0]);
-                }
-                MenuItem::GameDay => {
-                    let gamedayp = Paragraph::new("").block(tempblock.clone());
-                    f.render_widget(gamedayp, app.layout.main);
 
+                    let boxscore = BoxScore::from_live_data(&live_game);
+                    boxscore.render(f, layout[0]);
+                }
+                MenuItem::Gameday => {
+                    let layout = app.layout.for_boxscore();
                     let game_id = app.schedule.get_selected_game();
                     let live_game = app.api.get_live_data(game_id);
+
+                    let boxscore = BoxScore::from_live_data(&live_game);
+                    boxscore.render(f, layout[0]);
+
                     let heatmap = Heatmap::from_live_data(&live_game);
-                    heatmap.render(f, app.layout.main);
+                    heatmap.render(f, layout[1]);
 
                     let matchup = Matchup::from_live_data(&live_game);
-                    matchup.render(f, app.layout.main);
+                    matchup.render(f, layout[1]);
+
+                    let pitches = Pitches::from_live_data(&live_game);
+                    pitches.render(f, layout[1]);
                 }
                 MenuItem::Stats => {
                     let gameday = Paragraph::new("stats").block(tempblock.clone());
@@ -113,7 +118,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 Key::Char('q') => break,
 
                 Key::Char('1') => app.update_tab(MenuItem::Scoreboard),
-                Key::Char('2') => app.update_tab(MenuItem::GameDay),
+                Key::Char('2') => app.update_tab(MenuItem::Gameday),
                 Key::Char('3') => app.update_tab(MenuItem::Stats),
                 Key::Char('4') => app.update_tab(MenuItem::Standings),
 
