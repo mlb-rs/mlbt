@@ -2,13 +2,13 @@ use super::super::pitches::Pitches;
 use crate::pitches::Pitch;
 use tui::{
     backend::Backend,
-    layout::{Constraint, Direction, Layout, Rect},
+    layout::{Constraint, Corner, Direction, Layout, Rect},
+    style::Style,
     text::{Span, Spans},
     widgets::canvas::{Canvas, Rectangle},
     widgets::{Block, Borders, List, ListItem},
     Frame,
 };
-use tui::{layout::Corner, style::Style};
 
 // TODO figure out better way to do this? used for the pitch label
 static TEST: &[&str] = &[
