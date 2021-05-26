@@ -11,6 +11,7 @@ pub struct Pitch {
     pub location: (f64, f64),
     pub index: u8,
     pub pitch_type: String, // fastball, slider, ect.
+    pub speed: f64,
 }
 
 #[derive(Debug)]
@@ -28,6 +29,7 @@ impl Default for Pitches {
                 location: (0.0, 0.0),
                 index: 0,
                 pitch_type: "no pitch".to_string(),
+                speed: 0.0,
             }],
         }
     }
@@ -63,6 +65,7 @@ impl Pitches {
 
                 let pitch = Pitch {
                     strike: pitch_details.is_strike.unwrap(),
+                    speed: pitch_data.start_speed.unwrap_or(0.0),
                     color: convert_color(pitch_details.ball_color.clone().unwrap_or_default()),
                     description: pitch_details.description.to_string(),
                     pitch_type: pitch_details

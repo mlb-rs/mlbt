@@ -4,14 +4,15 @@ use mlb_api::live::{LiveResponse, StatElement};
 use tui::style::Color;
 
 pub struct Heatmap {
-    pub cells: Vec<Color>,
     pub colors: Vec<Color>,
+    // TODO
+    // pub strike_zone_bot: f64,
+    // pub strike_zone_top: f64,
 }
 
 impl Default for Heatmap {
     fn default() -> Self {
         Heatmap {
-            cells: Heatmap::all_black(),
             colors: Heatmap::all_black(),
         }
     }
@@ -19,10 +20,7 @@ impl Default for Heatmap {
 
 impl Heatmap {
     pub fn new() -> Self {
-        Heatmap {
-            cells: vec![],
-            colors: vec![],
-        }
+        Heatmap { colors: vec![] }
     }
 
     /// Generate a heatmap from live game data. If there is no heatmap data the
@@ -62,7 +60,6 @@ impl Heatmap {
                 if split.stat.name == "battingAverage" {
                     for zone in &split.stat.zones {
                         let c = convert_color(zone.color.clone());
-                        self.cells.push(c);
                         self.colors.push(c);
                         // print!("{:?} ", c);
                     }

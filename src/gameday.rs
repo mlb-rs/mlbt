@@ -136,9 +136,9 @@ impl Gameday {
             0 | 1 => vec![Constraint::Percentage(100)],
             2 => vec![Constraint::Percentage(50), Constraint::Percentage(50)],
             3 => vec![
-                Constraint::Percentage(33),
-                Constraint::Percentage(34),
-                Constraint::Percentage(33),
+                Constraint::Ratio(1, 3),
+                Constraint::Ratio(1, 3),
+                Constraint::Ratio(1, 3),
             ],
             _ => vec![],
         };

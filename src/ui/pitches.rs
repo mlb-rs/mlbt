@@ -17,11 +17,13 @@ static TEST: &[&str] = &[
 
 impl Pitch {
     /// Convert a pitch into a TUI Rectangle so it can be displayed in a Canvas.
-    pub fn as_rectangle(&self, scale: f64, ball_scale: f64) -> Rectangle {
+    pub fn as_rectangle(&self) -> Rectangle {
+        let scale = 12f64; // feet to inches
+        let ball_scale = 1.0;
         Rectangle {
             color: self.color,
-            height: scale / ball_scale,
-            width: scale / ball_scale,
+            height: ball_scale,
+            width: ball_scale,
             x: self.location.0 * scale,
             y: self.location.1 * scale,
         }
@@ -30,14 +32,25 @@ impl Pitch {
     /// Convert a pitch into a TUI List item, displaying the pitch index, result
     /// (ball, strike, ect.), and pitch type (cutter, changeup, ect.)
     /// For example: "1  Foul | Four-Seam Fastball"
-    pub fn as_list_item(&self) -> ListItem {
+    pub fn as_list_item(&self, debug: bool) -> ListItem {
         ListItem::new(vec![Spans::from(vec![
             Span::styled(
                 format!(" {} ", TEST[self.index as usize]),
                 Style::default().fg(self.color),
             ),
-            Span::raw(format!(" {} | {} ", self.description, self.pitch_type)),
+            Span::raw(self.format(debug)),
         ])])
+    }
+
+    fn format(&self, debug: bool) -> String {
+        let s = format!(
+            " {:<20}| {:^5.1}| {}",
+            self.description, self.speed, self.pitch_type
+        );
+        if debug {
+            return format!(" {} | {:?}", s, self.location);
+        }
+        s
     }
 }
 
@@ -58,27 +71,18 @@ impl Pitches {
             )
             .split(rect);
 
-        // TODO scale this correctly so it overlays the heatmap
-        let scale = 13f64;
-        let ball_scale = 3.0;
+        let total_width = 4.0 * 12.0; // 4 feet (arbitrary)
         let canvas = Canvas::default()
             .block(Block::default().borders(Borders::NONE))
             .paint(|ctx| {
                 for pitch in &self.pitches {
-                    let ball = pitch.as_rectangle(scale, ball_scale);
+                    let ball = pitch.as_rectangle();
                     ctx.draw(&ball);
-                    ctx.print(
-                        ball.x,
-                        // ball.x + (ball.height / 2.0),
-                        ball.y,
-                        // ball.y + (ball.width / 2.0),
-                        TEST[pitch.index as usize],
-                        pitch.color,
-                    )
+                    ctx.print(ball.x, ball.y, TEST[pitch.index as usize], pitch.color)
                 }
             })
-            .x_bounds([-50.0, 100.0])
-            .y_bounds([-50.0, 100.0]);
+            .x_bounds([-0.5 * total_width, 0.5 * total_width])
+            .y_bounds([0.0, 60.0]);
 
         f.render_widget(canvas, chunks[0]);
 
@@ -86,7 +90,7 @@ impl Pitches {
         let pitches: Vec<ListItem> = self
             .pitches
             .iter()
-            .map(|pitch| pitch.as_list_item())
+            .map(|pitch| pitch.as_list_item(false))
             .collect();
 
         let events_list = List::new(pitches)
