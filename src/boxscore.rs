@@ -7,6 +7,7 @@ pub struct BoxScore {
     pub header: Vec<String>,
     pub away: BoxScoreLine,
     pub home: BoxScoreLine,
+    pub mini: bool,
 }
 
 impl BoxScore {
@@ -14,7 +15,12 @@ impl BoxScore {
         let (home, away) = BoxScore::generate_boxscore_info(&live_game);
         let played = live_game.live_data.linescore.current_inning.unwrap_or(0);
         let header = BoxScoreLine::create_header_vec(played);
-        BoxScore { header, away, home }
+        BoxScore {
+            header,
+            away,
+            home,
+            mini: false,
+        }
     }
 
     fn generate_boxscore_info(live_game: &LiveResponse) -> (BoxScoreLine, BoxScoreLine) {

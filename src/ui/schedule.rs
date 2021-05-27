@@ -3,7 +3,7 @@ use tui::{
     backend::Backend,
     layout::{Constraint, Rect},
     style::{Color, Modifier, Style},
-    widgets::{Block, Borders, Cell, Row, Table},
+    widgets::{Block, BorderType, Borders, Cell, Row, Table},
     Frame,
 };
 
@@ -31,7 +31,12 @@ impl StatefulSchedule {
 
         let t = Table::new(rows)
             .header(header)
-            .block(Block::default().borders(Borders::ALL).title("scoreboard"))
+            .block(
+                Block::default()
+                    .borders(Borders::ALL)
+                    .border_type(BorderType::Rounded)
+                    .title("scoreboard"),
+            )
             .highlight_style(selected_style)
             .highlight_symbol(">> ")
             .widths(&[

@@ -5,12 +5,22 @@ use crate::pitches::Pitches;
 use mlb_api::live::LiveResponse;
 use tui::backend::Backend;
 use tui::layout::{Constraint, Direction, Layout, Rect};
+use tui::widgets::{Block, BorderType, Borders};
 use tui::Frame;
 
 trait GamedayPanel {
     fn from_live_data(&self, live_game: &LiveResponse) -> Self;
     fn toggle_active(&mut self);
-    // fn render();
+    /// Render the panel as a blank block to create the borders
+    fn render_panel<B>(&self, f: &mut Frame<B>, rect: Rect)
+    where
+        B: Backend,
+    {
+        let block = Block::default()
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded);
+        f.render_widget(block, rect);
+    }
 }
 
 #[derive(Default)]
@@ -63,10 +73,12 @@ impl GamedayPanel for HeatMapPanel {
 
 impl GamedayPanel for BoxPanel {
     fn from_live_data(&self, live_game: &LiveResponse) -> Self {
-        BoxPanel {
+        let mut bp = BoxPanel {
             active: self.active,
             scoreboard: BoxScore::from_live_data(live_game),
-        }
+        };
+        bp.scoreboard.mini = true;
+        bp
     }
 
     fn toggle_active(&mut self) {
@@ -136,9 +148,9 @@ impl Gameday {
             0 | 1 => vec![Constraint::Percentage(100)],
             2 => vec![Constraint::Percentage(50), Constraint::Percentage(50)],
             3 => vec![
-                Constraint::Ratio(1, 3),
-                Constraint::Ratio(1, 3),
-                Constraint::Ratio(1, 3),
+                Constraint::Percentage(33),
+                Constraint::Percentage(34),
+                Constraint::Percentage(33),
             ],
             _ => vec![],
         };
@@ -159,16 +171,20 @@ impl Gameday {
         if self.boxscore.active {
             // split vertically
             let p = panels.pop().unwrap();
+            self.boxscore.render_panel(f, p);
             self.boxscore.scoreboard.render(f, p);
         }
         if self.heat.active {
             // split vertically
             let p = panels.pop().unwrap();
+            self.heat.render_panel(f, p);
             self.heat.heatmap.render(f, p);
             self.heat.pitches.render(f, p);
         }
         if self.info.active {
-            self.info.matchup.render(f, panels.pop().unwrap());
+            let p = panels.pop().unwrap();
+            self.info.render_panel(f, p);
+            self.info.matchup.render(f, p);
         }
     }
 }

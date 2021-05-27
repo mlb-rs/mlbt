@@ -62,6 +62,7 @@ impl Pitches {
         // TODO redo layout generation
         let chunks = Layout::default()
             .direction(Direction::Vertical)
+            .margin(2)
             .constraints(
                 [
                     Constraint::Percentage(50), // heatmap/pitches
@@ -94,7 +95,7 @@ impl Pitches {
             .collect();
 
         let events_list = List::new(pitches)
-            .block(Block::default().borders(Borders::LEFT | Borders::RIGHT))
+            .block(Block::default().borders(Borders::NONE))
             .start_corner(Corner::TopLeft);
         f.render_widget(events_list, chunks[1]);
     }

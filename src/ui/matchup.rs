@@ -15,8 +15,9 @@ impl Matchup {
     where
         B: Backend,
     {
-        let _chunks = Layout::default()
+        let chunks = Layout::default()
             .direction(Direction::Vertical)
+            .margin(2)
             .constraints(
                 [
                     Constraint::Percentage(30), // game info
@@ -26,19 +27,11 @@ impl Matchup {
             )
             .split(rect);
 
-        let border_style = Style::default();
-
-        let bottom_block = Block::default()
-            .borders(Borders::LEFT)
-            .border_style(border_style);
-
-        let style = Style::default().fg(Color::White);
-
-        let help = Paragraph::new(self.to_string())
+        let matchup = Paragraph::new(self.to_string())
             .alignment(Alignment::Left)
-            .block(bottom_block)
-            .style(style);
+            .block(Block::default().borders(Borders::NONE))
+            .style(Style::default().fg(Color::White));
 
-        f.render_widget(help, rect);
+        f.render_widget(matchup, chunks[0]);
     }
 }

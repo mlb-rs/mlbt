@@ -26,6 +26,7 @@ impl Heatmap {
     {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
+            .margin(3)
             .constraints(
                 [
                     Constraint::Percentage(50), // heatmap/pitches
@@ -47,7 +48,7 @@ impl Heatmap {
         let coords = build_coords(strike_zone_bot, strike_zone_top);
 
         let canvas = Canvas::default()
-            .block(Block::default().borders(Borders::LEFT | Borders::RIGHT))
+            .block(Block::default().borders(Borders::NONE))
             .paint(|ctx| {
                 for (i, coord) in coords.iter().enumerate() {
                     let r = Rectangle {

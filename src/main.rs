@@ -24,6 +24,7 @@ use crate::gameday::Gameday;
 use std::error::Error;
 use std::io;
 use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
+use tui::widgets::BorderType;
 use tui::{
     backend::TermionBackend,
     widgets::{Block, Borders, Paragraph},
@@ -76,6 +77,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let game_id = app.schedule.get_selected_game();
                     let live_game = app.api.get_live_data(game_id);
 
+                    // temp
+                    let block = Block::default()
+                        .borders(Borders::ALL)
+                        .border_type(BorderType::Rounded);
+                    f.render_widget(block, layout[0]);
                     let boxscore = BoxScore::from_live_data(&live_game);
                     boxscore.render(f, layout[0]);
                 }

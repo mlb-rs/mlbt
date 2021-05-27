@@ -1,6 +1,6 @@
 use tui::{
     backend::Backend,
-    layout::{Constraint, Rect},
+    layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     widgets::{Block, Borders, Row, Table},
     Frame,
@@ -13,7 +13,19 @@ impl BoxScore {
     where
         B: Backend,
     {
-        let mut widths = vec![Constraint::Length(4); self.header.len()];
+        let chunk = Layout::default()
+            .direction(Direction::Horizontal)
+            .horizontal_margin(2)
+            .vertical_margin(1)
+            .constraints([Constraint::Percentage(100)].as_ref())
+            .split(rect);
+
+        let mut width = 4;
+        if self.mini {
+            // TODO set dynamically based on rect size?
+            width = 2;
+        }
+        let mut widths = vec![Constraint::Length(width); self.header.len()];
         // the first width needs to be wider to display the team name
         widths[0] = Constraint::Length(10);
 
@@ -34,8 +46,8 @@ impl BoxScore {
         .column_spacing(1)
         .style(Style::default().fg(Color::White))
         .header(header)
-        .block(Block::default().borders(Borders::ALL));
+        .block(Block::default().borders(Borders::NONE));
 
-        f.render_widget(t, rect);
+        f.render_widget(t, chunk[0]);
     }
 }
