@@ -21,15 +21,21 @@ pub struct LiveData {
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Plays {
-    // #[serde(rename = "allPlays")]
-    // pub all_plays: Option<Vec<AllPlay>>,
-    #[serde(rename = "currentPlay")]
-    pub current_play: Option<CurrentPlay>,
-    // #[serde(rename = "scoringPlays")]
-    // pub scoring_plays: Option<Vec<i64>>,
-    // #[serde(rename = "playsByInning")]
-    // pub plays_by_inning: Option<Vec<PlaysByInning>>,
+    pub all_plays: Option<Vec<Play>>,
+    pub current_play: Option<Play>,
+    pub scoring_plays: Option<Vec<u8>>,
+    pub plays_by_inning: Option<Vec<PlaysByInning>>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PlaysByInning {
+    pub start_index: u8,
+    pub end_index: u8,
+    pub top: Vec<u8>,
+    pub bottom: Vec<u8>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -44,7 +50,7 @@ pub struct Linescore {
     pub innings: Vec<Inning>,
     // pub teams:
     // pub defense:
-    // pub offense:
+    pub offense: Offense,
     pub balls: Option<u8>,
     pub strikes: Option<u8>,
     pub outs: Option<u8>,
@@ -66,6 +72,20 @@ pub struct TeamInningDetail {
     pub hits: u8,
     pub errors: u8,
     pub left_on_base: u8,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Offense {
+    pub on_deck: Option<PlayerIdName>,
+    pub in_hole: Option<PlayerIdName>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct PlayerIdName {
+    pub id: u64,
+    #[serde(rename = "fullName")]
+    pub full_name: String,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -176,22 +196,18 @@ pub struct Matchup {
     pub pitcher: Person,
     pub pitch_hand: Side,
     pub batter_hot_cold_zone_stats: Option<BatterHotColdZoneStats>,
+    pub batter_hot_cold_zones: Option<Vec<Zone>>,
     pub post_on_first: Option<Person>,
     pub post_on_second: Option<Person>,
     pub post_on_third: Option<Person>,
 }
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Side {
-    pub code: Option<SideOptions>,
-}
-#[derive(Debug, Serialize, Deserialize)]
-pub enum SideOptions {
-    R,
-    L,
+    pub code: String,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
-pub struct CurrentPlay {
+pub struct Play {
     pub result: Result,
     pub about: About,
     pub count: Count,

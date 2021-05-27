@@ -6,7 +6,9 @@ const DEFAULT_NAME: &str = "unknown";
 pub struct Matchup {
     pub inning: String,
     pub pitcher_name: String,
+    pub pitcher_side: String,
     pub batter_name: String,
+    pub batter_side: String,
     pub count: Count,
     pub runners: Runners,
 }
@@ -49,7 +51,9 @@ impl Default for Matchup {
         Matchup {
             inning: DEFAULT_NAME.to_string(),
             pitcher_name: DEFAULT_NAME.to_string(),
+            pitcher_side: "R".to_string(),
             batter_name: DEFAULT_NAME.to_string(),
+            batter_side: "R".to_string(),
             count: Count {
                 strikes: 0,
                 balls: 0,
@@ -64,10 +68,12 @@ impl fmt::Display for Matchup {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            " inning: {}\n pitching: {}\n at bat:   {}\n balls: {:>3}\n strikes: {}\n outs: {:>4}\n on base: {}",
+            " inning: {}\n pitching: {} - {}HP\n at bat:   {} - {}\n balls: {:>3}\n strikes: {}\n outs: {:>4}\n on base: {}",
             self.inning,
             self.pitcher_name,
+            self.pitcher_side,
             self.batter_name,
+            self.batter_side,
             self.count.balls,
             self.count.strikes,
             self.count.outs,
@@ -85,11 +91,12 @@ impl Matchup {
             None => return Matchup::default(),
         };
 
-        // TODO probably don't need to clone all of these
         Matchup {
             inning: format!("{} {}", current.about.half_inning, current.about.inning),
             pitcher_name: current.matchup.pitcher.full_name.clone(),
+            pitcher_side: current.matchup.pitch_hand.code.clone(),
             batter_name: current.matchup.batter.full_name.clone(),
+            batter_side: current.matchup.bat_side.code.clone(),
             count: current.count.clone(),
             runners: Runners::from_matchup(&current.matchup),
         }
@@ -101,7 +108,9 @@ fn test_matchup_string_display() {
     let matchup = Matchup {
         inning: "bottom 9".to_string(),
         pitcher_name: "Nolan Ryan".to_string(),
+        pitcher_side: SideOptions::R,
         batter_name: "Sammy Sosa".to_string(),
+        batter_side: SideOptions::R,
         count: Count {
             balls: 3,
             strikes: 2,
