@@ -3,24 +3,32 @@ use mlb_api::live::{LiveResponse, StatElement};
 
 use tui::style::Color;
 
+pub const DEFAULT_SZ_BOT: f64 = 1.5; // feet
+pub const DEFAULT_SZ_TOP: f64 = 3.3; // feet
+
 pub struct Heatmap {
     pub colors: Vec<Color>,
-    // TODO
-    // pub strike_zone_bot: f64,
-    // pub strike_zone_top: f64,
+    pub strike_zone_bot: f64,
+    pub strike_zone_top: f64,
 }
 
 impl Default for Heatmap {
     fn default() -> Self {
         Heatmap {
             colors: Heatmap::all_black(),
+            strike_zone_bot: DEFAULT_SZ_BOT,
+            strike_zone_top: DEFAULT_SZ_TOP,
         }
     }
 }
 
 impl Heatmap {
     pub fn new() -> Self {
-        Heatmap { colors: vec![] }
+        Heatmap {
+            colors: vec![],
+            strike_zone_bot: DEFAULT_SZ_BOT,
+            strike_zone_top: DEFAULT_SZ_TOP,
+        }
     }
 
     /// Generate a heatmap from live game data. If there is no heatmap data the
@@ -57,6 +65,7 @@ impl Heatmap {
             // 2 - on base plus slugging
             // it's unclear if these are always ordered this way
             for split in &z.splits {
+                // if split.stat.name == "onBasePlusSlugging" {
                 if split.stat.name == "battingAverage" {
                     for zone in &split.stat.zones {
                         let c = convert_color(zone.color.clone());
@@ -88,12 +97,12 @@ fn test_all_black() {
         Color::Rgb(0, 0, 0),
         Color::Rgb(0, 0, 0),
     ];
-    assert_eq!(hm.cells, good);
+    assert_eq!(hm.colors, good);
 }
 
 #[test]
 fn test_new() {
     let hm = Heatmap::new();
     let good = vec![];
-    assert_eq!(hm.cells, good);
+    assert_eq!(hm.colors, good);
 }

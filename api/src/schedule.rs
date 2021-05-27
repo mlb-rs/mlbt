@@ -204,6 +204,9 @@ pub enum StatusCode {
     // unknown
     #[serde(rename = "DR")]
     Dr,
+    // unknown
+    #[serde(rename = "UR")]
+    Ur,
     // postponed
     #[serde(rename = "DI")]
     Di,

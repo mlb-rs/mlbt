@@ -40,8 +40,8 @@ impl Heatmap {
         let total_width = 4.0 * 12.0; // 4 feet (arbitrary)
 
         // TODO sz top and bot are specified per player
-        let strike_zone_bot = 1.5 * 12.0; // 1.5 feet
-        let strike_zone_top = 3.3 * 12.0; // 3.3 feet
+        let strike_zone_bot = self.strike_zone_bot * 12.0; // feet
+        let strike_zone_top = self.strike_zone_top * 12.0; // feet
         let height = strike_zone_top - strike_zone_bot;
 
         let coords = build_coords(strike_zone_bot, strike_zone_top);
@@ -89,20 +89,20 @@ fn build_coords(strike_zone_bot: f64, strike_zone_top: f64) -> Vec<Coordinate> {
 
 #[test]
 fn test_coords() {
-    let width = 6;
-    let height = 3;
-    let coords = build_coords(width as f64, height as f64);
+    let bot = 1.5 * 12.0;
+    let top = 3.3 * 12.0;
+    let coords = build_coords(bot, top);
     println!("{:?}", coords);
     let w = vec![
-        Coordinate(0.0, 0.0),
-        Coordinate(0.0, 1.0),
-        Coordinate(0.0, 2.0),
-        Coordinate(2.0, 0.0),
-        Coordinate(2.0, 1.0),
-        Coordinate(2.0, 2.0),
-        Coordinate(4.0, 0.0),
-        Coordinate(4.0, 1.0),
-        Coordinate(4.0, 2.0),
+        Coordinate(-8.5, 18.0),
+        Coordinate(-8.5, 25.2),
+        Coordinate(-8.5, 32.4),
+        Coordinate(17.0 / -6.0, 18.0),
+        Coordinate(17.0 / -6.0, 25.2),
+        Coordinate(17.0 / -6.0, 32.4),
+        Coordinate(17.0 / 6.0, 18.0),
+        Coordinate(17.0 / 6.0, 25.2),
+        Coordinate(17.0 / 6.0, 32.4),
     ];
     assert_eq!(w, coords);
 }

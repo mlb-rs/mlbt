@@ -274,7 +274,7 @@ pub struct PlayEvent {
 #[derive(Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Details {
-    pub description: String,
+    pub description: Option<String>,
     pub call: Option<CodeDescription>,
     pub ball_color: Option<String>,
     pub trail_color: Option<String>,
