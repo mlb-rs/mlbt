@@ -2,6 +2,7 @@ use crate::boxscore::BoxScore;
 use crate::heatmap::Heatmap;
 use crate::matchup::Matchup;
 use crate::pitches::Pitches;
+use crate::plays::InningPlays;
 use mlb_api::live::LiveResponse;
 use tui::backend::Backend;
 use tui::layout::{Constraint, Direction, Layout, Rect};
@@ -27,7 +28,7 @@ trait GamedayPanel {
 pub struct InfoPanel {
     active: bool,
     matchup: Matchup,
-    // pub plays: TODO
+    plays: InningPlays,
 }
 
 #[derive(Default)]
@@ -48,7 +49,8 @@ impl GamedayPanel for InfoPanel {
     fn from_live_data(&self, live_game: &LiveResponse) -> Self {
         InfoPanel {
             active: self.active,
-            matchup: Matchup::from_live_data(live_game),
+            matchup: Matchup::from_live_data(&live_game),
+            plays: InningPlays::from_live_data(&live_game),
         }
     }
 
@@ -185,6 +187,7 @@ impl Gameday {
             let p = panels.pop().unwrap();
             self.info.render_panel(f, p);
             self.info.matchup.render(f, p);
+            self.info.plays.render(f, p);
         }
     }
 }

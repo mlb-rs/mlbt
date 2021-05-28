@@ -5,6 +5,7 @@ pub(crate) mod help;
 pub(crate) mod layout;
 pub(crate) mod matchup;
 pub(crate) mod pitches;
+pub(crate) mod plays;
 pub(crate) mod schedule;
 pub(crate) mod tabs;
 mod utils;

@@ -8,6 +8,7 @@ mod gameday;
 mod heatmap;
 mod matchup;
 mod pitches;
+mod plays;
 mod schedule;
 mod ui;
 mod util;

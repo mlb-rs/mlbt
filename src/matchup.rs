@@ -108,9 +108,9 @@ fn test_matchup_string_display() {
     let matchup = Matchup {
         inning: "bottom 9".to_string(),
         pitcher_name: "Nolan Ryan".to_string(),
-        pitcher_side: SideOptions::R,
+        pitcher_side: "R".to_string(),
         batter_name: "Sammy Sosa".to_string(),
-        batter_side: SideOptions::R,
+        batter_side: "R".to_string(),
         count: Count {
             balls: 3,
             strikes: 2,
@@ -123,8 +123,8 @@ fn test_matchup_string_display() {
         },
     };
     let w = r" inning: bottom 9
- pitching: Nolan Ryan
- at bat:   Sammy Sosa
+ pitching: Nolan Ryan - RHP
+ at bat:   Sammy Sosa - R
  balls:   3
  strikes: 2
  outs:    2
