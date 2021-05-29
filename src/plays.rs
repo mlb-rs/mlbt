@@ -1,4 +1,4 @@
-use mlb_api::live::{Count, LiveResponse};
+use mlb_api::live::{Count, LiveResponse, Play};
 
 #[derive(Default)]
 pub struct InningPlays {
@@ -35,21 +35,17 @@ impl InningPlays {
             false => &inning_info.bottom,
         };
         // use indices to slice all plays
-        let plays = match live_game.live_data.plays.all_plays.as_ref() {
-            Some(plays) => {
-                // TODO extract directly from vector of indexes?
-                let mut p = Vec::with_capacity(play_indices.len());
-                for idx in play_indices {
-                    p.push(&plays[*idx as usize]);
-                }
-                p
-            }
+        let plays: Vec<&Play> = match live_game.live_data.plays.all_plays.as_ref() {
+            Some(plays) => play_indices
+                .iter()
+                .filter_map(|idx| plays.get(*idx as usize))
+                .collect(),
             None => return InningPlays::default(),
         };
         // construct play results from inning plays
-        let mut results = Vec::with_capacity(play_indices.len());
-        for play in plays {
-            let r = PlayResult {
+        let results = plays
+            .iter()
+            .map(|play| PlayResult {
                 description: play
                     .result
                     .description
@@ -61,9 +57,8 @@ impl InningPlays {
                 home_score: play.result.home_score.unwrap_or(0),
                 count: play.count.clone(),
                 out: play.count.outs,
-            };
-            results.push(r);
-        }
+            })
+            .collect();
 
         InningPlays {
             inning: current_inning,

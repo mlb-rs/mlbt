@@ -1,7 +1,7 @@
 use mlb_api::live::{Count, LiveResponse};
 use std::fmt;
 
-const DEFAULT_NAME: &str = "unknown";
+const DEFAULT_NAME: &str = "-";
 
 pub struct Matchup {
     pub inning: String,
@@ -51,9 +51,9 @@ impl Default for Matchup {
         Matchup {
             inning: DEFAULT_NAME.to_string(),
             pitcher_name: DEFAULT_NAME.to_string(),
-            pitcher_side: "R".to_string(),
+            pitcher_side: DEFAULT_NAME.to_string(),
             batter_name: DEFAULT_NAME.to_string(),
-            batter_side: "R".to_string(),
+            batter_side: DEFAULT_NAME.to_string(),
             count: Count {
                 strikes: 0,
                 balls: 0,
@@ -68,7 +68,7 @@ impl fmt::Display for Matchup {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            " inning: {}\n pitching: {} - {}HP\n at bat:   {} - {}\n balls: {:>3}\n strikes: {}\n outs: {:>4}\n on base: {}",
+            " inning: {}\n pitching: {} - {}\n at bat:   {} - {}\n balls: {:>3}\n strikes: {}\n outs: {:>4}\n on base: {}",
             self.inning,
             self.pitcher_name,
             self.pitcher_side,
@@ -94,7 +94,7 @@ impl Matchup {
         Matchup {
             inning: format!("{} {}", current.about.half_inning, current.about.inning),
             pitcher_name: current.matchup.pitcher.full_name.clone(),
-            pitcher_side: current.matchup.pitch_hand.code.clone(),
+            pitcher_side: format!("{}HP", current.matchup.pitch_hand.code.clone()),
             batter_name: current.matchup.batter.full_name.clone(),
             batter_side: current.matchup.bat_side.code.clone(),
             count: current.count.clone(),

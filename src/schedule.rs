@@ -104,7 +104,7 @@ impl Schedule {
 
         let status = match &game.status.detailed_state {
             Some(s) => s.to_string(),
-            _ => "unknown".to_string(),
+            _ => "-".to_string(),
         };
 
         vec![away, home, formatted, status]

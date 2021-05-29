@@ -11,15 +11,15 @@ impl InningPlays {
     pub fn as_list(&self) -> Vec<ListItem> {
         self.play_results
             .iter()
-            .map(|play| match play.description.is_empty() {
-                false => ListItem::new(vec![
+            .filter(|play| !play.description.is_empty())
+            .map(|play| {
+                ListItem::new(vec![
                     Spans::from(Span::raw(&play.description)),
                     Spans::from(Span::raw(format!(
                         "  outs: {} balls: {} strikes: {}",
                         &play.count.outs, &play.count.balls, &play.count.strikes
                     ))),
-                ]),
-                true => ListItem::new(vec![]),
+                ])
             })
             .rev()
             .collect()

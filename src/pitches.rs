@@ -22,10 +22,10 @@ impl Default for Pitch {
         Pitch {
             strike: false,
             color: Color::Black,
-            description: "no pitch".to_string(),
+            description: "-".to_string(),
             location: (0.0, 0.0),
             index: 0,
-            pitch_type: "no pitch".to_string(),
+            pitch_type: "-".to_string(),
             speed: 0.0,
             strike_zone_bot: DEFAULT_SZ_BOT,
             strike_zone_top: DEFAULT_SZ_TOP,
@@ -62,10 +62,9 @@ impl Pitches {
     fn transform_pitches(plays: &[PlayEvent]) -> Vec<Pitch> {
         plays
             .iter()
-            .map(|play| match play.is_pitch {
-                true => Pitches::transform_pitch_data(&play),
-                false => Pitch::default(),
-            })
+            .filter(|play| play.is_pitch)
+            .map(|play| Pitches::transform_pitch_data(&play))
+            .rev()
             .collect()
     }
 
@@ -104,5 +103,5 @@ fn test_pitches_with_defaults() {
     let play_event = vec![PlayEvent::default()];
     let pitches = Pitches::transform_pitches(&play_event);
     assert_eq!(pitches.len(), 1);
-    assert_eq!(pitches[0].description, "no pitch".to_string());
+    assert_eq!(pitches[0].description, "-".to_string());
 }

@@ -79,13 +79,10 @@ fn build_coords(strike_zone_bot: f64, strike_zone_top: f64) -> Vec<Coordinate> {
         strike_zone_bot + (2.0 * y_chunk),
     ];
 
-    let mut coords = Vec::new();
-    for x in &X_COORDS[..3] {
-        for y in &y_coords[..3] {
-            coords.push(Coordinate(*x, *y));
-        }
-    }
-    coords
+    X_COORDS
+        .iter()
+        .flat_map(|x| y_coords.iter().map(move |y| Coordinate(*x, *y)))
+        .collect()
 }
 
 #[test]
@@ -93,7 +90,6 @@ fn test_coords() {
     let bot = 1.5 * 12.0;
     let top = 3.3 * 12.0;
     let coords = build_coords(bot, top);
-    println!("{:?}", coords);
     let w = vec![
         Coordinate(-8.5, 18.0),
         Coordinate(-8.5, 25.2),
