@@ -18,6 +18,11 @@ pub enum DebugState {
     Off,
 }
 
+pub enum BoxscoreTab {
+    Home,
+    Away,
+}
+
 pub struct App<'a, 'b, 'c> {
     pub layout: LayoutAreas,
     pub tabs: Vec<&'a str>,
@@ -27,6 +32,8 @@ pub struct App<'a, 'b, 'c> {
     pub schedule: &'b mut StatefulSchedule,
     pub api: &'a MLBApi,
     pub gameday: &'c mut Gameday,
+    pub boxscore_tabs: Vec<&'a str>,
+    pub boxscore_tab: BoxscoreTab,
 }
 
 impl App<'_, '_, '_> {
@@ -48,6 +55,12 @@ impl App<'_, '_, '_> {
         match self.debug_state {
             DebugState::Off => self.debug_state = DebugState::On,
             DebugState::On => self.debug_state = DebugState::Off,
+        }
+    }
+    pub fn get_boxscore_tab(&self) -> usize {
+        match self.boxscore_tab {
+            BoxscoreTab::Home => 0,
+            BoxscoreTab::Away => 1,
         }
     }
 }

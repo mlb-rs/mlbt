@@ -8,13 +8,11 @@ use tui::{
     Frame,
 };
 
+// Create the x coordinates for the heat map zones based on the width of home plate, which is 17
+// inches. The coordinates are centered around 0 in the x, thus the first coordinate is all the
+// way to the left at -8.5. Then just add (17 / 3) for the next two coordinates, or divide by 6.
 const HOME_PLATE_WIDTH: f64 = 17.0; // inches
-lazy_static! {
-    // Create the x coordinates for the heat map zones based on the width of home plate, which is 17
-    // inches. The coordinates are centered around 0 in the x, thus the first coordinate is all the
-    // way to the left at -8.5. Then just add (17 / 3) for the next two coordinates, or divide by 6.
-    static ref X_COORDS: Vec<f64> = vec![-8.5, 17.0 / -6.0, 17.0 / 6.0];
-}
+const X_COORDS: [f64; 3] = [-8.5, 17.0 / -6.0, 17.0 / 6.0];
 
 #[derive(Debug, PartialEq)]
 struct Coordinate(f64, f64);

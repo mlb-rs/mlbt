@@ -1,3 +1,4 @@
+use crate::app::App;
 use crate::boxscore::BoxScore;
 use crate::boxscore_stats::TeamBatterBoxscore;
 use crate::heatmap::Heatmap;
@@ -168,7 +169,7 @@ impl Gameday {
             .split(area)
     }
     //temp rendering
-    pub fn render<B>(&self, f: &mut Frame<B>, rect: Rect)
+    pub fn render<B>(&self, f: &mut Frame<B>, rect: Rect, app: &App)
     where
         B: Backend,
     {
@@ -181,7 +182,7 @@ impl Gameday {
             let p = panels.pop().unwrap();
             self.boxscore.render_panel(f, p);
             self.boxscore.scoreboard.render(f, p);
-            self.boxscore.stats.render(f, p);
+            self.boxscore.stats.render(f, p, app);
         }
         if self.heat.active {
             // split vertically

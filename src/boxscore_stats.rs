@@ -1,4 +1,5 @@
-use mlb_api::boxscore::Player;
+use crate::app::BoxscoreTab;
+use mlb_api::boxscore::{Player, Team};
 use mlb_api::live::LiveResponse;
 
 #[derive(Default)]
@@ -71,25 +72,30 @@ impl TeamBatterBoxscore {
             Some(t) => (&t.home, &t.away),
             None => return TeamBatterBoxscore::default(),
         };
-        // TODO generalize and make away stats
-        let home_stats: Vec<BatterBoxscore> = home
-            .batting_order
+        TeamBatterBoxscore {
+            home_batting: TeamBatterBoxscore::transform(home),
+            away_batting: TeamBatterBoxscore::transform(away),
+        }
+    }
+
+    fn transform(team: &Team) -> Vec<BatterBoxscore> {
+        team.batting_order
             .iter()
             .enumerate()
             .filter_map(|(idx, player_id)| {
-                let player = match home.players.get(&*format!("ID{}", player_id)) {
+                let player = match team.players.get(&*format!("ID{}", player_id)) {
                     Some(p) => p,
                     None => return None,
                 };
                 Some(BatterBoxscore::from_data(player, idx as u8 + 1))
             })
-            .collect();
-        TeamBatterBoxscore {
-            home_batting: home_stats,
-            away_batting: vec![],
-        }
+            .collect()
     }
-    pub fn to_table_row(&self) -> Vec<Vec<String>> {
-        self.home_batting.iter().map(|p| p.to_vec()).collect()
+
+    pub fn to_table_row(&self, team: &BoxscoreTab) -> Vec<Vec<String>> {
+        match team {
+            BoxscoreTab::Home => self.home_batting.iter().map(|p| p.to_vec()).collect(),
+            BoxscoreTab::Away => self.away_batting.iter().map(|p| p.to_vec()).collect(),
+        }
     }
 }

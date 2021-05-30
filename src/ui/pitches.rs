@@ -10,10 +10,13 @@ use tui::{
     Frame,
 };
 
-// TODO figure out better way to do this? used for the pitch label
-static TEST: &[&str] = &[
-    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
+// Used to display the pitch number next to the pitch type. Hopefully no one has at bat longer than
+// 20 pitches.
+const PITCH_IDX: &[&'static str] = &[
+    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
+    "17", "18", "19", "20",
 ];
+const DEFAULT_IDX: &'static str = "-";
 
 impl Pitch {
     /// Convert a pitch into a TUI Rectangle so it can be displayed in a Canvas.
@@ -34,10 +37,7 @@ impl Pitch {
     /// For example: "1  Foul | Four-Seam Fastball"
     pub fn as_list_item(&self, debug: bool) -> ListItem {
         ListItem::new(vec![Spans::from(vec![
-            Span::styled(
-                format!(" {} ", TEST[self.index as usize]),
-                Style::default().fg(self.color),
-            ),
+            Span::styled(format!(" {} ", self.index), Style::default().fg(self.color)),
             Span::raw(self.format(debug)),
         ])])
     }
@@ -76,11 +76,19 @@ impl Pitches {
         let canvas = Canvas::default()
             .block(Block::default().borders(Borders::NONE))
             .paint(|ctx| {
-                for pitch in &self.pitches {
-                    let ball = pitch.as_rectangle();
-                    ctx.draw(&ball);
-                    ctx.print(ball.x, ball.y, TEST[pitch.index as usize], pitch.color)
-                }
+                self.pitches
+                    .iter()
+                    .map(|pitch| {
+                        let ball = pitch.as_rectangle();
+                        ctx.draw(&ball);
+                        ctx.print(
+                            ball.x,
+                            ball.y,
+                            PITCH_IDX.get(pitch.index as usize).unwrap_or(&DEFAULT_IDX),
+                            pitch.color,
+                        )
+                    })
+                    .collect()
             })
             .x_bounds([-0.5 * total_width, 0.5 * total_width])
             .y_bounds([0.0, 60.0]);

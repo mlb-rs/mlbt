@@ -26,7 +26,7 @@ pub fn get_help_docs() -> Vec<Vec<String>> {
         vec!["".to_string(), "".to_string()],
         vec!["Gameday:".to_string(), "".to_string()],
         vec!["Toggle game info".to_string(), "i".to_string()],
-        vec!["Toggle pitches".to_string(), "h".to_string()],
+        vec!["Toggle pitches".to_string(), "p".to_string()],
         vec!["Toggle boxscore".to_string(), "b".to_string()],
     ]
 }

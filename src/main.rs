@@ -14,7 +14,7 @@ mod schedule;
 mod ui;
 mod util;
 
-use crate::app::{App, DebugState, MenuItem};
+use crate::app::{App, BoxscoreTab, DebugState, MenuItem};
 use crate::boxscore::BoxScore;
 use crate::debug::DebugInfo;
 use crate::event::{Event, Events};
@@ -58,6 +58,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         gameday: &mut Gameday::new(),
         schedule: &mut schedule_table,
         debug_state: DebugState::Off,
+        boxscore_tabs: vec!["home", "away"],
+        boxscore_tab: BoxscoreTab::Home,
     };
 
     loop {
@@ -92,7 +94,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let live_game = app.api.get_live_data(game_id);
 
                     app.gameday.load_live_data(&live_game);
-                    app.gameday.render(f, app.layout.main);
+                    app.gameday.render(f, app.layout.main, &app);
                 }
                 MenuItem::Stats => {
                     let gameday = Paragraph::new("stats").block(tempblock.clone());
@@ -115,8 +117,10 @@ fn main() -> Result<(), Box<dyn Error>> {
             if app.active_tab == MenuItem::Gameday {
                 match key {
                     Key::Char('i') => app.gameday.toggle_info(),
-                    Key::Char('h') => app.gameday.toggle_heat(),
+                    Key::Char('p') => app.gameday.toggle_heat(),
                     Key::Char('b') => app.gameday.toggle_box(),
+                    Key::Char('h') => app.boxscore_tab = BoxscoreTab::Home,
+                    Key::Char('a') => app.boxscore_tab = BoxscoreTab::Away,
                     _ => {}
                 }
             }
