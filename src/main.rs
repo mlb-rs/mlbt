@@ -18,18 +18,18 @@ use crate::app::{App, DebugState, MenuItem};
 use crate::boxscore::BoxScore;
 use crate::debug::DebugInfo;
 use crate::event::{Event, Events};
+use crate::gameday::Gameday;
 use crate::schedule::StatefulSchedule;
 use crate::ui::{help::render_help, layout::LayoutAreas, tabs::render_top_bar};
-use mlb_api::MLBApiBuilder;
 
-use crate::gameday::Gameday;
+use mlb_api::client::MLBApiBuilder;
+
 use std::error::Error;
 use std::io;
 use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
-use tui::widgets::BorderType;
 use tui::{
     backend::TermionBackend,
-    widgets::{Block, Borders, Paragraph},
+    widgets::{Block, BorderType, Borders, Paragraph},
     Terminal,
 };
 

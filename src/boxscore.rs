@@ -45,7 +45,7 @@ impl BoxScoreLine {
         };
         let mut line = BoxScoreLine {
             home,
-            name: name.team_name.as_ref().unwrap().to_string(),
+            name: name.team_name.to_string(),
             ..Default::default()
         };
         for inning in &live_game.live_data.linescore.innings {

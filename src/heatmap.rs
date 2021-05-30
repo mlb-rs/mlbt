@@ -1,6 +1,6 @@
 use crate::util::convert_color;
-use mlb_api::live::{LiveResponse, StatElement};
-
+use mlb_api::live::LiveResponse;
+use mlb_api::plays::Zone;
 use tui::style::Color;
 
 pub const DEFAULT_SZ_BOT: f64 = 1.5; // feet
@@ -23,9 +23,9 @@ impl Default for Heatmap {
 }
 
 impl Heatmap {
-    pub fn new() -> Self {
+    pub fn new(colors: Vec<Color>) -> Self {
         Heatmap {
-            colors: vec![],
+            colors,
             strike_zone_bot: DEFAULT_SZ_BOT,
             strike_zone_top: DEFAULT_SZ_TOP,
         }
@@ -35,47 +35,28 @@ impl Heatmap {
     /// heatmap will be all black.
     ///
     /// To get to the heat map zones, the API response is traversed like so:
-    /// liveData > plays > currentPlay > matchup > batterHotColdZoneStats
-    /// > stats > splits > stat > zones
-    ///
-    /// It is super nested, and unclear how robust this will be.
+    /// liveData > plays > currentPlay > matchup > batterHotColdZones > zones
     pub fn from_live_data(live_game: &LiveResponse) -> Heatmap {
-        let zones = match live_game.live_data.plays.current_play.as_ref() {
-            Some(c) => match &c.matchup.batter_hot_cold_zone_stats.as_ref() {
-                Some(z) => &z.stats,
+        let colors = match live_game.live_data.plays.current_play.as_ref() {
+            Some(c) => match c.matchup.batter_hot_cold_zones.as_ref() {
+                Some(z) => Heatmap::transform_zones(z),
                 None => return Heatmap::default(),
             },
             None => return Heatmap::default(),
         };
-        let mut heatmap = Heatmap::new();
-        heatmap.transform_zones(zones);
-        heatmap
+        Heatmap::new(colors)
     }
 
     /// Go through the zones and pull out the batting average colors. There are
     /// usually 13 zones that are supplied, although I'm unsure why there are
-    /// that many. I am only grabbing the first 9 to create a 3x3 heatmap. My
+    /// that many. I am only using the first 9 to create a 3x3 heatmap. My
     /// theory is that the last 4 are used for coloring the edges of the real
     /// heatmap shown on MLB Gameday?
-    fn transform_zones(&mut self, zones: &[StatElement]) {
-        for z in zones {
-            // splits has 3 elements:
-            // 0 - exit velocity
-            // 1 - batting average
-            // 2 - on base plus slugging
-            // it's unclear if these are always ordered this way
-            for split in &z.splits {
-                // if split.stat.name == "onBasePlusSlugging" {
-                if split.stat.name == "battingAverage" {
-                    for zone in &split.stat.zones {
-                        let c = convert_color(zone.color.clone());
-                        self.colors.push(c);
-                        // print!("{:?} ", c);
-                    }
-                    // println!();
-                }
-            }
-        }
+    fn transform_zones(zones: &Vec<Zone>) -> Vec<Color> {
+        zones
+            .iter()
+            .map(|z| convert_color(z.color.clone()))
+            .collect()
     }
 
     fn all_black() -> Vec<Color> {
@@ -102,7 +83,7 @@ fn test_all_black() {
 
 #[test]
 fn test_new() {
-    let hm = Heatmap::new();
+    let hm = Heatmap::new(vec![]);
     let good = vec![];
     assert_eq!(hm.colors, good);
 }

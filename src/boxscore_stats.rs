@@ -1,4 +1,5 @@
-use mlb_api::live::{BoxscorePlayer, LiveResponse};
+use mlb_api::boxscore::Player;
+use mlb_api::live::LiveResponse;
 
 #[derive(Default)]
 pub struct BatterBoxscore {
@@ -16,7 +17,7 @@ pub struct BatterBoxscore {
 }
 
 impl BatterBoxscore {
-    pub fn from_data(player: &BoxscorePlayer, order: u8) -> Self {
+    pub fn from_data(player: &Player, order: u8) -> Self {
         BatterBoxscore {
             order,
             name: player.person.full_name.to_string(),

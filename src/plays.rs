@@ -1,4 +1,5 @@
-use mlb_api::live::{Count, LiveResponse, Play};
+use mlb_api::live::LiveResponse;
+use mlb_api::plays::{Count, Play};
 
 #[derive(Default)]
 pub struct InningPlays {

@@ -1,7 +1,7 @@
 use crate::gameday::Gameday;
 use crate::schedule::StatefulSchedule;
 use crate::ui::layout::LayoutAreas;
-use mlb_api::MLBApi;
+use mlb_api::client::MLBApi;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum MenuItem {

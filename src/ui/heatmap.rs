@@ -74,14 +74,14 @@ impl Heatmap {
 fn build_coords(strike_zone_bot: f64, strike_zone_top: f64) -> Vec<Coordinate> {
     let y_chunk = (strike_zone_top - strike_zone_bot) / 3.0;
     let y_coords = vec![
-        strike_zone_bot,
-        strike_zone_bot + y_chunk,
         strike_zone_bot + (2.0 * y_chunk),
+        strike_zone_bot + y_chunk,
+        strike_zone_bot,
     ];
 
-    X_COORDS
+    y_coords
         .iter()
-        .flat_map(|x| y_coords.iter().map(move |y| Coordinate(*x, *y)))
+        .flat_map(|y| X_COORDS.iter().map(move |x| Coordinate(*x, *y)))
         .collect()
 }
 
@@ -91,15 +91,15 @@ fn test_coords() {
     let top = 3.3 * 12.0;
     let coords = build_coords(bot, top);
     let w = vec![
-        Coordinate(-8.5, 18.0),
-        Coordinate(-8.5, 25.2),
         Coordinate(-8.5, 32.4),
-        Coordinate(17.0 / -6.0, 18.0),
-        Coordinate(17.0 / -6.0, 25.2),
         Coordinate(17.0 / -6.0, 32.4),
-        Coordinate(17.0 / 6.0, 18.0),
-        Coordinate(17.0 / 6.0, 25.2),
         Coordinate(17.0 / 6.0, 32.4),
+        Coordinate(-8.5, 25.2),
+        Coordinate(17.0 / -6.0, 25.2),
+        Coordinate(17.0 / 6.0, 25.2),
+        Coordinate(-8.5, 18.0),
+        Coordinate(17.0 / -6.0, 18.0),
+        Coordinate(17.0 / 6.0, 18.0),
     ];
     assert_eq!(w, coords);
 }

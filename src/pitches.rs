@@ -1,7 +1,8 @@
-use crate::util::convert_color;
-use mlb_api::live::{LiveResponse, PlayEvent};
-
 use crate::heatmap::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP};
+use crate::util::convert_color;
+
+use mlb_api::live::LiveResponse;
+use mlb_api::plays::PlayEvent;
 use tui::style::Color;
 
 #[derive(Debug)]
@@ -102,6 +103,5 @@ fn test_pitches_with_defaults() {
     // Testing what happens if there is no pitch data
     let play_event = vec![PlayEvent::default()];
     let pitches = Pitches::transform_pitches(&play_event);
-    assert_eq!(pitches.len(), 1);
-    assert_eq!(pitches[0].description, "-".to_string());
+    assert_eq!(pitches.len(), 0);
 }

@@ -1,4 +1,6 @@
-use mlb_api::live::{Count, LiveResponse};
+use mlb_api::live::LiveResponse;
+use mlb_api::plays::Count;
+
 use std::fmt;
 
 const DEFAULT_NAME: &str = "-";
@@ -37,7 +39,7 @@ impl fmt::Display for Runners {
 }
 
 impl Runners {
-    pub fn from_matchup(matchup: &mlb_api::live::Matchup) -> Self {
+    pub fn from_matchup(matchup: &mlb_api::plays::Matchup) -> Self {
         Runners {
             first: matchup.post_on_first.is_some(),
             second: matchup.post_on_second.is_some(),
@@ -108,7 +110,7 @@ fn test_matchup_string_display() {
     let matchup = Matchup {
         inning: "bottom 9".to_string(),
         pitcher_name: "Nolan Ryan".to_string(),
-        pitcher_side: "R".to_string(),
+        pitcher_side: "RHP".to_string(),
         batter_name: "Sammy Sosa".to_string(),
         batter_side: "R".to_string(),
         count: Count {
