@@ -90,17 +90,51 @@ pub struct PlayerIdName {
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Boxscore {
-    // pub teams: Option<BoxscoreTeams>,
-    // pub officials: Option<Vec<Official>>,
-    pub info: Option<Vec<FieldListElement>>,
-    #[serde(rename = "pitchingNotes")]
-    pub pitching_notes: Option<Vec<Option<serde_json::Value>>>,
+    pub teams: Option<BoxscoreTeams>,
 }
 
-#[derive(Default, Debug, Serialize, Deserialize)]
-pub struct FieldListElement {
-    pub label: Option<String>,
-    pub value: Option<String>,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BoxscoreTeams {
+    pub away: BoxscoreTeam,
+    pub home: BoxscoreTeam,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BoxscoreTeam {
+    pub team: Team,
+    #[serde(rename = "teamStats")]
+    pub team_stats: TeamStats,
+    pub players: HashMap<String, BoxscorePlayer>,
+    pub batters: Vec<u64>,
+    pub pitchers: Vec<u64>,
+    bench: Vec<u64>,
+    bullpen: Vec<u64>,
+    #[serde(rename = "battingOrder")]
+    pub batting_order: Vec<u64>,
+    #[serde(rename = "seasonStats")]
+    pub season_stats: Option<TeamStats>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BoxscorePlayer {
+    pub person: Person,
+    pub position: Position,
+    pub stats: TeamStats,
+    #[serde(rename = "seasonStats")]
+    pub season_stats: TeamStats,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Position {
+    pub name: String,
+    pub abbreviation: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TeamStats {
+    pub batting: Batting,
+    // pitching: TeamStatsPitching,
+    // fielding: Fielding,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -158,26 +192,14 @@ pub struct Teams {
 #[derive(Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Team {
-    pub id: i64,
+    pub id: u16,
     pub name: String,
-    pub link: String,
-    pub season: i64,
-    // pub venue: Venue,
-    // pub spring_venue: SpringVenue,
-    pub team_code: String,
-    pub file_code: String,
-    pub abbreviation: String,
-    pub team_name: String,
-    pub location_name: String,
-    pub first_year_of_play: String,
-    // pub league: League,
-    // pub division: Division,
-    // pub sport: Sport,
-    pub short_name: String,
-    // pub record: Record,
-    // pub spring_league: SpringLeague,
-    pub all_star_status: String,
-    pub active: bool,
+    pub team_name: Option<String>,
+    pub short_name: Option<String>,
+    pub season: Option<u16>,
+    pub team_code: Option<String>,
+    pub abbreviation: Option<String>,
+    pub location_name: Option<String>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -329,3 +351,54 @@ pub struct Breaks {
     pub spin_rate: Option<u32>,
     pub spin_direction: Option<u32>,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Batting {
+    games_played: Option<u8>,
+    pub runs: Option<u8>,
+    doubles: Option<u8>,
+    triples: Option<u8>,
+    home_runs: Option<u8>,
+    pub strike_outs: Option<u8>,
+    pub base_on_balls: Option<u8>,
+    pub hits: Option<u8>,
+    hit_by_pitch: Option<u8>,
+    pub avg: Option<String>,
+    pub at_bats: Option<u8>,
+    obp: Option<String>,
+    slg: Option<String>,
+    ops: Option<String>,
+    ground_into_double_play: Option<u8>,
+    ground_into_triple_play: Option<u8>,
+    pub plate_appearances: Option<u8>,
+    total_bases: Option<u8>,
+    pub rbi: Option<u8>,
+    pub left_on_base: Option<u8>,
+}
+
+// #[derive(Debug, Serialize, Deserialize)]
+// #[serde(rename_all = "camelCase")]
+// pub struct TeamStatsPitching {
+//     runs: u8,
+//     doubles: u8,
+//     triples: u8,
+//     home_runs: u8,
+//     strike_outs: u8,
+//     base_on_balls: u8,
+//     intentional_walks: u8,
+//     hits: u8,
+//     hit_by_pitch: u8,
+//     at_bats: u8,
+//     obp: String,
+//     era: String,
+//     innings_pitched: String,
+//     save_opportunities: u8,
+//     earned_runs: u8,
+//     whip: String,
+//     batters_faced: u8,
+//     outs: u8,
+//     shutouts: u8,
+//     hit_batsmen: u8,
+//     rbi: u8,
+// }

@@ -1,4 +1,5 @@
 pub(crate) mod boxscore;
+pub(crate) mod boxscore_stats;
 pub(crate) mod debug;
 pub(crate) mod heatmap;
 pub(crate) mod help;

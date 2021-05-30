@@ -1,4 +1,5 @@
 use crate::boxscore::BoxScore;
+use crate::boxscore_stats::TeamBatterBoxscore;
 use crate::heatmap::Heatmap;
 use crate::matchup::Matchup;
 use crate::pitches::Pitches;
@@ -42,7 +43,7 @@ pub struct HeatMapPanel {
 pub struct BoxPanel {
     active: bool,
     scoreboard: BoxScore,
-    // pub stats: TODO
+    stats: TeamBatterBoxscore,
 }
 
 impl GamedayPanel for InfoPanel {
@@ -75,9 +76,11 @@ impl GamedayPanel for HeatMapPanel {
 
 impl GamedayPanel for BoxPanel {
     fn from_live_data(&self, live_game: &LiveResponse) -> Self {
+        TeamBatterBoxscore::from_live_data(live_game);
         let mut bp = BoxPanel {
             active: self.active,
             scoreboard: BoxScore::from_live_data(live_game),
+            stats: TeamBatterBoxscore::from_live_data(live_game),
         };
         bp.scoreboard.mini = true;
         bp
@@ -150,9 +153,12 @@ impl Gameday {
             0 | 1 => vec![Constraint::Percentage(100)],
             2 => vec![Constraint::Percentage(50), Constraint::Percentage(50)],
             3 => vec![
-                Constraint::Percentage(33),
-                Constraint::Percentage(34),
-                Constraint::Percentage(33),
+                Constraint::Ratio(1, 3),
+                Constraint::Ratio(1, 3),
+                Constraint::Ratio(1, 3),
+                // Constraint::Percentage(33),
+                // Constraint::Percentage(34),
+                // Constraint::Percentage(33),
             ],
             _ => vec![],
         };
@@ -175,6 +181,7 @@ impl Gameday {
             let p = panels.pop().unwrap();
             self.boxscore.render_panel(f, p);
             self.boxscore.scoreboard.render(f, p);
+            self.boxscore.stats.render(f, p);
         }
         if self.heat.active {
             // split vertically

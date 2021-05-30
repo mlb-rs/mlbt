@@ -1,6 +1,7 @@
 mod app;
 mod banner;
 mod boxscore;
+mod boxscore_stats;
 mod debug;
 #[allow(dead_code)]
 mod event;

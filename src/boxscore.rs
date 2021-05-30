@@ -12,7 +12,8 @@ pub struct BoxScore {
 
 impl BoxScore {
     pub fn from_live_data(live_game: &LiveResponse) -> Self {
-        let (home, away) = BoxScore::generate_boxscore_info(&live_game);
+        let home = BoxScoreLine::from_live_data(&live_game, true);
+        let away = BoxScoreLine::from_live_data(&live_game, false);
         let played = live_game.live_data.linescore.current_inning.unwrap_or(0);
         let header = BoxScoreLine::create_header_vec(played);
         BoxScore {
@@ -22,36 +23,8 @@ impl BoxScore {
             mini: false,
         }
     }
-
-    fn generate_boxscore_info(live_game: &LiveResponse) -> (BoxScoreLine, BoxScoreLine) {
-        let mut home = BoxScoreLine {
-            home: true,
-            name: live_game.game_data.teams.home.team_name.to_string(),
-            ..Default::default()
-        };
-        let mut away = BoxScoreLine {
-            home: false,
-            name: live_game.game_data.teams.away.team_name.to_string(),
-            ..Default::default()
-        };
-
-        for inning in &live_game.live_data.linescore.innings {
-            // println!("{:?}", inn);
-            let hr = inning.home.runs.unwrap_or(0);
-            home.inning_score.push(hr);
-            home.runs += hr;
-            home.hits += inning.home.hits;
-            home.errors += inning.home.errors;
-
-            let ar = inning.away.runs.unwrap_or(0);
-            away.inning_score.push(ar);
-            away.runs += ar;
-            away.hits += inning.away.hits;
-            away.errors += inning.away.errors;
-        }
-        (home, away)
-    }
 }
+
 /// TableInning is used to store the game state for a single team. It is meant
 /// to be used to fill out the boxscore table.
 #[derive(Default, Debug)]
@@ -65,6 +38,30 @@ pub struct BoxScoreLine {
 }
 
 impl BoxScoreLine {
+    pub fn from_live_data(live_game: &LiveResponse, home: bool) -> Self {
+        let name = match home {
+            true => &live_game.game_data.teams.home,
+            false => &live_game.game_data.teams.away,
+        };
+        let mut line = BoxScoreLine {
+            home,
+            name: name.team_name.as_ref().unwrap().to_string(),
+            ..Default::default()
+        };
+        for inning in &live_game.live_data.linescore.innings {
+            let inning = match home {
+                true => &inning.home,
+                false => &inning.away,
+            };
+            let hr = inning.runs.unwrap_or(0);
+            line.inning_score.push(hr);
+            line.runs += hr;
+            line.hits += inning.hits;
+            line.errors += inning.errors;
+        }
+        line
+    }
+
     pub fn create_score_vec(&self) -> Vec<String> {
         let mut row = vec![self.name.clone()];
         let scores = self
