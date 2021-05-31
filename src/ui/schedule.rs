@@ -12,16 +12,15 @@ impl StatefulSchedule {
     where
         B: Backend,
     {
-        let selected_style = Style::default().add_modifier(Modifier::REVERSED);
-        let normal_style = Style::default().bg(Color::White);
         let header_cells = ["away", "home", "time [PST]", "status"]
             .iter()
-            .map(|h| Cell::from(*h).style(Style::default().fg(Color::Black)));
+            .map(|h| Cell::from(*h));
 
-        let header = Row::new(header_cells)
-            .style(normal_style)
-            .height(1)
-            .bottom_margin(1);
+        let header = Row::new(header_cells).height(1).bottom_margin(1).style(
+            Style::default()
+                .add_modifier(Modifier::BOLD)
+                .bg(Color::Black),
+        );
 
         let rows = self
             .schedule
@@ -29,6 +28,7 @@ impl StatefulSchedule {
             .iter()
             .map(|r| Row::new(r.clone()).height(1).bottom_margin(1));
 
+        let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
         let t = Table::new(rows)
             .header(header)
             .block(

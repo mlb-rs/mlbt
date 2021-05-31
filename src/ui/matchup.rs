@@ -16,7 +16,7 @@ impl Matchup {
         let chunks = LayoutAreas::for_info(rect);
 
         let t = Table::new(self.to_table().iter().map(|row| Row::new(row.clone())))
-            .widths(&[Constraint::Length(12), Constraint::Length(20)])
+            .widths(&[Constraint::Length(12), Constraint::Length(25)])
             .column_spacing(1)
             .style(Style::default().fg(Color::White))
             .block(Block::default().borders(Borders::NONE));

@@ -69,7 +69,7 @@ impl Pitch {
         let z_coord = pitch_coords.get("pZ").unwrap_or(&2.0);
 
         Pitch {
-            strike: pitch_details.is_strike.unwrap(),
+            strike: pitch_details.is_strike.unwrap_or(false),
             speed: pitch_data.start_speed.unwrap_or(0.0),
             color: convert_color(pitch_details.ball_color.clone().unwrap_or_default()),
             description: pitch_details.description.clone().unwrap_or_default(),

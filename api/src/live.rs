@@ -45,7 +45,7 @@ pub struct Linescore {
     pub inning_state: Option<String>,
     pub inning_half: Option<String>,
     pub is_top_inning: Option<bool>,
-    pub scheduled_innings: u8,
+    pub scheduled_innings: Option<u8>,
     pub innings: Vec<Inning>,
     // pub teams:
     // pub defense:

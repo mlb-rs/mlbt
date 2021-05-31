@@ -44,7 +44,10 @@ impl BatterBoxscore {
             format!(
                 "{} {} {}",
                 self.order,
-                self.name.split_whitespace().last().unwrap(),
+                self.name
+                    .split_whitespace()
+                    .last()
+                    .unwrap_or(&"-".to_string()),
                 self.position
             ),
             self.at_bats.to_string(),
