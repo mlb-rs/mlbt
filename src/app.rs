@@ -1,6 +1,7 @@
+use crate::gameday::Gameday;
 use crate::schedule::StatefulSchedule;
 use crate::ui::layout::LayoutAreas;
-use mlb_api::MLBApi;
+use mlb_api::client::MLBApi;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum MenuItem {
@@ -17,17 +18,25 @@ pub enum DebugState {
     Off,
 }
 
-pub struct App<'a, 'b> {
+pub enum BoxscoreTab {
+    Home,
+    Away,
+}
+
+pub struct App<'a, 'b, 'c> {
     pub layout: LayoutAreas,
     pub tabs: Vec<&'a str>,
-    pub previous_state: MenuItem,
     pub active_tab: MenuItem,
+    pub previous_state: MenuItem,
     pub debug_state: DebugState,
     pub schedule: &'b mut StatefulSchedule,
     pub api: &'a MLBApi,
+    pub gameday: &'c mut Gameday,
+    pub boxscore_tabs: Vec<&'a str>,
+    pub boxscore_tab: BoxscoreTab,
 }
 
-impl App<'_, '_> {
+impl App<'_, '_, '_> {
     pub fn update_tab(&mut self, next: MenuItem) {
         self.previous_state = self.active_tab;
         self.active_tab = next;
@@ -46,6 +55,12 @@ impl App<'_, '_> {
         match self.debug_state {
             DebugState::Off => self.debug_state = DebugState::On,
             DebugState::On => self.debug_state = DebugState::Off,
+        }
+    }
+    pub fn get_boxscore_tab(&self) -> usize {
+        match self.boxscore_tab {
+            BoxscoreTab::Home => 0,
+            BoxscoreTab::Away => 1,
         }
     }
 }

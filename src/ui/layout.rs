@@ -59,4 +59,20 @@ impl LayoutAreas {
             .constraints([Constraint::Length(7), Constraint::Percentage(100)].as_ref())
             .split(self.main)
     }
+
+    /// Create two splits for displaying game info and the plays that have happened in the current
+    /// inning. This is used in the `gameday` tab.
+    pub fn for_info(rect: Rect) -> Vec<Rect> {
+        Layout::default()
+            .direction(Direction::Vertical)
+            .margin(2)
+            .constraints(
+                [
+                    Constraint::Length(13),      // game info
+                    Constraint::Percentage(100), // inning plays
+                ]
+                .as_ref(),
+            )
+            .split(rect)
+    }
 }

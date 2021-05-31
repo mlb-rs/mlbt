@@ -83,9 +83,9 @@ pub struct Content {
 #[serde(rename_all = "camelCase")]
 pub struct Status {
     pub abstract_game_state: Option<AbstractGameState>,
-    pub coded_game_state: Option<CodedGameState>,
-    pub detailed_state: Option<DetailedState>,
-    pub status_code: Option<StatusCode>,
+    pub coded_game_state: Option<String>,
+    pub detailed_state: Option<String>,
+    pub status_code: Option<String>,
     #[serde(rename = "startTimeTBD")]
     pub start_time_tbd: Option<bool>,
     pub abstract_game_code: Option<AbstractGameCode>,
@@ -139,110 +139,3 @@ pub enum AbstractGameState {
     Live,
     Preview,
 }
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum CodedGameState {
-    // pre game
-    P,
-    // in progress
-    I,
-    // final
-    F,
-    // over
-    O,
-    // postponed
-    D,
-    // suspended
-    U,
-    // scheduled
-    S,
-    // manager challenge
-    M,
-    // unknown
-    N,
-}
-
-#[derive(Debug, strum_macros::Display, Serialize, Deserialize)]
-pub enum DetailedState {
-    #[serde(rename = "Pre-Game")]
-    PreGame,
-    Warmup,
-    #[serde(rename = "In Progress")]
-    InProgress,
-    #[serde(rename = "Game Over")]
-    GameOver,
-    Final,
-    Postponed,
-    Suspended,
-    Scheduled,
-    Delayed,
-    #[serde(rename = "Delayed Start")]
-    DelayedStart,
-    #[serde(alias = "Manager Challenge", alias = "Manager challenge")]
-    ManagerChallenge,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum StatusCode {
-    // pre game
-    P,
-    // warmup
-    #[serde(rename = "PW")]
-    Pw,
-    // delayed start
-    #[serde(rename = "PR")]
-    Pr,
-    // in progress
-    I,
-    // final
-    F,
-    // game over
-    O,
-    // suspended
-    #[serde(rename = "UI")]
-    Ui,
-    // unknown
-    #[serde(rename = "DR")]
-    Dr,
-    // postponed
-    #[serde(rename = "DI")]
-    Di,
-    // scheduled
-    S,
-    // unknown
-    #[serde(rename = "IR")]
-    Ir,
-    // manager challenge
-    #[serde(rename = "MA")]
-    Ma,
-    // manager challenge
-    #[serde(rename = "MF")]
-    Mf,
-}
-
-// #[derive(Serialize, Deserialize)]
-// pub enum GameType {
-//     R,
-// }
-
-// #[derive(Serialize, Deserialize)]
-// pub enum GamedayType {
-//     P,
-// }
-//
-// #[derive(Serialize, Deserialize)]
-// pub enum IfNecessaryDescription {
-//     #[serde(rename = "Normal Game")]
-//     NormalGame,
-// }
-//
-// #[derive(Serialize, Deserialize)]
-// pub enum RecordSource {
-//     S,
-// }
-//
-// #[derive(Serialize, Deserialize)]
-// pub enum SeriesDescription {
-//     #[serde(rename = "Regular Season")]
-//     RegularSeason,
-// }

@@ -5,7 +5,7 @@ use tui::{
     layout::{Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
     text::Span,
-    widgets::{Block, Borders, Clear, Row, Table},
+    widgets::{Block, BorderType, Borders, Clear, Row, Table},
     Frame,
 };
 
@@ -20,8 +20,15 @@ pub fn get_help_docs() -> Vec<Vec<String>> {
         vec!["Stats".to_string(), "3".to_string()],
         vec!["Standings".to_string(), "4".to_string()],
         vec!["".to_string(), "".to_string()],
-        vec!["Move down in scoreboard".to_string(), "j".to_string()],
-        vec!["Move up in scoreboard".to_string(), "k".to_string()],
+        vec!["Scoreboard:".to_string(), "".to_string()],
+        vec!["Move down".to_string(), "j".to_string()],
+        vec!["Move up".to_string(), "k".to_string()],
+        vec!["".to_string(), "".to_string()],
+        vec!["Gameday:".to_string(), "".to_string()],
+        vec!["Toggle game info".to_string(), "i".to_string()],
+        vec!["Toggle pitches".to_string(), "p".to_string()],
+        vec!["Toggle boxscore".to_string(), "b".to_string()],
+        vec!["Switch boxscore team".to_string(), "h/a".to_string()],
     ]
 }
 
@@ -59,6 +66,7 @@ where
         .block(
             Block::default()
                 .borders(Borders::ALL)
+                .border_type(BorderType::Rounded)
                 .style(help_menu_style)
                 .title(Span::styled("Help - press <Esc> to exit", help_menu_style))
                 .border_style(help_menu_style),
