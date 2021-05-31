@@ -9,13 +9,14 @@ A terminal user interface for the MLB stats API, written in Rust.
 - [X] scoreboard and box score
   - [ ] selectable date
 
-- [ ] gameday
+- [X] gameday
 
 - [ ] standings
 
-- [ ] player stats
-- [ ] team stats
-- [ ] stat search (store in sqlite or an embedded db?)
+- [ ] stats
+  - [ ] player stats
+  - [ ] team stats
+  - [ ] stat search (store in sqlite or an embedded db?)
 
 - [ ] CLI
 - [ ] configuration: favorite team, colors, keymap
