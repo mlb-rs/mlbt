@@ -1,12 +1,10 @@
 use crate::matchup::Matchup;
-use tui::layout::{Alignment, Direction, Layout};
-use tui::style::Color;
-use tui::widgets::Paragraph;
+use crate::ui::layout::LayoutAreas;
 use tui::{
     backend::Backend,
     layout::{Constraint, Rect},
-    style::Style,
-    widgets::{Block, Borders},
+    style::{Color, Style},
+    widgets::{Block, Borders, Row, Table},
     Frame,
 };
 
@@ -15,23 +13,14 @@ impl Matchup {
     where
         B: Backend,
     {
-        let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .margin(2)
-            .constraints(
-                [
-                    Constraint::Percentage(30), // game info
-                    Constraint::Percentage(70), // inning plays
-                ]
-                .as_ref(),
-            )
-            .split(rect);
+        let chunks = LayoutAreas::for_info(rect);
 
-        let matchup = Paragraph::new(self.to_string())
-            .alignment(Alignment::Left)
-            .block(Block::default().borders(Borders::NONE))
-            .style(Style::default().fg(Color::White));
+        let t = Table::new(self.to_table().iter().map(|row| Row::new(row.clone())))
+            .widths(&[Constraint::Length(12), Constraint::Length(20)])
+            .column_spacing(1)
+            .style(Style::default().fg(Color::White))
+            .block(Block::default().borders(Borders::NONE));
 
-        f.render_widget(matchup, chunks[0]);
+        f.render_widget(t, chunks[0]);
     }
 }
