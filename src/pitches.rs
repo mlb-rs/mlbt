@@ -1,4 +1,4 @@
-use crate::heatmap::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP};
+use crate::strikezone::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP};
 use crate::util::convert_color;
 
 use mlb_api::live::LiveResponse;

@@ -20,45 +20,46 @@ pub const DEFAULT_SZ_TOP: f64 = 3.3; // feet
 #[derive(Debug, PartialEq)]
 pub struct Coordinate(pub f64, pub f64);
 
-pub struct Heatmap {
+pub struct StrikeZone {
     pub colors: Vec<Color>,
     pub strike_zone_bot: f64,
     pub strike_zone_top: f64,
 }
 
-impl Default for Heatmap {
+impl Default for StrikeZone {
     fn default() -> Self {
-        Heatmap {
-            colors: Heatmap::all_black(),
+        StrikeZone {
+            colors: StrikeZone::all_black(),
             strike_zone_bot: DEFAULT_SZ_BOT,
             strike_zone_top: DEFAULT_SZ_TOP,
         }
     }
 }
 
-impl Heatmap {
+impl StrikeZone {
     pub fn new(colors: Vec<Color>) -> Self {
-        Heatmap {
+        StrikeZone {
             colors,
             strike_zone_bot: DEFAULT_SZ_BOT,
             strike_zone_top: DEFAULT_SZ_TOP,
         }
     }
 
-    /// Generate a heatmap from live game data. If there is no heatmap data the heatmap will be all
-    /// black.
+    /// Generate the strike zone from the current at bat. If there is no data the strike zone will
+    /// be all black.
     ///
     /// To get to the heat map zones, the API response is traversed like so:
     /// liveData > plays > currentPlay > matchup > batterHotColdZones > zones
     pub fn from_live_data(live_game: &LiveResponse) -> Self {
         let colors = match live_game.live_data.plays.current_play.as_ref() {
             Some(c) => match c.matchup.batter_hot_cold_zones.as_ref() {
-                Some(z) => Heatmap::transform_zones(z),
-                None => return Heatmap::default(),
+                Some(z) => StrikeZone::transform_zones(z),
+                None => return StrikeZone::default(),
             },
-            None => return Heatmap::default(),
+            None => return StrikeZone::default(),
         };
-        Heatmap::new(colors)
+        // TODO set strike zone top/bottom here
+        StrikeZone::new(colors)
     }
 
     /// Go through the zones and pull out the batting average colors. There are usually 13 zones
@@ -96,7 +97,7 @@ impl Heatmap {
 
 #[test]
 fn test_all_black() {
-    let hm = Heatmap::default();
+    let hm = StrikeZone::default();
     let good = vec![
         Color::Rgb(0, 0, 0),
         Color::Rgb(0, 0, 0),
@@ -113,7 +114,7 @@ fn test_all_black() {
 
 #[test]
 fn test_new() {
-    let hm = Heatmap::new(vec![]);
+    let hm = StrikeZone::new(vec![]);
     let good = vec![];
     assert_eq!(hm.colors, good);
 }
@@ -122,7 +123,7 @@ fn test_new() {
 fn test_coords() {
     let bot = 1.5 * 12.0;
     let top = 3.3 * 12.0;
-    let coords = Heatmap::build_coords(bot, top);
+    let coords = StrikeZone::build_coords(bot, top);
     let w = vec![
         Coordinate(-8.5, 32.4),
         Coordinate(17.0 / -6.0, 32.4),

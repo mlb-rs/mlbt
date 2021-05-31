@@ -1,6 +1,6 @@
 use crate::at_bat::AtBat;
-use crate::heatmap::{Heatmap, DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH};
 use crate::pitches::{DEFAULT_IDX, PITCH_IDX};
+use crate::strikezone::{StrikeZone, DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH};
 use tui::{
     backend::Backend,
     layout::{Constraint, Corner, Direction, Layout, Rect},
@@ -34,7 +34,7 @@ impl AtBat {
             None => (DEFAULT_SZ_BOT * 12.0, DEFAULT_SZ_TOP * 12.0),
         };
         let height = strike_zone_top - strike_zone_bot;
-        let coords = Heatmap::build_coords(strike_zone_bot, strike_zone_top);
+        let coords = StrikeZone::build_coords(strike_zone_bot, strike_zone_top);
 
         // strike zone and pitch display
         let canvas = Canvas::default()

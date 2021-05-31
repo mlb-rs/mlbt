@@ -7,11 +7,11 @@ mod debug;
 #[allow(dead_code)]
 mod event;
 mod gameday;
-mod heatmap;
 mod matchup;
 mod pitches;
 mod plays;
 mod schedule;
+mod strikezone;
 mod ui;
 mod util;
 
