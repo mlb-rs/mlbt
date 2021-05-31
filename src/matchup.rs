@@ -97,7 +97,6 @@ impl Matchup {
             None => DEFAULT_NAME.to_string(),
         };
 
-
         Matchup {
             home_name: live_game.game_data.teams.home.team_name.clone(),
             home_score: current.result.home_score.unwrap_or(0),
@@ -124,11 +123,7 @@ impl Matchup {
             vec!["strikes".to_string(), self.count.strikes.to_string()],
             vec![
                 "pitcher".to_string(),
-                format!(
-                    "{} - {}",
-                    self.pitcher_name,
-                    self.pitcher_side,
-                ),
+                format!("{} - {}", self.pitcher_name, self.pitcher_side),
             ],
             vec![
                 "batter".to_string(),
@@ -151,7 +146,7 @@ fn test_matchup_default_runners() {
 }
 
 #[test]
-#[rustfmt::skip] 
+#[rustfmt::skip]
 fn test_matchup_runners_display() {
     // test that the runners are displayed correctly
     let on_first = Runners{first: true, second: false, third: false};
