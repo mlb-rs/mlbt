@@ -52,7 +52,7 @@ impl Heatmap {
     /// that many. I am only using the first 9 to create a 3x3 heatmap. My
     /// theory is that the last 4 are used for coloring the edges of the real
     /// heatmap shown on MLB Gameday?
-    fn transform_zones(zones: &Vec<Zone>) -> Vec<Color> {
+    fn transform_zones(zones: &[Zone]) -> Vec<Color> {
         zones
             .iter()
             .map(|z| convert_color(z.color.clone()))

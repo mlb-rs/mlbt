@@ -10,7 +10,7 @@ use tui::{
     Frame,
 };
 
-const HEADER: [&'static str; 9] = ["player", "ab", "r", "h", "rbi", "bb", "so", "lob", "avg"];
+const HEADER: [&str; 9] = ["player", "ab", "r", "h", "rbi", "bb", "so", "lob", "avg"];
 
 impl TeamBatterBoxscore {
     pub fn render<B>(&self, f: &mut Frame<B>, rect: Rect, app: &App)
@@ -20,12 +20,12 @@ impl TeamBatterBoxscore {
         let chunk = Layout::default()
             .direction(Direction::Vertical)
             .horizontal_margin(2)
-            .vertical_margin(1)
+            .vertical_margin(0)
             .constraints(
                 [
-                    Constraint::Length(10),
-                    Constraint::Length(3),
-                    Constraint::Percentage(70),
+                    Constraint::Length(8),       // score board
+                    Constraint::Length(3),       // team tabs
+                    Constraint::Percentage(100), // box score
                 ]
                 .as_ref(),
             )

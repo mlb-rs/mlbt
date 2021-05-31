@@ -35,7 +35,7 @@ impl BatterBoxscore {
                 .batting
                 .avg
                 .clone()
-                .unwrap_or("---".to_string()),
+                .unwrap_or_else(|| "---".to_string()),
         }
     }
     pub fn to_vec(&self) -> Vec<String> {
@@ -46,8 +46,7 @@ impl BatterBoxscore {
                 self.order,
                 self.name.split_whitespace().last().unwrap(),
                 self.position
-            )
-            .to_string(),
+            ),
             self.at_bats.to_string(),
             self.runs.to_string(),
             self.hits.to_string(),

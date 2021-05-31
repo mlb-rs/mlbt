@@ -12,11 +12,11 @@ use tui::{
 
 // Used to display the pitch number next to the pitch type. Hopefully no one has at bat longer than
 // 20 pitches.
-const PITCH_IDX: &[&'static str] = &[
+const PITCH_IDX: &[&str] = &[
     "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
     "17", "18", "19", "20",
 ];
-const DEFAULT_IDX: &'static str = "-";
+const DEFAULT_IDX: &str = "-";
 
 impl Pitch {
     /// Convert a pitch into a TUI Rectangle so it can be displayed in a Canvas.
