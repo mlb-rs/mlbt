@@ -1,21 +1,21 @@
-use crate::app::App;
+use crate::at_bat::AtBat;
 use crate::boxscore::BoxScore;
 use crate::boxscore_stats::TeamBatterBoxscore;
-use crate::heatmap::Heatmap;
 use crate::matchup::Matchup;
-use crate::pitches::Pitches;
 use crate::plays::InningPlays;
+
 use mlb_api::live::LiveResponse;
+
 use tui::backend::Backend;
 use tui::layout::{Constraint, Direction, Layout, Rect};
 use tui::widgets::{Block, BorderType, Borders};
 use tui::Frame;
 
-trait GamedayPanel {
+pub trait GamedayPanel {
     fn from_live_data(&self, live_game: &LiveResponse) -> Self;
     fn toggle_active(&mut self);
     /// Render the panel as a blank block to create the borders
-    fn render_panel<B>(&self, f: &mut Frame<B>, rect: Rect)
+    fn draw_border<B>(f: &mut Frame<B>, rect: Rect)
     where
         B: Backend,
     {
@@ -26,25 +26,40 @@ trait GamedayPanel {
     }
 }
 
-#[derive(Default)]
-pub struct InfoPanel {
-    active: bool,
-    matchup: Matchup,
-    plays: InningPlays,
+/// Store the active/inactive state of the views. Used for debugging.
+#[derive(Default, Debug, Copy, Clone)]
+pub struct GamedayViews {
+    info: bool,
+    at_bat: bool,
+    boxscore: bool,
+}
+
+/// Store the panels used to render the Gameday information.
+pub struct Gameday {
+    // layouts: Vec<Rect>, // TODO store these?
+    pub info: InfoPanel,
+    pub at_bat: AtBatPanel,
+    pub boxscore: BoxPanel,
 }
 
 #[derive(Default)]
-pub struct HeatMapPanel {
-    active: bool,
-    heatmap: Heatmap,
-    pitches: Pitches,
+pub struct InfoPanel {
+    pub active: bool,
+    pub matchup: Matchup,
+    pub plays: InningPlays,
+}
+
+#[derive(Default)]
+pub struct AtBatPanel {
+    pub active: bool,
+    pub at_bat: AtBat,
 }
 
 #[derive(Default)]
 pub struct BoxPanel {
-    active: bool,
-    scoreboard: BoxScore,
-    stats: TeamBatterBoxscore,
+    pub active: bool,
+    pub scoreboard: BoxScore,
+    pub stats: TeamBatterBoxscore,
 }
 
 impl GamedayPanel for InfoPanel {
@@ -61,12 +76,11 @@ impl GamedayPanel for InfoPanel {
     }
 }
 
-impl GamedayPanel for HeatMapPanel {
+impl GamedayPanel for AtBatPanel {
     fn from_live_data(&self, live_game: &LiveResponse) -> Self {
-        HeatMapPanel {
+        AtBatPanel {
             active: self.active,
-            heatmap: Heatmap::from_live_data(live_game),
-            pitches: Pitches::from_live_data(live_game),
+            at_bat: AtBat::from_live_data(live_game),
         }
     }
 
@@ -92,42 +106,28 @@ impl GamedayPanel for BoxPanel {
     }
 }
 
-#[derive(Default, Debug, Copy, Clone)]
-pub struct GamedayViews {
-    info: bool,
-    heat: bool,
-    boxscore: bool,
-}
-
-pub struct Gameday {
-    // layouts: Vec<Rect>, // TODO store these?
-    pub info: InfoPanel,
-    pub heat: HeatMapPanel,
-    pub boxscore: BoxPanel,
-}
-
 impl Gameday {
     pub fn new() -> Self {
         let mut g = Gameday {
             info: InfoPanel::default(),
-            heat: HeatMapPanel::default(),
+            at_bat: AtBatPanel::default(),
             boxscore: BoxPanel::default(),
         };
         g.info.active = true;
-        g.heat.active = true;
+        g.at_bat.active = true;
         g.boxscore.active = true;
         g
     }
     pub fn load_live_data(&mut self, live_game: &LiveResponse) {
         self.info = self.info.from_live_data(live_game);
-        self.heat = self.heat.from_live_data(live_game);
+        self.at_bat = self.at_bat.from_live_data(live_game);
         self.boxscore = self.boxscore.from_live_data(live_game);
     }
     pub fn toggle_info(&mut self) {
         self.info.toggle_active();
     }
     pub fn toggle_heat(&mut self) {
-        self.heat.toggle_active();
+        self.at_bat.toggle_active();
     }
     pub fn toggle_box(&mut self) {
         self.boxscore.toggle_active();
@@ -135,16 +135,16 @@ impl Gameday {
     pub fn get_active(&self) -> GamedayViews {
         GamedayViews {
             info: self.info.active,
-            heat: self.heat.active,
+            at_bat: self.at_bat.active,
             boxscore: self.boxscore.active,
         }
     }
-    fn generate_layouts(&self, area: Rect) -> Vec<Rect> {
+    pub fn generate_layouts(&self, area: Rect) -> Vec<Rect> {
         let mut active = 0;
         if self.info.active {
             active += 1;
         }
-        if self.heat.active {
+        if self.at_bat.active {
             active += 1;
         }
         if self.boxscore.active {
@@ -167,35 +167,5 @@ impl Gameday {
             .direction(Direction::Horizontal)
             .constraints(constraints.as_slice())
             .split(area)
-    }
-    //temp rendering
-    pub fn render<B>(&self, f: &mut Frame<B>, rect: Rect, app: &App)
-    where
-        B: Backend,
-    {
-        let mut panels = self.generate_layouts(rect);
-        // I want the panels to be displayed [Info, Heat, Box] from left to right. So pop off
-        // available panels starting with Box. Since `generate_layouts` takes into account how many
-        // panels are active, all the pops are guaranteed to unwrap.
-        if self.boxscore.active {
-            // split vertically
-            let p = panels.pop().unwrap();
-            self.boxscore.render_panel(f, p);
-            self.boxscore.scoreboard.render(f, p);
-            self.boxscore.stats.render(f, p, app);
-        }
-        if self.heat.active {
-            // split vertically
-            let p = panels.pop().unwrap();
-            self.heat.render_panel(f, p);
-            self.heat.heatmap.render(f, p);
-            self.heat.pitches.render(f, p);
-        }
-        if self.info.active {
-            let p = panels.pop().unwrap();
-            self.info.render_panel(f, p);
-            self.info.matchup.render(f, p);
-            self.info.plays.render(f, p);
-        }
     }
 }

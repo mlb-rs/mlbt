@@ -1,10 +1,24 @@
-use crate::util::convert_color;
-use mlb_api::live::LiveResponse;
-use mlb_api::plays::Zone;
 use tui::style::Color;
 
+use mlb_api::live::LiveResponse;
+use mlb_api::plays::Zone;
+
+use crate::util::convert_color;
+
+/// Create the x coordinates for the heat map zones based on the width of home plate, which is 17
+/// inches. The coordinates are centered around 0 in the x, thus the first coordinate is all the
+/// way to the left at -8.5. Then just add (17 / 3) for the next two coordinates, or divide by 6.
+pub const HOME_PLATE_WIDTH: f64 = 17.0; // inches
+const X_COORDS: [f64; 3] = [-8.5, 17.0 / -6.0, 17.0 / 6.0];
+
+/// The default strike zone bottom and top represent the horizontal bounds for the strike zone. They
+/// They are measured in feet from the ground. Note that the MLB considers this the z-axis (not y),
+/// with the ground being z = 0.
 pub const DEFAULT_SZ_BOT: f64 = 1.5; // feet
 pub const DEFAULT_SZ_TOP: f64 = 3.3; // feet
+
+#[derive(Debug, PartialEq)]
+pub struct Coordinate(pub f64, pub f64);
 
 pub struct Heatmap {
     pub colors: Vec<Color>,
@@ -31,12 +45,12 @@ impl Heatmap {
         }
     }
 
-    /// Generate a heatmap from live game data. If there is no heatmap data the
-    /// heatmap will be all black.
+    /// Generate a heatmap from live game data. If there is no heatmap data the heatmap will be all
+    /// black.
     ///
     /// To get to the heat map zones, the API response is traversed like so:
     /// liveData > plays > currentPlay > matchup > batterHotColdZones > zones
-    pub fn from_live_data(live_game: &LiveResponse) -> Heatmap {
+    pub fn from_live_data(live_game: &LiveResponse) -> Self {
         let colors = match live_game.live_data.plays.current_play.as_ref() {
             Some(c) => match c.matchup.batter_hot_cold_zones.as_ref() {
                 Some(z) => Heatmap::transform_zones(z),
@@ -47,15 +61,31 @@ impl Heatmap {
         Heatmap::new(colors)
     }
 
-    /// Go through the zones and pull out the batting average colors. There are
-    /// usually 13 zones that are supplied, although I'm unsure why there are
-    /// that many. I am only using the first 9 to create a 3x3 heatmap. My
-    /// theory is that the last 4 are used for coloring the edges of the real
-    /// heatmap shown on MLB Gameday?
+    /// Go through the zones and pull out the batting average colors. There are usually 13 zones
+    /// that are supplied, although I'm unsure why there are that many. I am only using the first 9
+    /// to create a 3x3 heatmap. My theory is that the last 4 are used for coloring the edges of the
+    /// real heatmap shown on MLB Gameday?
     fn transform_zones(zones: &[Zone]) -> Vec<Color> {
         zones
             .iter()
             .map(|z| convert_color(z.color.clone()))
+            .collect()
+    }
+
+    /// Builds the coordinates for the 3x3 heatmap. Each coordinate represents the upper left corner of
+    /// a heatmap zone. A tui-rs rectangle is then built from a coordinate; its positive X axis going
+    /// right, and positive Y axis going down, from the coordinate.
+    pub fn build_coords(strike_zone_bot: f64, strike_zone_top: f64) -> Vec<Coordinate> {
+        let y_chunk = (strike_zone_top - strike_zone_bot) / 3.0;
+        let y_coords = vec![
+            strike_zone_bot + (2.0 * y_chunk),
+            strike_zone_bot + y_chunk,
+            strike_zone_bot,
+        ];
+
+        y_coords
+            .iter()
+            .flat_map(|y| X_COORDS.iter().map(move |x| Coordinate(*x, *y)))
             .collect()
     }
 
@@ -86,4 +116,23 @@ fn test_new() {
     let hm = Heatmap::new(vec![]);
     let good = vec![];
     assert_eq!(hm.colors, good);
+}
+
+#[test]
+fn test_coords() {
+    let bot = 1.5 * 12.0;
+    let top = 3.3 * 12.0;
+    let coords = Heatmap::build_coords(bot, top);
+    let w = vec![
+        Coordinate(-8.5, 32.4),
+        Coordinate(17.0 / -6.0, 32.4),
+        Coordinate(17.0 / 6.0, 32.4),
+        Coordinate(-8.5, 25.2),
+        Coordinate(17.0 / -6.0, 25.2),
+        Coordinate(17.0 / 6.0, 25.2),
+        Coordinate(-8.5, 18.0),
+        Coordinate(17.0 / -6.0, 18.0),
+        Coordinate(17.0 / 6.0, 18.0),
+    ];
+    assert_eq!(w, coords);
 }

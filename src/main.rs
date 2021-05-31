@@ -1,4 +1,5 @@
 mod app;
+mod at_bat;
 mod banner;
 mod boxscore;
 mod boxscore_stats;

@@ -3,7 +3,26 @@ use crate::util::convert_color;
 
 use mlb_api::live::LiveResponse;
 use mlb_api::plays::PlayEvent;
-use tui::style::Color;
+use tui::{
+    style::{Color, Style},
+    text::{Span, Spans},
+    widgets::canvas::Rectangle,
+    widgets::ListItem,
+};
+
+/// Used to display the pitch number next to the pitch type in the Canvas. Hopefully no one has at
+/// bat longer than 21 pitches.
+/// There have been eight at bats that were 18 pitches or more since 1988, with the longest at 21.
+pub const PITCH_IDX: &[&str] = &[
+    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
+    "17", "18", "19", "20", "21",
+];
+pub const DEFAULT_IDX: &str = "-";
+
+#[derive(Debug)]
+pub struct Pitches {
+    pub pitches: Vec<Pitch>,
+}
 
 #[derive(Debug)]
 pub struct Pitch {
@@ -34,49 +53,18 @@ impl Default for Pitch {
     }
 }
 
-#[derive(Debug)]
-pub struct Pitches {
-    pub pitches: Vec<Pitch>,
-}
-
-impl Default for Pitches {
-    fn default() -> Self {
-        Pitches { pitches: vec![] }
-    }
-}
-
-impl Pitches {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn from_live_data(live_game: &LiveResponse) -> Pitches {
-        let pitch_data = match live_game.live_data.plays.current_play.as_ref() {
-            Some(c) => &c.play_events,
-            None => return Pitches::new(),
+impl Pitch {
+    pub fn from_play(play: &PlayEvent) -> Self {
+        let pitch_data = match play.pitch_data.as_ref() {
+            Some(p) => p,
+            None => return Pitch::default(),
         };
-        Pitches {
-            pitches: Pitches::transform_pitches(pitch_data),
-        }
-    }
-
-    fn transform_pitches(plays: &[PlayEvent]) -> Vec<Pitch> {
-        plays
-            .iter()
-            .filter(|play| play.is_pitch)
-            .map(|play| Pitches::transform_pitch_data(&play))
-            .rev()
-            .collect()
-    }
-
-    fn transform_pitch_data(play: &PlayEvent) -> Pitch {
-        let pitch_data = play.pitch_data.as_ref().unwrap(); // TODO
         let pitch_coords = &pitch_data.coordinates;
         let pitch_details = &play.details;
 
         // x coordinate is left/right
-        // z coordinate is up/down
         // y coordinate is catcher looking towards pitcher
+        // z coordinate is up/down
         let x_coord = pitch_coords.get("pX").unwrap_or(&0.0);
         let z_coord = pitch_coords.get("pZ").unwrap_or(&2.0);
 
@@ -92,9 +80,72 @@ impl Pitches {
                 .description,
             location: (*x_coord, *z_coord),
             index: play.pitch_number.unwrap_or_default(),
-            strike_zone_bot: pitch_data.strike_zone_top.unwrap_or(DEFAULT_SZ_BOT),
+            strike_zone_bot: pitch_data.strike_zone_bottom.unwrap_or(DEFAULT_SZ_BOT),
             strike_zone_top: pitch_data.strike_zone_top.unwrap_or(DEFAULT_SZ_TOP),
         }
+    }
+
+    /// Convert a pitch into a TUI Rectangle so it can be displayed in a Canvas.
+    pub fn as_rectangle(&self) -> Rectangle {
+        let scale = 12f64; // feet to inches
+        let ball_scale = 1.0;
+        Rectangle {
+            color: self.color,
+            height: ball_scale,
+            width: ball_scale,
+            x: self.location.0 * scale,
+            y: self.location.1 * scale,
+        }
+    }
+
+    /// Convert a pitch into a TUI List item, displaying the pitch index, result (ball, strike, ect)
+    /// and pitch type (cutter, changeup, ect). For example:
+    /// "1  Foul | Four-Seam Fastball"
+    pub fn as_list_item(&self, debug: bool) -> ListItem {
+        ListItem::new(vec![Spans::from(vec![
+            Span::styled(format!(" {} ", self.index), Style::default().fg(self.color)),
+            Span::raw(self.format(debug)),
+        ])])
+    }
+
+    fn format(&self, debug: bool) -> String {
+        let s = format!(
+            " {:<20}| {:^5.1}| {}",
+            self.description, self.speed, self.pitch_type
+        );
+        if debug {
+            return format!(" {} | {:?}", s, self.location);
+        }
+        s
+    }
+}
+
+impl Default for Pitches {
+    fn default() -> Self {
+        Pitches { pitches: vec![] }
+    }
+}
+
+impl Pitches {
+    pub fn new(pitches: Vec<Pitch>) -> Self {
+        Pitches { pitches }
+    }
+
+    pub fn from_live_data(live_game: &LiveResponse) -> Self {
+        let pitch_data = match live_game.live_data.plays.current_play.as_ref() {
+            Some(c) => Pitches::transform_pitches(&c.play_events),
+            None => return Pitches::default(),
+        };
+        Pitches::new(pitch_data)
+    }
+
+    fn transform_pitches(plays: &[PlayEvent]) -> Vec<Pitch> {
+        plays
+            .iter()
+            .filter(|play| play.is_pitch)
+            .map(|play| Pitch::from_play(&play))
+            .rev()
+            .collect()
     }
 }
 
