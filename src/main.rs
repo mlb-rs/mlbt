@@ -34,6 +34,8 @@ use tui::{
     Terminal,
 };
 
+extern crate chrono;
+extern crate chrono_tz;
 #[macro_use]
 extern crate lazy_static;
 

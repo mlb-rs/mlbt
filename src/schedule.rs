@@ -1,4 +1,5 @@
-use chrono::{DateTime, FixedOffset, Local};
+use chrono::DateTime;
+use chrono_tz::America::Los_Angeles;
 use core::option::Option::{None, Some};
 use mlb_api::schedule::{Game, ScheduleResponse};
 use std::collections::HashMap;
@@ -89,17 +90,10 @@ impl Schedule {
             .unwrap()
             .to_string();
 
-        // TODO format date for nicer output, this makes return a Vec<&str> impossible. Is this bad?
-        let start_time = &game.game_date;
         // TODO let timezone be configurable
-        // let est = FixedOffset::west(5 * 60 * 60);
-        let pst = FixedOffset::west(8 * 60 * 60);
-        let datetime: DateTime<Local> = DateTime::from_utc(
-            DateTime::<FixedOffset>::parse_from_rfc3339(start_time)
-                .unwrap()
-                .naive_utc(),
-            pst,
-        );
+        let datetime = DateTime::parse_from_rfc3339(&game.game_date)
+            .unwrap()
+            .with_timezone(&Los_Angeles);
         let formatted = datetime.format("%l:%M %P").to_string();
 
         let status = match &game.status.detailed_state {

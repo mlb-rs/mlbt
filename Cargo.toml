@@ -10,6 +10,7 @@ members = [".", "api"]
 [dependencies]
 mlb-api = {path = "api/", version = "0.0.4"}
 chrono = "0.4"
+chrono-tz = "0.5"
 tui = "0.14"
 termion = "1.5"
 lazy_static = "1.4.0"
