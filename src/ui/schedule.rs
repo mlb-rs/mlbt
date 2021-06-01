@@ -40,11 +40,10 @@ impl StatefulSchedule {
             .highlight_style(selected_style)
             .highlight_symbol(">> ")
             .widths(&[
-                // TODO review these on different width terminals
                 Constraint::Percentage(15),
                 Constraint::Percentage(15),
                 Constraint::Percentage(25),
-                Constraint::Percentage(45),
+                Constraint::Percentage(44),
             ]);
 
         f.render_stateful_widget(t, rect, &mut self.state);
