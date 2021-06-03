@@ -43,8 +43,7 @@ impl DebugInfo {
     where
         B: Backend,
     {
-        // self.game_id = app.schedule.get_selected_game();
-        self.game_id = 1234;
+        self.game_id = app.schedule.get_selected_game();
         self.gameday_url = format!("https://www.mlb.com/gameday/{}", self.game_id);
         self.terminal_width = f.size().width;
         self.terminal_height = f.size().height;

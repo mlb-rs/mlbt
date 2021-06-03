@@ -1,5 +1,4 @@
-use crate::gameday::Gameday;
-use crate::schedule::StatefulSchedule;
+use crate::schedule::ScheduleState;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum MenuItem {
@@ -21,17 +20,15 @@ pub enum BoxscoreTab {
     Away,
 }
 
-// pub struct App<'a, 'b> {
 pub struct App {
     pub active_tab: MenuItem,
     pub previous_state: MenuItem,
     pub debug_state: DebugState,
-    // pub schedule: &'a mut StatefulSchedule,
+    pub schedule: ScheduleState,
     // pub gameday: &'b mut Gameday,
     pub boxscore_tab: BoxscoreTab,
 }
 
-// impl App<'_, '_> {
 impl App {
     pub fn update_tab(&mut self, next: MenuItem) {
         self.previous_state = self.active_tab;

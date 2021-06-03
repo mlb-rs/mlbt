@@ -20,8 +20,9 @@ pub fn handle_key_bindings(
         (_, Char('3')) => app.update_tab(MenuItem::Stats),
         (_, Char('4')) => app.update_tab(MenuItem::Standings),
 
-        // (_, Char('j')) => app.schedule.next(),
-        // (_, Char('k')) => app.schedule.previous(),
+        (_, Char('j')) => app.schedule.next(),
+        (_, Char('k')) => app.schedule.previous(),
+
         (_, Char('?')) => app.update_tab(MenuItem::Help),
         (_, KeyCode::Esc) => app.exit_help(),
         (_, Char('d')) => app.toggle_debug(),

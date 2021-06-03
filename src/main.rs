@@ -1,4 +1,3 @@
-#![allow(unused_imports)] // temp
 mod app;
 mod at_bat;
 mod banner;
@@ -22,22 +21,14 @@ use std::time::Duration;
 use std::{io, thread};
 
 use crate::app::{App, BoxscoreTab, DebugState, MenuItem};
-use crate::boxscore::BoxScore;
-use crate::debug::DebugInfo;
-use crate::gameday::Gameday;
-use crate::schedule::StatefulSchedule;
-use crate::ui::{help::render_help, layout::LayoutAreas, tabs::render_top_bar};
+use crate::schedule::ScheduleState;
 
 use mlb_api::client::MLBApiBuilder;
 
 use crossbeam_channel::{bounded, select, unbounded, Receiver, Sender};
-use crossterm::event::{Event, MouseEvent, MouseEventKind};
+use crossterm::event::Event;
 use crossterm::{cursor, execute, terminal};
-use tui::{
-    backend::CrosstermBackend,
-    widgets::{Block, BorderType, Borders, Paragraph},
-    Terminal,
-};
+use tui::{backend::CrosstermBackend, Terminal};
 
 extern crate chrono;
 extern crate chrono_tz;
@@ -64,7 +55,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         active_tab: MenuItem::Scoreboard,
         previous_state: MenuItem::Scoreboard,
         // gameday: &mut Gameday::new(),
-        // schedule: &mut StatefulSchedule::new(&mlb.get_todays_schedule()),
+        schedule: ScheduleState::new(&mlb.get_todays_schedule()),
         debug_state: DebugState::Off,
         boxscore_tab: BoxscoreTab::Home,
     }));

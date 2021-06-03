@@ -9,6 +9,7 @@ use crate::boxscore::BoxScore;
 use crate::debug::DebugInfo;
 use crate::ui::help::render_help;
 use crate::ui::layout::LayoutAreas;
+use crate::ui::schedule::ScheduleWidget;
 use crate::ui::tabs::render_top_bar;
 
 pub fn draw<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) {
@@ -27,8 +28,8 @@ pub fn draw<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) {
             let tempblock = Block::default().borders(Borders::ALL);
             match app.active_tab {
                 MenuItem::Scoreboard => {
-                    // Create block for rendering boxscore and schedule
-                    let layout = main_layout.for_boxscore();
+                    let chunks = LayoutAreas::for_boxscore(main_layout.main);
+                    f.render_stateful_widget(ScheduleWidget {}, chunks[1], &mut app.schedule);
 
                     // Hit the API to update the schedule
                     // app.schedule.update(&mlb.get_todays_schedule());
