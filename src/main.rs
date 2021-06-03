@@ -41,8 +41,6 @@ extern crate lazy_static;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mlb = MLBApiBuilder::default().build().unwrap();
-    let schedule = mlb.get_todays_schedule();
-    let mut schedule_table = StatefulSchedule::new(&schedule);
 
     // Terminal initialization
     let stdout = io::stdout().into_raw_mode()?;
@@ -53,36 +51,33 @@ fn main() -> Result<(), Box<dyn Error>> {
     let events = Events::new();
 
     let mut app = App {
-        api: &mlb,
-        layout: LayoutAreas::new(terminal.size().unwrap()), // TODO don't unwrap this?
-        tabs: vec!["Scoreboard", "Gameday", "Stats", "Standings"],
         active_tab: MenuItem::Scoreboard,
         previous_state: MenuItem::Scoreboard,
         gameday: &mut Gameday::new(),
-        schedule: &mut schedule_table,
+        schedule: &mut StatefulSchedule::new(&mlb.get_todays_schedule()),
         debug_state: DebugState::Off,
-        boxscore_tabs: vec!["home", "away"],
         boxscore_tab: BoxscoreTab::Home,
     };
 
+    let mut main_layout = LayoutAreas::new(terminal.size().unwrap());
     loop {
         terminal.draw(|f| {
-            app.layout.update(f.size());
-            render_top_bar(f, &app);
+            main_layout.update(f.size());
+            render_top_bar(f, &main_layout.top_bar);
 
             let tempblock = Block::default().borders(Borders::ALL);
             match app.active_tab {
                 MenuItem::Scoreboard => {
                     // Create block for rendering boxscore and schedule
-                    let layout = app.layout.for_boxscore();
+                    let layout = main_layout.for_boxscore();
 
                     // Hit the API to update the schedule
-                    app.update_schedule();
+                    app.schedule.update(&mlb.get_todays_schedule());
                     app.schedule.render(f, layout[1]);
 
                     // Hit the API to get live game data TODO add error handling
                     let game_id = app.schedule.get_selected_game();
-                    let live_game = app.api.get_live_data(game_id);
+                    let live_game = mlb.get_live_data(game_id);
 
                     // temp
                     let block = Block::default()
@@ -94,25 +89,25 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
                 MenuItem::Gameday => {
                     let game_id = app.schedule.get_selected_game();
-                    let live_game = app.api.get_live_data(game_id);
+                    let live_game = mlb.get_live_data(game_id);
 
                     app.gameday.load_live_data(&live_game);
-                    app.gameday.render(f, app.layout.main, &app);
+                    app.gameday.render(f, main_layout.main, &app);
                 }
                 MenuItem::Stats => {
                     let gameday = Paragraph::new("stats").block(tempblock.clone());
-                    f.render_widget(gameday, app.layout.main);
+                    f.render_widget(gameday, main_layout.main);
                 }
                 MenuItem::Standings => {
                     let gameday = Paragraph::new("standings").block(tempblock.clone());
-                    f.render_widget(gameday, app.layout.main);
+                    f.render_widget(gameday, main_layout.main);
                 }
                 MenuItem::Help => render_help(f),
             }
             if app.debug_state == DebugState::On {
                 let mut dbi = DebugInfo::new();
                 dbi.gather_info(f, &app);
-                dbi.render(f, app.layout.main)
+                dbi.render(f, main_layout.main)
             }
         })?;
 
