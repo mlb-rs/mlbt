@@ -9,9 +9,9 @@ members = [".", "api"]
 
 [dependencies]
 mlb-api = {path = "api/", version = "0.0.4"}
-crossbeam-channel = "0.5"
 chrono = "0.4"
 chrono-tz = "0.5"
-tui = "0.14"
-termion = "1.5"
+crossbeam-channel = "0.5"
+crossterm = "0.19"
+tui = { version = "0.14", default-features = false, features = ["crossterm","serde"] }
 lazy_static = "1.4.0"

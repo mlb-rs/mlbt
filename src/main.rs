@@ -21,8 +21,6 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use std::{io, thread};
 
-use crossbeam_channel::{bounded, select, unbounded, Receiver, Sender};
-
 use crate::app::{App, BoxscoreTab, DebugState, MenuItem};
 use crate::boxscore::BoxScore;
 use crate::debug::DebugInfo;
@@ -32,11 +30,11 @@ use crate::ui::{help::render_help, layout::LayoutAreas, tabs::render_top_bar};
 
 use mlb_api::client::MLBApiBuilder;
 
-use termion::event::Event;
-use termion::input::TermRead;
-use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
+use crossbeam_channel::{bounded, select, unbounded, Receiver, Sender};
+use crossterm::event::{Event, MouseEvent, MouseEventKind};
+use crossterm::{cursor, execute, terminal};
 use tui::{
-    backend::TermionBackend,
+    backend::CrosstermBackend,
     widgets::{Block, BorderType, Borders, Paragraph},
     Terminal,
 };
@@ -54,13 +52,10 @@ lazy_static! {
 fn main() -> Result<(), Box<dyn Error>> {
     let mlb = MLBApiBuilder::default().build().unwrap();
 
-    // Terminal initialization
-    let stdout = io::stdout().into_raw_mode()?;
-    let stdout = AlternateScreen::from(stdout);
-    let backend = TermionBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
+    let backend = CrosstermBackend::new(io::stdout());
+    let mut terminal = Terminal::new(backend).unwrap();
+    setup_terminal();
 
-    // let events = Events::new();
     let request_redraw = REDRAW_REQUEST.0.clone();
     let data_received = DATA_RECEIVED.1.clone();
     let ui_events = setup_ui_events();
@@ -112,11 +107,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
                 match message {
                     Ok(Event::Key(key_event)) => {
-                            event::handle_key_bindings(app.active_tab, key_event, &mut app, &request_redraw);
+                        event::handle_key_bindings(app.active_tab, key_event, &mut app, &request_redraw);
                     }
-                    // Ok(Event::Resize(..)) => {
-                    //     let _ = request_redraw.try_send(());
-                    // }
+                    Ok(Event::Resize(..)) => {
+                        let _ = request_redraw.try_send(());
+                    }
                     _ => {}
                 }
             }
@@ -124,25 +119,31 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 }
 
+fn setup_terminal() {
+    let mut stdout = io::stdout();
+
+    execute!(stdout, cursor::Hide).unwrap();
+    execute!(stdout, terminal::EnterAlternateScreen).unwrap();
+    execute!(stdout, terminal::Clear(terminal::ClearType::All)).unwrap();
+
+    terminal::enable_raw_mode().unwrap();
+}
+
 fn cleanup_terminal() {
-    // terminal.clear();
-    // let mut stdout = io::stdout();
-    // execute!(stdout, terminal::Clear(terminal::ClearType::All)).unwrap();
-    // execute!(stdout, terminal::LeaveAlternateScreen).unwrap();
-    // terminal::disable_raw_mode().unwrap();
+    let mut stdout = io::stdout();
+
+    execute!(stdout, cursor::MoveTo(0, 0)).unwrap();
+    execute!(stdout, terminal::Clear(terminal::ClearType::All)).unwrap();
+    execute!(stdout, terminal::LeaveAlternateScreen).unwrap();
+    execute!(stdout, cursor::Show).unwrap();
+
+    terminal::disable_raw_mode().unwrap();
 }
 
 fn setup_ui_events() -> Receiver<Event> {
     let (sender, receiver) = unbounded();
     std::thread::spawn(move || loop {
-        let stdin = io::stdin();
-        for evt in stdin.keys().flatten() {
-            if let Err(err) = sender.send(termion::event::Event::Key(evt)) {
-                eprintln!("{}", err);
-                return;
-            }
-        }
+        sender.send(crossterm::event::read().unwrap()).unwrap();
     });
-
     receiver
 }

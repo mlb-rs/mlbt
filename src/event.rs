@@ -1,16 +1,16 @@
 use crate::app::MenuItem;
 use crate::{app, cleanup_terminal};
 use crossbeam_channel::Sender;
-use termion::event::Key;
-use termion::event::Key::Char;
+use crossterm::event::KeyCode::Char;
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
 pub fn handle_key_bindings(
     mode: MenuItem,
-    key_event: Key,
+    key_event: KeyEvent,
     mut app: &mut app::App,
     request_redraw: &Sender<()>,
 ) {
-    match (mode, key_event) {
+    match (mode, key_event.code) {
         (_, Char('q')) => {
             cleanup_terminal();
             std::process::exit(0);
@@ -22,8 +22,8 @@ pub fn handle_key_bindings(
 
         // (_, Char('j')) => app.schedule.next(),
         // (_, Char('k')) => app.schedule.previous(),
-        (_, Char('?')) => app.exit_help(),
-        (_, Key::Esc) => app.update_tab(MenuItem::Help),
+        (_, Char('?')) => app.update_tab(MenuItem::Help),
+        (_, KeyCode::Esc) => app.exit_help(),
         (_, Char('d')) => app.toggle_debug(),
 
         (MenuItem::Gameday, Char('i')) => {
