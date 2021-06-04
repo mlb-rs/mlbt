@@ -1,3 +1,4 @@
+use crate::gameday::Gameday;
 use crate::live_game::GameState;
 use crate::schedule::ScheduleState;
 
@@ -28,11 +29,13 @@ pub struct App {
     pub schedule: ScheduleState,
     pub live_game: GameState,
     pub boxscore_tab: BoxscoreTab,
+    pub gameday: Gameday,
 }
 
 impl App {
     pub fn update(&mut self) {
         self.live_game.update();
+        self.gameday.load_live_data(&self.live_game.live_data);
     }
     pub fn update_tab(&mut self, next: MenuItem) {
         self.previous_state = self.active_tab;

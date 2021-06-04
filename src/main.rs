@@ -26,6 +26,7 @@ use crate::schedule::ScheduleState;
 
 use mlb_api::client::{MLBApi, MLBApiBuilder};
 
+use crate::gameday::Gameday;
 use crate::live_game::GameState;
 use crossbeam_channel::{bounded, select, unbounded, Receiver, Sender};
 use crossterm::event::Event;
@@ -62,6 +63,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         live_game: GameState::new(),
         debug_state: DebugState::Off,
         boxscore_tab: BoxscoreTab::Home,
+        gameday: Gameday::new(),
     }));
 
     // Redraw thread

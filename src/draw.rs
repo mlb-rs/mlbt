@@ -6,15 +6,21 @@ use tui::{Frame, Terminal};
 
 use crate::app::{App, DebugState, MenuItem};
 use crate::debug::DebugInfo;
+use crate::gameday::{AtBatPanel, BoxPanel, Gameday, GamedayPanel, InfoPanel};
 use crate::linescore::LineScore;
+use crate::ui::at_bat::AtBatWidget;
 use crate::ui::help::render_help;
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
+use crate::ui::matchup::MatchupWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::tabs::render_top_bar;
 use mlb_api::live::Linescore;
 
-pub fn draw<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) {
+pub fn draw<B>(terminal: &mut Terminal<B>, app: &mut App)
+where
+    B: Backend,
+{
     let current_size = terminal.size().unwrap_or_default();
     let mut main_layout = LayoutAreas::new(current_size);
 
@@ -47,11 +53,7 @@ pub fn draw<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) {
                     );
                 }
                 MenuItem::Gameday => {
-                    // let game_id = app.schedule.get_selected_game();
-                    // let live_game = mlb.get_live_data(game_id);
-
-                    // app.gameday.load_live_data(&live_game);
-                    // app.gameday.render(f, main_layout.main, &app);
+                    draw_gameday(f, main_layout.main, app);
                 }
                 MenuItem::Stats => {
                     let gameday = Paragraph::new("stats").block(tempblock.clone());
@@ -70,4 +72,33 @@ pub fn draw<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) {
             }
         })
         .unwrap();
+}
+
+fn draw_gameday<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
+where
+    B: Backend,
+{
+    let mut panels = app.gameday.generate_layouts(rect);
+
+    // I want the panels to be displayed [Info, Heat, Box] from left to right. So pop off
+    // available panels starting with Box. Since `generate_layouts` takes into account how many
+    // panels are active, all the pops are guaranteed to unwrap.
+    if app.gameday.boxscore.active {
+        let p = panels.pop().unwrap();
+        BoxPanel::draw_border(f, p);
+        app.live_game.linescore.mini = true;
+        f.render_stateful_widget(LineScoreWidget {}, p, &mut app.live_game.linescore);
+        app.gameday.boxscore.stats.render(f, p, app); // TODO
+    }
+    if app.gameday.at_bat.active {
+        let p = panels.pop().unwrap();
+        AtBatPanel::draw_border(f, p);
+        f.render_stateful_widget(AtBatWidget {}, p, &mut app.live_game.at_bat);
+    }
+    if app.gameday.info.active {
+        let p = panels.pop().unwrap();
+        InfoPanel::draw_border(f, p);
+        f.render_stateful_widget(MatchupWidget {}, p, &mut app.live_game.matchup);
+        app.gameday.info.plays.render(f, p); // TODO
+    }
 }

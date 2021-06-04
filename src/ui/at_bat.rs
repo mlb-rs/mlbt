@@ -1,19 +1,22 @@
 use crate::at_bat::AtBat;
 use crate::pitches::{DEFAULT_IDX, PITCH_IDX};
 use crate::strikezone::{StrikeZone, DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH};
+
 use tui::{
     backend::Backend,
+    buffer::Buffer,
     layout::{Constraint, Corner, Direction, Layout, Rect},
     widgets::canvas::{Canvas, Rectangle},
-    widgets::{Block, Borders, List, ListItem},
+    widgets::{Block, Borders, List, ListItem, StatefulWidget, Widget},
     Frame,
 };
 
-impl AtBat {
-    pub fn render<B>(&self, f: &mut Frame<B>, rect: Rect)
-    where
-        B: Backend,
-    {
+pub struct AtBatWidget {}
+
+impl StatefulWidget for AtBatWidget {
+    type State = AtBat;
+
+    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .margin(2)
@@ -24,12 +27,12 @@ impl AtBat {
                 ]
                 .as_ref(),
             )
-            .split(rect);
+            .split(area);
 
         let total_width = 4.0 * 12.0; // 4 feet (arbitrary)
 
         // grab the strike zone from the first pitch since it doesn't change during the at bat.
-        let (strike_zone_bot, strike_zone_top) = match self.pitches.pitches.get(0) {
+        let (strike_zone_bot, strike_zone_top) = match state.pitches.pitches.get(0) {
             Some(p) => (p.strike_zone_bot * 12.0, p.strike_zone_top * 12.0),
             None => (DEFAULT_SZ_BOT * 12.0, DEFAULT_SZ_TOP * 12.0),
         };
@@ -37,10 +40,10 @@ impl AtBat {
         let coords = StrikeZone::build_coords(strike_zone_bot, strike_zone_top);
 
         // strike zone and pitch display
-        let canvas = Canvas::default()
+        Canvas::default()
             .block(Block::default().borders(Borders::NONE))
             .paint(|ctx| {
-                for pitch in &self.pitches.pitches {
+                for pitch in &state.pitches.pitches {
                     let ball = pitch.as_rectangle();
                     ctx.draw(&ball);
                     ctx.print(
@@ -57,27 +60,29 @@ impl AtBat {
                         y: coord.1,
                         width: (HOME_PLATE_WIDTH / 3.0) as f64,
                         height: (height / 3.0) as f64,
-                        color: self.strike_zone.colors[i],
+                        color: state.strike_zone.colors[i],
                     };
                     ctx.draw(&r);
                 }
             })
             .x_bounds([-0.5 * total_width, 0.5 * total_width])
-            .y_bounds([0.0, 60.0]);
-
-        f.render_widget(canvas, chunks[0]);
+            .y_bounds([0.0, 60.0])
+            .render(chunks[0], buf);
 
         // display the pitch information
-        let pitches: Vec<ListItem> = self
+        let pitches: Vec<ListItem> = state
             .pitches
             .pitches
             .iter()
             .map(|pitch| pitch.as_list_item(false))
             .collect();
 
-        let events_list = List::new(pitches)
-            .block(Block::default().borders(Borders::NONE))
-            .start_corner(Corner::TopLeft);
-        f.render_widget(events_list, chunks[1]);
+        Widget::render(
+            List::new(pitches)
+                .block(Block::default().borders(Borders::NONE))
+                .start_corner(Corner::TopLeft),
+            chunks[1],
+            buf,
+        );
     }
 }
