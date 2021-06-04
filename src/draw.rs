@@ -46,6 +46,7 @@ where
                         .border_type(BorderType::Rounded);
                     f.render_widget(block, chunks[0]);
 
+                    app.live_game.linescore.mini = false;
                     f.render_stateful_widget(
                         LineScoreWidget {},
                         chunks[0],

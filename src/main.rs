@@ -47,6 +47,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let schedule_update = SCHEDULE_CHANGE.0.clone();
     let request_redraw = REDRAW_REQUEST.0.clone();
+    let redraw_requested = REDRAW_REQUEST.1.clone();
     let ui_events = setup_ui_events();
 
     let app = Arc::new(Mutex::new(App {
@@ -58,27 +59,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         boxscore_tab: BoxscoreTab::Home,
         gameday: Gameday::new(),
     }));
-
-    // Redraw thread
-    let redraw_app = app.clone();
-    thread::spawn(move || {
-        let app = redraw_app;
-        let redraw_requested = REDRAW_REQUEST.1.clone();
-
-        loop {
-            select! {
-                recv(redraw_requested) -> _ => {
-                    let mut app = app.lock().unwrap();
-                    draw::draw(&mut terminal, &mut app);
-                }
-                // Default redraw on every duration
-                default(Duration::from_millis(500)) => {
-                    let mut app = app.lock().unwrap();
-                    draw::draw(&mut terminal, &mut app);
-                }
-            }
-        }
-    });
 
     // Network thread
     let network_app = app.clone();
@@ -119,9 +99,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     loop {
         select! {
+            recv(redraw_requested) -> _ => {
+                let mut app = app.lock().unwrap();
+                draw::draw(&mut terminal, &mut app);
+            }
+
             recv(ui_events) -> message => {
                 let mut app = app.lock().unwrap();
-
                 match message {
                     Ok(Event::Key(key_event)) => {
                         event::handle_key_bindings(app.active_tab, key_event, &mut app, &request_redraw, &schedule_update);
@@ -131,6 +115,12 @@ fn main() -> Result<(), Box<dyn Error>> {
                     }
                     _ => {}
                 }
+            }
+
+            // Default redraw on every duration
+            default(Duration::from_millis(500)) => {
+                let mut app = app.lock().unwrap();
+                draw::draw(&mut terminal, &mut app);
             }
         }
     }
