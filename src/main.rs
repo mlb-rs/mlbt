@@ -24,7 +24,7 @@ use std::{io, thread};
 use crate::app::{App, BoxscoreTab, DebugState, MenuItem};
 use crate::schedule::ScheduleState;
 
-use mlb_api::client::MLBApiBuilder;
+use mlb_api::client::{MLBApi, MLBApiBuilder};
 
 use crate::live_game::GameState;
 use crossbeam_channel::{bounded, select, unbounded, Receiver, Sender};
@@ -37,18 +37,20 @@ extern crate chrono_tz;
 #[macro_use]
 extern crate lazy_static;
 
+const UPDATE_INTERVAL: u64 = 10; // seconds
 lazy_static! {
+    static ref CLIENT: MLBApi = MLBApiBuilder::default().build().unwrap();
     pub static ref REDRAW_REQUEST: (Sender<()>, Receiver<()>) = bounded(1);
     pub static ref DATA_RECEIVED: (Sender<()>, Receiver<()>) = bounded(1);
+    pub static ref SCHEDULE_CHANGE: (Sender<()>, Receiver<()>) = bounded(1);
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let mlb = MLBApiBuilder::default().build().unwrap();
-
     let backend = CrosstermBackend::new(io::stdout());
     let mut terminal = Terminal::new(backend).unwrap();
     setup_terminal();
 
+    let schedule_update = SCHEDULE_CHANGE.0.clone();
     let request_redraw = REDRAW_REQUEST.0.clone();
     let data_received = DATA_RECEIVED.1.clone();
     let ui_events = setup_ui_events();
@@ -56,14 +58,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     let app = Arc::new(Mutex::new(App {
         active_tab: MenuItem::Scoreboard,
         previous_state: MenuItem::Scoreboard,
-        schedule: ScheduleState::new(&mlb.get_todays_schedule()),
+        schedule: ScheduleState::from_schedule(&CLIENT.get_todays_schedule()),
         live_game: GameState::new(),
         debug_state: DebugState::Off,
         boxscore_tab: BoxscoreTab::Home,
     }));
-    let move_app = app.clone();
 
     // Redraw thread
+    let move_app = app.clone();
     thread::spawn(move || {
         let app = move_app;
 
@@ -86,6 +88,34 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     });
 
+    // Network thread
+    let network_app = app.clone();
+    thread::spawn(move || {
+        let app = network_app;
+        let data_received = DATA_RECEIVED.0.clone();
+        let schedule = SCHEDULE_CHANGE.1.clone();
+
+        loop {
+            select! {
+                // update only linescore when a different game is selected
+                recv(schedule) -> _ => {
+                    let mut app = app.lock().unwrap();
+                    // TODO replace live_data with linescore endpoint for speed
+                    app.live_game.live_data = CLIENT.get_live_data(app.schedule.get_selected_game());
+                    let _ = data_received.try_send(());
+                }
+                // do full update
+                default(Duration::from_secs(UPDATE_INTERVAL)) => {
+                    let mut app = app.lock().unwrap();
+                    app.schedule.update(&CLIENT.get_todays_schedule());
+                    app.live_game.live_data = CLIENT.get_live_data(app.schedule.get_selected_game());
+                    let _ = data_received.try_send(());
+                    drop(app);
+                }
+            }
+        }
+    });
+
     loop {
         select! {
             // Notified that new data has been fetched from API, update widgets
@@ -93,14 +123,14 @@ fn main() -> Result<(), Box<dyn Error>> {
             recv(data_received) -> _ => {
                 let mut app = app.lock().unwrap();
 
-                // app.update();
+                app.update();
             }
             recv(ui_events) -> message => {
                 let mut app = app.lock().unwrap();
 
                 match message {
                     Ok(Event::Key(key_event)) => {
-                        event::handle_key_bindings(app.active_tab, key_event, &mut app, &request_redraw);
+                        event::handle_key_bindings(app.active_tab, key_event, &mut app, &request_redraw, &schedule_update);
                     }
                     Ok(Event::Resize(..)) => {
                         let _ = request_redraw.try_send(());

@@ -25,4 +25,11 @@ impl GameState {
             plays: InningPlays::default(),
         }
     }
+    pub fn update(&mut self) {
+        self.linescore = LineScore::from_live_data(&self.live_data);
+        self.at_bat = AtBat::from_live_data(&self.live_data);
+        self.boxscore = TeamBatterBoxscore::from_live_data(&self.live_data);
+        self.matchup = Matchup::from_live_data(&self.live_data);
+        self.plays = InningPlays::from_live_data(&self.live_data);
+    }
 }

@@ -11,7 +11,7 @@ pub struct ScheduleState {
 }
 
 impl ScheduleState {
-    pub fn new(schedule: &ScheduleResponse) -> ScheduleState {
+    pub fn from_schedule(schedule: &ScheduleResponse) -> Self {
         let s = Schedule {
             game_info: Schedule::create_table(schedule),
             game_ids: Schedule::get_game_pks(schedule),

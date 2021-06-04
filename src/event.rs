@@ -9,6 +9,7 @@ pub fn handle_key_bindings(
     key_event: KeyEvent,
     mut app: &mut app::App,
     request_redraw: &Sender<()>,
+    schedule_update: &Sender<()>,
 ) {
     match (mode, key_event.code) {
         (_, Char('q')) => {
@@ -20,8 +21,14 @@ pub fn handle_key_bindings(
         (_, Char('3')) => app.update_tab(MenuItem::Stats),
         (_, Char('4')) => app.update_tab(MenuItem::Standings),
 
-        (_, Char('j')) => app.schedule.next(),
-        (_, Char('k')) => app.schedule.previous(),
+        (MenuItem::Scoreboard, Char('j')) => {
+            app.schedule.next();
+            let _ = schedule_update.try_send(());
+        }
+        (MenuItem::Scoreboard, Char('k')) => {
+            app.schedule.previous();
+            let _ = schedule_update.try_send(());
+        }
 
         (_, Char('?')) => app.update_tab(MenuItem::Help),
         (_, KeyCode::Esc) => app.exit_help(),

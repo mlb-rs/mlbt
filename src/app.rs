@@ -31,6 +31,9 @@ pub struct App {
 }
 
 impl App {
+    pub fn update(&mut self) {
+        self.live_game.update();
+    }
     pub fn update_tab(&mut self, next: MenuItem) {
         self.previous_state = self.active_tab;
         self.active_tab = next;
