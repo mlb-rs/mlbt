@@ -1,34 +1,37 @@
 use mlb_api::live::LiveResponse;
 
-/// BoxScore stores the needed information to create a box score. If the game hasn't played more
-/// than 9 innings yet, it will still render a 9 inning game.
-#[derive(Default, Debug)]
-pub struct BoxScore {
+/// LineScore is used for the two line summary of a game. It shows each teams runs per inning and
+/// their total runs, hits, and errors.
+#[derive(Debug)]
+pub struct LineScore {
     pub header: Vec<String>,
-    pub away: BoxScoreLine,
-    pub home: BoxScoreLine,
+    pub away: LineScoreLine,
+    pub home: LineScoreLine,
     pub mini: bool,
 }
 
-impl BoxScore {
-    pub fn from_live_data(live_game: &LiveResponse) -> Self {
-        let home = BoxScoreLine::from_live_data(&live_game, true);
-        let away = BoxScoreLine::from_live_data(&live_game, false);
-        let played = live_game.live_data.linescore.current_inning.unwrap_or(0);
-        let header = BoxScoreLine::create_header_vec(played);
-        BoxScore {
-            header,
-            away,
-            home,
+impl Default for LineScore {
+    fn default() -> Self {
+        LineScore {
+            header: LineScoreLine::create_header_vec(0),
+            away: LineScoreLine {
+                home: false,
+                name: "away".to_string(),
+                ..Default::default()
+            },
+            home: LineScoreLine {
+                home: true,
+                name: "home".to_string(),
+                ..Default::default()
+            },
             mini: false,
         }
     }
 }
 
-/// TableInning is used to store the game state for a single team. It is meant
-/// to be used to fill out the boxscore table.
+/// LineScoreLine stores the high level game information for a single team.
 #[derive(Default, Debug)]
-pub struct BoxScoreLine {
+pub struct LineScoreLine {
     pub home: bool,
     pub name: String,
     pub runs: u8,
@@ -37,13 +40,28 @@ pub struct BoxScoreLine {
     pub inning_score: Vec<u8>,
 }
 
-impl BoxScoreLine {
+impl LineScore {
+    pub fn from_live_data(live_game: &LiveResponse) -> Self {
+        let home = LineScoreLine::from_live_data(&live_game, true);
+        let away = LineScoreLine::from_live_data(&live_game, false);
+        let played = live_game.live_data.linescore.current_inning.unwrap_or(0);
+        let header = LineScoreLine::create_header_vec(played);
+        LineScore {
+            header,
+            away,
+            home,
+            mini: false,
+        }
+    }
+}
+
+impl LineScoreLine {
     pub fn from_live_data(live_game: &LiveResponse, home: bool) -> Self {
         let name = match home {
             true => &live_game.game_data.teams.home,
             false => &live_game.game_data.teams.away,
         };
-        let mut line = BoxScoreLine {
+        let mut line = LineScoreLine {
             home,
             name: name.team_name.to_string(),
             ..Default::default()
@@ -108,7 +126,7 @@ fn test_create_header_row() {
     .map(|s| s.to_string())
     .collect();
     for i in 0..10 {
-        let nine = BoxScoreLine::create_header_vec(i);
+        let nine = LineScoreLine::create_header_vec(i);
         assert_eq!(nine, good_nine);
     }
 
@@ -119,7 +137,7 @@ fn test_create_header_row() {
     .iter()
     .map(|s| s.to_string())
     .collect();
-    let ten = BoxScoreLine::create_header_vec(10);
+    let ten = LineScoreLine::create_header_vec(10);
     assert_eq!(ten, good_10);
 
     let good_11: Vec<String> = vec![
@@ -128,6 +146,6 @@ fn test_create_header_row() {
     .iter()
     .map(|s| s.to_string())
     .collect();
-    let eleven = BoxScoreLine::create_header_vec(11);
+    let eleven = LineScoreLine::create_header_vec(11);
     assert_eq!(eleven, good_11);
 }

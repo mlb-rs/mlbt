@@ -1,7 +1,5 @@
-use crate::gameday::Gameday;
-use crate::schedule::StatefulSchedule;
-use crate::ui::layout::LayoutAreas;
-use mlb_api::client::MLBApi;
+use crate::live_game::GameState;
+use crate::schedule::ScheduleState;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum MenuItem {
@@ -23,20 +21,19 @@ pub enum BoxscoreTab {
     Away,
 }
 
-pub struct App<'a, 'b, 'c> {
-    pub layout: LayoutAreas,
-    pub tabs: Vec<&'a str>,
+pub struct App {
     pub active_tab: MenuItem,
     pub previous_state: MenuItem,
     pub debug_state: DebugState,
-    pub schedule: &'b mut StatefulSchedule,
-    pub api: &'a MLBApi,
-    pub gameday: &'c mut Gameday,
-    pub boxscore_tabs: Vec<&'a str>,
+    pub schedule: ScheduleState,
+    pub live_game: GameState,
     pub boxscore_tab: BoxscoreTab,
 }
 
-impl App<'_, '_, '_> {
+impl App {
+    pub fn update(&mut self) {
+        self.live_game.update();
+    }
     pub fn update_tab(&mut self, next: MenuItem) {
         self.previous_state = self.active_tab;
         self.active_tab = next;
@@ -46,10 +43,6 @@ impl App<'_, '_, '_> {
         if self.active_tab == MenuItem::Help {
             self.active_tab = self.previous_state;
         }
-    }
-    pub fn update_schedule(&mut self) {
-        let schedule = self.api.get_todays_schedule();
-        self.schedule.update(&schedule);
     }
     pub fn toggle_debug(&mut self) {
         match self.debug_state {

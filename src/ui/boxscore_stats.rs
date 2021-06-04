@@ -11,6 +11,7 @@ use tui::{
 };
 
 const HEADER: [&str; 9] = ["player", "ab", "r", "h", "rbi", "bb", "so", "lob", "avg"];
+const HOME_AWAY: [&str; 2] = ["home", "away"];
 
 impl TeamBatterBoxscore {
     pub fn render<B>(&self, f: &mut Frame<B>, rect: Rect, app: &App)
@@ -32,7 +33,7 @@ impl TeamBatterBoxscore {
             .split(rect);
 
         let tabs = Tabs::new(
-            app.boxscore_tabs
+            HOME_AWAY
                 .iter()
                 .map(|t| {
                     let (first, rest) = t.split_at(1);

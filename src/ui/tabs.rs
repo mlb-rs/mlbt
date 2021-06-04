@@ -1,38 +1,41 @@
-use crate::app::App;
 use tui::{
     backend::Backend,
-    layout::Alignment,
+    layout::{Alignment, Rect},
     style::{Color, Style},
     text::Spans,
     widgets::{Block, BorderType, Borders, Paragraph, Tabs},
     Frame,
 };
 
-pub fn render_top_bar<B>(f: &mut Frame<B>, app: &App)
+static TABS: &[&str; 4] = &["Scoreboard", "Gameday", "Stats", "Standings"];
+
+pub fn render_top_bar<B>(f: &mut Frame<B>, area: &[Rect])
 where
     B: Backend,
 {
-    let border_style = Style::default();
-
-    let left_block = Block::default()
-        .borders(Borders::LEFT | Borders::BOTTOM | Borders::TOP)
-        .border_type(BorderType::Rounded)
-        .border_style(border_style);
-
-    let right_block = Block::default()
-        .borders(Borders::RIGHT | Borders::BOTTOM | Borders::TOP)
-        .border_type(BorderType::Rounded)
-        .border_style(border_style);
-
     let style = Style::default().fg(Color::White);
+    let border_style = Style::default();
+    let border_type = BorderType::Rounded;
 
-    let titles = app.tabs.iter().map(|t| Spans::from(*t)).collect();
-    let tabs = Tabs::new(titles).block(left_block).style(style);
-    f.render_widget(tabs, app.layout.top_bar[0]);
+    let titles = TABS.iter().map(|t| Spans::from(*t)).collect();
+    let tabs = Tabs::new(titles)
+        .block(
+            Block::default()
+                .borders(Borders::LEFT | Borders::BOTTOM | Borders::TOP)
+                .border_type(border_type)
+                .border_style(border_style),
+        )
+        .style(style);
+    f.render_widget(tabs, area[0]);
 
     let help = Paragraph::new("Help: ? ")
         .alignment(Alignment::Right)
-        .block(right_block)
+        .block(
+            Block::default()
+                .borders(Borders::RIGHT | Borders::BOTTOM | Borders::TOP)
+                .border_type(border_type)
+                .border_style(border_style),
+        )
         .style(style);
-    f.render_widget(help, app.layout.top_bar[1]);
+    f.render_widget(help, area[1]);
 }

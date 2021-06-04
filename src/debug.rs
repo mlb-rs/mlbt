@@ -47,6 +47,7 @@ impl DebugInfo {
         self.gameday_url = format!("https://www.mlb.com/gameday/{}", self.game_id);
         self.terminal_width = f.size().width;
         self.terminal_height = f.size().height;
-        self.gameday_active_views = app.gameday.get_active();
+        // self.gameday_active_views = app.gameday.get_active();
+        self.gameday_active_views = GamedayViews::default();
     }
 }

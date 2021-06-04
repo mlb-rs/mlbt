@@ -1,28 +1,31 @@
-use crate::schedule::StatefulSchedule;
+use crate::schedule::{Schedule, ScheduleState};
+use crate::ui::layout::LayoutAreas;
+use tui::widgets::{TableState, Widget};
 use tui::{
     backend::Backend,
+    buffer::Buffer,
     layout::{Constraint, Rect},
     style::{Color, Modifier, Style},
-    widgets::{Block, BorderType, Borders, Cell, Row, Table},
+    widgets::{Block, BorderType, Borders, Cell, Row, StatefulWidget, Table},
     Frame,
 };
 
-impl StatefulSchedule {
-    pub fn render<B>(&mut self, f: &mut Frame<B>, rect: Rect)
-    where
-        B: Backend,
-    {
-        let header_cells = ["away", "home", "time [PST]", "status"]
-            .iter()
-            .map(|h| Cell::from(*h));
+const HEADER: &[&str; 4] = &["away", "home", "time [PST]", "status"];
 
+pub struct ScheduleWidget {}
+
+impl StatefulWidget for ScheduleWidget {
+    type State = ScheduleState;
+
+    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+        let header_cells = HEADER.iter().map(|h| Cell::from(*h));
         let header = Row::new(header_cells).height(1).bottom_margin(1).style(
             Style::default()
                 .add_modifier(Modifier::BOLD)
                 .bg(Color::Black),
         );
 
-        let rows = self
+        let rows = state
             .schedule
             .game_info
             .iter()
@@ -46,6 +49,6 @@ impl StatefulSchedule {
                 Constraint::Percentage(44),
             ]);
 
-        f.render_stateful_widget(t, rect, &mut self.state);
+        StatefulWidget::render(t, area, buf, &mut state.state);
     }
 }
