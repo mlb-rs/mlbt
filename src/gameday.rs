@@ -1,6 +1,6 @@
 use crate::at_bat::AtBat;
-use crate::boxscore::BoxScore;
 use crate::boxscore_stats::TeamBatterBoxscore;
+use crate::linescore::LineScore;
 use crate::matchup::Matchup;
 use crate::plays::InningPlays;
 
@@ -58,7 +58,7 @@ pub struct AtBatPanel {
 #[derive(Default)]
 pub struct BoxPanel {
     pub active: bool,
-    pub scoreboard: BoxScore,
+    pub scoreboard: LineScore,
     pub stats: TeamBatterBoxscore,
 }
 
@@ -94,7 +94,7 @@ impl GamedayPanel for BoxPanel {
         TeamBatterBoxscore::from_live_data(live_game);
         let mut bp = BoxPanel {
             active: self.active,
-            scoreboard: BoxScore::from_live_data(live_game),
+            scoreboard: LineScore::from_live_data(live_game),
             stats: TeamBatterBoxscore::from_live_data(live_game),
         };
         bp.scoreboard.mini = true;

@@ -1,3 +1,4 @@
+use crate::live_game::GameState;
 use crate::schedule::ScheduleState;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -25,7 +26,7 @@ pub struct App {
     pub previous_state: MenuItem,
     pub debug_state: DebugState,
     pub schedule: ScheduleState,
-    // pub gameday: &'b mut Gameday,
+    pub live_game: GameState,
     pub boxscore_tab: BoxscoreTab,
 }
 

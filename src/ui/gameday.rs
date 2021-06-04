@@ -17,7 +17,7 @@ impl Gameday {
         if self.boxscore.active {
             let p = panels.pop().unwrap();
             BoxPanel::draw_border(f, p);
-            self.boxscore.scoreboard.render(f, p);
+            // self.boxscore.scoreboard.render(f, p);
             self.boxscore.stats.render(f, p, app);
         }
         if self.at_bat.active {

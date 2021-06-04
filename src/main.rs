@@ -1,12 +1,13 @@
 mod app;
 mod at_bat;
 mod banner;
-mod boxscore;
 mod boxscore_stats;
 mod debug;
 mod draw;
 mod event;
 mod gameday;
+mod linescore;
+mod live_game;
 mod matchup;
 mod pitches;
 mod plays;
@@ -25,6 +26,7 @@ use crate::schedule::ScheduleState;
 
 use mlb_api::client::MLBApiBuilder;
 
+use crate::live_game::GameState;
 use crossbeam_channel::{bounded, select, unbounded, Receiver, Sender};
 use crossterm::event::Event;
 use crossterm::{cursor, execute, terminal};
@@ -54,8 +56,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let app = Arc::new(Mutex::new(App {
         active_tab: MenuItem::Scoreboard,
         previous_state: MenuItem::Scoreboard,
-        // gameday: &mut Gameday::new(),
         schedule: ScheduleState::new(&mlb.get_todays_schedule()),
+        live_game: GameState::new(),
         debug_state: DebugState::Off,
         boxscore_tab: BoxscoreTab::Home,
     }));

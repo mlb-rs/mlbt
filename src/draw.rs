@@ -5,12 +5,14 @@ use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, Tabs, Wrap};
 use tui::{Frame, Terminal};
 
 use crate::app::{App, DebugState, MenuItem};
-use crate::boxscore::BoxScore;
 use crate::debug::DebugInfo;
+use crate::linescore::LineScore;
 use crate::ui::help::render_help;
 use crate::ui::layout::LayoutAreas;
+use crate::ui::linescore::LineScoreWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::tabs::render_top_bar;
+use mlb_api::live::Linescore;
 
 pub fn draw<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) {
     let current_size = terminal.size().unwrap_or_default();
@@ -29,23 +31,20 @@ pub fn draw<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) {
             match app.active_tab {
                 MenuItem::Scoreboard => {
                     let chunks = LayoutAreas::for_boxscore(main_layout.main);
+
                     f.render_stateful_widget(ScheduleWidget {}, chunks[1], &mut app.schedule);
 
-                    // Hit the API to update the schedule
-                    // app.schedule.update(&mlb.get_todays_schedule());
-                    // app.schedule.render(f, layout[1]);
+                    // add borders around the line score
+                    let block = Block::default()
+                        .borders(Borders::ALL)
+                        .border_type(BorderType::Rounded);
+                    f.render_widget(block, chunks[0]);
 
-                    // // Hit the API to get live game data TODO add error handling
-                    // let game_id = app.schedule.get_selected_game();
-                    // let live_game = mlb.get_live_data(game_id);
-                    //
-                    // // temp
-                    // let block = Block::default()
-                    //     .borders(Borders::ALL)
-                    //     .border_type(BorderType::Rounded);
-                    // f.render_widget(block, layout[0]);
-                    // let boxscore = BoxScore::from_live_data(&live_game);
-                    // boxscore.render(f, layout[0]);
+                    f.render_stateful_widget(
+                        LineScoreWidget {},
+                        chunks[0],
+                        &mut app.live_game.linescore,
+                    );
                 }
                 MenuItem::Gameday => {
                     // let game_id = app.schedule.get_selected_game();
