@@ -7,7 +7,7 @@ pub struct BatterBoxscore {
     order: u8,
     name: String,
     position: String,
-    at_bats: u8,
+    at_bats: u16,
     runs: u8,
     hits: u8,
     rbis: u8,
