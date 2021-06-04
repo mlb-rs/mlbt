@@ -1,6 +1,7 @@
 use chrono::DateTime;
 use chrono_tz::America::Los_Angeles;
 use core::option::Option::{None, Some};
+use lazy_static::lazy_static;
 use mlb_api::schedule::{Game, ScheduleResponse};
 use std::collections::HashMap;
 use tui::widgets::TableState;

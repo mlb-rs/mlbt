@@ -1,6 +1,7 @@
 use crate::gameday::Gameday;
 use crate::live_game::GameState;
 use crate::schedule::ScheduleState;
+use mlb_api::live::LiveResponse;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum MenuItem {
@@ -33,9 +34,9 @@ pub struct App {
 }
 
 impl App {
-    pub fn update(&mut self) {
-        self.live_game.update();
-        self.gameday.load_live_data(&self.live_game.live_data);
+    pub fn update_live_data(&mut self, live_data: &LiveResponse) {
+        self.live_game.update(live_data);
+        self.gameday.load_live_data(live_data);
     }
     pub fn update_tab(&mut self, next: MenuItem) {
         self.previous_state = self.active_tab;

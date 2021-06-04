@@ -1,4 +1,4 @@
-use crate::app::MenuItem;
+use crate::app::{BoxscoreTab, MenuItem};
 use crate::{app, cleanup_terminal};
 use crossbeam_channel::Sender;
 use crossterm::event::KeyCode::Char;
@@ -43,12 +43,8 @@ pub fn handle_key_bindings(
         (MenuItem::Gameday, Char('b')) => {
             // toggle box score
         }
-        (MenuItem::Gameday, Char('h')) => {
-            // home box score
-        }
-        (MenuItem::Gameday, Char('a')) => {
-            // away box score
-        }
+        (MenuItem::Gameday, Char('h')) => app.boxscore_tab = BoxscoreTab::Home,
+        (MenuItem::Gameday, Char('a')) => app.boxscore_tab = BoxscoreTab::Away,
         _ => {}
     }
     let _ = request_redraw.try_send(());
