@@ -34,7 +34,7 @@ jobs:
           - target: armv7-unknown-linux-gnueabihf
             os: ubuntu-latest
             artifact_prefix: armv7
-            cross: true
+            cross: false
 
     steps:
       - name: Installing Rust toolchain
