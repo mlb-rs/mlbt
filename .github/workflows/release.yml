@@ -44,6 +44,12 @@ jobs:
           target: ${{ matrix.target }}
           override: true
 
+      - name: Installing needed Ubuntu dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y -qq pkg-config libssl-dev
+
       - name: Checking out sources
         uses: actions/checkout@v2
 
@@ -55,7 +61,7 @@ jobs:
           args: --release --target ${{ matrix.target }}
 
       - name: Packaging final binary (Windows)
-        if: matrix.triple.os == 'windows-latest'
+        if: matrix.os == 'windows-latest'
         shell: bash
         run: |
           cd target/${{ matrix.target }}/release
