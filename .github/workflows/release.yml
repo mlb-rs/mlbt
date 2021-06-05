@@ -23,15 +23,15 @@ jobs:
             os: ubuntu-latest
             artifact_prefix: linux
             cross: false
-          - target: x86_64-unknown-linux-musl
-            os: ubuntu-latest
-            artifact_prefix: linux-musl
-            cross: false
           - target: x86_64-pc-windows-msvc
             os: windows-latest
             artifact_prefix: windows
             cross: false
             # TODO fix openssl issue
+#          - target: x86_64-unknown-linux-musl
+#            os: ubuntu-latest
+#            artifact_prefix: linux-musl
+#            cross: false
 #          - target: armv7-unknown-linux-gnueabihf
 #            os: ubuntu-latest
 #            artifact_prefix: armv7
