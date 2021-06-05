@@ -10,43 +10,81 @@ jobs:
     name: Publishing for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest]
-        rust: [stable]
+        os: [ macos-latest, ubuntu-latest, windows-latest ]
+        rust: [ stable ]
         include:
-          - os: macos-latest
+          - target: x86_64-apple-darwin
+            os: macos-latest
             artifact_prefix: macos
-            target: x86_64-apple-darwin
-            binary_postfix: ""
-          - os: ubuntu-latest
+            cross: false
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
             artifact_prefix: linux
-            target: x86_64-unknown-linux-gnu
-            binary_postfix: ""
+            cross: false
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            artifact_prefix: linux-musl
+            cross: false
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            artifact_prefix: windows
+            cross: false
+            # TODO fix openssl issue
+#          - target: armv7-unknown-linux-gnueabihf
+#            os: ubuntu-latest
+#            artifact_prefix: armv7
+#            cross: true
 
     steps:
       - name: Installing Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: ${{ matrix.rust }}
+          toolchain: stable
+          target: ${{ matrix.target }}
           override: true
+
+      - name: Installing needed Ubuntu dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y -qq pkg-config libssl-dev
+
       - name: Checking out sources
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+
       - name: Running cargo build
         uses: actions-rs/cargo@v1
         with:
+          use-cross: ${{ matrix.cross }}
           command: build
-          toolchain: ${{ matrix.rust }}
           args: --release --target ${{ matrix.target }}
 
-      - name: Packaging final binary
+      - name: Packaging final binary (Windows)
+        if: matrix.os == 'windows-latest'
         shell: bash
         run: |
           cd target/${{ matrix.target }}/release
-          BINARY_NAME=mlbt${{ matrix.binary_postfix }}
+          BINARY_NAME=mlbt.exe
+          strip $BINARY_NAME
+          RELEASE_NAME=mlbt-${{ matrix.artifact_prefix }}
+          tar czvf $RELEASE_NAME.tar.gz $BINARY_NAME
+          certutil -hashfile $RELEASE_NAME.tar.gz sha256 | grep -E [A-Fa-f0-9]{64} > $RELEASE_NAME.sha256
+          echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
+
+      - name: Packaging final binary (macOS and Linux)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          cd target/${{ matrix.target }}/release
+          BINARY_NAME=mlbt
           strip $BINARY_NAME
           RELEASE_NAME=mlbt-${{ matrix.artifact_prefix }}
           tar czvf $RELEASE_NAME.tar.gz $BINARY_NAME
           shasum -a 256 $RELEASE_NAME.tar.gz > $RELEASE_NAME.sha256
+          echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
+
       - name: Releasing assets
         uses: softprops/action-gh-release@v1
         with:
