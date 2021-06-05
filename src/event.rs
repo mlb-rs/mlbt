@@ -2,7 +2,7 @@ use crate::app::{BoxscoreTab, MenuItem};
 use crate::{app, cleanup_terminal};
 use crossbeam_channel::Sender;
 use crossterm::event::KeyCode::Char;
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{KeyCode, KeyEvent};
 
 pub fn handle_key_bindings(
     mode: MenuItem,

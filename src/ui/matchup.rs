@@ -1,14 +1,11 @@
 use crate::matchup::Matchup;
 use crate::ui::layout::LayoutAreas;
 
-use tui::widgets::Widget;
 use tui::{
-    backend::Backend,
     buffer::Buffer,
     layout::{Constraint, Rect},
     style::{Color, Style},
-    widgets::{Block, Borders, Row, StatefulWidget, Table},
-    Frame,
+    widgets::{Block, Borders, Row, StatefulWidget, Table, Widget},
 };
 
 pub struct MatchupWidget {}

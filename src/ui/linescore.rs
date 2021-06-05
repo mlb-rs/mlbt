@@ -1,13 +1,10 @@
 use crate::linescore::LineScore;
 
-use tui::widgets::TableState;
 use tui::{
-    backend::Backend,
     buffer::Buffer,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
-    widgets::{Block, Borders, Row, StatefulWidget, Table},
-    Frame,
+    widgets::{Block, Borders, Row, StatefulWidget, Table, TableState},
 };
 
 // TODO depending on the terminal size the number of columns display should be changed. Only two columns *need* to be shown, the current inning and the run totals - eveything else can get chopped off.

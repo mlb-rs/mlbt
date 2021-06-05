@@ -1,14 +1,11 @@
-use crate::app::App;
 use crate::boxscore_stats::TeamBatterBoxscore;
 
 use tui::{
-    backend::Backend,
     buffer::Buffer,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
     widgets::{Block, Borders, Cell, Row, StatefulWidget, Table, Tabs, Widget},
-    Frame,
 };
 
 const HEADER: [&str; 9] = ["player", "ab", "r", "h", "rbi", "bb", "so", "lob", "avg"];

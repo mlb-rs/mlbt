@@ -3,12 +3,10 @@ use crate::pitches::{DEFAULT_IDX, PITCH_IDX};
 use crate::strikezone::{StrikeZone, DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH};
 
 use tui::{
-    backend::Backend,
     buffer::Buffer,
     layout::{Constraint, Corner, Direction, Layout, Rect},
     widgets::canvas::{Canvas, Rectangle},
     widgets::{Block, Borders, List, ListItem, StatefulWidget, Widget},
-    Frame,
 };
 
 pub struct AtBatWidget {}

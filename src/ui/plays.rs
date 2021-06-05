@@ -1,13 +1,12 @@
 use crate::plays::{InningPlays, PlayResult};
 use crate::ui::layout::LayoutAreas;
+
 use tui::{
-    backend::Backend,
     buffer::Buffer,
     layout::{Corner, Rect},
     style::{Color, Style},
     text::{Span, Spans},
     widgets::{Block, Borders, List, ListItem, StatefulWidget, Widget},
-    Frame,
 };
 
 // These colors match the red, green, and blue used in the pitch data from the API.

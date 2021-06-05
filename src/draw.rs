@@ -1,13 +1,11 @@
 use tui::backend::Backend;
-use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
-use tui::text::{Span, Spans, Text};
-use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, Tabs, Wrap};
+use tui::layout::Rect;
+use tui::widgets::{Block, BorderType, Borders, Paragraph};
 use tui::{Frame, Terminal};
 
 use crate::app::{App, DebugState, MenuItem};
 use crate::debug::DebugInfo;
-use crate::gameday::{AtBatPanel, BoxPanel, Gameday, GamedayPanel, InfoPanel};
-use crate::linescore::LineScore;
+use crate::gameday::{AtBatPanel, BoxPanel, GamedayPanel, InfoPanel};
 use crate::ui::at_bat::AtBatWidget;
 use crate::ui::boxscore_stats::TeamBatterBoxscoreWidget;
 use crate::ui::help::render_help;
@@ -17,7 +15,6 @@ use crate::ui::matchup::MatchupWidget;
 use crate::ui::plays::InningPlaysWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::tabs::render_top_bar;
-use mlb_api::live::Linescore;
 
 pub fn draw<B>(terminal: &mut Terminal<B>, app: &mut App)
 where

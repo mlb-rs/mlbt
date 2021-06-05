@@ -1,13 +1,10 @@
-use crate::schedule::{Schedule, ScheduleState};
-use crate::ui::layout::LayoutAreas;
-use tui::widgets::{TableState, Widget};
+use crate::schedule::ScheduleState;
+
 use tui::{
-    backend::Backend,
     buffer::Buffer,
     layout::{Constraint, Rect},
     style::{Color, Modifier, Style},
     widgets::{Block, BorderType, Borders, Cell, Row, StatefulWidget, Table},
-    Frame,
 };
 
 const HEADER: &[&str; 4] = &["away", "home", "time [PST]", "status"];
