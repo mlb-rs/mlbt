@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.0.7] - 2021-06-05
+
+- Separate threads for network calls and rendering.
+- Cleaned up some of the rendering code by using the `StatefulWidget` trait.
+
 ## [0.0.6] - 2021-06-02
 
 - Hot fixes for an API error and layout bug

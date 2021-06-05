@@ -34,7 +34,8 @@ brew install mlbt
 
 ### Binaries
 
-macOS and Linux binaries are available on the [releases](https://github.com/mlb-rs/mlbt/releases) page.
+macOS, Linux, and Windows binaries are available on the
+[releases](https://github.com/mlb-rs/mlbt/releases) page.
 
 ### Cargo
 
