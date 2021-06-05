@@ -21,7 +21,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use std::{io, thread};
 
-use crate::app::{App, BoxscoreTab, DebugState, MenuItem};
+use crate::app::{App, DebugState, MenuItem};
 use crate::gameday::Gameday;
 use crate::live_game::GameState;
 use crate::schedule::ScheduleState;
@@ -56,7 +56,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         schedule: ScheduleState::from_schedule(&CLIENT.get_todays_schedule()),
         live_game: GameState::new(),
         debug_state: DebugState::Off,
-        boxscore_tab: BoxscoreTab::Home,
         gameday: Gameday::new(),
     }));
 

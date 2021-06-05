@@ -43,8 +43,8 @@ pub fn handle_key_bindings(
         (MenuItem::Gameday, Char('b')) => {
             // toggle box score
         }
-        (MenuItem::Gameday, Char('h')) => app.boxscore_tab = BoxscoreTab::Home,
-        (MenuItem::Gameday, Char('a')) => app.boxscore_tab = BoxscoreTab::Away,
+        (MenuItem::Gameday, Char('h')) => app.gameday.boxscore.stats.active = BoxscoreTab::Home,
+        (MenuItem::Gameday, Char('a')) => app.gameday.boxscore.stats.active = BoxscoreTab::Away,
         _ => {}
     }
     let _ = request_redraw.try_send(());

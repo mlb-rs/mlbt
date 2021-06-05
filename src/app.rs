@@ -29,7 +29,6 @@ pub struct App {
     pub debug_state: DebugState,
     pub schedule: ScheduleState,
     pub live_game: GameState,
-    pub boxscore_tab: BoxscoreTab,
     pub gameday: Gameday,
 }
 
@@ -52,12 +51,6 @@ impl App {
         match self.debug_state {
             DebugState::Off => self.debug_state = DebugState::On,
             DebugState::On => self.debug_state = DebugState::Off,
-        }
-    }
-    pub fn get_boxscore_tab(&self) -> usize {
-        match self.boxscore_tab {
-            BoxscoreTab::Home => 0,
-            BoxscoreTab::Away => 1,
         }
     }
 }

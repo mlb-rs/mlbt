@@ -9,10 +9,12 @@ use crate::debug::DebugInfo;
 use crate::gameday::{AtBatPanel, BoxPanel, Gameday, GamedayPanel, InfoPanel};
 use crate::linescore::LineScore;
 use crate::ui::at_bat::AtBatWidget;
+use crate::ui::boxscore_stats::TeamBatterBoxscoreWidget;
 use crate::ui::help::render_help;
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
 use crate::ui::matchup::MatchupWidget;
+use crate::ui::plays::InningPlaysWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::tabs::render_top_bar;
 use mlb_api::live::Linescore;
@@ -29,7 +31,7 @@ where
     }
 
     terminal
-        .draw(|mut f| {
+        .draw(|f| {
             main_layout.update(f.size());
             render_top_bar(f, &main_layout.top_bar);
 
@@ -89,7 +91,11 @@ where
         BoxPanel::draw_border(f, p);
         app.live_game.linescore.mini = true;
         f.render_stateful_widget(LineScoreWidget {}, p, &mut app.live_game.linescore);
-        app.gameday.boxscore.stats.render(f, p, app); // TODO
+        f.render_stateful_widget(
+            TeamBatterBoxscoreWidget {},
+            p,
+            &mut app.gameday.boxscore.stats,
+        );
     }
     if app.gameday.at_bat.active {
         let p = panels.pop().unwrap();
@@ -100,6 +106,6 @@ where
         let p = panels.pop().unwrap();
         InfoPanel::draw_border(f, p);
         f.render_stateful_widget(MatchupWidget {}, p, &mut app.live_game.matchup);
-        app.gameday.info.plays.render(f, p); // TODO
+        f.render_stateful_widget(InningPlaysWidget {}, p, &mut app.live_game.plays);
     }
 }
