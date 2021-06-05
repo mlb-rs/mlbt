@@ -1,3 +1,4 @@
+use crate::app::GamedayPanels;
 use tui::layout::{Constraint, Direction, Layout, Rect};
 
 pub struct LayoutAreas {
@@ -53,11 +54,11 @@ impl LayoutAreas {
 
     /// Create a split in the `main` section so that the top Rect is sized correctly to display a
     /// box score.
-    pub fn for_boxscore(&self) -> Vec<Rect> {
+    pub fn for_boxscore(rect: Rect) -> Vec<Rect> {
         Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Length(7), Constraint::Percentage(100)].as_ref())
-            .split(self.main)
+            .split(rect)
     }
 
     /// Create two splits for displaying game info and the plays that have happened in the current
@@ -74,5 +75,26 @@ impl LayoutAreas {
                 .as_ref(),
             )
             .split(rect)
+    }
+
+    /// Create the Gameday layouts based on how many of the panels are active.
+    pub fn generate_layouts(active: &GamedayPanels, area: Rect) -> Vec<Rect> {
+        let constraints = match active.count() {
+            0 | 1 => vec![Constraint::Percentage(100)],
+            2 => vec![Constraint::Percentage(50), Constraint::Percentage(50)],
+            3 => vec![
+                Constraint::Ratio(1, 3),
+                Constraint::Ratio(1, 3),
+                Constraint::Ratio(1, 3),
+                // Constraint::Percentage(33),
+                // Constraint::Percentage(34),
+                // Constraint::Percentage(33),
+            ],
+            _ => vec![],
+        };
+        Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(constraints.as_slice())
+            .split(area)
     }
 }

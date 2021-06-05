@@ -7,7 +7,7 @@ pub struct BatterBoxscore {
     order: u8,
     name: String,
     position: String,
-    at_bats: u8,
+    at_bats: u16,
     runs: u8,
     hits: u8,
     rbis: u8,
@@ -62,10 +62,18 @@ impl BatterBoxscore {
     }
 }
 
-#[derive(Default)]
 pub struct TeamBatterBoxscore {
     home_batting: Vec<BatterBoxscore>,
     away_batting: Vec<BatterBoxscore>,
+}
+
+impl Default for TeamBatterBoxscore {
+    fn default() -> Self {
+        TeamBatterBoxscore {
+            home_batting: vec![],
+            away_batting: vec![],
+        }
+    }
 }
 
 impl TeamBatterBoxscore {
@@ -94,8 +102,8 @@ impl TeamBatterBoxscore {
             .collect()
     }
 
-    pub fn to_table_row(&self, team: &BoxscoreTab) -> Vec<Vec<String>> {
-        match team {
+    pub fn to_table_row(&self, active: BoxscoreTab) -> Vec<Vec<String>> {
+        match active {
             BoxscoreTab::Home => self.home_batting.iter().map(|p| p.to_vec()).collect(),
             BoxscoreTab::Away => self.away_batting.iter().map(|p| p.to_vec()).collect(),
         }

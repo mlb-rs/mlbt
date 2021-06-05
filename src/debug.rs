@@ -1,5 +1,4 @@
-use crate::app::App;
-use crate::gameday::GamedayViews;
+use crate::app::{App, GamedayPanels};
 use std::fmt;
 use tui::backend::Backend;
 use tui::Frame;
@@ -9,7 +8,7 @@ pub struct DebugInfo {
     pub gameday_url: String,
     pub terminal_width: u16,
     pub terminal_height: u16,
-    pub gameday_active_views: GamedayViews,
+    pub gameday_active_views: GamedayPanels,
 }
 
 impl fmt::Display for DebugInfo {
@@ -33,7 +32,7 @@ impl DebugInfo {
             gameday_url: "https://www.mlb.com/scores".to_string(),
             terminal_width: 0,
             terminal_height: 0,
-            gameday_active_views: GamedayViews::default(),
+            gameday_active_views: GamedayPanels::default(),
         }
     }
     // TODO add more info
@@ -47,6 +46,6 @@ impl DebugInfo {
         self.gameday_url = format!("https://www.mlb.com/gameday/{}", self.game_id);
         self.terminal_width = f.size().width;
         self.terminal_height = f.size().height;
-        self.gameday_active_views = app.gameday.get_active();
+        self.gameday_active_views = app.gameday;
     }
 }

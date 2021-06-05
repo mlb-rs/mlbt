@@ -3,7 +3,7 @@ use tui::widgets::Paragraph;
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout},
-    style::{Color, Modifier, Style},
+    style::{Modifier, Style},
     text::Span,
     widgets::{Block, BorderType, Borders, Clear, Row, Table},
     Frame,
@@ -44,11 +44,10 @@ where
     let help_menu_style = Style::default();
     let header = ["Description", "Key"];
     let header = format_row(header.iter().map(|s| s.to_string()).collect());
-    let header = Row::new(header).height(1).bottom_margin(1).style(
-        Style::default()
-            .add_modifier(Modifier::BOLD)
-            .bg(Color::Black),
-    );
+    let header = Row::new(header)
+        .height(1)
+        .bottom_margin(1)
+        .style(Style::default().add_modifier(Modifier::BOLD));
 
     let help_docs = get_help_docs();
     let help_docs = help_docs

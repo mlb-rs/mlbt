@@ -1,22 +1,23 @@
 use chrono::DateTime;
 use chrono_tz::America::Los_Angeles;
 use core::option::Option::{None, Some};
+use lazy_static::lazy_static;
 use mlb_api::schedule::{Game, ScheduleResponse};
 use std::collections::HashMap;
 use tui::widgets::TableState;
 
-pub struct StatefulSchedule {
+pub struct ScheduleState {
     pub state: TableState,
     pub schedule: Schedule,
 }
 
-impl StatefulSchedule {
-    pub fn new(schedule: &ScheduleResponse) -> StatefulSchedule {
+impl ScheduleState {
+    pub fn from_schedule(schedule: &ScheduleResponse) -> Self {
         let s = Schedule {
             game_info: Schedule::create_table(schedule),
             game_ids: Schedule::get_game_pks(schedule),
         };
-        let mut ss = StatefulSchedule {
+        let mut ss = ScheduleState {
             state: TableState::default(),
             schedule: s,
         };
@@ -71,7 +72,6 @@ impl StatefulSchedule {
 }
 
 pub struct Schedule {
-    // items: Vec<Vec<&'a str>>, // TODO use &str or String?
     pub game_info: Vec<Vec<String>>,
     pub game_ids: Vec<u64>,
 }

@@ -1,26 +1,29 @@
 use crate::matchup::Matchup;
 use crate::ui::layout::LayoutAreas;
+
 use tui::{
-    backend::Backend,
+    buffer::Buffer,
     layout::{Constraint, Rect},
     style::{Color, Style},
-    widgets::{Block, Borders, Row, Table},
-    Frame,
+    widgets::{Block, Borders, Row, StatefulWidget, Table, Widget},
 };
 
-impl Matchup {
-    pub fn render<B>(&self, f: &mut Frame<B>, rect: Rect)
-    where
-        B: Backend,
-    {
-        let chunks = LayoutAreas::for_info(rect);
+pub struct MatchupWidget {}
 
-        let t = Table::new(self.to_table().iter().map(|row| Row::new(row.clone())))
-            .widths(&[Constraint::Length(12), Constraint::Length(25)])
-            .column_spacing(1)
-            .style(Style::default().fg(Color::White))
-            .block(Block::default().borders(Borders::NONE));
+impl StatefulWidget for MatchupWidget {
+    type State = Matchup;
 
-        f.render_widget(t, chunks[0]);
+    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+        let chunks = LayoutAreas::for_info(area);
+
+        Widget::render(
+            Table::new(state.to_table().iter().map(|row| Row::new(row.clone())))
+                .widths(&[Constraint::Length(12), Constraint::Length(25)])
+                .column_spacing(1)
+                .style(Style::default().fg(Color::White))
+                .block(Block::default().borders(Borders::NONE)),
+            chunks[0],
+            buf,
+        );
     }
 }

@@ -1,28 +1,27 @@
-use crate::schedule::StatefulSchedule;
+use crate::schedule::ScheduleState;
+
 use tui::{
-    backend::Backend,
+    buffer::Buffer,
     layout::{Constraint, Rect},
     style::{Color, Modifier, Style},
-    widgets::{Block, BorderType, Borders, Cell, Row, Table},
-    Frame,
+    widgets::{Block, BorderType, Borders, Cell, Row, StatefulWidget, Table},
 };
 
-impl StatefulSchedule {
-    pub fn render<B>(&mut self, f: &mut Frame<B>, rect: Rect)
-    where
-        B: Backend,
-    {
-        let header_cells = ["away", "home", "time [PST]", "status"]
-            .iter()
-            .map(|h| Cell::from(*h));
+const HEADER: &[&str; 4] = &["away", "home", "time [PST]", "status"];
 
-        let header = Row::new(header_cells).height(1).bottom_margin(1).style(
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .bg(Color::Black),
-        );
+pub struct ScheduleWidget {}
 
-        let rows = self
+impl StatefulWidget for ScheduleWidget {
+    type State = ScheduleState;
+
+    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+        let header_cells = HEADER.iter().map(|h| Cell::from(*h));
+        let header = Row::new(header_cells)
+            .height(1)
+            .bottom_margin(1)
+            .style(Style::default().add_modifier(Modifier::BOLD));
+
+        let rows = state
             .schedule
             .game_info
             .iter()
@@ -34,8 +33,7 @@ impl StatefulSchedule {
             .block(
                 Block::default()
                     .borders(Borders::ALL)
-                    .border_type(BorderType::Rounded)
-                    .title("scoreboard"),
+                    .border_type(BorderType::Rounded),
             )
             .highlight_style(selected_style)
             .highlight_symbol(">> ")
@@ -46,6 +44,6 @@ impl StatefulSchedule {
                 Constraint::Percentage(44),
             ]);
 
-        f.render_stateful_widget(t, rect, &mut self.state);
+        StatefulWidget::render(t, area, buf, &mut state.state);
     }
 }

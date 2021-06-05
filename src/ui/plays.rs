@@ -1,12 +1,12 @@
 use crate::plays::{InningPlays, PlayResult};
 use crate::ui::layout::LayoutAreas;
+
 use tui::{
-    backend::Backend,
+    buffer::Buffer,
     layout::{Corner, Rect},
     style::{Color, Style},
     text::{Span, Spans},
-    widgets::{Block, Borders, List, ListItem},
-    Frame,
+    widgets::{Block, Borders, List, ListItem, StatefulWidget, Widget},
 };
 
 // These colors match the red, green, and blue used in the pitch data from the API.
@@ -59,16 +59,20 @@ impl InningPlays {
     }
 }
 
-impl InningPlays {
-    pub fn render<B>(&self, f: &mut Frame<B>, rect: Rect)
-    where
-        B: Backend,
-    {
-        let chunks = LayoutAreas::for_info(rect);
+pub struct InningPlaysWidget {}
 
-        let events_list = List::new(self.as_list())
-            .block(Block::default().borders(Borders::NONE))
-            .start_corner(Corner::TopLeft);
-        f.render_widget(events_list, chunks[1]);
+impl StatefulWidget for InningPlaysWidget {
+    type State = InningPlays;
+
+    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+        let chunks = LayoutAreas::for_info(area);
+
+        Widget::render(
+            List::new(state.as_list())
+                .block(Block::default().borders(Borders::NONE))
+                .start_corner(Corner::TopLeft),
+            chunks[1],
+            buf,
+        );
     }
 }

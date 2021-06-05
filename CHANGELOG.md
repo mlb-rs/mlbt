@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.0.6] - 2021-06-02
+
+- Hot fixes for an API error and layout bug
+
 ## [0.0.5] - 2021-05-30
 
 - Pitches are displayed in the correct location in the strike zone!

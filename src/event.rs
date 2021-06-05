@@ -1,77 +1,45 @@
-use std::io;
-use std::sync::mpsc;
-use std::thread;
-use std::time::Duration;
+use crate::app::{BoxscoreTab, MenuItem};
+use crate::{app, cleanup_terminal};
+use crossbeam_channel::Sender;
+use crossterm::event::KeyCode::Char;
+use crossterm::event::{KeyCode, KeyEvent};
 
-use termion::event::Key;
-use termion::input::TermRead;
-
-pub enum Event<I> {
-    Input(I),
-    Tick,
-}
-
-/// A small event handler that wrap termion input and tick events. Each event
-/// type is handled in its own thread and returned to a common `Receiver`
-pub struct Events {
-    rx: mpsc::Receiver<Event<Key>>,
-    input_handle: thread::JoinHandle<()>,
-    tick_handle: thread::JoinHandle<()>,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct Config {
-    pub exit_key: Key,
-    pub tick_rate: Duration,
-}
-
-impl Default for Config {
-    fn default() -> Config {
-        Config {
-            exit_key: Key::Char('q'),
-            tick_rate: Duration::from_secs(20), // TODO need to setup separate tick rate for API calls
+pub fn handle_key_bindings(
+    mode: MenuItem,
+    key_event: KeyEvent,
+    mut app: &mut app::App,
+    request_redraw: &Sender<()>,
+    schedule_update: &Sender<()>,
+) {
+    match (mode, key_event.code) {
+        (_, Char('q')) => {
+            cleanup_terminal();
+            std::process::exit(0);
         }
-    }
-}
+        (_, Char('1')) => app.update_tab(MenuItem::Scoreboard),
+        (_, Char('2')) => app.update_tab(MenuItem::Gameday),
+        (_, Char('3')) => app.update_tab(MenuItem::Stats),
+        (_, Char('4')) => app.update_tab(MenuItem::Standings),
 
-impl Events {
-    pub fn new() -> Events {
-        Events::with_config(Config::default())
-    }
-
-    pub fn with_config(config: Config) -> Events {
-        let (tx, rx) = mpsc::channel();
-        let input_handle = {
-            let tx = tx.clone();
-            thread::spawn(move || {
-                let stdin = io::stdin();
-                for evt in stdin.keys().flatten() {
-                    if let Err(err) = tx.send(Event::Input(evt)) {
-                        eprintln!("{}", err);
-                        return;
-                    }
-                    if evt == config.exit_key {
-                        return;
-                    }
-                }
-            })
-        };
-        let tick_handle = {
-            thread::spawn(move || loop {
-                if tx.send(Event::Tick).is_err() {
-                    break;
-                }
-                thread::sleep(config.tick_rate);
-            })
-        };
-        Events {
-            rx,
-            input_handle,
-            tick_handle,
+        (MenuItem::Scoreboard, Char('j')) => {
+            app.schedule.next();
+            let _ = schedule_update.try_send(());
         }
-    }
+        (MenuItem::Scoreboard, Char('k')) => {
+            app.schedule.previous();
+            let _ = schedule_update.try_send(());
+        }
 
-    pub fn next(&self) -> Result<Event<Key>, mpsc::RecvError> {
-        self.rx.recv()
+        (_, Char('?')) => app.update_tab(MenuItem::Help),
+        (_, KeyCode::Esc) => app.exit_help(),
+        (_, Char('d')) => app.toggle_debug(),
+
+        (MenuItem::Gameday, Char('i')) => app.gameday.info = !app.gameday.info,
+        (MenuItem::Gameday, Char('p')) => app.gameday.at_bat = !app.gameday.at_bat,
+        (MenuItem::Gameday, Char('b')) => app.gameday.boxscore = !app.gameday.boxscore,
+        (MenuItem::Gameday, Char('h')) => app.boxscore_tab = BoxscoreTab::Home,
+        (MenuItem::Gameday, Char('a')) => app.boxscore_tab = BoxscoreTab::Away,
+        _ => {}
     }
+    let _ = request_redraw.try_send(());
 }
