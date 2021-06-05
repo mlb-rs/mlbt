@@ -10,6 +10,7 @@ jobs:
     name: Publishing for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
         rust: [ stable ]
@@ -39,14 +40,9 @@ jobs:
       - name: Installing Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: ${{ matrix.rust }}
+          toolchain: stable
+          target: ${{ matrix.target }}
           override: true
-
-      - name: Installing Ubuntu dependencies
-        if: matrix.triple.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y -q libssl-dev
 
       - name: Checking out sources
         uses: actions/checkout@v2
@@ -54,9 +50,8 @@ jobs:
       - name: Running cargo build
         uses: actions-rs/cargo@v1
         with:
-          command: build
-          toolchain: ${{ matrix.rust }}
           use-cross: ${{ matrix.cross }}
+          command: build
           args: --release --target ${{ matrix.target }}
 
       - name: Packaging final binary (Windows)
@@ -91,12 +86,3 @@ jobs:
             target/${{ matrix.target }}/release/mlbt-${{ matrix.artifact_prefix }}.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Add SHA to artifacts
-        run: |
-          cp target/${{ matrix.triple.target }}/release/${{ env.RELEASE_NAME }}.sha256 artifacts/
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v1
-        with:
-          name: artifacts
-          path: artifacts
