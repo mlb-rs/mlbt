@@ -31,10 +31,11 @@ jobs:
             os: windows-latest
             artifact_prefix: windows
             cross: false
-          - target: armv7-unknown-linux-gnueabihf
-            os: ubuntu-latest
-            artifact_prefix: armv7
-            cross: false
+            # TODO fix openssl issue
+#          - target: armv7-unknown-linux-gnueabihf
+#            os: ubuntu-latest
+#            artifact_prefix: armv7
+#            cross: true
 
     steps:
       - name: Installing Rust toolchain
