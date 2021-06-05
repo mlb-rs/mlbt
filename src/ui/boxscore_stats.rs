@@ -73,11 +73,7 @@ impl StatefulWidget for TeamBatterBoxscoreWidget {
         let header = Row::new(HEADER.iter().map(|h| Cell::from(*h)).collect::<Vec<Cell>>())
             .height(1)
             .bottom_margin(1)
-            .style(
-                Style::default()
-                    .add_modifier(Modifier::BOLD)
-                    .bg(Color::Black),
-            );
+            .style(Style::default().add_modifier(Modifier::BOLD));
 
         Widget::render(
             Table::new(state.to_table_row().iter().map(|row| Row::new(row.clone())))
