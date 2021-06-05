@@ -34,11 +34,7 @@ impl StatefulWidget for LineScoreWidget {
         let header = Row::new(state.header.clone())
             .height(1)
             .bottom_margin(1)
-            .style(
-                Style::default()
-                    .add_modifier(Modifier::BOLD)
-                    .bg(Color::Black),
-            );
+            .style(Style::default().add_modifier(Modifier::BOLD));
 
         let t = Table::new(vec![
             Row::new(state.away.create_score_vec()).bottom_margin(1),

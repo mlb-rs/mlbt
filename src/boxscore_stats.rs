@@ -63,7 +63,6 @@ impl BatterBoxscore {
 }
 
 pub struct TeamBatterBoxscore {
-    pub active: BoxscoreTab,
     home_batting: Vec<BatterBoxscore>,
     away_batting: Vec<BatterBoxscore>,
 }
@@ -71,7 +70,6 @@ pub struct TeamBatterBoxscore {
 impl Default for TeamBatterBoxscore {
     fn default() -> Self {
         TeamBatterBoxscore {
-            active: BoxscoreTab::Home,
             home_batting: vec![],
             away_batting: vec![],
         }
@@ -85,7 +83,6 @@ impl TeamBatterBoxscore {
             None => return TeamBatterBoxscore::default(),
         };
         TeamBatterBoxscore {
-            active: BoxscoreTab::Home,
             home_batting: TeamBatterBoxscore::transform(home),
             away_batting: TeamBatterBoxscore::transform(away),
         }
@@ -105,17 +102,10 @@ impl TeamBatterBoxscore {
             .collect()
     }
 
-    pub fn to_table_row(&self) -> Vec<Vec<String>> {
-        match self.active {
+    pub fn to_table_row(&self, active: BoxscoreTab) -> Vec<Vec<String>> {
+        match active {
             BoxscoreTab::Home => self.home_batting.iter().map(|p| p.to_vec()).collect(),
             BoxscoreTab::Away => self.away_batting.iter().map(|p| p.to_vec()).collect(),
-        }
-    }
-
-    pub fn get_active_tab(&self) -> usize {
-        match self.active {
-            BoxscoreTab::Home => 0,
-            BoxscoreTab::Away => 1,
         }
     }
 }

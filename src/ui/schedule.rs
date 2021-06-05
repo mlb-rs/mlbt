@@ -16,11 +16,10 @@ impl StatefulWidget for ScheduleWidget {
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let header_cells = HEADER.iter().map(|h| Cell::from(*h));
-        let header = Row::new(header_cells).height(1).bottom_margin(1).style(
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .bg(Color::Black),
-        );
+        let header = Row::new(header_cells)
+            .height(1)
+            .bottom_margin(1)
+            .style(Style::default().add_modifier(Modifier::BOLD));
 
         let rows = state
             .schedule
@@ -34,8 +33,7 @@ impl StatefulWidget for ScheduleWidget {
             .block(
                 Block::default()
                     .borders(Borders::ALL)
-                    .border_type(BorderType::Rounded)
-                    .title("scoreboard"),
+                    .border_type(BorderType::Rounded),
             )
             .highlight_style(selected_style)
             .highlight_symbol(">> ")
