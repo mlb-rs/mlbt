@@ -1,5 +1,6 @@
 use crate::live_game::GameState;
 use crate::schedule::ScheduleState;
+use mlb_api::live::LiveResponse;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum MenuItem {
@@ -10,29 +11,18 @@ pub enum MenuItem {
     Help,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum DebugState {
-    On,
-    Off,
-}
-
-pub enum BoxscoreTab {
-    Home,
-    Away,
-}
-
 pub struct App {
     pub active_tab: MenuItem,
     pub previous_state: MenuItem,
     pub debug_state: DebugState,
     pub schedule: ScheduleState,
     pub live_game: GameState,
-    pub boxscore_tab: BoxscoreTab,
+    pub gameday: GamedayPanels,
 }
 
 impl App {
-    pub fn update(&mut self) {
-        self.live_game.update();
+    pub fn update_live_data(&mut self, live_data: &LiveResponse) {
+        self.live_game.update(live_data);
     }
     pub fn update_tab(&mut self, next: MenuItem) {
         self.previous_state = self.active_tab;
@@ -50,10 +40,42 @@ impl App {
             DebugState::On => self.debug_state = DebugState::Off,
         }
     }
-    pub fn get_boxscore_tab(&self) -> usize {
-        match self.boxscore_tab {
-            BoxscoreTab::Home => 0,
-            BoxscoreTab::Away => 1,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum DebugState {
+    On,
+    Off,
+}
+
+/// Store which team should be displayed in the boxscore in the Gameday tab.
+pub enum BoxscoreTab {
+    Home,
+    Away,
+}
+
+/// Store which panels should be rendered in the Gameday tab.
+#[derive(Debug, Copy, Clone)]
+pub struct GamedayPanels {
+    pub info: bool,
+    pub at_bat: bool,
+    pub boxscore: bool,
+}
+
+impl GamedayPanels {
+    /// Return the number of panels that are active.
+    pub fn count(&self) -> usize {
+        self.info as usize + self.at_bat as usize + self.boxscore as usize
+    }
+}
+
+impl Default for GamedayPanels {
+    /// All panels should be active to start.
+    fn default() -> Self {
+        GamedayPanels {
+            info: true,
+            at_bat: true,
+            boxscore: true,
         }
     }
 }

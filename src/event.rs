@@ -1,8 +1,8 @@
-use crate::app::MenuItem;
+use crate::app::{BoxscoreTab, MenuItem};
 use crate::{app, cleanup_terminal};
 use crossbeam_channel::Sender;
 use crossterm::event::KeyCode::Char;
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{KeyCode, KeyEvent};
 
 pub fn handle_key_bindings(
     mode: MenuItem,
@@ -34,21 +34,11 @@ pub fn handle_key_bindings(
         (_, KeyCode::Esc) => app.exit_help(),
         (_, Char('d')) => app.toggle_debug(),
 
-        (MenuItem::Gameday, Char('i')) => {
-            // toggle info
-        }
-        (MenuItem::Gameday, Char('p')) => {
-            // toggle pitches
-        }
-        (MenuItem::Gameday, Char('b')) => {
-            // toggle box score
-        }
-        (MenuItem::Gameday, Char('h')) => {
-            // home box score
-        }
-        (MenuItem::Gameday, Char('a')) => {
-            // away box score
-        }
+        (MenuItem::Gameday, Char('i')) => app.gameday.info = !app.gameday.info,
+        (MenuItem::Gameday, Char('p')) => app.gameday.at_bat = !app.gameday.at_bat,
+        (MenuItem::Gameday, Char('b')) => app.gameday.boxscore = !app.gameday.boxscore,
+        (MenuItem::Gameday, Char('h')) => app.live_game.boxscore.active = BoxscoreTab::Home,
+        (MenuItem::Gameday, Char('a')) => app.live_game.boxscore.active = BoxscoreTab::Away,
         _ => {}
     }
     let _ = request_redraw.try_send(());
