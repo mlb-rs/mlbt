@@ -1,3 +1,4 @@
+use crate::app::BoxscoreTab;
 use crate::boxscore_stats::TeamBatterBoxscore;
 
 use tui::{
@@ -11,7 +12,9 @@ use tui::{
 const HEADER: [&str; 9] = ["player", "ab", "r", "h", "rbi", "bb", "so", "lob", "avg"];
 const HOME_AWAY: [&str; 2] = ["home", "away"];
 
-pub struct TeamBatterBoxscoreWidget {}
+pub struct TeamBatterBoxscoreWidget {
+    pub active: BoxscoreTab,
+}
 
 impl StatefulWidget for TeamBatterBoxscoreWidget {
     type State = TeamBatterBoxscore;
@@ -50,7 +53,7 @@ impl StatefulWidget for TeamBatterBoxscoreWidget {
                     .collect(),
             )
             .block(Block::default().borders(Borders::NONE))
-            .select(state.get_active_tab())
+            .select(self.active as usize)
             .style(Style::default().fg(Color::White))
             .highlight_style(
                 Style::default()
@@ -60,8 +63,6 @@ impl StatefulWidget for TeamBatterBoxscoreWidget {
             chunk[1],
             buf,
         );
-
-        // f.render_widget(tabs, chunk[1]);
 
         let width = 3;
         let mut widths = vec![Constraint::Length(width); HEADER.len()];
@@ -76,12 +77,17 @@ impl StatefulWidget for TeamBatterBoxscoreWidget {
             .style(Style::default().add_modifier(Modifier::BOLD));
 
         Widget::render(
-            Table::new(state.to_table_row().iter().map(|row| Row::new(row.clone())))
-                .widths(widths.as_slice())
-                .column_spacing(1)
-                .style(Style::default().fg(Color::White))
-                .header(header)
-                .block(Block::default().borders(Borders::NONE)),
+            Table::new(
+                state
+                    .to_table_row(self.active)
+                    .iter()
+                    .map(|row| Row::new(row.clone())),
+            )
+            .widths(widths.as_slice())
+            .column_spacing(1)
+            .style(Style::default().fg(Color::White))
+            .header(header)
+            .block(Block::default().borders(Borders::NONE)),
             chunk[2],
             buf,
         );

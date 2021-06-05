@@ -37,8 +37,8 @@ pub fn handle_key_bindings(
         (MenuItem::Gameday, Char('i')) => app.gameday.info = !app.gameday.info,
         (MenuItem::Gameday, Char('p')) => app.gameday.at_bat = !app.gameday.at_bat,
         (MenuItem::Gameday, Char('b')) => app.gameday.boxscore = !app.gameday.boxscore,
-        (MenuItem::Gameday, Char('h')) => app.live_game.boxscore.active = BoxscoreTab::Home,
-        (MenuItem::Gameday, Char('a')) => app.live_game.boxscore.active = BoxscoreTab::Away,
+        (MenuItem::Gameday, Char('h')) => app.boxscore_tab = BoxscoreTab::Home,
+        (MenuItem::Gameday, Char('a')) => app.boxscore_tab = BoxscoreTab::Away,
         _ => {}
     }
     let _ = request_redraw.try_send(());

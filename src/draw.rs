@@ -97,7 +97,13 @@ where
         draw_border(f, p);
         app.live_game.linescore.mini = true;
         f.render_stateful_widget(LineScoreWidget {}, p, &mut app.live_game.linescore);
-        f.render_stateful_widget(TeamBatterBoxscoreWidget {}, p, &mut app.live_game.boxscore);
+        f.render_stateful_widget(
+            TeamBatterBoxscoreWidget {
+                active: app.boxscore_tab,
+            },
+            p,
+            &mut app.live_game.boxscore,
+        );
     }
     if app.gameday.at_bat {
         let p = panels.pop().unwrap();

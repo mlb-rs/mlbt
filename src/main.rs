@@ -20,7 +20,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use std::{io, thread};
 
-use crate::app::{App, DebugState, GamedayPanels, MenuItem};
+use crate::app::{App, BoxscoreTab, DebugState, GamedayPanels, MenuItem};
 use crate::live_game::GameState;
 use crate::schedule::ScheduleState;
 use mlb_api::client::{MLBApi, MLBApiBuilder};
@@ -55,6 +55,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         live_game: GameState::new(),
         debug_state: DebugState::Off,
         gameday: GamedayPanels::default(),
+        boxscore_tab: BoxscoreTab::Home,
     }));
 
     // Network thread

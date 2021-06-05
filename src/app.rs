@@ -18,6 +18,7 @@ pub struct App {
     pub schedule: ScheduleState,
     pub live_game: GameState,
     pub gameday: GamedayPanels,
+    pub boxscore_tab: BoxscoreTab,
 }
 
 impl App {
@@ -49,9 +50,10 @@ pub enum DebugState {
 }
 
 /// Store which team should be displayed in the boxscore in the Gameday tab.
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum BoxscoreTab {
-    Home,
-    Away,
+    Home = 0,
+    Away = 1,
 }
 
 /// Store which panels should be rendered in the Gameday tab.
