@@ -34,17 +34,11 @@ pub fn handle_key_bindings(
         (_, KeyCode::Esc) => app.exit_help(),
         (_, Char('d')) => app.toggle_debug(),
 
-        (MenuItem::Gameday, Char('i')) => {
-            // toggle info
-        }
-        (MenuItem::Gameday, Char('p')) => {
-            // toggle pitches
-        }
-        (MenuItem::Gameday, Char('b')) => {
-            // toggle box score
-        }
-        (MenuItem::Gameday, Char('h')) => app.gameday.boxscore.stats.active = BoxscoreTab::Home,
-        (MenuItem::Gameday, Char('a')) => app.gameday.boxscore.stats.active = BoxscoreTab::Away,
+        (MenuItem::Gameday, Char('i')) => app.gameday.info = !app.gameday.info,
+        (MenuItem::Gameday, Char('p')) => app.gameday.at_bat = !app.gameday.at_bat,
+        (MenuItem::Gameday, Char('b')) => app.gameday.boxscore = !app.gameday.boxscore,
+        (MenuItem::Gameday, Char('h')) => app.live_game.boxscore.active = BoxscoreTab::Home,
+        (MenuItem::Gameday, Char('a')) => app.live_game.boxscore.active = BoxscoreTab::Away,
         _ => {}
     }
     let _ = request_redraw.try_send(());

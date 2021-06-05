@@ -5,7 +5,6 @@ use tui::{Frame, Terminal};
 
 use crate::app::{App, DebugState, MenuItem};
 use crate::debug::DebugInfo;
-use crate::gameday::{AtBatPanel, BoxPanel, GamedayPanel, InfoPanel};
 use crate::ui::at_bat::AtBatWidget;
 use crate::ui::boxscore_stats::TeamBatterBoxscoreWidget;
 use crate::ui::help::render_help;
@@ -74,34 +73,40 @@ where
         .unwrap();
 }
 
+fn draw_border<B>(f: &mut Frame<B>, rect: Rect)
+where
+    B: Backend,
+{
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded);
+    f.render_widget(block, rect);
+}
+
 fn draw_gameday<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
 where
     B: Backend,
 {
-    let mut panels = app.gameday.generate_layouts(rect);
+    let mut panels = LayoutAreas::generate_layouts(&app.gameday, rect);
 
     // I want the panels to be displayed [Info, Heat, Box] from left to right. So pop off
     // available panels starting with Box. Since `generate_layouts` takes into account how many
     // panels are active, all the pops are guaranteed to unwrap.
-    if app.gameday.boxscore.active {
+    if app.gameday.boxscore {
         let p = panels.pop().unwrap();
-        BoxPanel::draw_border(f, p);
+        draw_border(f, p);
         app.live_game.linescore.mini = true;
         f.render_stateful_widget(LineScoreWidget {}, p, &mut app.live_game.linescore);
-        f.render_stateful_widget(
-            TeamBatterBoxscoreWidget {},
-            p,
-            &mut app.gameday.boxscore.stats,
-        );
+        f.render_stateful_widget(TeamBatterBoxscoreWidget {}, p, &mut app.live_game.boxscore);
     }
-    if app.gameday.at_bat.active {
+    if app.gameday.at_bat {
         let p = panels.pop().unwrap();
-        AtBatPanel::draw_border(f, p);
+        draw_border(f, p);
         f.render_stateful_widget(AtBatWidget {}, p, &mut app.live_game.at_bat);
     }
-    if app.gameday.info.active {
+    if app.gameday.info {
         let p = panels.pop().unwrap();
-        InfoPanel::draw_border(f, p);
+        draw_border(f, p);
         f.render_stateful_widget(MatchupWidget {}, p, &mut app.live_game.matchup);
         f.render_stateful_widget(InningPlaysWidget {}, p, &mut app.live_game.plays);
     }

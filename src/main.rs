@@ -5,7 +5,6 @@ mod boxscore_stats;
 mod debug;
 mod draw;
 mod event;
-mod gameday;
 mod linescore;
 mod live_game;
 mod matchup;
@@ -21,8 +20,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use std::{io, thread};
 
-use crate::app::{App, DebugState, MenuItem};
-use crate::gameday::Gameday;
+use crate::app::{App, DebugState, GamedayPanels, MenuItem};
 use crate::live_game::GameState;
 use crate::schedule::ScheduleState;
 use mlb_api::client::{MLBApi, MLBApiBuilder};
@@ -56,7 +54,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         schedule: ScheduleState::from_schedule(&CLIENT.get_todays_schedule()),
         live_game: GameState::new(),
         debug_state: DebugState::Off,
-        gameday: Gameday::new(),
+        gameday: GamedayPanels::default(),
     }));
 
     // Network thread
