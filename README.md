@@ -6,8 +6,11 @@ A terminal user interface for the MLB Statcast API, written in Rust.
 
 Check scores, standings, and stats. Even watch a live game using Gameday!
 
+> This project is under active development! See the [v0.1.0 Milestone](https://github.com/mlb-rs/mlbt/milestone/1) for more information, planned features, and known bugs.
+
 ## Table of Contents
 
+- [What](#what)
 - [Installation](#installation)
   - [Homebrew](#homebrew)
   - [Binaries](#binaries)
@@ -20,6 +23,27 @@ Check scores, standings, and stats. Even watch a live game using Gameday!
 - [Config](#config)
 - [Shout out](#shout-out)
 - [Copyright Notice](#copyright-notice)
+- [License](#license)
+
+## What
+
+The MLB Statcast API is a publicly available (see its [license](#license)
+information below) REST API that you can query to get back almost any
+information about a baseball game, past or present. If you've ever watched a
+baseball game on TV you've seen the data the API passes around in action. Two
+prime examples are the pitch/strike zone overlay, and home run stats (like
+distance and launch angle). This is accomplished by MLB's sophisticated Statcast
+vision system, which is implemented in every Major League ballpark.
+
+This TUI is an interface for the API, with the intention of providing a light
+weight way to consume baseball data. See the [features](#features) listed below
+for more details.
+
+A TUI and baseball data make a pretty natural combination, at least compared to
+other sports. The Gameday view allows you to "watch" a live game by polling the
+API every 10 seconds. This matches the poll rate at which the official Gameday,
+found [here](https://www.mlb.com/scores), operates at. The goal with the TUI
+version is to mimic the official version as closely as possible.
 
 ## Installation
 
@@ -135,3 +159,8 @@ this data is subject to the license posted here:
 http://gdx.mlb.com/components/copyright.txt.
 
 This application and its author are not affiliated with the MLB.
+
+## License
+
+This project is under the
+[MIT License](https://github.com/mlb-rs/mlbt/blob/main/LICENSE).
