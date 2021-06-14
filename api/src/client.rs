@@ -1,6 +1,6 @@
 use crate::live::LiveResponse;
 use crate::schedule::ScheduleResponse;
-use crate::{live, schedule};
+use crate::standings::StandingsResponse;
 
 use chrono::NaiveDate;
 use derive_builder::Builder;
@@ -22,7 +22,7 @@ pub struct MLBApi {
 impl MLBApi {
     pub fn get_todays_schedule(&self) -> ScheduleResponse {
         let url = format!("{}v1/schedule?sportId=1", self.base_url);
-        self.get::<schedule::ScheduleResponse>(url)
+        self.get::<ScheduleResponse>(url)
     }
 
     pub fn get_schedule_date(&self, date: NaiveDate) -> ScheduleResponse {
@@ -31,7 +31,7 @@ impl MLBApi {
             self.base_url,
             date.format("%Y-%m-%d").to_string()
         );
-        self.get::<schedule::ScheduleResponse>(url)
+        self.get::<ScheduleResponse>(url)
     }
 
     pub fn get_live_data(&self, game_id: u64) -> LiveResponse {
@@ -42,18 +42,24 @@ impl MLBApi {
             "{}v1.1/game/{}/feed/live?language=en",
             self.base_url, game_id
         );
-        self.get::<live::LiveResponse>(url)
+        self.get::<LiveResponse>(url)
+    }
+
+    pub fn get_standings(&self) -> StandingsResponse {
+        let url = format!("{}v1/standings?leagueId=103,104", self.base_url);
+        self.get::<StandingsResponse>(url)
     }
 
     // TODO need better error handling, especially on parsing
     fn get<T: Default + DeserializeOwned>(&self, url: String) -> T {
-        let response = self.client.get(url).send();
-        let response = match response {
-            Ok(r) => r,
-            Err(e) => {
-                panic!("network error {:?}", e);
-            }
-        };
+        let response = self.client.get(url).send().unwrap_or_else(|err| {
+            panic!("network error {:?}", err);
+        });
+        // let response = match response {
+        //     Ok(r) => r,
+        //     Err(e) => {
+        //     }
+        // };
         let json = response.json::<T>().map(From::from);
         match json {
             Ok(j) => j,

@@ -1,0 +1,6861 @@
+{
+  "copyright": "Copyright 2021 MLB Advanced Media, L.P.  Use of any content on this page acknowledges agreement to the terms posted here http://gdx.mlb.com/components/copyright.txt",
+  "records": [
+    {
+      "standingsType": "regularSeason",
+      "league": {
+        "id": 103,
+        "link": "/api/v1/league/103"
+      },
+      "division": {
+        "id": 200,
+        "link": "/api/v1/divisions/200"
+      },
+      "sport": {
+        "id": 1,
+        "link": "/api/v1/sports/1"
+      },
+      "lastUpdated": "2021-06-10T14:49:18.000Z",
+      "teamRecords": [
+        {
+          "team": {
+            "id": 133,
+            "name": "Oakland Athletics",
+            "link": "/api/v1/teams/133"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "wins",
+            "streakNumber": 2,
+            "streakCode": "W2"
+          },
+          "divisionRank": "1",
+          "leagueRank": "4",
+          "sportRank": "6",
+          "gamesPlayed": 63,
+          "gamesBack": "-",
+          "wildCardGamesBack": "-",
+          "leagueGamesBack": "2.0",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "2.0",
+          "divisionGamesBack": "-",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 37,
+            "losses": 26,
+            "pct": ".587"
+          },
+          "lastUpdated": "2021-06-10T14:49:18Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 19,
+                "losses": 17,
+                "type": "home",
+                "pct": ".528"
+              },
+              {
+                "wins": 18,
+                "losses": 9,
+                "type": "away",
+                "pct": ".667"
+              },
+              {
+                "wins": 16,
+                "losses": 8,
+                "type": "left",
+                "pct": ".667"
+              },
+              {
+                "wins": 7,
+                "losses": 7,
+                "type": "leftHome",
+                "pct": ".500"
+              },
+              {
+                "wins": 9,
+                "losses": 1,
+                "type": "leftAway",
+                "pct": ".900"
+              },
+              {
+                "wins": 12,
+                "losses": 10,
+                "type": "rightHome",
+                "pct": ".545"
+              },
+              {
+                "wins": 9,
+                "losses": 8,
+                "type": "rightAway",
+                "pct": ".529"
+              },
+              {
+                "wins": 21,
+                "losses": 18,
+                "type": "right",
+                "pct": ".538"
+              },
+              {
+                "wins": 6,
+                "losses": 4,
+                "type": "lastTen",
+                "pct": ".600"
+              },
+              {
+                "wins": 2,
+                "losses": 1,
+                "type": "extraInning",
+                "pct": ".667"
+              },
+              {
+                "wins": 11,
+                "losses": 7,
+                "type": "oneRun",
+                "pct": ".611"
+              },
+              {
+                "wins": 12,
+                "losses": 15,
+                "type": "winners",
+                "pct": ".444"
+              },
+              {
+                "wins": 14,
+                "losses": 13,
+                "type": "day",
+                "pct": ".519"
+              },
+              {
+                "wins": 23,
+                "losses": 13,
+                "type": "night",
+                "pct": ".639"
+              },
+              {
+                "wins": 33,
+                "losses": 24,
+                "type": "grass",
+                "pct": ".579"
+              },
+              {
+                "wins": 4,
+                "losses": 2,
+                "type": "turf",
+                "pct": ".667"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 10,
+                "losses": 13,
+                "pct": ".435",
+                "division": {
+                  "id": 200,
+                  "name": "American League West",
+                  "link": "/api/v1/divisions/200"
+                }
+              },
+              {
+                "wins": 11,
+                "losses": 9,
+                "pct": ".550",
+                "division": {
+                  "id": 201,
+                  "name": "American League East",
+                  "link": "/api/v1/divisions/201"
+                }
+              },
+              {
+                "wins": 9,
+                "losses": 1,
+                "pct": ".900",
+                "division": {
+                  "id": 202,
+                  "name": "American League Central",
+                  "link": "/api/v1/divisions/202"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 19,
+                "losses": 17,
+                "type": "home",
+                "pct": ".528"
+              },
+              {
+                "wins": 18,
+                "losses": 9,
+                "type": "away",
+                "pct": ".667"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 30,
+                "losses": 23,
+                "pct": ".566",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 7,
+                "losses": 3,
+                "pct": ".700",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 33,
+                "losses": 30,
+                "type": "xWinLoss",
+                "pct": ".524"
+              },
+              {
+                "wins": 85,
+                "losses": 77,
+                "type": "xWinLossSeason",
+                "pct": ".525"
+              }
+            ]
+          },
+          "runsAllowed": 261,
+          "runsScored": 274,
+          "divisionChamp": false,
+          "divisionLeader": true,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "-",
+          "magicNumber": "100",
+          "wins": 37,
+          "losses": 26,
+          "runDifferential": 13,
+          "winningPercentage": ".587"
+        },
+        {
+          "team": {
+            "id": 117,
+            "name": "Houston Astros",
+            "link": "/api/v1/teams/117"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "wins",
+            "streakNumber": 3,
+            "streakCode": "W3"
+          },
+          "divisionRank": "2",
+          "leagueRank": "5",
+          "wildCardRank": "2",
+          "sportRank": "8",
+          "gamesPlayed": 61,
+          "gamesBack": "1.0",
+          "wildCardGamesBack": "-",
+          "leagueGamesBack": "3.0",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "3.0",
+          "divisionGamesBack": "1.0",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 35,
+            "losses": 26,
+            "pct": ".574"
+          },
+          "lastUpdated": "2021-06-10T14:49:18Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 20,
+                "losses": 13,
+                "type": "home",
+                "pct": ".606"
+              },
+              {
+                "wins": 15,
+                "losses": 13,
+                "type": "away",
+                "pct": ".536"
+              },
+              {
+                "wins": 17,
+                "losses": 13,
+                "type": "left",
+                "pct": ".567"
+              },
+              {
+                "wins": 8,
+                "losses": 6,
+                "type": "leftHome",
+                "pct": ".571"
+              },
+              {
+                "wins": 9,
+                "losses": 7,
+                "type": "leftAway",
+                "pct": ".563"
+              },
+              {
+                "wins": 12,
+                "losses": 7,
+                "type": "rightHome",
+                "pct": ".632"
+              },
+              {
+                "wins": 6,
+                "losses": 6,
+                "type": "rightAway",
+                "pct": ".500"
+              },
+              {
+                "wins": 18,
+                "losses": 13,
+                "type": "right",
+                "pct": ".581"
+              },
+              {
+                "wins": 8,
+                "losses": 2,
+                "type": "lastTen",
+                "pct": ".800"
+              },
+              {
+                "wins": 2,
+                "losses": 4,
+                "type": "extraInning",
+                "pct": ".333"
+              },
+              {
+                "wins": 5,
+                "losses": 7,
+                "type": "oneRun",
+                "pct": ".417"
+              },
+              {
+                "wins": 21,
+                "losses": 12,
+                "type": "winners",
+                "pct": ".636"
+              },
+              {
+                "wins": 12,
+                "losses": 11,
+                "type": "day",
+                "pct": ".522"
+              },
+              {
+                "wins": 23,
+                "losses": 15,
+                "type": "night",
+                "pct": ".605"
+              },
+              {
+                "wins": 33,
+                "losses": 22,
+                "type": "grass",
+                "pct": ".600"
+              },
+              {
+                "wins": 2,
+                "losses": 4,
+                "type": "turf",
+                "pct": ".333"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 21,
+                "losses": 12,
+                "pct": ".636",
+                "division": {
+                  "id": 200,
+                  "name": "American League West",
+                  "link": "/api/v1/divisions/200"
+                }
+              },
+              {
+                "wins": 12,
+                "losses": 6,
+                "pct": ".667",
+                "division": {
+                  "id": 201,
+                  "name": "American League East",
+                  "link": "/api/v1/divisions/201"
+                }
+              },
+              {
+                "wins": 0,
+                "losses": 3,
+                "pct": ".000",
+                "division": {
+                  "id": 202,
+                  "name": "American League Central",
+                  "link": "/api/v1/divisions/202"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 20,
+                "losses": 13,
+                "type": "home",
+                "pct": ".606"
+              },
+              {
+                "wins": 15,
+                "losses": 13,
+                "type": "away",
+                "pct": ".536"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 33,
+                "losses": 21,
+                "pct": ".611",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 2,
+                "losses": 5,
+                "pct": ".286",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 38,
+                "losses": 23,
+                "type": "xWinLoss",
+                "pct": ".623"
+              },
+              {
+                "wins": 101,
+                "losses": 61,
+                "type": "xWinLossSeason",
+                "pct": ".623"
+              }
+            ]
+          },
+          "runsAllowed": 248,
+          "runsScored": 328,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "wildCardLeader": true,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "100",
+          "wildCardEliminationNumber": "-",
+          "wins": 35,
+          "losses": 26,
+          "runDifferential": 80,
+          "winningPercentage": ".574"
+        },
+        {
+          "team": {
+            "id": 136,
+            "name": "Seattle Mariners",
+            "link": "/api/v1/teams/136"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "wins",
+            "streakNumber": 1,
+            "streakCode": "W1"
+          },
+          "divisionRank": "3",
+          "leagueRank": "9",
+          "wildCardRank": "6",
+          "sportRank": "16",
+          "gamesPlayed": 63,
+          "gamesBack": "6.0",
+          "wildCardGamesBack": "5.0",
+          "leagueGamesBack": "8.0",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "8.0",
+          "divisionGamesBack": "6.0",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 31,
+            "losses": 32,
+            "pct": ".492"
+          },
+          "lastUpdated": "2021-06-10T14:49:18Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 17,
+                "losses": 14,
+                "type": "home",
+                "pct": ".548"
+              },
+              {
+                "wins": 14,
+                "losses": 18,
+                "type": "away",
+                "pct": ".438"
+              },
+              {
+                "wins": 8,
+                "losses": 10,
+                "type": "left",
+                "pct": ".444"
+              },
+              {
+                "wins": 4,
+                "losses": 5,
+                "type": "leftHome",
+                "pct": ".444"
+              },
+              {
+                "wins": 4,
+                "losses": 5,
+                "type": "leftAway",
+                "pct": ".444"
+              },
+              {
+                "wins": 13,
+                "losses": 9,
+                "type": "rightHome",
+                "pct": ".591"
+              },
+              {
+                "wins": 10,
+                "losses": 13,
+                "type": "rightAway",
+                "pct": ".435"
+              },
+              {
+                "wins": 23,
+                "losses": 22,
+                "type": "right",
+                "pct": ".511"
+              },
+              {
+                "wins": 5,
+                "losses": 5,
+                "type": "lastTen",
+                "pct": ".500"
+              },
+              {
+                "wins": 6,
+                "losses": 0,
+                "type": "extraInning",
+                "pct": "1.000"
+              },
+              {
+                "wins": 13,
+                "losses": 6,
+                "type": "oneRun",
+                "pct": ".684"
+              },
+              {
+                "wins": 15,
+                "losses": 19,
+                "type": "winners",
+                "pct": ".441"
+              },
+              {
+                "wins": 13,
+                "losses": 7,
+                "type": "day",
+                "pct": ".650"
+              },
+              {
+                "wins": 18,
+                "losses": 25,
+                "type": "night",
+                "pct": ".419"
+              },
+              {
+                "wins": 30,
+                "losses": 30,
+                "type": "grass",
+                "pct": ".500"
+              },
+              {
+                "wins": 1,
+                "losses": 2,
+                "type": "turf",
+                "pct": ".333"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 15,
+                "losses": 12,
+                "pct": ".556",
+                "division": {
+                  "id": 200,
+                  "name": "American League West",
+                  "link": "/api/v1/divisions/200"
+                }
+              },
+              {
+                "wins": 6,
+                "losses": 5,
+                "pct": ".545",
+                "division": {
+                  "id": 201,
+                  "name": "American League East",
+                  "link": "/api/v1/divisions/201"
+                }
+              },
+              {
+                "wins": 7,
+                "losses": 8,
+                "pct": ".467",
+                "division": {
+                  "id": 202,
+                  "name": "American League Central",
+                  "link": "/api/v1/divisions/202"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 17,
+                "losses": 14,
+                "type": "home",
+                "pct": ".548"
+              },
+              {
+                "wins": 14,
+                "losses": 18,
+                "type": "away",
+                "pct": ".438"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 28,
+                "losses": 25,
+                "pct": ".528",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 3,
+                "losses": 7,
+                "pct": ".300",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 26,
+                "losses": 37,
+                "type": "xWinLoss",
+                "pct": ".413"
+              },
+              {
+                "wins": 67,
+                "losses": 95,
+                "type": "xWinLossSeason",
+                "pct": ".414"
+              }
+            ]
+          },
+          "runsAllowed": 301,
+          "runsScored": 248,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "94",
+          "wildCardEliminationNumber": "96",
+          "wins": 31,
+          "losses": 32,
+          "runDifferential": -53,
+          "winningPercentage": ".492"
+        },
+        {
+          "team": {
+            "id": 108,
+            "name": "Los Angeles Angels",
+            "link": "/api/v1/teams/108"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "wins",
+            "streakNumber": 3,
+            "streakCode": "W3"
+          },
+          "divisionRank": "4",
+          "leagueRank": "10",
+          "wildCardRank": "7",
+          "sportRank": "19",
+          "gamesPlayed": 62,
+          "gamesBack": "6.5",
+          "wildCardGamesBack": "5.5",
+          "leagueGamesBack": "8.5",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "8.5",
+          "divisionGamesBack": "6.5",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 30,
+            "losses": 32,
+            "pct": ".484"
+          },
+          "lastUpdated": "2021-06-10T14:49:18Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 18,
+                "losses": 16,
+                "type": "home",
+                "pct": ".529"
+              },
+              {
+                "wins": 12,
+                "losses": 16,
+                "type": "away",
+                "pct": ".429"
+              },
+              {
+                "wins": 10,
+                "losses": 9,
+                "type": "left",
+                "pct": ".526"
+              },
+              {
+                "wins": 8,
+                "losses": 4,
+                "type": "leftHome",
+                "pct": ".667"
+              },
+              {
+                "wins": 2,
+                "losses": 5,
+                "type": "leftAway",
+                "pct": ".286"
+              },
+              {
+                "wins": 10,
+                "losses": 12,
+                "type": "rightHome",
+                "pct": ".455"
+              },
+              {
+                "wins": 10,
+                "losses": 11,
+                "type": "rightAway",
+                "pct": ".476"
+              },
+              {
+                "wins": 20,
+                "losses": 23,
+                "type": "right",
+                "pct": ".465"
+              },
+              {
+                "wins": 7,
+                "losses": 3,
+                "type": "lastTen",
+                "pct": ".700"
+              },
+              {
+                "wins": 1,
+                "losses": 1,
+                "type": "extraInning",
+                "pct": ".500"
+              },
+              {
+                "wins": 9,
+                "losses": 5,
+                "type": "oneRun",
+                "pct": ".643"
+              },
+              {
+                "wins": 16,
+                "losses": 22,
+                "type": "winners",
+                "pct": ".421"
+              },
+              {
+                "wins": 8,
+                "losses": 9,
+                "type": "day",
+                "pct": ".471"
+              },
+              {
+                "wins": 22,
+                "losses": 23,
+                "type": "night",
+                "pct": ".489"
+              },
+              {
+                "wins": 28,
+                "losses": 31,
+                "type": "grass",
+                "pct": ".475"
+              },
+              {
+                "wins": 2,
+                "losses": 1,
+                "type": "turf",
+                "pct": ".667"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 14,
+                "losses": 17,
+                "pct": ".452",
+                "division": {
+                  "id": 200,
+                  "name": "American League West",
+                  "link": "/api/v1/divisions/200"
+                }
+              },
+              {
+                "wins": 3,
+                "losses": 7,
+                "pct": ".300",
+                "division": {
+                  "id": 201,
+                  "name": "American League East",
+                  "link": "/api/v1/divisions/201"
+                }
+              },
+              {
+                "wins": 10,
+                "losses": 6,
+                "pct": ".625",
+                "division": {
+                  "id": 202,
+                  "name": "American League Central",
+                  "link": "/api/v1/divisions/202"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 18,
+                "losses": 16,
+                "type": "home",
+                "pct": ".529"
+              },
+              {
+                "wins": 12,
+                "losses": 16,
+                "type": "away",
+                "pct": ".429"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 27,
+                "losses": 30,
+                "pct": ".474",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 3,
+                "losses": 2,
+                "pct": ".600",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 29,
+                "losses": 33,
+                "type": "xWinLoss",
+                "pct": ".468"
+              },
+              {
+                "wins": 75,
+                "losses": 87,
+                "type": "xWinLossSeason",
+                "pct": ".463"
+              }
+            ]
+          },
+          "runsAllowed": 316,
+          "runsScored": 291,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "94",
+          "wildCardEliminationNumber": "96",
+          "wins": 30,
+          "losses": 32,
+          "runDifferential": -25,
+          "winningPercentage": ".484"
+        },
+        {
+          "team": {
+            "id": 140,
+            "name": "Texas Rangers",
+            "link": "/api/v1/teams/140"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "wins",
+            "streakNumber": 1,
+            "streakCode": "W1"
+          },
+          "divisionRank": "5",
+          "leagueRank": "14",
+          "wildCardRank": "11",
+          "sportRank": "28",
+          "gamesPlayed": 63,
+          "gamesBack": "13.0",
+          "wildCardGamesBack": "12.0",
+          "leagueGamesBack": "15.0",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "15.0",
+          "divisionGamesBack": "13.0",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 24,
+            "losses": 39,
+            "pct": ".381"
+          },
+          "lastUpdated": "2021-06-10T14:49:18Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 15,
+                "losses": 16,
+                "type": "home",
+                "pct": ".484"
+              },
+              {
+                "wins": 9,
+                "losses": 23,
+                "type": "away",
+                "pct": ".281"
+              },
+              {
+                "wins": 13,
+                "losses": 11,
+                "type": "left",
+                "pct": ".542"
+              },
+              {
+                "wins": 7,
+                "losses": 4,
+                "type": "leftHome",
+                "pct": ".636"
+              },
+              {
+                "wins": 6,
+                "losses": 7,
+                "type": "leftAway",
+                "pct": ".462"
+              },
+              {
+                "wins": 8,
+                "losses": 12,
+                "type": "rightHome",
+                "pct": ".400"
+              },
+              {
+                "wins": 3,
+                "losses": 16,
+                "type": "rightAway",
+                "pct": ".158"
+              },
+              {
+                "wins": 11,
+                "losses": 28,
+                "type": "right",
+                "pct": ".282"
+              },
+              {
+                "wins": 2,
+                "losses": 8,
+                "type": "lastTen",
+                "pct": ".200"
+              },
+              {
+                "wins": 7,
+                "losses": 2,
+                "type": "extraInning",
+                "pct": ".778"
+              },
+              {
+                "wins": 7,
+                "losses": 11,
+                "type": "oneRun",
+                "pct": ".389"
+              },
+              {
+                "wins": 14,
+                "losses": 21,
+                "type": "winners",
+                "pct": ".400"
+              },
+              {
+                "wins": 10,
+                "losses": 13,
+                "type": "day",
+                "pct": ".435"
+              },
+              {
+                "wins": 14,
+                "losses": 26,
+                "type": "night",
+                "pct": ".350"
+              },
+              {
+                "wins": 6,
+                "losses": 22,
+                "type": "grass",
+                "pct": ".214"
+              },
+              {
+                "wins": 18,
+                "losses": 17,
+                "type": "turf",
+                "pct": ".514"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 8,
+                "losses": 14,
+                "pct": ".364",
+                "division": {
+                  "id": 200,
+                  "name": "American League West",
+                  "link": "/api/v1/divisions/200"
+                }
+              },
+              {
+                "wins": 11,
+                "losses": 10,
+                "pct": ".524",
+                "division": {
+                  "id": 201,
+                  "name": "American League East",
+                  "link": "/api/v1/divisions/201"
+                }
+              },
+              {
+                "wins": 4,
+                "losses": 6,
+                "pct": ".400",
+                "division": {
+                  "id": 202,
+                  "name": "American League Central",
+                  "link": "/api/v1/divisions/202"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 15,
+                "losses": 16,
+                "type": "home",
+                "pct": ".484"
+              },
+              {
+                "wins": 9,
+                "losses": 23,
+                "type": "away",
+                "pct": ".281"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 23,
+                "losses": 30,
+                "pct": ".434",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 1,
+                "losses": 9,
+                "pct": ".100",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 26,
+                "losses": 37,
+                "type": "xWinLoss",
+                "pct": ".413"
+              },
+              {
+                "wins": 67,
+                "losses": 95,
+                "type": "xWinLossSeason",
+                "pct": ".414"
+              }
+            ]
+          },
+          "runsAllowed": 300,
+          "runsScored": 246,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "87",
+          "wildCardEliminationNumber": "89",
+          "wins": 24,
+          "losses": 39,
+          "runDifferential": -54,
+          "winningPercentage": ".381"
+        }
+      ]
+    },
+    {
+      "standingsType": "regularSeason",
+      "league": {
+        "id": 103,
+        "link": "/api/v1/league/103"
+      },
+      "division": {
+        "id": 201,
+        "link": "/api/v1/divisions/201"
+      },
+      "sport": {
+        "id": 1,
+        "link": "/api/v1/sports/1"
+      },
+      "lastUpdated": "2021-06-10T14:49:18.000Z",
+      "teamRecords": [
+        {
+          "team": {
+            "id": 139,
+            "name": "Tampa Bay Rays",
+            "link": "/api/v1/teams/139"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "losses",
+            "streakNumber": 1,
+            "streakCode": "L1"
+          },
+          "divisionRank": "1",
+          "leagueRank": "1",
+          "sportRank": "2",
+          "gamesPlayed": 63,
+          "gamesBack": "-",
+          "wildCardGamesBack": "-",
+          "leagueGamesBack": "-",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "-",
+          "divisionGamesBack": "-",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 39,
+            "losses": 24,
+            "pct": ".619"
+          },
+          "lastUpdated": "2021-06-10T14:49:18Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 16,
+                "losses": 14,
+                "type": "home",
+                "pct": ".533"
+              },
+              {
+                "wins": 23,
+                "losses": 10,
+                "type": "away",
+                "pct": ".697"
+              },
+              {
+                "wins": 15,
+                "losses": 9,
+                "type": "left",
+                "pct": ".625"
+              },
+              {
+                "wins": 5,
+                "losses": 6,
+                "type": "leftHome",
+                "pct": ".455"
+              },
+              {
+                "wins": 10,
+                "losses": 3,
+                "type": "leftAway",
+                "pct": ".769"
+              },
+              {
+                "wins": 11,
+                "losses": 8,
+                "type": "rightHome",
+                "pct": ".579"
+              },
+              {
+                "wins": 13,
+                "losses": 7,
+                "type": "rightAway",
+                "pct": ".650"
+              },
+              {
+                "wins": 24,
+                "losses": 15,
+                "type": "right",
+                "pct": ".615"
+              },
+              {
+                "wins": 6,
+                "losses": 4,
+                "type": "lastTen",
+                "pct": ".600"
+              },
+              {
+                "wins": 3,
+                "losses": 5,
+                "type": "extraInning",
+                "pct": ".375"
+              },
+              {
+                "wins": 7,
+                "losses": 10,
+                "type": "oneRun",
+                "pct": ".412"
+              },
+              {
+                "wins": 20,
+                "losses": 16,
+                "type": "winners",
+                "pct": ".556"
+              },
+              {
+                "wins": 19,
+                "losses": 6,
+                "type": "day",
+                "pct": ".760"
+              },
+              {
+                "wins": 20,
+                "losses": 18,
+                "type": "night",
+                "pct": ".526"
+              },
+              {
+                "wins": 21,
+                "losses": 9,
+                "type": "grass",
+                "pct": ".700"
+              },
+              {
+                "wins": 18,
+                "losses": 15,
+                "type": "turf",
+                "pct": ".545"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 11,
+                "losses": 10,
+                "pct": ".524",
+                "division": {
+                  "id": 200,
+                  "name": "American League West",
+                  "link": "/api/v1/divisions/200"
+                }
+              },
+              {
+                "wins": 16,
+                "losses": 10,
+                "pct": ".615",
+                "division": {
+                  "id": 201,
+                  "name": "American League East",
+                  "link": "/api/v1/divisions/201"
+                }
+              },
+              {
+                "wins": 4,
+                "losses": 2,
+                "pct": ".667",
+                "division": {
+                  "id": 202,
+                  "name": "American League Central",
+                  "link": "/api/v1/divisions/202"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 16,
+                "losses": 14,
+                "type": "home",
+                "pct": ".533"
+              },
+              {
+                "wins": 23,
+                "losses": 10,
+                "type": "away",
+                "pct": ".697"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 31,
+                "losses": 22,
+                "pct": ".585",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 8,
+                "losses": 2,
+                "pct": ".800",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 39,
+                "losses": 24,
+                "type": "xWinLoss",
+                "pct": ".619"
+              },
+              {
+                "wins": 101,
+                "losses": 61,
+                "type": "xWinLossSeason",
+                "pct": ".623"
+              }
+            ]
+          },
+          "runsAllowed": 237,
+          "runsScored": 312,
+          "divisionChamp": false,
+          "divisionLeader": true,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "-",
+          "magicNumber": "99",
+          "wins": 39,
+          "losses": 24,
+          "runDifferential": 75,
+          "winningPercentage": ".619"
+        },
+        {
+          "team": {
+            "id": 111,
+            "name": "Boston Red Sox",
+            "link": "/api/v1/teams/111"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "losses",
+            "streakNumber": 2,
+            "streakCode": "L2"
+          },
+          "divisionRank": "2",
+          "leagueRank": "3",
+          "wildCardRank": "1",
+          "sportRank": "4",
+          "gamesPlayed": 62,
+          "gamesBack": "1.5",
+          "wildCardGamesBack": "+1.5",
+          "leagueGamesBack": "1.5",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "1.5",
+          "divisionGamesBack": "1.5",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 37,
+            "losses": 25,
+            "pct": ".597"
+          },
+          "lastUpdated": "2021-06-10T14:49:18Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 17,
+                "losses": 15,
+                "type": "home",
+                "pct": ".531"
+              },
+              {
+                "wins": 20,
+                "losses": 10,
+                "type": "away",
+                "pct": ".667"
+              },
+              {
+                "wins": 12,
+                "losses": 7,
+                "type": "left",
+                "pct": ".632"
+              },
+              {
+                "wins": 7,
+                "losses": 5,
+                "type": "leftHome",
+                "pct": ".583"
+              },
+              {
+                "wins": 5,
+                "losses": 2,
+                "type": "leftAway",
+                "pct": ".714"
+              },
+              {
+                "wins": 10,
+                "losses": 10,
+                "type": "rightHome",
+                "pct": ".500"
+              },
+              {
+                "wins": 15,
+                "losses": 8,
+                "type": "rightAway",
+                "pct": ".652"
+              },
+              {
+                "wins": 25,
+                "losses": 18,
+                "type": "right",
+                "pct": ".581"
+              },
+              {
+                "wins": 5,
+                "losses": 5,
+                "type": "lastTen",
+                "pct": ".500"
+              },
+              {
+                "wins": 3,
+                "losses": 2,
+                "type": "extraInning",
+                "pct": ".600"
+              },
+              {
+                "wins": 10,
+                "losses": 6,
+                "type": "oneRun",
+                "pct": ".625"
+              },
+              {
+                "wins": 15,
+                "losses": 11,
+                "type": "winners",
+                "pct": ".577"
+              },
+              {
+                "wins": 14,
+                "losses": 10,
+                "type": "day",
+                "pct": ".583"
+              },
+              {
+                "wins": 23,
+                "losses": 15,
+                "type": "night",
+                "pct": ".605"
+              },
+              {
+                "wins": 36,
+                "losses": 22,
+                "type": "grass",
+                "pct": ".621"
+              },
+              {
+                "wins": 1,
+                "losses": 3,
+                "type": "turf",
+                "pct": ".250"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 7,
+                "losses": 13,
+                "pct": ".350",
+                "division": {
+                  "id": 200,
+                  "name": "American League West",
+                  "link": "/api/v1/divisions/200"
+                }
+              },
+              {
+                "wins": 15,
+                "losses": 6,
+                "pct": ".714",
+                "division": {
+                  "id": 201,
+                  "name": "American League East",
+                  "link": "/api/v1/divisions/201"
+                }
+              },
+              {
+                "wins": 7,
+                "losses": 4,
+                "pct": ".636",
+                "division": {
+                  "id": 202,
+                  "name": "American League Central",
+                  "link": "/api/v1/divisions/202"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 17,
+                "losses": 15,
+                "type": "home",
+                "pct": ".531"
+              },
+              {
+                "wins": 20,
+                "losses": 10,
+                "type": "away",
+                "pct": ".667"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 29,
+                "losses": 23,
+                "pct": ".558",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 8,
+                "losses": 2,
+                "pct": ".800",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 35,
+                "losses": 27,
+                "type": "xWinLoss",
+                "pct": ".565"
+              },
+              {
+                "wins": 92,
+                "losses": 70,
+                "type": "xWinLossSeason",
+                "pct": ".568"
+              }
+            ]
+          },
+          "runsAllowed": 260,
+          "runsScored": 303,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "wildCardLeader": true,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "99",
+          "wildCardEliminationNumber": "-",
+          "wins": 37,
+          "losses": 25,
+          "runDifferential": 43,
+          "winningPercentage": ".597"
+        },
+        {
+          "team": {
+            "id": 147,
+            "name": "New York Yankees",
+            "link": "/api/v1/teams/147"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "wins",
+            "streakNumber": 2,
+            "streakCode": "W2"
+          },
+          "divisionRank": "3",
+          "leagueRank": "7",
+          "wildCardRank": "4",
+          "sportRank": "13",
+          "gamesPlayed": 62,
+          "gamesBack": "5.5",
+          "wildCardGamesBack": "2.5",
+          "leagueGamesBack": "5.5",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "5.5",
+          "divisionGamesBack": "5.5",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 33,
+            "losses": 29,
+            "pct": ".532"
+          },
+          "lastUpdated": "2021-06-10T14:49:18Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 17,
+                "losses": 16,
+                "type": "home",
+                "pct": ".515"
+              },
+              {
+                "wins": 16,
+                "losses": 13,
+                "type": "away",
+                "pct": ".552"
+              },
+              {
+                "wins": 9,
+                "losses": 11,
+                "type": "left",
+                "pct": ".450"
+              },
+              {
+                "wins": 5,
+                "losses": 7,
+                "type": "leftHome",
+                "pct": ".417"
+              },
+              {
+                "wins": 4,
+                "losses": 4,
+                "type": "leftAway",
+                "pct": ".500"
+              },
+              {
+                "wins": 12,
+                "losses": 9,
+                "type": "rightHome",
+                "pct": ".571"
+              },
+              {
+                "wins": 12,
+                "losses": 9,
+                "type": "rightAway",
+                "pct": ".571"
+              },
+              {
+                "wins": 24,
+                "losses": 18,
+                "type": "right",
+                "pct": ".571"
+              },
+              {
+                "wins": 4,
+                "losses": 6,
+                "type": "lastTen",
+                "pct": ".400"
+              },
+              {
+                "wins": 3,
+                "losses": 5,
+                "type": "extraInning",
+                "pct": ".375"
+              },
+              {
+                "wins": 8,
+                "losses": 6,
+                "type": "oneRun",
+                "pct": ".571"
+              },
+              {
+                "wins": 16,
+                "losses": 19,
+                "type": "winners",
+                "pct": ".457"
+              },
+              {
+                "wins": 9,
+                "losses": 15,
+                "type": "day",
+                "pct": ".375"
+              },
+              {
+                "wins": 24,
+                "losses": 14,
+                "type": "night",
+                "pct": ".632"
+              },
+              {
+                "wins": 27,
+                "losses": 25,
+                "type": "grass",
+                "pct": ".519"
+              },
+              {
+                "wins": 6,
+                "losses": 4,
+                "type": "turf",
+                "pct": ".600"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 5,
+                "losses": 2,
+                "pct": ".714",
+                "division": {
+                  "id": 200,
+                  "name": "American League West",
+                  "link": "/api/v1/divisions/200"
+                }
+              },
+              {
+                "wins": 14,
+                "losses": 21,
+                "pct": ".400",
+                "division": {
+                  "id": 201,
+                  "name": "American League East",
+                  "link": "/api/v1/divisions/201"
+                }
+              },
+              {
+                "wins": 11,
+                "losses": 4,
+                "pct": ".733",
+                "division": {
+                  "id": 202,
+                  "name": "American League Central",
+                  "link": "/api/v1/divisions/202"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 17,
+                "losses": 16,
+                "type": "home",
+                "pct": ".515"
+              },
+              {
+                "wins": 16,
+                "losses": 13,
+                "type": "away",
+                "pct": ".552"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 30,
+                "losses": 27,
+                "pct": ".526",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 3,
+                "losses": 2,
+                "pct": ".600",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 31,
+                "losses": 31,
+                "type": "xWinLoss",
+                "pct": ".500"
+              },
+              {
+                "wins": 82,
+                "losses": 80,
+                "type": "xWinLossSeason",
+                "pct": ".506"
+              }
+            ]
+          },
+          "runsAllowed": 237,
+          "runsScored": 240,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "95",
+          "wildCardEliminationNumber": "99",
+          "wins": 33,
+          "losses": 29,
+          "runDifferential": 3,
+          "winningPercentage": ".532"
+        },
+        {
+          "team": {
+            "id": 141,
+            "name": "Toronto Blue Jays",
+            "link": "/api/v1/teams/141"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "wins",
+            "streakNumber": 1,
+            "streakCode": "W1"
+          },
+          "divisionRank": "4",
+          "leagueRank": "8",
+          "wildCardRank": "5",
+          "sportRank": "14",
+          "gamesPlayed": 59,
+          "gamesBack": "6.0",
+          "wildCardGamesBack": "3.0",
+          "leagueGamesBack": "6.0",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "6.0",
+          "divisionGamesBack": "6.0",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 31,
+            "losses": 28,
+            "pct": ".525"
+          },
+          "lastUpdated": "2021-06-10T14:49:18Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 13,
+                "losses": 13,
+                "type": "home",
+                "pct": ".500"
+              },
+              {
+                "wins": 18,
+                "losses": 15,
+                "type": "away",
+                "pct": ".545"
+              },
+              {
+                "wins": 5,
+                "losses": 8,
+                "type": "left",
+                "pct": ".385"
+              },
+              {
+                "wins": 3,
+                "losses": 3,
+                "type": "leftHome",
+                "pct": ".500"
+              },
+              {
+                "wins": 2,
+                "losses": 5,
+                "type": "leftAway",
+                "pct": ".286"
+              },
+              {
+                "wins": 10,
+                "losses": 10,
+                "type": "rightHome",
+                "pct": ".500"
+              },
+              {
+                "wins": 16,
+                "losses": 10,
+                "type": "rightAway",
+                "pct": ".615"
+              },
+              {
+                "wins": 26,
+                "losses": 20,
+                "type": "right",
+                "pct": ".565"
+              },
+              {
+                "wins": 6,
+                "losses": 4,
+                "type": "lastTen",
+                "pct": ".600"
+              },
+              {
+                "wins": 2,
+                "losses": 3,
+                "type": "extraInning",
+                "pct": ".400"
+              },
+              {
+                "wins": 5,
+                "losses": 5,
+                "type": "oneRun",
+                "pct": ".500"
+              },
+              {
+                "wins": 17,
+                "losses": 19,
+                "type": "winners",
+                "pct": ".472"
+              },
+              {
+                "wins": 12,
+                "losses": 8,
+                "type": "day",
+                "pct": ".600"
+              },
+              {
+                "wins": 19,
+                "losses": 20,
+                "type": "night",
+                "pct": ".487"
+              },
+              {
+                "wins": 28,
+                "losses": 25,
+                "type": "grass",
+                "pct": ".528"
+              },
+              {
+                "wins": 3,
+                "losses": 3,
+                "type": "turf",
+                "pct": ".500"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 6,
+                "losses": 10,
+                "pct": ".375",
+                "division": {
+                  "id": 200,
+                  "name": "American League West",
+                  "link": "/api/v1/divisions/200"
+                }
+              },
+              {
+                "wins": 10,
+                "losses": 11,
+                "pct": ".476",
+                "division": {
+                  "id": 201,
+                  "name": "American League East",
+                  "link": "/api/v1/divisions/201"
+                }
+              },
+              {
+                "wins": 4,
+                "losses": 5,
+                "pct": ".444",
+                "division": {
+                  "id": 202,
+                  "name": "American League Central",
+                  "link": "/api/v1/divisions/202"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 13,
+                "losses": 13,
+                "type": "home",
+                "pct": ".500"
+              },
+              {
+                "wins": 18,
+                "losses": 15,
+                "type": "away",
+                "pct": ".545"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 20,
+                "losses": 26,
+                "pct": ".435",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 11,
+                "losses": 2,
+                "pct": ".846",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 33,
+                "losses": 26,
+                "type": "xWinLoss",
+                "pct": ".559"
+              },
+              {
+                "wins": 90,
+                "losses": 72,
+                "type": "xWinLossSeason",
+                "pct": ".556"
+              }
+            ]
+          },
+          "runsAllowed": 254,
+          "runsScored": 289,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "96",
+          "wildCardEliminationNumber": "100",
+          "wins": 31,
+          "losses": 28,
+          "runDifferential": 35,
+          "winningPercentage": ".525"
+        },
+        {
+          "team": {
+            "id": 110,
+            "name": "Baltimore Orioles",
+            "link": "/api/v1/teams/110"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "losses",
+            "streakNumber": 1,
+            "streakCode": "L1"
+          },
+          "divisionRank": "5",
+          "leagueRank": "15",
+          "wildCardRank": "12",
+          "sportRank": "29",
+          "gamesPlayed": 61,
+          "gamesBack": "16.0",
+          "wildCardGamesBack": "13.0",
+          "leagueGamesBack": "16.0",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "16.0",
+          "divisionGamesBack": "16.0",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 22,
+            "losses": 39,
+            "pct": ".361"
+          },
+          "lastUpdated": "2021-06-10T14:49:18Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 11,
+                "losses": 21,
+                "type": "home",
+                "pct": ".344"
+              },
+              {
+                "wins": 11,
+                "losses": 18,
+                "type": "away",
+                "pct": ".379"
+              },
+              {
+                "wins": 8,
+                "losses": 13,
+                "type": "left",
+                "pct": ".381"
+              },
+              {
+                "wins": 6,
+                "losses": 7,
+                "type": "leftHome",
+                "pct": ".462"
+              },
+              {
+                "wins": 2,
+                "losses": 6,
+                "type": "leftAway",
+                "pct": ".250"
+              },
+              {
+                "wins": 5,
+                "losses": 14,
+                "type": "rightHome",
+                "pct": ".263"
+              },
+              {
+                "wins": 9,
+                "losses": 12,
+                "type": "rightAway",
+                "pct": ".429"
+              },
+              {
+                "wins": 14,
+                "losses": 26,
+                "type": "right",
+                "pct": ".350"
+              },
+              {
+                "wins": 5,
+                "losses": 5,
+                "type": "lastTen",
+                "pct": ".500"
+              },
+              {
+                "wins": 2,
+                "losses": 4,
+                "type": "extraInning",
+                "pct": ".333"
+              },
+              {
+                "wins": 4,
+                "losses": 9,
+                "type": "oneRun",
+                "pct": ".308"
+              },
+              {
+                "wins": 14,
+                "losses": 26,
+                "type": "winners",
+                "pct": ".350"
+              },
+              {
+                "wins": 9,
+                "losses": 18,
+                "type": "day",
+                "pct": ".333"
+              },
+              {
+                "wins": 13,
+                "losses": 21,
+                "type": "night",
+                "pct": ".382"
+              },
+              {
+                "wins": 20,
+                "losses": 38,
+                "type": "grass",
+                "pct": ".345"
+              },
+              {
+                "wins": 2,
+                "losses": 1,
+                "type": "turf",
+                "pct": ".667"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 8,
+                "losses": 8,
+                "pct": ".500",
+                "division": {
+                  "id": 200,
+                  "name": "American League West",
+                  "link": "/api/v1/divisions/200"
+                }
+              },
+              {
+                "wins": 8,
+                "losses": 15,
+                "pct": ".348",
+                "division": {
+                  "id": 201,
+                  "name": "American League East",
+                  "link": "/api/v1/divisions/201"
+                }
+              },
+              {
+                "wins": 4,
+                "losses": 9,
+                "pct": ".308",
+                "division": {
+                  "id": 202,
+                  "name": "American League Central",
+                  "link": "/api/v1/divisions/202"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 11,
+                "losses": 21,
+                "type": "home",
+                "pct": ".344"
+              },
+              {
+                "wins": 11,
+                "losses": 18,
+                "type": "away",
+                "pct": ".379"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 20,
+                "losses": 32,
+                "pct": ".385",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 2,
+                "losses": 7,
+                "pct": ".222",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 25,
+                "losses": 36,
+                "type": "xWinLoss",
+                "pct": ".410"
+              },
+              {
+                "wins": 66,
+                "losses": 96,
+                "type": "xWinLossSeason",
+                "pct": ".407"
+              }
+            ]
+          },
+          "runsAllowed": 310,
+          "runsScored": 251,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "85",
+          "wildCardEliminationNumber": "89",
+          "wins": 22,
+          "losses": 39,
+          "runDifferential": -59,
+          "winningPercentage": ".361"
+        }
+      ]
+    },
+    {
+      "standingsType": "regularSeason",
+      "league": {
+        "id": 103,
+        "link": "/api/v1/league/103"
+      },
+      "division": {
+        "id": 202,
+        "link": "/api/v1/divisions/202"
+      },
+      "sport": {
+        "id": 1,
+        "link": "/api/v1/sports/1"
+      },
+      "lastUpdated": "2021-06-10T14:49:18.000Z",
+      "teamRecords": [
+        {
+          "team": {
+            "id": 145,
+            "name": "Chicago White Sox",
+            "link": "/api/v1/teams/145"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "losses",
+            "streakNumber": 1,
+            "streakCode": "L1"
+          },
+          "divisionRank": "1",
+          "leagueRank": "2",
+          "sportRank": "3",
+          "gamesPlayed": 61,
+          "gamesBack": "-",
+          "wildCardGamesBack": "-",
+          "leagueGamesBack": "1.0",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "1.0",
+          "divisionGamesBack": "-",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 37,
+            "losses": 24,
+            "pct": ".607"
+          },
+          "lastUpdated": "2021-06-10T14:49:18Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 24,
+                "losses": 11,
+                "type": "home",
+                "pct": ".686"
+              },
+              {
+                "wins": 13,
+                "losses": 13,
+                "type": "away",
+                "pct": ".500"
+              },
+              {
+                "wins": 14,
+                "losses": 4,
+                "type": "left",
+                "pct": ".778"
+              },
+              {
+                "wins": 7,
+                "losses": 3,
+                "type": "leftHome",
+                "pct": ".700"
+              },
+              {
+                "wins": 7,
+                "losses": 1,
+                "type": "leftAway",
+                "pct": ".875"
+              },
+              {
+                "wins": 17,
+                "losses": 8,
+                "type": "rightHome",
+                "pct": ".680"
+              },
+              {
+                "wins": 6,
+                "losses": 12,
+                "type": "rightAway",
+                "pct": ".333"
+              },
+              {
+                "wins": 23,
+                "losses": 20,
+                "type": "right",
+                "pct": ".535"
+              },
+              {
+                "wins": 6,
+                "losses": 4,
+                "type": "lastTen",
+                "pct": ".600"
+              },
+              {
+                "wins": 1,
+                "losses": 3,
+                "type": "extraInning",
+                "pct": ".250"
+              },
+              {
+                "wins": 6,
+                "losses": 8,
+                "type": "oneRun",
+                "pct": ".429"
+              },
+              {
+                "wins": 10,
+                "losses": 13,
+                "type": "winners",
+                "pct": ".435"
+              },
+              {
+                "wins": 13,
+                "losses": 13,
+                "type": "day",
+                "pct": ".500"
+              },
+              {
+                "wins": 24,
+                "losses": 11,
+                "type": "night",
+                "pct": ".686"
+              },
+              {
+                "wins": 37,
+                "losses": 24,
+                "type": "grass",
+                "pct": ".607"
+              },
+              {
+                "wins": 0,
+                "losses": 0,
+                "type": "turf",
+                "pct": ".000"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 6,
+                "losses": 4,
+                "pct": ".600",
+                "division": {
+                  "id": 200,
+                  "name": "American League West",
+                  "link": "/api/v1/divisions/200"
+                }
+              },
+              {
+                "wins": 7,
+                "losses": 6,
+                "pct": ".538",
+                "division": {
+                  "id": 201,
+                  "name": "American League East",
+                  "link": "/api/v1/divisions/201"
+                }
+              },
+              {
+                "wins": 21,
+                "losses": 12,
+                "pct": ".636",
+                "division": {
+                  "id": 202,
+                  "name": "American League Central",
+                  "link": "/api/v1/divisions/202"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 24,
+                "losses": 11,
+                "type": "home",
+                "pct": ".686"
+              },
+              {
+                "wins": 13,
+                "losses": 13,
+                "type": "away",
+                "pct": ".500"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 34,
+                "losses": 22,
+                "pct": ".607",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 3,
+                "losses": 2,
+                "pct": ".600",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 40,
+                "losses": 21,
+                "type": "xWinLoss",
+                "pct": ".656"
+              },
+              {
+                "wins": 105,
+                "losses": 57,
+                "type": "xWinLossSeason",
+                "pct": ".648"
+              }
+            ]
+          },
+          "runsAllowed": 213,
+          "runsScored": 299,
+          "divisionChamp": false,
+          "divisionLeader": true,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "-",
+          "magicNumber": "99",
+          "wins": 37,
+          "losses": 24,
+          "runDifferential": 86,
+          "winningPercentage": ".607"
+        },
+        {
+          "team": {
+            "id": 114,
+            "name": "Cleveland Indians",
+            "link": "/api/v1/teams/114"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "losses",
+            "streakNumber": 1,
+            "streakCode": "L1"
+          },
+          "divisionRank": "2",
+          "leagueRank": "6",
+          "wildCardRank": "3",
+          "sportRank": "12",
+          "gamesPlayed": 59,
+          "gamesBack": "4.0",
+          "wildCardGamesBack": "2.0",
+          "leagueGamesBack": "5.0",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "5.0",
+          "divisionGamesBack": "4.0",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 32,
+            "losses": 27,
+            "pct": ".542"
+          },
+          "lastUpdated": "2021-06-10T14:49:18Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 14,
+                "losses": 12,
+                "type": "home",
+                "pct": ".538"
+              },
+              {
+                "wins": 18,
+                "losses": 15,
+                "type": "away",
+                "pct": ".545"
+              },
+              {
+                "wins": 13,
+                "losses": 14,
+                "type": "left",
+                "pct": ".481"
+              },
+              {
+                "wins": 3,
+                "losses": 8,
+                "type": "leftHome",
+                "pct": ".273"
+              },
+              {
+                "wins": 10,
+                "losses": 6,
+                "type": "leftAway",
+                "pct": ".625"
+              },
+              {
+                "wins": 11,
+                "losses": 4,
+                "type": "rightHome",
+                "pct": ".733"
+              },
+              {
+                "wins": 8,
+                "losses": 9,
+                "type": "rightAway",
+                "pct": ".471"
+              },
+              {
+                "wins": 19,
+                "losses": 13,
+                "type": "right",
+                "pct": ".594"
+              },
+              {
+                "wins": 5,
+                "losses": 5,
+                "type": "lastTen",
+                "pct": ".500"
+              },
+              {
+                "wins": 4,
+                "losses": 3,
+                "type": "extraInning",
+                "pct": ".571"
+              },
+              {
+                "wins": 8,
+                "losses": 6,
+                "type": "oneRun",
+                "pct": ".571"
+              },
+              {
+                "wins": 11,
+                "losses": 11,
+                "type": "winners",
+                "pct": ".500"
+              },
+              {
+                "wins": 14,
+                "losses": 11,
+                "type": "day",
+                "pct": ".560"
+              },
+              {
+                "wins": 18,
+                "losses": 16,
+                "type": "night",
+                "pct": ".529"
+              },
+              {
+                "wins": 32,
+                "losses": 27,
+                "type": "grass",
+                "pct": ".542"
+              },
+              {
+                "wins": 0,
+                "losses": 0,
+                "type": "turf",
+                "pct": ".000"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 3,
+                "losses": 4,
+                "pct": ".429",
+                "division": {
+                  "id": 200,
+                  "name": "American League West",
+                  "link": "/api/v1/divisions/200"
+                }
+              },
+              {
+                "wins": 3,
+                "losses": 7,
+                "pct": ".300",
+                "division": {
+                  "id": 201,
+                  "name": "American League East",
+                  "link": "/api/v1/divisions/201"
+                }
+              },
+              {
+                "wins": 21,
+                "losses": 12,
+                "pct": ".636",
+                "division": {
+                  "id": 202,
+                  "name": "American League Central",
+                  "link": "/api/v1/divisions/202"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 14,
+                "losses": 12,
+                "type": "home",
+                "pct": ".538"
+              },
+              {
+                "wins": 18,
+                "losses": 15,
+                "type": "away",
+                "pct": ".545"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 27,
+                "losses": 23,
+                "pct": ".540",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 5,
+                "losses": 4,
+                "pct": ".556",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 28,
+                "losses": 31,
+                "type": "xWinLoss",
+                "pct": ".475"
+              },
+              {
+                "wins": 77,
+                "losses": 85,
+                "type": "xWinLossSeason",
+                "pct": ".475"
+              }
+            ]
+          },
+          "runsAllowed": 255,
+          "runsScored": 243,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "99",
+          "wildCardEliminationNumber": "101",
+          "wins": 32,
+          "losses": 27,
+          "runDifferential": -12,
+          "winningPercentage": ".542"
+        },
+        {
+          "team": {
+            "id": 118,
+            "name": "Kansas City Royals",
+            "link": "/api/v1/teams/118"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "losses",
+            "streakNumber": 5,
+            "streakCode": "L5"
+          },
+          "divisionRank": "3",
+          "leagueRank": "11",
+          "wildCardRank": "8",
+          "sportRank": "20",
+          "gamesPlayed": 60,
+          "gamesBack": "7.5",
+          "wildCardGamesBack": "5.5",
+          "leagueGamesBack": "8.5",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "8.5",
+          "divisionGamesBack": "7.5",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 29,
+            "losses": 31,
+            "pct": ".483"
+          },
+          "lastUpdated": "2021-06-10T14:49:18Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 16,
+                "losses": 15,
+                "type": "home",
+                "pct": ".516"
+              },
+              {
+                "wins": 13,
+                "losses": 16,
+                "type": "away",
+                "pct": ".448"
+              },
+              {
+                "wins": 9,
+                "losses": 9,
+                "type": "left",
+                "pct": ".500"
+              },
+              {
+                "wins": 5,
+                "losses": 4,
+                "type": "leftHome",
+                "pct": ".556"
+              },
+              {
+                "wins": 4,
+                "losses": 5,
+                "type": "leftAway",
+                "pct": ".444"
+              },
+              {
+                "wins": 11,
+                "losses": 11,
+                "type": "rightHome",
+                "pct": ".500"
+              },
+              {
+                "wins": 9,
+                "losses": 11,
+                "type": "rightAway",
+                "pct": ".450"
+              },
+              {
+                "wins": 20,
+                "losses": 22,
+                "type": "right",
+                "pct": ".476"
+              },
+              {
+                "wins": 5,
+                "losses": 5,
+                "type": "lastTen",
+                "pct": ".500"
+              },
+              {
+                "wins": 1,
+                "losses": 1,
+                "type": "extraInning",
+                "pct": ".500"
+              },
+              {
+                "wins": 9,
+                "losses": 9,
+                "type": "oneRun",
+                "pct": ".500"
+              },
+              {
+                "wins": 11,
+                "losses": 16,
+                "type": "winners",
+                "pct": ".407"
+              },
+              {
+                "wins": 14,
+                "losses": 13,
+                "type": "day",
+                "pct": ".519"
+              },
+              {
+                "wins": 15,
+                "losses": 18,
+                "type": "night",
+                "pct": ".455"
+              },
+              {
+                "wins": 28,
+                "losses": 29,
+                "type": "grass",
+                "pct": ".491"
+              },
+              {
+                "wins": 1,
+                "losses": 2,
+                "type": "turf",
+                "pct": ".333"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 4,
+                "losses": 5,
+                "pct": ".444",
+                "division": {
+                  "id": 200,
+                  "name": "American League West",
+                  "link": "/api/v1/divisions/200"
+                }
+              },
+              {
+                "wins": 5,
+                "losses": 5,
+                "pct": ".500",
+                "division": {
+                  "id": 201,
+                  "name": "American League East",
+                  "link": "/api/v1/divisions/201"
+                }
+              },
+              {
+                "wins": 15,
+                "losses": 20,
+                "pct": ".429",
+                "division": {
+                  "id": 202,
+                  "name": "American League Central",
+                  "link": "/api/v1/divisions/202"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 16,
+                "losses": 15,
+                "type": "home",
+                "pct": ".516"
+              },
+              {
+                "wins": 13,
+                "losses": 16,
+                "type": "away",
+                "pct": ".448"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 24,
+                "losses": 30,
+                "pct": ".444",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 5,
+                "losses": 1,
+                "pct": ".833",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 28,
+                "losses": 32,
+                "type": "xWinLoss",
+                "pct": ".467"
+              },
+              {
+                "wins": 75,
+                "losses": 87,
+                "type": "xWinLossSeason",
+                "pct": ".463"
+              }
+            ]
+          },
+          "runsAllowed": 281,
+          "runsScored": 258,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "95",
+          "wildCardEliminationNumber": "97",
+          "wins": 29,
+          "losses": 31,
+          "runDifferential": -23,
+          "winningPercentage": ".483"
+        },
+        {
+          "team": {
+            "id": 116,
+            "name": "Detroit Tigers",
+            "link": "/api/v1/teams/116"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "losses",
+            "streakNumber": 1,
+            "streakCode": "L1"
+          },
+          "divisionRank": "4",
+          "leagueRank": "12",
+          "wildCardRank": "9",
+          "sportRank": "24",
+          "gamesPlayed": 61,
+          "gamesBack": "12.0",
+          "wildCardGamesBack": "10.0",
+          "leagueGamesBack": "13.0",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "13.0",
+          "divisionGamesBack": "12.0",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 25,
+            "losses": 36,
+            "pct": ".410"
+          },
+          "lastUpdated": "2021-06-10T14:49:18Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 14,
+                "losses": 16,
+                "type": "home",
+                "pct": ".467"
+              },
+              {
+                "wins": 11,
+                "losses": 20,
+                "type": "away",
+                "pct": ".355"
+              },
+              {
+                "wins": 8,
+                "losses": 10,
+                "type": "left",
+                "pct": ".444"
+              },
+              {
+                "wins": 4,
+                "losses": 4,
+                "type": "leftHome",
+                "pct": ".500"
+              },
+              {
+                "wins": 4,
+                "losses": 6,
+                "type": "leftAway",
+                "pct": ".400"
+              },
+              {
+                "wins": 10,
+                "losses": 12,
+                "type": "rightHome",
+                "pct": ".455"
+              },
+              {
+                "wins": 7,
+                "losses": 14,
+                "type": "rightAway",
+                "pct": ".333"
+              },
+              {
+                "wins": 17,
+                "losses": 26,
+                "type": "right",
+                "pct": ".395"
+              },
+              {
+                "wins": 5,
+                "losses": 5,
+                "type": "lastTen",
+                "pct": ".500"
+              },
+              {
+                "wins": 4,
+                "losses": 2,
+                "type": "extraInning",
+                "pct": ".667"
+              },
+              {
+                "wins": 9,
+                "losses": 9,
+                "type": "oneRun",
+                "pct": ".500"
+              },
+              {
+                "wins": 14,
+                "losses": 24,
+                "type": "winners",
+                "pct": ".368"
+              },
+              {
+                "wins": 9,
+                "losses": 20,
+                "type": "day",
+                "pct": ".310"
+              },
+              {
+                "wins": 16,
+                "losses": 16,
+                "type": "night",
+                "pct": ".500"
+              },
+              {
+                "wins": 25,
+                "losses": 36,
+                "type": "grass",
+                "pct": ".410"
+              },
+              {
+                "wins": 0,
+                "losses": 0,
+                "type": "turf",
+                "pct": ".000"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 7,
+                "losses": 5,
+                "pct": ".583",
+                "division": {
+                  "id": 200,
+                  "name": "American League West",
+                  "link": "/api/v1/divisions/200"
+                }
+              },
+              {
+                "wins": 4,
+                "losses": 5,
+                "pct": ".444",
+                "division": {
+                  "id": 201,
+                  "name": "American League East",
+                  "link": "/api/v1/divisions/201"
+                }
+              },
+              {
+                "wins": 11,
+                "losses": 21,
+                "pct": ".344",
+                "division": {
+                  "id": 202,
+                  "name": "American League Central",
+                  "link": "/api/v1/divisions/202"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 14,
+                "losses": 16,
+                "type": "home",
+                "pct": ".467"
+              },
+              {
+                "wins": 11,
+                "losses": 20,
+                "type": "away",
+                "pct": ".355"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 22,
+                "losses": 31,
+                "pct": ".415",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 3,
+                "losses": 5,
+                "pct": ".375",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 24,
+                "losses": 37,
+                "type": "xWinLoss",
+                "pct": ".393"
+              },
+              {
+                "wins": 64,
+                "losses": 98,
+                "type": "xWinLossSeason",
+                "pct": ".395"
+              }
+            ]
+          },
+          "runsAllowed": 287,
+          "runsScored": 228,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "90",
+          "wildCardEliminationNumber": "92",
+          "wins": 25,
+          "losses": 36,
+          "runDifferential": -59,
+          "winningPercentage": ".410"
+        },
+        {
+          "team": {
+            "id": 142,
+            "name": "Minnesota Twins",
+            "link": "/api/v1/teams/142"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "losses",
+            "streakNumber": 2,
+            "streakCode": "L2"
+          },
+          "divisionRank": "5",
+          "leagueRank": "13",
+          "wildCardRank": "10",
+          "sportRank": "26",
+          "gamesPlayed": 61,
+          "gamesBack": "13.0",
+          "wildCardGamesBack": "11.0",
+          "leagueGamesBack": "14.0",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "14.0",
+          "divisionGamesBack": "13.0",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 24,
+            "losses": 37,
+            "pct": ".393"
+          },
+          "lastUpdated": "2021-06-10T14:49:18Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 12,
+                "losses": 19,
+                "type": "home",
+                "pct": ".387"
+              },
+              {
+                "wins": 12,
+                "losses": 18,
+                "type": "away",
+                "pct": ".400"
+              },
+              {
+                "wins": 7,
+                "losses": 14,
+                "type": "left",
+                "pct": ".333"
+              },
+              {
+                "wins": 3,
+                "losses": 8,
+                "type": "leftHome",
+                "pct": ".273"
+              },
+              {
+                "wins": 4,
+                "losses": 6,
+                "type": "leftAway",
+                "pct": ".400"
+              },
+              {
+                "wins": 9,
+                "losses": 11,
+                "type": "rightHome",
+                "pct": ".450"
+              },
+              {
+                "wins": 8,
+                "losses": 12,
+                "type": "rightAway",
+                "pct": ".400"
+              },
+              {
+                "wins": 17,
+                "losses": 23,
+                "type": "right",
+                "pct": ".425"
+              },
+              {
+                "wins": 3,
+                "losses": 7,
+                "type": "lastTen",
+                "pct": ".300"
+              },
+              {
+                "wins": 2,
+                "losses": 8,
+                "type": "extraInning",
+                "pct": ".200"
+              },
+              {
+                "wins": 10,
+                "losses": 10,
+                "type": "oneRun",
+                "pct": ".500"
+              },
+              {
+                "wins": 8,
+                "losses": 19,
+                "type": "winners",
+                "pct": ".296"
+              },
+              {
+                "wins": 15,
+                "losses": 21,
+                "type": "day",
+                "pct": ".417"
+              },
+              {
+                "wins": 9,
+                "losses": 16,
+                "type": "night",
+                "pct": ".360"
+              },
+              {
+                "wins": 24,
+                "losses": 37,
+                "type": "grass",
+                "pct": ".393"
+              },
+              {
+                "wins": 0,
+                "losses": 0,
+                "type": "turf",
+                "pct": ".000"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 4,
+                "losses": 12,
+                "pct": ".250",
+                "division": {
+                  "id": 200,
+                  "name": "American League West",
+                  "link": "/api/v1/divisions/200"
+                }
+              },
+              {
+                "wins": 5,
+                "losses": 7,
+                "pct": ".417",
+                "division": {
+                  "id": 201,
+                  "name": "American League East",
+                  "link": "/api/v1/divisions/201"
+                }
+              },
+              {
+                "wins": 12,
+                "losses": 15,
+                "pct": ".444",
+                "division": {
+                  "id": 202,
+                  "name": "American League Central",
+                  "link": "/api/v1/divisions/202"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 12,
+                "losses": 19,
+                "type": "home",
+                "pct": ".387"
+              },
+              {
+                "wins": 12,
+                "losses": 18,
+                "type": "away",
+                "pct": ".400"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 21,
+                "losses": 34,
+                "pct": ".382",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 3,
+                "losses": 3,
+                "pct": ".500",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 27,
+                "losses": 34,
+                "type": "xWinLoss",
+                "pct": ".443"
+              },
+              {
+                "wins": 71,
+                "losses": 91,
+                "type": "xWinLossSeason",
+                "pct": ".438"
+              }
+            ]
+          },
+          "runsAllowed": 322,
+          "runsScored": 280,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "89",
+          "wildCardEliminationNumber": "91",
+          "wins": 24,
+          "losses": 37,
+          "runDifferential": -42,
+          "winningPercentage": ".393"
+        }
+      ]
+    },
+    {
+      "standingsType": "regularSeason",
+      "league": {
+        "id": 104,
+        "link": "/api/v1/league/104"
+      },
+      "division": {
+        "id": 205,
+        "link": "/api/v1/divisions/205"
+      },
+      "sport": {
+        "id": 1,
+        "link": "/api/v1/sports/1"
+      },
+      "lastUpdated": "2021-06-10T14:49:06.000Z",
+      "teamRecords": [
+        {
+          "team": {
+            "id": 112,
+            "name": "Chicago Cubs",
+            "link": "/api/v1/teams/112"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "wins",
+            "streakNumber": 2,
+            "streakCode": "W2"
+          },
+          "divisionRank": "1",
+          "leagueRank": "4",
+          "sportRank": "9",
+          "gamesPlayed": 62,
+          "gamesBack": "-",
+          "wildCardGamesBack": "-",
+          "leagueGamesBack": "3.5",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "3.5",
+          "divisionGamesBack": "-",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 35,
+            "losses": 27,
+            "pct": ".565"
+          },
+          "lastUpdated": "2021-06-10T14:49:06Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 21,
+                "losses": 10,
+                "type": "home",
+                "pct": ".677"
+              },
+              {
+                "wins": 14,
+                "losses": 17,
+                "type": "away",
+                "pct": ".452"
+              },
+              {
+                "wins": 13,
+                "losses": 5,
+                "type": "left",
+                "pct": ".722"
+              },
+              {
+                "wins": 9,
+                "losses": 1,
+                "type": "leftHome",
+                "pct": ".900"
+              },
+              {
+                "wins": 4,
+                "losses": 4,
+                "type": "leftAway",
+                "pct": ".500"
+              },
+              {
+                "wins": 12,
+                "losses": 9,
+                "type": "rightHome",
+                "pct": ".571"
+              },
+              {
+                "wins": 10,
+                "losses": 13,
+                "type": "rightAway",
+                "pct": ".435"
+              },
+              {
+                "wins": 22,
+                "losses": 22,
+                "type": "right",
+                "pct": ".500"
+              },
+              {
+                "wins": 6,
+                "losses": 4,
+                "type": "lastTen",
+                "pct": ".600"
+              },
+              {
+                "wins": 4,
+                "losses": 4,
+                "type": "extraInning",
+                "pct": ".500"
+              },
+              {
+                "wins": 13,
+                "losses": 10,
+                "type": "oneRun",
+                "pct": ".565"
+              },
+              {
+                "wins": 17,
+                "losses": 13,
+                "type": "winners",
+                "pct": ".567"
+              },
+              {
+                "wins": 18,
+                "losses": 13,
+                "type": "day",
+                "pct": ".581"
+              },
+              {
+                "wins": 17,
+                "losses": 14,
+                "type": "night",
+                "pct": ".548"
+              },
+              {
+                "wins": 35,
+                "losses": 27,
+                "type": "grass",
+                "pct": ".565"
+              },
+              {
+                "wins": 0,
+                "losses": 0,
+                "type": "turf",
+                "pct": ".000"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 9,
+                "losses": 4,
+                "pct": ".692",
+                "division": {
+                  "id": 203,
+                  "name": "National League West",
+                  "link": "/api/v1/divisions/203"
+                }
+              },
+              {
+                "wins": 8,
+                "losses": 6,
+                "pct": ".571",
+                "division": {
+                  "id": 204,
+                  "name": "National League East",
+                  "link": "/api/v1/divisions/204"
+                }
+              },
+              {
+                "wins": 16,
+                "losses": 14,
+                "pct": ".533",
+                "division": {
+                  "id": 205,
+                  "name": "National League Central",
+                  "link": "/api/v1/divisions/205"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 21,
+                "losses": 10,
+                "type": "home",
+                "pct": ".677"
+              },
+              {
+                "wins": 14,
+                "losses": 17,
+                "type": "away",
+                "pct": ".452"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 2,
+                "losses": 3,
+                "pct": ".400",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 33,
+                "losses": 24,
+                "pct": ".579",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 34,
+                "losses": 28,
+                "type": "xWinLoss",
+                "pct": ".548"
+              },
+              {
+                "wins": 90,
+                "losses": 72,
+                "type": "xWinLossSeason",
+                "pct": ".556"
+              }
+            ]
+          },
+          "runsAllowed": 250,
+          "runsScored": 283,
+          "divisionChamp": false,
+          "divisionLeader": true,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "-",
+          "magicNumber": "101",
+          "wins": 35,
+          "losses": 27,
+          "runDifferential": 33,
+          "winningPercentage": ".565"
+        },
+        {
+          "team": {
+            "id": 158,
+            "name": "Milwaukee Brewers",
+            "link": "/api/v1/teams/158"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "losses",
+            "streakNumber": 1,
+            "streakCode": "L1"
+          },
+          "divisionRank": "2",
+          "leagueRank": "5",
+          "wildCardRank": "3",
+          "sportRank": "10",
+          "gamesPlayed": 61,
+          "gamesBack": "0.5",
+          "wildCardGamesBack": "1.5",
+          "leagueGamesBack": "4.0",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "4.0",
+          "divisionGamesBack": "0.5",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 34,
+            "losses": 27,
+            "pct": ".557"
+          },
+          "lastUpdated": "2021-06-10T14:49:06Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 17,
+                "losses": 15,
+                "type": "home",
+                "pct": ".531"
+              },
+              {
+                "wins": 17,
+                "losses": 12,
+                "type": "away",
+                "pct": ".586"
+              },
+              {
+                "wins": 8,
+                "losses": 7,
+                "type": "left",
+                "pct": ".533"
+              },
+              {
+                "wins": 5,
+                "losses": 5,
+                "type": "leftHome",
+                "pct": ".500"
+              },
+              {
+                "wins": 3,
+                "losses": 2,
+                "type": "leftAway",
+                "pct": ".600"
+              },
+              {
+                "wins": 12,
+                "losses": 10,
+                "type": "rightHome",
+                "pct": ".545"
+              },
+              {
+                "wins": 14,
+                "losses": 10,
+                "type": "rightAway",
+                "pct": ".583"
+              },
+              {
+                "wins": 26,
+                "losses": 20,
+                "type": "right",
+                "pct": ".565"
+              },
+              {
+                "wins": 8,
+                "losses": 2,
+                "type": "lastTen",
+                "pct": ".800"
+              },
+              {
+                "wins": 6,
+                "losses": 3,
+                "type": "extraInning",
+                "pct": ".667"
+              },
+              {
+                "wins": 10,
+                "losses": 6,
+                "type": "oneRun",
+                "pct": ".625"
+              },
+              {
+                "wins": 17,
+                "losses": 9,
+                "type": "winners",
+                "pct": ".654"
+              },
+              {
+                "wins": 18,
+                "losses": 8,
+                "type": "day",
+                "pct": ".692"
+              },
+              {
+                "wins": 16,
+                "losses": 19,
+                "type": "night",
+                "pct": ".457"
+              },
+              {
+                "wins": 34,
+                "losses": 27,
+                "type": "grass",
+                "pct": ".557"
+              },
+              {
+                "wins": 0,
+                "losses": 0,
+                "type": "turf",
+                "pct": ".000"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 12,
+                "losses": 3,
+                "pct": ".800",
+                "division": {
+                  "id": 203,
+                  "name": "National League West",
+                  "link": "/api/v1/divisions/203"
+                }
+              },
+              {
+                "wins": 7,
+                "losses": 9,
+                "pct": ".438",
+                "division": {
+                  "id": 204,
+                  "name": "National League East",
+                  "link": "/api/v1/divisions/204"
+                }
+              },
+              {
+                "wins": 13,
+                "losses": 10,
+                "pct": ".565",
+                "division": {
+                  "id": 205,
+                  "name": "National League Central",
+                  "link": "/api/v1/divisions/205"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 17,
+                "losses": 15,
+                "type": "home",
+                "pct": ".531"
+              },
+              {
+                "wins": 17,
+                "losses": 12,
+                "type": "away",
+                "pct": ".586"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 2,
+                "losses": 5,
+                "pct": ".286",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 32,
+                "losses": 22,
+                "pct": ".593",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 30,
+                "losses": 31,
+                "type": "xWinLoss",
+                "pct": ".492"
+              },
+              {
+                "wins": 80,
+                "losses": 82,
+                "type": "xWinLossSeason",
+                "pct": ".494"
+              }
+            ]
+          },
+          "runsAllowed": 243,
+          "runsScored": 239,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "101",
+          "wildCardEliminationNumber": "99",
+          "wins": 34,
+          "losses": 27,
+          "runDifferential": -4,
+          "winningPercentage": ".557"
+        },
+        {
+          "team": {
+            "id": 138,
+            "name": "St. Louis Cardinals",
+            "link": "/api/v1/teams/138"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "wins",
+            "streakNumber": 1,
+            "streakCode": "W1"
+          },
+          "divisionRank": "3",
+          "leagueRank": "7",
+          "wildCardRank": "4",
+          "sportRank": "15",
+          "gamesPlayed": 62,
+          "gamesBack": "3.0",
+          "wildCardGamesBack": "4.0",
+          "leagueGamesBack": "6.5",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "6.5",
+          "divisionGamesBack": "3.0",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 32,
+            "losses": 30,
+            "pct": ".516"
+          },
+          "lastUpdated": "2021-06-10T14:49:06Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 16,
+                "losses": 15,
+                "type": "home",
+                "pct": ".516"
+              },
+              {
+                "wins": 16,
+                "losses": 15,
+                "type": "away",
+                "pct": ".516"
+              },
+              {
+                "wins": 8,
+                "losses": 4,
+                "type": "left",
+                "pct": ".667"
+              },
+              {
+                "wins": 3,
+                "losses": 2,
+                "type": "leftHome",
+                "pct": ".600"
+              },
+              {
+                "wins": 5,
+                "losses": 2,
+                "type": "leftAway",
+                "pct": ".714"
+              },
+              {
+                "wins": 13,
+                "losses": 13,
+                "type": "rightHome",
+                "pct": ".500"
+              },
+              {
+                "wins": 11,
+                "losses": 13,
+                "type": "rightAway",
+                "pct": ".458"
+              },
+              {
+                "wins": 24,
+                "losses": 26,
+                "type": "right",
+                "pct": ".480"
+              },
+              {
+                "wins": 2,
+                "losses": 8,
+                "type": "lastTen",
+                "pct": ".200"
+              },
+              {
+                "wins": 3,
+                "losses": 1,
+                "type": "extraInning",
+                "pct": ".750"
+              },
+              {
+                "wins": 7,
+                "losses": 6,
+                "type": "oneRun",
+                "pct": ".538"
+              },
+              {
+                "wins": 9,
+                "losses": 15,
+                "type": "winners",
+                "pct": ".375"
+              },
+              {
+                "wins": 12,
+                "losses": 12,
+                "type": "day",
+                "pct": ".500"
+              },
+              {
+                "wins": 20,
+                "losses": 18,
+                "type": "night",
+                "pct": ".526"
+              },
+              {
+                "wins": 29,
+                "losses": 29,
+                "type": "grass",
+                "pct": ".500"
+              },
+              {
+                "wins": 3,
+                "losses": 1,
+                "type": "turf",
+                "pct": ".750"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 7,
+                "losses": 6,
+                "pct": ".538",
+                "division": {
+                  "id": 203,
+                  "name": "National League West",
+                  "link": "/api/v1/divisions/203"
+                }
+              },
+              {
+                "wins": 10,
+                "losses": 10,
+                "pct": ".500",
+                "division": {
+                  "id": 204,
+                  "name": "National League East",
+                  "link": "/api/v1/divisions/204"
+                }
+              },
+              {
+                "wins": 13,
+                "losses": 11,
+                "pct": ".542",
+                "division": {
+                  "id": 205,
+                  "name": "National League Central",
+                  "link": "/api/v1/divisions/205"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 16,
+                "losses": 15,
+                "type": "home",
+                "pct": ".516"
+              },
+              {
+                "wins": 16,
+                "losses": 15,
+                "type": "away",
+                "pct": ".516"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 2,
+                "losses": 3,
+                "pct": ".400",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 30,
+                "losses": 27,
+                "pct": ".526",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 29,
+                "losses": 33,
+                "type": "xWinLoss",
+                "pct": ".468"
+              },
+              {
+                "wins": 75,
+                "losses": 87,
+                "type": "xWinLossSeason",
+                "pct": ".463"
+              }
+            ]
+          },
+          "runsAllowed": 284,
+          "runsScored": 263,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "98",
+          "wildCardEliminationNumber": "96",
+          "wins": 32,
+          "losses": 30,
+          "runDifferential": -21,
+          "winningPercentage": ".516"
+        },
+        {
+          "team": {
+            "id": 113,
+            "name": "Cincinnati Reds",
+            "link": "/api/v1/teams/113"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "wins",
+            "streakNumber": 1,
+            "streakCode": "W1"
+          },
+          "divisionRank": "4",
+          "leagueRank": "9",
+          "wildCardRank": "6",
+          "sportRank": "18",
+          "gamesPlayed": 59,
+          "gamesBack": "4.5",
+          "wildCardGamesBack": "5.5",
+          "leagueGamesBack": "8.0",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "8.0",
+          "divisionGamesBack": "4.5",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 29,
+            "losses": 30,
+            "pct": ".492"
+          },
+          "lastUpdated": "2021-06-10T14:49:06Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 13,
+                "losses": 15,
+                "type": "home",
+                "pct": ".464"
+              },
+              {
+                "wins": 16,
+                "losses": 15,
+                "type": "away",
+                "pct": ".516"
+              },
+              {
+                "wins": 5,
+                "losses": 3,
+                "type": "left",
+                "pct": ".625"
+              },
+              {
+                "wins": 3,
+                "losses": 1,
+                "type": "leftHome",
+                "pct": ".750"
+              },
+              {
+                "wins": 2,
+                "losses": 2,
+                "type": "leftAway",
+                "pct": ".500"
+              },
+              {
+                "wins": 10,
+                "losses": 14,
+                "type": "rightHome",
+                "pct": ".417"
+              },
+              {
+                "wins": 14,
+                "losses": 13,
+                "type": "rightAway",
+                "pct": ".519"
+              },
+              {
+                "wins": 24,
+                "losses": 27,
+                "type": "right",
+                "pct": ".471"
+              },
+              {
+                "wins": 7,
+                "losses": 3,
+                "type": "lastTen",
+                "pct": ".700"
+              },
+              {
+                "wins": 7,
+                "losses": 2,
+                "type": "extraInning",
+                "pct": ".778"
+              },
+              {
+                "wins": 9,
+                "losses": 6,
+                "type": "oneRun",
+                "pct": ".600"
+              },
+              {
+                "wins": 18,
+                "losses": 20,
+                "type": "winners",
+                "pct": ".474"
+              },
+              {
+                "wins": 12,
+                "losses": 14,
+                "type": "day",
+                "pct": ".462"
+              },
+              {
+                "wins": 17,
+                "losses": 16,
+                "type": "night",
+                "pct": ".515"
+              },
+              {
+                "wins": 28,
+                "losses": 28,
+                "type": "grass",
+                "pct": ".500"
+              },
+              {
+                "wins": 1,
+                "losses": 2,
+                "type": "turf",
+                "pct": ".333"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 6,
+                "losses": 14,
+                "pct": ".300",
+                "division": {
+                  "id": 203,
+                  "name": "National League West",
+                  "link": "/api/v1/divisions/203"
+                }
+              },
+              {
+                "wins": 3,
+                "losses": 2,
+                "pct": ".600",
+                "division": {
+                  "id": 204,
+                  "name": "National League East",
+                  "link": "/api/v1/divisions/204"
+                }
+              },
+              {
+                "wins": 16,
+                "losses": 11,
+                "pct": ".593",
+                "division": {
+                  "id": 205,
+                  "name": "National League Central",
+                  "link": "/api/v1/divisions/205"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 13,
+                "losses": 15,
+                "type": "home",
+                "pct": ".464"
+              },
+              {
+                "wins": 16,
+                "losses": 15,
+                "type": "away",
+                "pct": ".516"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 4,
+                "losses": 3,
+                "pct": ".571",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 25,
+                "losses": 27,
+                "pct": ".481",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 28,
+                "losses": 31,
+                "type": "xWinLoss",
+                "pct": ".475"
+              },
+              {
+                "wins": 76,
+                "losses": 86,
+                "type": "xWinLossSeason",
+                "pct": ".469"
+              }
+            ]
+          },
+          "runsAllowed": 312,
+          "runsScored": 290,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "98",
+          "wildCardEliminationNumber": "96",
+          "wins": 29,
+          "losses": 30,
+          "runDifferential": -22,
+          "winningPercentage": ".492"
+        },
+        {
+          "team": {
+            "id": 134,
+            "name": "Pittsburgh Pirates",
+            "link": "/api/v1/teams/134"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "losses",
+            "streakNumber": 3,
+            "streakCode": "L3"
+          },
+          "divisionRank": "5",
+          "leagueRank": "14",
+          "wildCardRank": "11",
+          "sportRank": "27",
+          "gamesPlayed": 60,
+          "gamesBack": "11.0",
+          "wildCardGamesBack": "12.0",
+          "leagueGamesBack": "14.5",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "14.5",
+          "divisionGamesBack": "11.0",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 23,
+            "losses": 37,
+            "pct": ".383"
+          },
+          "lastUpdated": "2021-06-10T14:49:06Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 13,
+                "losses": 18,
+                "type": "home",
+                "pct": ".419"
+              },
+              {
+                "wins": 10,
+                "losses": 19,
+                "type": "away",
+                "pct": ".345"
+              },
+              {
+                "wins": 4,
+                "losses": 8,
+                "type": "left",
+                "pct": ".333"
+              },
+              {
+                "wins": 3,
+                "losses": 3,
+                "type": "leftHome",
+                "pct": ".500"
+              },
+              {
+                "wins": 1,
+                "losses": 5,
+                "type": "leftAway",
+                "pct": ".167"
+              },
+              {
+                "wins": 10,
+                "losses": 15,
+                "type": "rightHome",
+                "pct": ".400"
+              },
+              {
+                "wins": 9,
+                "losses": 14,
+                "type": "rightAway",
+                "pct": ".391"
+              },
+              {
+                "wins": 19,
+                "losses": 29,
+                "type": "right",
+                "pct": ".396"
+              },
+              {
+                "wins": 4,
+                "losses": 6,
+                "type": "lastTen",
+                "pct": ".400"
+              },
+              {
+                "wins": 4,
+                "losses": 1,
+                "type": "extraInning",
+                "pct": ".800"
+              },
+              {
+                "wins": 7,
+                "losses": 6,
+                "type": "oneRun",
+                "pct": ".538"
+              },
+              {
+                "wins": 11,
+                "losses": 22,
+                "type": "winners",
+                "pct": ".333"
+              },
+              {
+                "wins": 11,
+                "losses": 15,
+                "type": "day",
+                "pct": ".423"
+              },
+              {
+                "wins": 12,
+                "losses": 22,
+                "type": "night",
+                "pct": ".353"
+              },
+              {
+                "wins": 23,
+                "losses": 37,
+                "type": "grass",
+                "pct": ".383"
+              },
+              {
+                "wins": 0,
+                "losses": 0,
+                "type": "turf",
+                "pct": ".000"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 7,
+                "losses": 9,
+                "pct": ".438",
+                "division": {
+                  "id": 203,
+                  "name": "National League West",
+                  "link": "/api/v1/divisions/203"
+                }
+              },
+              {
+                "wins": 4,
+                "losses": 4,
+                "pct": ".500",
+                "division": {
+                  "id": 204,
+                  "name": "National League East",
+                  "link": "/api/v1/divisions/204"
+                }
+              },
+              {
+                "wins": 7,
+                "losses": 19,
+                "pct": ".269",
+                "division": {
+                  "id": 205,
+                  "name": "National League Central",
+                  "link": "/api/v1/divisions/205"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 13,
+                "losses": 18,
+                "type": "home",
+                "pct": ".419"
+              },
+              {
+                "wins": 10,
+                "losses": 19,
+                "type": "away",
+                "pct": ".345"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 5,
+                "losses": 5,
+                "pct": ".500",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 18,
+                "losses": 32,
+                "pct": ".360",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 22,
+                "losses": 38,
+                "type": "xWinLoss",
+                "pct": ".367"
+              },
+              {
+                "wins": 58,
+                "losses": 104,
+                "type": "xWinLossSeason",
+                "pct": ".358"
+              }
+            ]
+          },
+          "runsAllowed": 288,
+          "runsScored": 210,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "91",
+          "wildCardEliminationNumber": "89",
+          "wins": 23,
+          "losses": 37,
+          "runDifferential": -78,
+          "winningPercentage": ".383"
+        }
+      ]
+    },
+    {
+      "standingsType": "regularSeason",
+      "league": {
+        "id": 104,
+        "link": "/api/v1/league/104"
+      },
+      "division": {
+        "id": 203,
+        "link": "/api/v1/divisions/203"
+      },
+      "sport": {
+        "id": 1,
+        "link": "/api/v1/sports/1"
+      },
+      "lastUpdated": "2021-06-10T14:49:06.000Z",
+      "teamRecords": [
+        {
+          "team": {
+            "id": 137,
+            "name": "San Francisco Giants",
+            "link": "/api/v1/teams/137"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "losses",
+            "streakNumber": 1,
+            "streakCode": "L1"
+          },
+          "divisionRank": "1",
+          "leagueRank": "1",
+          "sportRank": "1",
+          "gamesPlayed": 61,
+          "gamesBack": "-",
+          "wildCardGamesBack": "-",
+          "leagueGamesBack": "-",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "-",
+          "divisionGamesBack": "-",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 38,
+            "losses": 23,
+            "pct": ".623"
+          },
+          "lastUpdated": "2021-06-10T14:49:06Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 18,
+                "losses": 9,
+                "type": "home",
+                "pct": ".667"
+              },
+              {
+                "wins": 20,
+                "losses": 14,
+                "type": "away",
+                "pct": ".588"
+              },
+              {
+                "wins": 11,
+                "losses": 8,
+                "type": "left",
+                "pct": ".579"
+              },
+              {
+                "wins": 5,
+                "losses": 3,
+                "type": "leftHome",
+                "pct": ".625"
+              },
+              {
+                "wins": 6,
+                "losses": 5,
+                "type": "leftAway",
+                "pct": ".545"
+              },
+              {
+                "wins": 13,
+                "losses": 6,
+                "type": "rightHome",
+                "pct": ".684"
+              },
+              {
+                "wins": 14,
+                "losses": 9,
+                "type": "rightAway",
+                "pct": ".609"
+              },
+              {
+                "wins": 27,
+                "losses": 15,
+                "type": "right",
+                "pct": ".643"
+              },
+              {
+                "wins": 7,
+                "losses": 3,
+                "type": "lastTen",
+                "pct": ".700"
+              },
+              {
+                "wins": 2,
+                "losses": 5,
+                "type": "extraInning",
+                "pct": ".286"
+              },
+              {
+                "wins": 10,
+                "losses": 10,
+                "type": "oneRun",
+                "pct": ".500"
+              },
+              {
+                "wins": 11,
+                "losses": 9,
+                "type": "winners",
+                "pct": ".550"
+              },
+              {
+                "wins": 17,
+                "losses": 8,
+                "type": "day",
+                "pct": ".680"
+              },
+              {
+                "wins": 21,
+                "losses": 15,
+                "type": "night",
+                "pct": ".583"
+              },
+              {
+                "wins": 35,
+                "losses": 22,
+                "type": "grass",
+                "pct": ".614"
+              },
+              {
+                "wins": 3,
+                "losses": 1,
+                "type": "turf",
+                "pct": ".750"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 16,
+                "losses": 11,
+                "pct": ".593",
+                "division": {
+                  "id": 203,
+                  "name": "National League West",
+                  "link": "/api/v1/divisions/203"
+                }
+              },
+              {
+                "wins": 6,
+                "losses": 4,
+                "pct": ".600",
+                "division": {
+                  "id": 204,
+                  "name": "National League East",
+                  "link": "/api/v1/divisions/204"
+                }
+              },
+              {
+                "wins": 11,
+                "losses": 4,
+                "pct": ".733",
+                "division": {
+                  "id": 205,
+                  "name": "National League Central",
+                  "link": "/api/v1/divisions/205"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 18,
+                "losses": 9,
+                "type": "home",
+                "pct": ".667"
+              },
+              {
+                "wins": 20,
+                "losses": 14,
+                "type": "away",
+                "pct": ".588"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 5,
+                "losses": 4,
+                "pct": ".556",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 33,
+                "losses": 19,
+                "pct": ".635",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 38,
+                "losses": 23,
+                "type": "xWinLoss",
+                "pct": ".623"
+              },
+              {
+                "wins": 102,
+                "losses": 60,
+                "type": "xWinLossSeason",
+                "pct": ".630"
+              }
+            ]
+          },
+          "runsAllowed": 222,
+          "runsScored": 296,
+          "divisionChamp": false,
+          "divisionLeader": true,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "-",
+          "magicNumber": "100",
+          "wins": 38,
+          "losses": 23,
+          "runDifferential": 74,
+          "winningPercentage": ".623"
+        },
+        {
+          "team": {
+            "id": 119,
+            "name": "Los Angeles Dodgers",
+            "link": "/api/v1/teams/119"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "wins",
+            "streakNumber": 2,
+            "streakCode": "W2"
+          },
+          "divisionRank": "2",
+          "leagueRank": "2",
+          "wildCardRank": "1",
+          "sportRank": "5",
+          "gamesPlayed": 61,
+          "gamesBack": "2.0",
+          "wildCardGamesBack": "+0.5",
+          "leagueGamesBack": "2.0",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "2.0",
+          "divisionGamesBack": "2.0",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 36,
+            "losses": 25,
+            "pct": ".590"
+          },
+          "lastUpdated": "2021-06-10T14:49:06Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 19,
+                "losses": 10,
+                "type": "home",
+                "pct": ".655"
+              },
+              {
+                "wins": 17,
+                "losses": 15,
+                "type": "away",
+                "pct": ".531"
+              },
+              {
+                "wins": 12,
+                "losses": 7,
+                "type": "left",
+                "pct": ".632"
+              },
+              {
+                "wins": 6,
+                "losses": 1,
+                "type": "leftHome",
+                "pct": ".857"
+              },
+              {
+                "wins": 6,
+                "losses": 6,
+                "type": "leftAway",
+                "pct": ".500"
+              },
+              {
+                "wins": 13,
+                "losses": 9,
+                "type": "rightHome",
+                "pct": ".591"
+              },
+              {
+                "wins": 11,
+                "losses": 9,
+                "type": "rightAway",
+                "pct": ".550"
+              },
+              {
+                "wins": 24,
+                "losses": 18,
+                "type": "right",
+                "pct": ".571"
+              },
+              {
+                "wins": 5,
+                "losses": 5,
+                "type": "lastTen",
+                "pct": ".500"
+              },
+              {
+                "wins": 1,
+                "losses": 7,
+                "type": "extraInning",
+                "pct": ".125"
+              },
+              {
+                "wins": 8,
+                "losses": 13,
+                "type": "oneRun",
+                "pct": ".381"
+              },
+              {
+                "wins": 13,
+                "losses": 16,
+                "type": "winners",
+                "pct": ".448"
+              },
+              {
+                "wins": 8,
+                "losses": 10,
+                "type": "day",
+                "pct": ".444"
+              },
+              {
+                "wins": 28,
+                "losses": 15,
+                "type": "night",
+                "pct": ".651"
+              },
+              {
+                "wins": 36,
+                "losses": 25,
+                "type": "grass",
+                "pct": ".590"
+              },
+              {
+                "wins": 0,
+                "losses": 0,
+                "type": "turf",
+                "pct": ".000"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 17,
+                "losses": 8,
+                "pct": ".680",
+                "division": {
+                  "id": 203,
+                  "name": "National League West",
+                  "link": "/api/v1/divisions/203"
+                }
+              },
+              {
+                "wins": 6,
+                "losses": 3,
+                "pct": ".667",
+                "division": {
+                  "id": 204,
+                  "name": "National League East",
+                  "link": "/api/v1/divisions/204"
+                }
+              },
+              {
+                "wins": 6,
+                "losses": 9,
+                "pct": ".400",
+                "division": {
+                  "id": 205,
+                  "name": "National League Central",
+                  "link": "/api/v1/divisions/205"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 19,
+                "losses": 10,
+                "type": "home",
+                "pct": ".655"
+              },
+              {
+                "wins": 17,
+                "losses": 15,
+                "type": "away",
+                "pct": ".531"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 7,
+                "losses": 5,
+                "pct": ".583",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 29,
+                "losses": 20,
+                "pct": ".592",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 39,
+                "losses": 22,
+                "type": "xWinLoss",
+                "pct": ".639"
+              },
+              {
+                "wins": 103,
+                "losses": 59,
+                "type": "xWinLossSeason",
+                "pct": ".636"
+              }
+            ]
+          },
+          "runsAllowed": 234,
+          "runsScored": 320,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "wildCardLeader": true,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "100",
+          "wildCardEliminationNumber": "-",
+          "wins": 36,
+          "losses": 25,
+          "runDifferential": 86,
+          "winningPercentage": ".590"
+        },
+        {
+          "team": {
+            "id": 135,
+            "name": "San Diego Padres",
+            "link": "/api/v1/teams/135"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "losses",
+            "streakNumber": 2,
+            "streakCode": "L2"
+          },
+          "divisionRank": "3",
+          "leagueRank": "3",
+          "wildCardRank": "2",
+          "sportRank": "7",
+          "gamesPlayed": 64,
+          "gamesBack": "2.5",
+          "wildCardGamesBack": "-",
+          "leagueGamesBack": "2.5",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "2.5",
+          "divisionGamesBack": "2.5",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 37,
+            "losses": 27,
+            "pct": ".578"
+          },
+          "lastUpdated": "2021-06-10T14:49:06Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 21,
+                "losses": 14,
+                "type": "home",
+                "pct": ".600"
+              },
+              {
+                "wins": 16,
+                "losses": 13,
+                "type": "away",
+                "pct": ".552"
+              },
+              {
+                "wins": 10,
+                "losses": 3,
+                "type": "left",
+                "pct": ".769"
+              },
+              {
+                "wins": 7,
+                "losses": 1,
+                "type": "leftHome",
+                "pct": ".875"
+              },
+              {
+                "wins": 3,
+                "losses": 2,
+                "type": "leftAway",
+                "pct": ".600"
+              },
+              {
+                "wins": 14,
+                "losses": 13,
+                "type": "rightHome",
+                "pct": ".519"
+              },
+              {
+                "wins": 13,
+                "losses": 11,
+                "type": "rightAway",
+                "pct": ".542"
+              },
+              {
+                "wins": 27,
+                "losses": 24,
+                "type": "right",
+                "pct": ".529"
+              },
+              {
+                "wins": 3,
+                "losses": 7,
+                "type": "lastTen",
+                "pct": ".300"
+              },
+              {
+                "wins": 5,
+                "losses": 4,
+                "type": "extraInning",
+                "pct": ".556"
+              },
+              {
+                "wins": 8,
+                "losses": 8,
+                "type": "oneRun",
+                "pct": ".500"
+              },
+              {
+                "wins": 18,
+                "losses": 21,
+                "type": "winners",
+                "pct": ".462"
+              },
+              {
+                "wins": 11,
+                "losses": 12,
+                "type": "day",
+                "pct": ".478"
+              },
+              {
+                "wins": 26,
+                "losses": 15,
+                "type": "night",
+                "pct": ".634"
+              },
+              {
+                "wins": 33,
+                "losses": 26,
+                "type": "grass",
+                "pct": ".559"
+              },
+              {
+                "wins": 4,
+                "losses": 1,
+                "type": "turf",
+                "pct": ".800"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 17,
+                "losses": 11,
+                "pct": ".607",
+                "division": {
+                  "id": 203,
+                  "name": "National League West",
+                  "link": "/api/v1/divisions/203"
+                }
+              },
+              {
+                "wins": 2,
+                "losses": 2,
+                "pct": ".500",
+                "division": {
+                  "id": 204,
+                  "name": "National League East",
+                  "link": "/api/v1/divisions/204"
+                }
+              },
+              {
+                "wins": 10,
+                "losses": 13,
+                "pct": ".435",
+                "division": {
+                  "id": 205,
+                  "name": "National League Central",
+                  "link": "/api/v1/divisions/205"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 21,
+                "losses": 14,
+                "type": "home",
+                "pct": ".600"
+              },
+              {
+                "wins": 16,
+                "losses": 13,
+                "type": "away",
+                "pct": ".552"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 8,
+                "losses": 1,
+                "pct": ".889",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 29,
+                "losses": 26,
+                "pct": ".527",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 40,
+                "losses": 24,
+                "type": "xWinLoss",
+                "pct": ".625"
+              },
+              {
+                "wins": 100,
+                "losses": 62,
+                "type": "xWinLossSeason",
+                "pct": ".617"
+              }
+            ]
+          },
+          "runsAllowed": 220,
+          "runsScored": 287,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "wildCardLeader": true,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "98",
+          "wildCardEliminationNumber": "-",
+          "wins": 37,
+          "losses": 27,
+          "runDifferential": 67,
+          "winningPercentage": ".578"
+        },
+        {
+          "team": {
+            "id": 115,
+            "name": "Colorado Rockies",
+            "link": "/api/v1/teams/115"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "wins",
+            "streakNumber": 1,
+            "streakCode": "W1"
+          },
+          "divisionRank": "4",
+          "leagueRank": "13",
+          "wildCardRank": "10",
+          "sportRank": "25",
+          "gamesPlayed": 62,
+          "gamesBack": "13.5",
+          "wildCardGamesBack": "11.0",
+          "leagueGamesBack": "13.5",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "13.5",
+          "divisionGamesBack": "13.5",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 25,
+            "losses": 37,
+            "pct": ".403"
+          },
+          "lastUpdated": "2021-06-10T14:49:06Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 20,
+                "losses": 14,
+                "type": "home",
+                "pct": ".588"
+              },
+              {
+                "wins": 5,
+                "losses": 23,
+                "type": "away",
+                "pct": ".179"
+              },
+              {
+                "wins": 9,
+                "losses": 7,
+                "type": "left",
+                "pct": ".563"
+              },
+              {
+                "wins": 7,
+                "losses": 2,
+                "type": "leftHome",
+                "pct": ".778"
+              },
+              {
+                "wins": 2,
+                "losses": 5,
+                "type": "leftAway",
+                "pct": ".286"
+              },
+              {
+                "wins": 13,
+                "losses": 12,
+                "type": "rightHome",
+                "pct": ".520"
+              },
+              {
+                "wins": 3,
+                "losses": 18,
+                "type": "rightAway",
+                "pct": ".143"
+              },
+              {
+                "wins": 16,
+                "losses": 30,
+                "type": "right",
+                "pct": ".348"
+              },
+              {
+                "wins": 6,
+                "losses": 4,
+                "type": "lastTen",
+                "pct": ".600"
+              },
+              {
+                "wins": 3,
+                "losses": 3,
+                "type": "extraInning",
+                "pct": ".500"
+              },
+              {
+                "wins": 9,
+                "losses": 9,
+                "type": "oneRun",
+                "pct": ".500"
+              },
+              {
+                "wins": 10,
+                "losses": 27,
+                "type": "winners",
+                "pct": ".270"
+              },
+              {
+                "wins": 13,
+                "losses": 17,
+                "type": "day",
+                "pct": ".433"
+              },
+              {
+                "wins": 12,
+                "losses": 20,
+                "type": "night",
+                "pct": ".375"
+              },
+              {
+                "wins": 24,
+                "losses": 34,
+                "type": "grass",
+                "pct": ".414"
+              },
+              {
+                "wins": 1,
+                "losses": 3,
+                "type": "turf",
+                "pct": ".250"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 11,
+                "losses": 21,
+                "pct": ".344",
+                "division": {
+                  "id": 203,
+                  "name": "National League West",
+                  "link": "/api/v1/divisions/203"
+                }
+              },
+              {
+                "wins": 5,
+                "losses": 7,
+                "pct": ".417",
+                "division": {
+                  "id": 204,
+                  "name": "National League East",
+                  "link": "/api/v1/divisions/204"
+                }
+              },
+              {
+                "wins": 3,
+                "losses": 7,
+                "pct": ".300",
+                "division": {
+                  "id": 205,
+                  "name": "National League Central",
+                  "link": "/api/v1/divisions/205"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 20,
+                "losses": 14,
+                "type": "home",
+                "pct": ".588"
+              },
+              {
+                "wins": 5,
+                "losses": 23,
+                "type": "away",
+                "pct": ".179"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 6,
+                "losses": 2,
+                "pct": ".750",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 19,
+                "losses": 35,
+                "pct": ".352",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 27,
+                "losses": 35,
+                "type": "xWinLoss",
+                "pct": ".435"
+              },
+              {
+                "wins": 70,
+                "losses": 92,
+                "type": "xWinLossSeason",
+                "pct": ".432"
+              }
+            ]
+          },
+          "runsAllowed": 307,
+          "runsScored": 265,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "88",
+          "wildCardEliminationNumber": "89",
+          "wins": 25,
+          "losses": 37,
+          "runDifferential": -42,
+          "winningPercentage": ".403"
+        },
+        {
+          "team": {
+            "id": 109,
+            "name": "Arizona Diamondbacks",
+            "link": "/api/v1/teams/109"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "losses",
+            "streakNumber": 7,
+            "streakCode": "L7"
+          },
+          "divisionRank": "5",
+          "leagueRank": "15",
+          "wildCardRank": "12",
+          "sportRank": "30",
+          "gamesPlayed": 63,
+          "gamesBack": "19.0",
+          "wildCardGamesBack": "16.5",
+          "leagueGamesBack": "19.0",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "19.0",
+          "divisionGamesBack": "19.0",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 20,
+            "losses": 43,
+            "pct": ".317"
+          },
+          "lastUpdated": "2021-06-10T14:49:06Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 11,
+                "losses": 16,
+                "type": "home",
+                "pct": ".407"
+              },
+              {
+                "wins": 9,
+                "losses": 27,
+                "type": "away",
+                "pct": ".250"
+              },
+              {
+                "wins": 3,
+                "losses": 13,
+                "type": "left",
+                "pct": ".188"
+              },
+              {
+                "wins": 1,
+                "losses": 5,
+                "type": "leftHome",
+                "pct": ".167"
+              },
+              {
+                "wins": 2,
+                "losses": 8,
+                "type": "leftAway",
+                "pct": ".200"
+              },
+              {
+                "wins": 10,
+                "losses": 11,
+                "type": "rightHome",
+                "pct": ".476"
+              },
+              {
+                "wins": 7,
+                "losses": 19,
+                "type": "rightAway",
+                "pct": ".269"
+              },
+              {
+                "wins": 17,
+                "losses": 30,
+                "type": "right",
+                "pct": ".362"
+              },
+              {
+                "wins": 2,
+                "losses": 8,
+                "type": "lastTen",
+                "pct": ".200"
+              },
+              {
+                "wins": 4,
+                "losses": 3,
+                "type": "extraInning",
+                "pct": ".571"
+              },
+              {
+                "wins": 2,
+                "losses": 12,
+                "type": "oneRun",
+                "pct": ".143"
+              },
+              {
+                "wins": 4,
+                "losses": 26,
+                "type": "winners",
+                "pct": ".133"
+              },
+              {
+                "wins": 8,
+                "losses": 12,
+                "type": "day",
+                "pct": ".400"
+              },
+              {
+                "wins": 12,
+                "losses": 31,
+                "type": "night",
+                "pct": ".279"
+              },
+              {
+                "wins": 9,
+                "losses": 27,
+                "type": "grass",
+                "pct": ".250"
+              },
+              {
+                "wins": 11,
+                "losses": 16,
+                "type": "turf",
+                "pct": ".407"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 6,
+                "losses": 16,
+                "pct": ".273",
+                "division": {
+                  "id": 203,
+                  "name": "National League West",
+                  "link": "/api/v1/divisions/203"
+                }
+              },
+              {
+                "wins": 8,
+                "losses": 15,
+                "pct": ".348",
+                "division": {
+                  "id": 204,
+                  "name": "National League East",
+                  "link": "/api/v1/divisions/204"
+                }
+              },
+              {
+                "wins": 6,
+                "losses": 8,
+                "pct": ".429",
+                "division": {
+                  "id": 205,
+                  "name": "National League Central",
+                  "link": "/api/v1/divisions/205"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 11,
+                "losses": 16,
+                "type": "home",
+                "pct": ".407"
+              },
+              {
+                "wins": 9,
+                "losses": 27,
+                "type": "away",
+                "pct": ".250"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 0,
+                "losses": 4,
+                "pct": ".000",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 20,
+                "losses": 39,
+                "pct": ".339",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 25,
+                "losses": 38,
+                "type": "xWinLoss",
+                "pct": ".397"
+              },
+              {
+                "wins": 64,
+                "losses": 98,
+                "type": "xWinLossSeason",
+                "pct": ".395"
+              }
+            ]
+          },
+          "runsAllowed": 334,
+          "runsScored": 263,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "82",
+          "wildCardEliminationNumber": "83",
+          "wins": 20,
+          "losses": 43,
+          "runDifferential": -71,
+          "winningPercentage": ".317"
+        }
+      ]
+    },
+    {
+      "standingsType": "regularSeason",
+      "league": {
+        "id": 104,
+        "link": "/api/v1/league/104"
+      },
+      "division": {
+        "id": 204,
+        "link": "/api/v1/divisions/204"
+      },
+      "sport": {
+        "id": 1,
+        "link": "/api/v1/sports/1"
+      },
+      "lastUpdated": "2021-06-10T14:49:06.000Z",
+      "teamRecords": [
+        {
+          "team": {
+            "id": 121,
+            "name": "New York Mets",
+            "link": "/api/v1/teams/121"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "wins",
+            "streakNumber": 1,
+            "streakCode": "W1"
+          },
+          "divisionRank": "1",
+          "leagueRank": "6",
+          "sportRank": "11",
+          "gamesPlayed": 54,
+          "gamesBack": "-",
+          "wildCardGamesBack": "-",
+          "leagueGamesBack": "4.5",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "4.5",
+          "divisionGamesBack": "-",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 30,
+            "losses": 24,
+            "pct": ".556"
+          },
+          "lastUpdated": "2021-06-10T14:49:06Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 15,
+                "losses": 5,
+                "type": "home",
+                "pct": ".750"
+              },
+              {
+                "wins": 15,
+                "losses": 19,
+                "type": "away",
+                "pct": ".441"
+              },
+              {
+                "wins": 6,
+                "losses": 9,
+                "type": "left",
+                "pct": ".400"
+              },
+              {
+                "wins": 3,
+                "losses": 2,
+                "type": "leftHome",
+                "pct": ".600"
+              },
+              {
+                "wins": 3,
+                "losses": 7,
+                "type": "leftAway",
+                "pct": ".300"
+              },
+              {
+                "wins": 12,
+                "losses": 3,
+                "type": "rightHome",
+                "pct": ".800"
+              },
+              {
+                "wins": 12,
+                "losses": 12,
+                "type": "rightAway",
+                "pct": ".500"
+              },
+              {
+                "wins": 24,
+                "losses": 15,
+                "type": "right",
+                "pct": ".615"
+              },
+              {
+                "wins": 6,
+                "losses": 4,
+                "type": "lastTen",
+                "pct": ".600"
+              },
+              {
+                "wins": 3,
+                "losses": 2,
+                "type": "extraInning",
+                "pct": ".600"
+              },
+              {
+                "wins": 12,
+                "losses": 10,
+                "type": "oneRun",
+                "pct": ".545"
+              },
+              {
+                "wins": 4,
+                "losses": 12,
+                "type": "winners",
+                "pct": ".250"
+              },
+              {
+                "wins": 11,
+                "losses": 8,
+                "type": "day",
+                "pct": ".579"
+              },
+              {
+                "wins": 19,
+                "losses": 16,
+                "type": "night",
+                "pct": ".543"
+              },
+              {
+                "wins": 28,
+                "losses": 20,
+                "type": "grass",
+                "pct": ".583"
+              },
+              {
+                "wins": 2,
+                "losses": 4,
+                "type": "turf",
+                "pct": ".333"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 12,
+                "losses": 5,
+                "pct": ".706",
+                "division": {
+                  "id": 203,
+                  "name": "National League West",
+                  "link": "/api/v1/divisions/203"
+                }
+              },
+              {
+                "wins": 13,
+                "losses": 8,
+                "pct": ".619",
+                "division": {
+                  "id": 204,
+                  "name": "National League East",
+                  "link": "/api/v1/divisions/204"
+                }
+              },
+              {
+                "wins": 2,
+                "losses": 5,
+                "pct": ".286",
+                "division": {
+                  "id": 205,
+                  "name": "National League Central",
+                  "link": "/api/v1/divisions/205"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 15,
+                "losses": 5,
+                "type": "home",
+                "pct": ".750"
+              },
+              {
+                "wins": 15,
+                "losses": 19,
+                "type": "away",
+                "pct": ".441"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 3,
+                "losses": 6,
+                "pct": ".333",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 27,
+                "losses": 18,
+                "pct": ".600",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 29,
+                "losses": 25,
+                "type": "xWinLoss",
+                "pct": ".537"
+              },
+              {
+                "wins": 87,
+                "losses": 75,
+                "type": "xWinLossSeason",
+                "pct": ".537"
+              }
+            ]
+          },
+          "runsAllowed": 192,
+          "runsScored": 209,
+          "divisionChamp": false,
+          "divisionLeader": true,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "-",
+          "magicNumber": "103",
+          "wins": 30,
+          "losses": 24,
+          "runDifferential": 17,
+          "winningPercentage": ".556"
+        },
+        {
+          "team": {
+            "id": 144,
+            "name": "Atlanta Braves",
+            "link": "/api/v1/teams/144"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "losses",
+            "streakNumber": 1,
+            "streakCode": "L1"
+          },
+          "divisionRank": "2",
+          "leagueRank": "8",
+          "wildCardRank": "5",
+          "sportRank": "17",
+          "gamesPlayed": 59,
+          "gamesBack": "3.5",
+          "wildCardGamesBack": "5.5",
+          "leagueGamesBack": "8.0",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "8.0",
+          "divisionGamesBack": "3.5",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 29,
+            "losses": 30,
+            "pct": ".492"
+          },
+          "lastUpdated": "2021-06-10T14:49:06Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 17,
+                "losses": 17,
+                "type": "home",
+                "pct": ".500"
+              },
+              {
+                "wins": 12,
+                "losses": 13,
+                "type": "away",
+                "pct": ".480"
+              },
+              {
+                "wins": 7,
+                "losses": 8,
+                "type": "left",
+                "pct": ".467"
+              },
+              {
+                "wins": 5,
+                "losses": 6,
+                "type": "leftHome",
+                "pct": ".455"
+              },
+              {
+                "wins": 2,
+                "losses": 2,
+                "type": "leftAway",
+                "pct": ".500"
+              },
+              {
+                "wins": 12,
+                "losses": 11,
+                "type": "rightHome",
+                "pct": ".522"
+              },
+              {
+                "wins": 10,
+                "losses": 11,
+                "type": "rightAway",
+                "pct": ".476"
+              },
+              {
+                "wins": 22,
+                "losses": 22,
+                "type": "right",
+                "pct": ".500"
+              },
+              {
+                "wins": 5,
+                "losses": 5,
+                "type": "lastTen",
+                "pct": ".500"
+              },
+              {
+                "wins": 1,
+                "losses": 5,
+                "type": "extraInning",
+                "pct": ".167"
+              },
+              {
+                "wins": 8,
+                "losses": 9,
+                "type": "oneRun",
+                "pct": ".471"
+              },
+              {
+                "wins": 12,
+                "losses": 15,
+                "type": "winners",
+                "pct": ".444"
+              },
+              {
+                "wins": 9,
+                "losses": 10,
+                "type": "day",
+                "pct": ".474"
+              },
+              {
+                "wins": 20,
+                "losses": 20,
+                "type": "night",
+                "pct": ".500"
+              },
+              {
+                "wins": 29,
+                "losses": 30,
+                "type": "grass",
+                "pct": ".492"
+              },
+              {
+                "wins": 0,
+                "losses": 0,
+                "type": "turf",
+                "pct": ".000"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 3,
+                "losses": 3,
+                "pct": ".500",
+                "division": {
+                  "id": 203,
+                  "name": "National League West",
+                  "link": "/api/v1/divisions/203"
+                }
+              },
+              {
+                "wins": 14,
+                "losses": 15,
+                "pct": ".483",
+                "division": {
+                  "id": 204,
+                  "name": "National League East",
+                  "link": "/api/v1/divisions/204"
+                }
+              },
+              {
+                "wins": 10,
+                "losses": 4,
+                "pct": ".714",
+                "division": {
+                  "id": 205,
+                  "name": "National League Central",
+                  "link": "/api/v1/divisions/205"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 17,
+                "losses": 17,
+                "type": "home",
+                "pct": ".500"
+              },
+              {
+                "wins": 12,
+                "losses": 13,
+                "type": "away",
+                "pct": ".480"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 2,
+                "losses": 8,
+                "pct": ".200",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 27,
+                "losses": 22,
+                "pct": ".551",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 30,
+                "losses": 29,
+                "type": "xWinLoss",
+                "pct": ".508"
+              },
+              {
+                "wins": 81,
+                "losses": 81,
+                "type": "xWinLossSeason",
+                "pct": ".500"
+              }
+            ]
+          },
+          "runsAllowed": 287,
+          "runsScored": 287,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "103",
+          "wildCardEliminationNumber": "96",
+          "wins": 29,
+          "losses": 30,
+          "runDifferential": 0,
+          "winningPercentage": ".492"
+        },
+        {
+          "team": {
+            "id": 143,
+            "name": "Philadelphia Phillies",
+            "link": "/api/v1/teams/143"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "wins",
+            "streakNumber": 1,
+            "streakCode": "W1"
+          },
+          "divisionRank": "3",
+          "leagueRank": "10",
+          "wildCardRank": "7",
+          "sportRank": "21",
+          "gamesPlayed": 60,
+          "gamesBack": "4.0",
+          "wildCardGamesBack": "6.0",
+          "leagueGamesBack": "8.5",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "8.5",
+          "divisionGamesBack": "4.0",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 29,
+            "losses": 31,
+            "pct": ".483"
+          },
+          "lastUpdated": "2021-06-10T14:49:06Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 18,
+                "losses": 12,
+                "type": "home",
+                "pct": ".600"
+              },
+              {
+                "wins": 11,
+                "losses": 19,
+                "type": "away",
+                "pct": ".367"
+              },
+              {
+                "wins": 8,
+                "losses": 13,
+                "type": "left",
+                "pct": ".381"
+              },
+              {
+                "wins": 5,
+                "losses": 5,
+                "type": "leftHome",
+                "pct": ".500"
+              },
+              {
+                "wins": 3,
+                "losses": 8,
+                "type": "leftAway",
+                "pct": ".273"
+              },
+              {
+                "wins": 13,
+                "losses": 7,
+                "type": "rightHome",
+                "pct": ".650"
+              },
+              {
+                "wins": 8,
+                "losses": 11,
+                "type": "rightAway",
+                "pct": ".421"
+              },
+              {
+                "wins": 21,
+                "losses": 18,
+                "type": "right",
+                "pct": ".538"
+              },
+              {
+                "wins": 5,
+                "losses": 5,
+                "type": "lastTen",
+                "pct": ".500"
+              },
+              {
+                "wins": 2,
+                "losses": 3,
+                "type": "extraInning",
+                "pct": ".400"
+              },
+              {
+                "wins": 11,
+                "losses": 9,
+                "type": "oneRun",
+                "pct": ".550"
+              },
+              {
+                "wins": 14,
+                "losses": 17,
+                "type": "winners",
+                "pct": ".452"
+              },
+              {
+                "wins": 11,
+                "losses": 8,
+                "type": "day",
+                "pct": ".579"
+              },
+              {
+                "wins": 18,
+                "losses": 23,
+                "type": "night",
+                "pct": ".439"
+              },
+              {
+                "wins": 29,
+                "losses": 29,
+                "type": "grass",
+                "pct": ".500"
+              },
+              {
+                "wins": 0,
+                "losses": 2,
+                "type": "turf",
+                "pct": ".000"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 2,
+                "losses": 4,
+                "pct": ".333",
+                "division": {
+                  "id": 203,
+                  "name": "National League West",
+                  "link": "/api/v1/divisions/203"
+                }
+              },
+              {
+                "wins": 16,
+                "losses": 17,
+                "pct": ".485",
+                "division": {
+                  "id": 204,
+                  "name": "National League East",
+                  "link": "/api/v1/divisions/204"
+                }
+              },
+              {
+                "wins": 9,
+                "losses": 4,
+                "pct": ".692",
+                "division": {
+                  "id": 205,
+                  "name": "National League Central",
+                  "link": "/api/v1/divisions/205"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 18,
+                "losses": 12,
+                "type": "home",
+                "pct": ".600"
+              },
+              {
+                "wins": 11,
+                "losses": 19,
+                "type": "away",
+                "pct": ".367"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 2,
+                "losses": 6,
+                "pct": ".250",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 27,
+                "losses": 25,
+                "pct": ".519",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 29,
+                "losses": 31,
+                "type": "xWinLoss",
+                "pct": ".483"
+              },
+              {
+                "wins": 77,
+                "losses": 85,
+                "type": "xWinLossSeason",
+                "pct": ".475"
+              }
+            ]
+          },
+          "runsAllowed": 266,
+          "runsScored": 252,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "102",
+          "wildCardEliminationNumber": "95",
+          "wins": 29,
+          "losses": 31,
+          "runDifferential": -14,
+          "winningPercentage": ".483"
+        },
+        {
+          "team": {
+            "id": 120,
+            "name": "Washington Nationals",
+            "link": "/api/v1/teams/120"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "wins",
+            "streakNumber": 1,
+            "streakCode": "W1"
+          },
+          "divisionRank": "4",
+          "leagueRank": "11",
+          "wildCardRank": "8",
+          "sportRank": "22",
+          "gamesPlayed": 58,
+          "gamesBack": "7.0",
+          "wildCardGamesBack": "9.0",
+          "leagueGamesBack": "11.5",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "11.5",
+          "divisionGamesBack": "7.0",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 25,
+            "losses": 33,
+            "pct": ".431"
+          },
+          "lastUpdated": "2021-06-10T14:49:06Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 13,
+                "losses": 15,
+                "type": "home",
+                "pct": ".464"
+              },
+              {
+                "wins": 12,
+                "losses": 18,
+                "type": "away",
+                "pct": ".400"
+              },
+              {
+                "wins": 7,
+                "losses": 8,
+                "type": "left",
+                "pct": ".467"
+              },
+              {
+                "wins": 3,
+                "losses": 5,
+                "type": "leftHome",
+                "pct": ".375"
+              },
+              {
+                "wins": 4,
+                "losses": 3,
+                "type": "leftAway",
+                "pct": ".571"
+              },
+              {
+                "wins": 10,
+                "losses": 10,
+                "type": "rightHome",
+                "pct": ".500"
+              },
+              {
+                "wins": 8,
+                "losses": 15,
+                "type": "rightAway",
+                "pct": ".348"
+              },
+              {
+                "wins": 18,
+                "losses": 25,
+                "type": "right",
+                "pct": ".419"
+              },
+              {
+                "wins": 4,
+                "losses": 6,
+                "type": "lastTen",
+                "pct": ".400"
+              },
+              {
+                "wins": 2,
+                "losses": 2,
+                "type": "extraInning",
+                "pct": ".500"
+              },
+              {
+                "wins": 8,
+                "losses": 6,
+                "type": "oneRun",
+                "pct": ".571"
+              },
+              {
+                "wins": 9,
+                "losses": 17,
+                "type": "winners",
+                "pct": ".346"
+              },
+              {
+                "wins": 11,
+                "losses": 15,
+                "type": "day",
+                "pct": ".423"
+              },
+              {
+                "wins": 14,
+                "losses": 18,
+                "type": "night",
+                "pct": ".438"
+              },
+              {
+                "wins": 22,
+                "losses": 31,
+                "type": "grass",
+                "pct": ".415"
+              },
+              {
+                "wins": 3,
+                "losses": 2,
+                "type": "turf",
+                "pct": ".600"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 4,
+                "losses": 6,
+                "pct": ".400",
+                "division": {
+                  "id": 203,
+                  "name": "National League West",
+                  "link": "/api/v1/divisions/203"
+                }
+              },
+              {
+                "wins": 9,
+                "losses": 13,
+                "pct": ".409",
+                "division": {
+                  "id": 204,
+                  "name": "National League East",
+                  "link": "/api/v1/divisions/204"
+                }
+              },
+              {
+                "wins": 6,
+                "losses": 10,
+                "pct": ".375",
+                "division": {
+                  "id": 205,
+                  "name": "National League Central",
+                  "link": "/api/v1/divisions/205"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 13,
+                "losses": 15,
+                "type": "home",
+                "pct": ".464"
+              },
+              {
+                "wins": 12,
+                "losses": 18,
+                "type": "away",
+                "pct": ".400"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 6,
+                "losses": 4,
+                "pct": ".600",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 19,
+                "losses": 29,
+                "pct": ".396",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 26,
+                "losses": 32,
+                "type": "xWinLoss",
+                "pct": ".448"
+              },
+              {
+                "wins": 72,
+                "losses": 90,
+                "type": "xWinLossSeason",
+                "pct": ".444"
+              }
+            ]
+          },
+          "runsAllowed": 256,
+          "runsScored": 225,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "100",
+          "wildCardEliminationNumber": "93",
+          "wins": 25,
+          "losses": 33,
+          "runDifferential": -31,
+          "winningPercentage": ".431"
+        },
+        {
+          "team": {
+            "id": 146,
+            "name": "Miami Marlins",
+            "link": "/api/v1/teams/146"
+          },
+          "season": "2021",
+          "streak": {
+            "streakType": "losses",
+            "streakNumber": 1,
+            "streakCode": "L1"
+          },
+          "divisionRank": "5",
+          "leagueRank": "12",
+          "wildCardRank": "9",
+          "sportRank": "23",
+          "gamesPlayed": 61,
+          "gamesBack": "7.5",
+          "wildCardGamesBack": "9.5",
+          "leagueGamesBack": "12.0",
+          "springLeagueGamesBack": "-",
+          "sportGamesBack": "12.0",
+          "divisionGamesBack": "7.5",
+          "conferenceGamesBack": "-",
+          "leagueRecord": {
+            "wins": 26,
+            "losses": 35,
+            "pct": ".426"
+          },
+          "lastUpdated": "2021-06-10T14:49:06Z",
+          "records": {
+            "splitRecords": [
+              {
+                "wins": 13,
+                "losses": 13,
+                "type": "home",
+                "pct": ".500"
+              },
+              {
+                "wins": 13,
+                "losses": 22,
+                "type": "away",
+                "pct": ".371"
+              },
+              {
+                "wins": 6,
+                "losses": 12,
+                "type": "left",
+                "pct": ".333"
+              },
+              {
+                "wins": 5,
+                "losses": 4,
+                "type": "leftHome",
+                "pct": ".556"
+              },
+              {
+                "wins": 1,
+                "losses": 8,
+                "type": "leftAway",
+                "pct": ".111"
+              },
+              {
+                "wins": 8,
+                "losses": 9,
+                "type": "rightHome",
+                "pct": ".471"
+              },
+              {
+                "wins": 12,
+                "losses": 14,
+                "type": "rightAway",
+                "pct": ".462"
+              },
+              {
+                "wins": 20,
+                "losses": 23,
+                "type": "right",
+                "pct": ".465"
+              },
+              {
+                "wins": 2,
+                "losses": 8,
+                "type": "lastTen",
+                "pct": ".200"
+              },
+              {
+                "wins": 3,
+                "losses": 4,
+                "type": "extraInning",
+                "pct": ".429"
+              },
+              {
+                "wins": 4,
+                "losses": 13,
+                "type": "oneRun",
+                "pct": ".235"
+              },
+              {
+                "wins": 11,
+                "losses": 21,
+                "type": "winners",
+                "pct": ".344"
+              },
+              {
+                "wins": 7,
+                "losses": 12,
+                "type": "day",
+                "pct": ".368"
+              },
+              {
+                "wins": 19,
+                "losses": 23,
+                "type": "night",
+                "pct": ".452"
+              },
+              {
+                "wins": 24,
+                "losses": 33,
+                "type": "grass",
+                "pct": ".421"
+              },
+              {
+                "wins": 2,
+                "losses": 2,
+                "type": "turf",
+                "pct": ".500"
+              }
+            ],
+            "divisionRecords": [
+              {
+                "wins": 10,
+                "losses": 9,
+                "pct": ".526",
+                "division": {
+                  "id": 203,
+                  "name": "National League West",
+                  "link": "/api/v1/divisions/203"
+                }
+              },
+              {
+                "wins": 10,
+                "losses": 9,
+                "pct": ".526",
+                "division": {
+                  "id": 204,
+                  "name": "National League East",
+                  "link": "/api/v1/divisions/204"
+                }
+              },
+              {
+                "wins": 4,
+                "losses": 9,
+                "pct": ".308",
+                "division": {
+                  "id": 205,
+                  "name": "National League Central",
+                  "link": "/api/v1/divisions/205"
+                }
+              }
+            ],
+            "overallRecords": [
+              {
+                "wins": 13,
+                "losses": 13,
+                "type": "home",
+                "pct": ".500"
+              },
+              {
+                "wins": 13,
+                "losses": 22,
+                "type": "away",
+                "pct": ".371"
+              }
+            ],
+            "leagueRecords": [
+              {
+                "wins": 2,
+                "losses": 8,
+                "pct": ".200",
+                "league": {
+                  "id": 103,
+                  "name": "American League",
+                  "link": "/api/v1/league/103"
+                }
+              },
+              {
+                "wins": 24,
+                "losses": 27,
+                "pct": ".471",
+                "league": {
+                  "id": 104,
+                  "name": "National League",
+                  "link": "/api/v1/league/104"
+                }
+              }
+            ],
+            "expectedRecords": [
+              {
+                "wins": 30,
+                "losses": 31,
+                "type": "xWinLoss",
+                "pct": ".492"
+              },
+              {
+                "wins": 80,
+                "losses": 82,
+                "type": "xWinLossSeason",
+                "pct": ".494"
+              }
+            ]
+          },
+          "runsAllowed": 236,
+          "runsScored": 234,
+          "divisionChamp": false,
+          "divisionLeader": false,
+          "hasWildcard": true,
+          "clinched": false,
+          "eliminationNumber": "98",
+          "wildCardEliminationNumber": "91",
+          "wins": 26,
+          "losses": 35,
+          "runDifferential": -2,
+          "winningPercentage": ".426"
+        }
+      ]
+    }
+  ]
+}
