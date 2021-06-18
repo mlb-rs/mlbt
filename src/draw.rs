@@ -13,6 +13,7 @@ use crate::ui::linescore::LineScoreWidget;
 use crate::ui::matchup::MatchupWidget;
 use crate::ui::plays::InningPlaysWidget;
 use crate::ui::schedule::ScheduleWidget;
+use crate::ui::standings::StandingsWidget;
 use crate::ui::tabs::render_top_bar;
 
 pub fn draw<B>(terminal: &mut Terminal<B>, app: &mut App)
@@ -59,8 +60,11 @@ where
                     f.render_widget(gameday, main_layout.main);
                 }
                 MenuItem::Standings => {
-                    let gameday = Paragraph::new("standings").block(tempblock.clone());
-                    f.render_widget(gameday, main_layout.main);
+                    f.render_stateful_widget(
+                        StandingsWidget {},
+                        main_layout.main,
+                        &mut app.standings,
+                    );
                 }
                 MenuItem::Help => render_help(f),
             }

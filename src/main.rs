@@ -11,6 +11,7 @@ mod matchup;
 mod pitches;
 mod plays;
 mod schedule;
+mod standings;
 mod strikezone;
 mod ui;
 mod util;
@@ -25,6 +26,7 @@ use crate::live_game::GameState;
 use crate::schedule::ScheduleState;
 use mlb_api::client::{MLBApi, MLBApiBuilder};
 
+use crate::standings::StandingsState;
 use crossbeam_channel::{bounded, select, unbounded, Receiver, Sender};
 use crossterm::event::Event;
 use crossterm::{cursor, execute, terminal};
@@ -49,9 +51,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     let ui_events = setup_ui_events();
 
     let app = Arc::new(Mutex::new(App {
-        active_tab: MenuItem::Scoreboard,
+        active_tab: MenuItem::Standings,
         previous_state: MenuItem::Scoreboard,
         schedule: ScheduleState::from_schedule(&CLIENT.get_todays_schedule()),
+        standings: StandingsState::from_standings(&CLIENT.get_standings()), // TODO hit api later
         live_game: GameState::new(),
         debug_state: DebugState::Off,
         gameday: GamedayPanels::default(),
@@ -86,9 +89,23 @@ fn main() -> Result<(), Box<dyn Error>> {
                 // do full update
                 default(Duration::from_secs(UPDATE_INTERVAL)) => {
                     let mut app = app.lock().unwrap();
-                    app.schedule.update(&CLIENT.get_todays_schedule());
-                    let game_id = app.schedule.get_selected_game();
-                    app.update_live_data(&CLIENT.get_live_data(game_id));
+                    match app.active_tab {
+                        MenuItem::Scoreboard => {
+                            app.schedule.update(&CLIENT.get_todays_schedule());
+                            let game_id = app.schedule.get_selected_game();
+                            app.update_live_data(&CLIENT.get_live_data(game_id));
+                        },
+                        MenuItem::Gameday => {
+                            let game_id = app.schedule.get_selected_game();
+                            app.update_live_data(&CLIENT.get_live_data(game_id));
+                        },
+                        MenuItem::Standings => {
+                            // Don't update the standings every 10 seconds, only on tab switch
+                            // TODO update on tab switch
+                        },
+                        MenuItem::Stats => {},
+                        MenuItem::Help => {},
+                    }
                     let _ = request_redraw.try_send(());
                 }
             }

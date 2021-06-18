@@ -29,6 +29,12 @@ pub fn handle_key_bindings(
             app.schedule.previous();
             let _ = schedule_update.try_send(());
         }
+        (MenuItem::Standings, Char('j')) => {
+            app.standings.next();
+        }
+        (MenuItem::Standings, Char('k')) => {
+            app.standings.previous();
+        }
 
         (_, Char('?')) => app.update_tab(MenuItem::Help),
         (_, KeyCode::Esc) => app.exit_help(),
