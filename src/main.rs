@@ -37,7 +37,7 @@ const UPDATE_INTERVAL: u64 = 10; // seconds
 lazy_static! {
     static ref CLIENT: MLBApi = MLBApiBuilder::default().build().unwrap();
     pub static ref REDRAW_REQUEST: (Sender<()>, Receiver<()>) = bounded(1);
-    pub static ref SCHEDULE_CHANGE: (Sender<()>, Receiver<()>) = bounded(1);
+    pub static ref UPDATE_REQUEST: (Sender<MenuItem>, Receiver<MenuItem>) = bounded(1);
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -45,16 +45,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut terminal = Terminal::new(backend).unwrap();
     setup_terminal();
 
-    let schedule_update = SCHEDULE_CHANGE.0.clone();
+    let schedule_update = UPDATE_REQUEST.0.clone();
     let request_redraw = REDRAW_REQUEST.0.clone();
     let redraw_requested = REDRAW_REQUEST.1.clone();
     let ui_events = setup_ui_events();
 
     let app = Arc::new(Mutex::new(App {
-        active_tab: MenuItem::Standings,
+        active_tab: MenuItem::Scoreboard,
         previous_state: MenuItem::Scoreboard,
         schedule: ScheduleState::from_schedule(&CLIENT.get_todays_schedule()),
-        standings: StandingsState::from_standings(&CLIENT.get_standings()), // TODO hit api later
+        standings: StandingsState::default(),
         live_game: GameState::new(),
         debug_state: DebugState::Off,
         gameday: GamedayPanels::default(),
@@ -66,7 +66,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     thread::spawn(move || {
         let app = network_app;
         let request_redraw = REDRAW_REQUEST.0.clone();
-        let schedule = SCHEDULE_CHANGE.1.clone();
+        let update_received = UPDATE_REQUEST.1.clone();
 
         // initial data load
         {
@@ -78,12 +78,21 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         loop {
             select! {
-                // update only linescore when a different game is selected
-                recv(schedule) -> _ => {
+                recv(update_received) -> message => {
                     let mut app = app.lock().unwrap();
-                    // TODO replace live_data with linescore endpoint for speed
-                    let game_id = app.schedule.get_selected_game();
-                    app.update_live_data(&CLIENT.get_live_data(game_id));
+                    match message {
+                        // update linescore only when a different game is selected
+                        Ok(MenuItem::Scoreboard) => {
+                            // TODO replace live_data with linescore endpoint for speed
+                            let game_id = app.schedule.get_selected_game();
+                            app.update_live_data(&CLIENT.get_live_data(game_id));
+                        }
+                        // update standings only when tab is switched to
+                        Ok(MenuItem::Standings) => {
+                            app.standings.update(&CLIENT.get_standings());
+                        }
+                        _ => {}
+                    }
                     let _ = request_redraw.try_send(());
                 }
                 // do full update
@@ -101,7 +110,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                         },
                         MenuItem::Standings => {
                             // Don't update the standings every 10 seconds, only on tab switch
-                            // TODO update on tab switch
                         },
                         MenuItem::Stats => {},
                         MenuItem::Help => {},

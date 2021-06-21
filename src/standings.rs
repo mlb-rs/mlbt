@@ -32,28 +32,30 @@ pub struct Standing {
     pub streak: String,
 }
 
-impl StandingsState {
-    pub fn from_standings(standings: &StandingsResponse) -> Self {
+impl Default for StandingsState {
+    fn default() -> Self {
         let mut ss = StandingsState {
             state: TableState::default(),
-            standings: Standing::create_table(&standings),
-            team_ids: StandingsState::generate_ids(&standings),
+            standings: Division::create_divisions(),
+            team_ids: vec![200, 201, 202, 203, 204, 205],
         };
-        ss.state.select(Some(1));
+        ss.state.select(Some(0));
         ss
     }
+}
 
+impl StandingsState {
     pub fn update(&mut self, standings: &StandingsResponse) {
-        self.standings = Standing::create_table(standings);
-        self.team_ids = StandingsState::generate_ids(&standings);
+        self.standings = Division::create_table(standings);
+        self.team_ids = self.generate_ids();
     }
 
-    fn generate_ids(standings: &StandingsResponse) -> Vec<u16> {
+    fn generate_ids(&mut self) -> Vec<u16> {
         let mut ids = Vec::with_capacity(36); // 30 teams, 6 divisions
-        for record in &standings.records {
-            ids.push(record.division.id as u16);
-            for team in &record.team_records {
-                ids.push(team.team.id);
+        for division in &self.standings {
+            ids.push(division.id as u16);
+            for team in &division.standings {
+                ids.push(team.team_id);
             }
         }
         ids
@@ -100,7 +102,18 @@ impl StandingsState {
     }
 }
 
-impl Standing {
+impl Division {
+    /// Generate only the division names.
+    fn create_divisions() -> Vec<Division> {
+        (200..206)
+            .map(|id| Division {
+                name: DIVISION_MAP.get(&id).unwrap().to_string(),
+                id,
+                standings: vec![],
+            })
+            .collect()
+    }
+
     /// Generate the standings data to be used to render a table widget.
     fn create_table(standings: &StandingsResponse) -> Vec<Division> {
         let mut s: Vec<Division> = standings
@@ -120,7 +133,9 @@ impl Standing {
         s.sort_by(|a, b| a.id.cmp(&b.id));
         s
     }
+}
 
+impl Standing {
     fn from_team_record(team: &TeamRecord) -> Self {
         Standing {
             team_name: team.team.name.clone(),

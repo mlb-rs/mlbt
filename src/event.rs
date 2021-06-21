@@ -9,7 +9,7 @@ pub fn handle_key_bindings(
     key_event: KeyEvent,
     mut app: &mut app::App,
     request_redraw: &Sender<()>,
-    schedule_update: &Sender<()>,
+    selective_update: &Sender<MenuItem>,
 ) {
     match (mode, key_event.code) {
         (_, Char('q')) => {
@@ -19,21 +19,29 @@ pub fn handle_key_bindings(
         (_, Char('1')) => app.update_tab(MenuItem::Scoreboard),
         (_, Char('2')) => app.update_tab(MenuItem::Gameday),
         (_, Char('3')) => app.update_tab(MenuItem::Stats),
-        (_, Char('4')) => app.update_tab(MenuItem::Standings),
+        (_, Char('4')) => {
+            app.update_tab(MenuItem::Standings);
+            let _ = selective_update.try_send(MenuItem::Standings);
+        }
 
         (MenuItem::Scoreboard, Char('j')) => {
             app.schedule.next();
-            let _ = schedule_update.try_send(());
+            let _ = selective_update.try_send(MenuItem::Scoreboard);
         }
         (MenuItem::Scoreboard, Char('k')) => {
             app.schedule.previous();
-            let _ = schedule_update.try_send(());
+            let _ = selective_update.try_send(MenuItem::Scoreboard);
         }
         (MenuItem::Standings, Char('j')) => {
             app.standings.next();
         }
         (MenuItem::Standings, Char('k')) => {
             app.standings.previous();
+        }
+        (MenuItem::Standings, KeyCode::Enter) => {
+            let team_id = app.standings.get_selected();
+            println!("team id: {:?}", team_id);
+            // TODO
         }
 
         (_, Char('?')) => app.update_tab(MenuItem::Help),
