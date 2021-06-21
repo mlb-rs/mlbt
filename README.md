@@ -78,7 +78,8 @@ TODO - add to crates.io
 
 - [X] gameday
 
-- [ ] standings
+- [X] standings
+  - [ ] team information
 
 - [ ] stats
   - [ ] player stats
@@ -109,14 +110,14 @@ Press `2` to activate this tab.
 
 Each pane can be toggled on and off using:
 
-- info pane: `i`
-- pitches pane: `p`
-- box score pane: `b`
+- `i`: info pane
+- `p`: pitches pane
+- `b`: box score pane
 
 To switch the team displayed in the box score:
 
-- `h` for the home team
-- `a` for the away team
+- `h`: home team
+- `a`: away team
 
 ### Stats
 
@@ -128,7 +129,9 @@ TODO
 
 Press `4` to activate this tab.
 
-TODO
+To select different teams, use `j` and `k`.
+
+TODO Press `Enter` to display a teams roster.
 
 ### Help
 

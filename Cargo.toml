@@ -1,6 +1,6 @@
 [package]
 name = "mlbt"
-version = "0.0.7"
+version = "0.0.7-alpha1"
 authors = ["Andrew Schneider <andjschneider@gmail.com>"]
 edition = "2018"
 
@@ -8,7 +8,7 @@ edition = "2018"
 members = [".", "api"]
 
 [dependencies]
-mlb-api = {path = "api/", version = "0.0.4"}
+mlb-api = {path = "api/", version = "0.0.4-alpha1"}
 chrono = "0.4"
 chrono-tz = "0.5"
 crossbeam-channel = "0.5"
