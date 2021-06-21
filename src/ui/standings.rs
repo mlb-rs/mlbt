@@ -21,10 +21,19 @@ impl StatefulWidget for StandingsWidget {
             .bottom_margin(1)
             .style(Style::default().add_modifier(Modifier::BOLD));
 
-        let rows = state
-            .standings
-            .iter()
-            .map(|s| Row::new(s.to_cells()).height(1).bottom_margin(1));
+        let mut rows = Vec::new();
+        for d in &state.standings {
+            // create a row for the division name
+            let division = Row::new(vec![d.name.clone()])
+                .height(1)
+                .bottom_margin(1)
+                .style(Style::default().add_modifier(Modifier::BOLD));
+            rows.push(division);
+            // then add all the teams in the division
+            for s in &d.standings {
+                rows.push(Row::new(s.to_cells()).height(1).bottom_margin(1))
+            }
+        }
 
         let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
         let t = Table::new(rows)

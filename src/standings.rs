@@ -1,35 +1,71 @@
 use core::option::Option::{None, Some};
 use lazy_static::lazy_static;
-use mlb_api::standings::StandingsResponse;
+use mlb_api::standings::{StandingsResponse, TeamRecord};
 use std::collections::HashMap;
 use tui::widgets::TableState;
 
+/// Stores the state for rendering the standings. The `standings` field is a nested Vec to make
+/// displaying by division easier.
 pub struct StandingsState {
     pub state: TableState,
+    pub standings: Vec<Division>,
+    pub team_ids: Vec<u16>,
+}
+
+/// Groups teams into their divisions.
+pub struct Division {
+    pub name: String,
+    id: u8,
     pub standings: Vec<Standing>,
+}
+
+/// Standing information per team.
+#[derive(Debug, Default)]
+pub struct Standing {
+    pub team_name: String,
+    pub team_id: u16,
+    pub wins: u8,
+    pub losses: u8,
+    pub winning_percentage: String,
+    pub games_back: String,
+    pub wild_card_games_back: String,
+    pub streak: String,
 }
 
 impl StandingsState {
     pub fn from_standings(standings: &StandingsResponse) -> Self {
         let mut ss = StandingsState {
             state: TableState::default(),
-            standings: Standing::create_table(standings),
+            standings: Standing::create_table(&standings),
+            team_ids: StandingsState::generate_ids(&standings),
         };
-        ss.state.select(Some(0));
+        ss.state.select(Some(1));
         ss
     }
 
     pub fn update(&mut self, standings: &StandingsResponse) {
         self.standings = Standing::create_table(standings);
+        self.team_ids = StandingsState::generate_ids(&standings);
+    }
+
+    fn generate_ids(standings: &StandingsResponse) -> Vec<u16> {
+        let mut ids = Vec::with_capacity(36); // 30 teams, 6 divisions
+        for record in &standings.records {
+            ids.push(record.division.id as u16);
+            for team in &record.team_records {
+                ids.push(team.team.id);
+            }
+        }
+        ids
     }
 
     pub fn get_selected(&self) -> u16 {
-        if let Some(s) = self.standings.get(
+        if let Some(s) = self.team_ids.get(
             self.state
                 .selected()
                 .expect("there is always a selected standing"),
         ) {
-            s.team_id
+            *s
         } else {
             0
         }
@@ -38,7 +74,7 @@ impl StandingsState {
     pub fn next(&mut self) {
         let i = match self.state.selected() {
             Some(i) => {
-                if i >= self.standings.len() - 1 {
+                if i >= self.team_ids.len() - 1 {
                     0
                 } else {
                     i + 1
@@ -53,7 +89,7 @@ impl StandingsState {
         let i = match self.state.selected() {
             Some(i) => {
                 if i == 0 {
-                    self.standings.len() - 1
+                    self.team_ids.len() - 1
                 } else {
                     i - 1
                 }
@@ -64,39 +100,38 @@ impl StandingsState {
     }
 }
 
-#[derive(Debug, Default)]
-pub struct Standing {
-    pub team_name: String,
-    pub team_id: u16,
-    pub wins: u8,
-    pub losses: u8,
-    pub winning_percentage: String,
-    pub games_back: String,
-    pub wild_card_games_back: String,
-    pub streak: String,
-}
-
 impl Standing {
     /// Generate the standings data to be used to render a table widget.
-    fn create_table(standings: &StandingsResponse) -> Vec<Standing> {
-        let mut asdf: Vec<Standing> = vec![];
-        for record in &standings.records {
-            // TODO league and division
-            for team in &record.team_records {
-                let s = Standing {
-                    team_name: team.team.name.clone(),
-                    team_id: team.team.id,
-                    wins: team.wins,
-                    losses: team.losses,
-                    winning_percentage: team.winning_percentage.clone(),
-                    games_back: team.games_back.clone(),
-                    wild_card_games_back: team.wild_card_games_back.clone(),
-                    streak: team.streak.streak_code.clone(),
-                };
-                asdf.push(s);
-            }
+    fn create_table(standings: &StandingsResponse) -> Vec<Division> {
+        let mut s: Vec<Division> = standings
+            .records
+            .iter()
+            .map(|r| Division {
+                name: DIVISION_MAP.get(&r.division.id).unwrap().to_string(),
+                id: r.division.id,
+                standings: r
+                    .team_records
+                    .iter()
+                    .map(|r| Standing::from_team_record(r))
+                    .collect(),
+            })
+            .collect();
+        // ensure display order is the same
+        s.sort_by(|a, b| a.id.cmp(&b.id));
+        s
+    }
+
+    fn from_team_record(team: &TeamRecord) -> Self {
+        Standing {
+            team_name: team.team.name.clone(),
+            team_id: team.team.id,
+            wins: team.wins,
+            losses: team.losses,
+            winning_percentage: team.winning_percentage.clone(),
+            games_back: team.games_back.clone(),
+            wild_card_games_back: team.wild_card_games_back.clone(),
+            streak: team.streak.streak_code.clone(),
         }
-        asdf
     }
 
     pub fn to_cells(&self) -> Vec<String> {
