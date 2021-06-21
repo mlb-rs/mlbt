@@ -2,7 +2,7 @@ use crate::live::LiveResponse;
 use crate::schedule::ScheduleResponse;
 use crate::standings::StandingsResponse;
 
-use chrono::NaiveDate;
+use chrono::{DateTime, Datelike, Local, NaiveDate};
 use derive_builder::Builder;
 use reqwest::blocking::Client;
 use serde::de::DeserializeOwned;
@@ -46,7 +46,13 @@ impl MLBApi {
     }
 
     pub fn get_standings(&self) -> StandingsResponse {
-        let url = format!("{}v1/standings?leagueId=103,104", self.base_url);
+        let local: DateTime<Local> = Local::now();
+        let url = format!(
+            "{}v1/standings?sportId=1&season={}&date={}&leagueId=103,104",
+            self.base_url,
+            local.year().to_string(),
+            local.format("%Y-%m-%d").to_string(),
+        );
         self.get::<StandingsResponse>(url)
     }
 
@@ -55,18 +61,9 @@ impl MLBApi {
         let response = self.client.get(url).send().unwrap_or_else(|err| {
             panic!("network error {:?}", err);
         });
-        // let response = match response {
-        //     Ok(r) => r,
-        //     Err(e) => {
-        //     }
-        // };
-        let json = response.json::<T>().map(From::from);
-        match json {
-            Ok(j) => j,
-            Err(e) => {
-                eprintln!("parsing error {:?}", e);
-                T::default()
-            }
-        }
+        response.json::<T>().map(From::from).unwrap_or_else(|err| {
+            eprintln!("parsing error {:?}", err);
+            T::default()
+        })
     }
 }
