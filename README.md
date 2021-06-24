@@ -102,7 +102,8 @@ There are four main tabs:
 
 Press `1` to activate this tab.
 
-To select different games, use `j` and `k`.
+- `j`: move down
+- `k`: move up
 
 ### Gameday
 
@@ -129,13 +130,17 @@ TODO
 
 Press `4` to activate this tab.
 
-To select different teams, use `j` and `k`.
-
-TODO Press `Enter` to display a teams roster.
+- `j`: move down
+- `k`: move up
+- `Enter`: display a teams roster TODO
 
 ### Help
 
-To display a help message with all controls, press `?`. Press `Esc` to close it.
+- `?`: display help box
+- `Esc`: close help box
+
+> If your terminal is too small to display the full help box, the border will be
+displayed red.
 
 ## Config
 
@@ -143,8 +148,7 @@ TODO
 
 ## Shout out
 
-This library is built with the wonderful
-[tui-rs](https://github.com/fdehau/tui-rs).
+This is built with the wonderful [tui-rs](https://github.com/fdehau/tui-rs).
 
 These TUIs were extremely helpful:
 [spotify-tui](https://github.com/Rigellute/spotify-tui),

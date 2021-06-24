@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Standings view: [PR 19](https://github.com/mlb-rs/mlbt/pull/19)
 - Added integration tests for the API
+- Updated `Help` display to alert user if terminal is too small: [PR 20](https://github.com/mlb-rs/mlbt/pull/20)
 
 ## [0.0.7] - 2021-06-05
 
