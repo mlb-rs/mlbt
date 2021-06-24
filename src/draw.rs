@@ -8,8 +8,8 @@ use crate::app::{App, DebugState, MenuItem};
 use crate::debug::DebugInfo;
 use crate::ui::at_bat::AtBatWidget;
 use crate::ui::boxscore_stats::TeamBatterBoxscoreWidget;
-use crate::ui::help::HelpWidget;
-use crate::ui::layout::LayoutAreas;
+use crate::ui::help::{HelpWidget, DOCS_LEN};
+use crate::ui::layout::{LayoutAreas, TOP_BAR_HEIGHT};
 use crate::ui::linescore::LineScoreWidget;
 use crate::ui::matchup::MatchupWidget;
 use crate::ui::plays::InningPlaysWidget;
@@ -130,7 +130,8 @@ where
 {
     // if the terminal is too small display a red border
     let mut color = Color::White;
-    if rect.height < 21 || rect.width < 35 {
+    let min_height = DOCS_LEN as u16 + TOP_BAR_HEIGHT;
+    if rect.height < min_height || rect.width < 35 {
         color = Color::Red;
     }
     draw_border(f, rect, color);
