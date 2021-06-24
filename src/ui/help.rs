@@ -1,18 +1,17 @@
-use tui::layout::Alignment;
-use tui::widgets::Paragraph;
 use tui::{
-    backend::Backend,
-    layout::{Constraint, Direction, Layout},
-    style::{Color, Modifier, Style},
-    text::Span,
-    widgets::{Block, BorderType, Borders, Clear, Row, Table},
-    Frame,
+    buffer::Buffer,
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
+    style::{Modifier, Style},
+    widgets::{Paragraph, Row, Table, Widget},
 };
 
 use crate::banner::BANNER;
 
-fn get_help_docs() -> Vec<Vec<String>> {
+const HEADER: &[&str; 2] = &["Description", "Key"];
+
+fn docs() -> Vec<Vec<String>> {
     vec![
+        vec!["Exit help".to_string(), "Esc".to_string()],
         vec!["Quit".to_string(), "q".to_string()],
         vec!["Scoreboard".to_string(), "1".to_string()],
         vec!["Gameday".to_string(), "2".to_string()],
@@ -39,79 +38,48 @@ struct HelpRow {
     text: Vec<String>,
 }
 
-// based on: https://github.com/Rigellute/spotify-tui/blob/master/src/ui/mod.rs#L76
-pub fn draw_help<B>(f: &mut Frame<B>)
-where
-    B: Backend,
-{
-    // Create a one-column table to avoid flickering due to non-determinism when
-    // resolving constraints on widths of table columns.
-    let format_row = |r: Vec<String>| -> HelpRow {
-        HelpRow {
-            is_header: r[1].is_empty(),
-            text: vec![format!("{:30}{:15}", r[0], r[1])],
-        }
-    };
+pub struct HelpWidget {}
 
-    let header_style = Style::default().add_modifier(Modifier::BOLD);
-    let help_menu_style = Style::default();
+impl Widget for HelpWidget {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+        // Create a one-column table to avoid flickering due to non-determinism when
+        // resolving constraints on widths of table columns.
+        let format_row = |r: Vec<String>| -> HelpRow {
+            HelpRow {
+                is_header: r[1].is_empty(),
+                text: vec![format!("{:30}{:15}", r[0], r[1])],
+            }
+        };
 
-    let header = ["Description", "Key"];
-    let header = format_row(header.iter().map(|s| s.to_string()).collect());
-    let header = Row::new(header.text)
-        .height(1)
-        .bottom_margin(0)
-        .style(header_style);
+        let header_style = Style::default().add_modifier(Modifier::BOLD);
+        let help_menu_style = Style::default();
 
-    let help_docs = get_help_docs()
-        .into_iter()
-        .map(format_row)
-        .collect::<Vec<HelpRow>>();
-    let rows = help_docs.iter().map(|item| match item.is_header {
-        true => Row::new(item.text.clone()).style(header_style),
-        false => Row::new(item.text.clone()).style(help_menu_style),
-    });
+        let header = format_row(HEADER.iter().map(|s| s.to_string()).collect());
+        let header = Row::new(header.text)
+            .height(1)
+            .bottom_margin(0)
+            .style(header_style);
 
-    // TODO test these on different terminals
-    // if the terminal height is too small hide the logo
-    let constraints = match f.size().height {
-        w if w < 29 => [Constraint::Percentage(100), Constraint::Length(0)],
-        _ => [Constraint::Percentage(70), Constraint::Length(15)],
-    };
+        let help_docs = docs().into_iter().map(format_row).collect::<Vec<HelpRow>>();
+        let rows = help_docs.iter().map(|item| match item.is_header {
+            true => Row::new(item.text.clone()).style(header_style),
+            false => Row::new(item.text.clone()).style(help_menu_style),
+        });
 
-    // if the terminal is too small display a red border
-    let mut border_style = Style::default();
-    if f.size().height < 20 || f.size().width < 35 {
-        border_style = border_style.fg(Color::Red);
+        let chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Length(50), Constraint::Length(15)].as_ref())
+            .margin(1)
+            .split(area);
+
+        Table::new(rows)
+            .widths(&[Constraint::Max(50)])
+            .header(header)
+            .style(help_menu_style)
+            .render(chunks[0], buf);
+
+        Paragraph::new(format!("{}\nv {}", BANNER, env!("CARGO_PKG_VERSION")))
+            .alignment(Alignment::Center)
+            .render(chunks[1], buf);
     }
-
-    let help_menu = Table::new(rows)
-        .widths(&[Constraint::Max(50)])
-        .header(header)
-        .style(help_menu_style)
-        .block(
-            Block::default()
-                .borders(Borders::LEFT | Borders::RIGHT | Borders::TOP)
-                .border_type(BorderType::Rounded)
-                .border_style(border_style)
-                .title(Span::styled("Help - press <Esc> to exit", help_menu_style)),
-        );
-
-    let chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints(constraints.as_ref())
-        .split(f.size());
-
-    let logo = Paragraph::new(format!("{}\nv {}", BANNER, env!("CARGO_PKG_VERSION")))
-        .alignment(Alignment::Center)
-        .block(
-            Block::default()
-                .borders(Borders::LEFT | Borders::RIGHT | Borders::BOTTOM)
-                .border_type(BorderType::Rounded)
-                .style(help_menu_style),
-        );
-
-    f.render_widget(Clear, f.size());
-    f.render_widget(help_menu, chunks[0]);
-    f.render_widget(logo, chunks[1]);
 }
