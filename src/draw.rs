@@ -7,7 +7,7 @@ use crate::app::{App, DebugState, MenuItem};
 use crate::debug::DebugInfo;
 use crate::ui::at_bat::AtBatWidget;
 use crate::ui::boxscore_stats::TeamBatterBoxscoreWidget;
-use crate::ui::help::render_help;
+use crate::ui::help::draw_help;
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
 use crate::ui::matchup::MatchupWidget;
@@ -66,7 +66,7 @@ where
                         &mut app.standings,
                     );
                 }
-                MenuItem::Help => render_help(f),
+                MenuItem::Help => draw_help(f),
             }
             if app.debug_state == DebugState::On {
                 let mut dbi = DebugInfo::new();

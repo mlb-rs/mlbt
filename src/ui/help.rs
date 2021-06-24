@@ -3,7 +3,7 @@ use tui::widgets::Paragraph;
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout},
-    style::{Modifier, Style},
+    style::{Color, Modifier, Style},
     text::Span,
     widgets::{Block, BorderType, Borders, Clear, Row, Table},
     Frame,
@@ -11,7 +11,7 @@ use tui::{
 
 use crate::banner::BANNER;
 
-pub fn get_help_docs() -> Vec<Vec<String>> {
+fn get_help_docs() -> Vec<Vec<String>> {
     vec![
         vec!["Quit".to_string(), "q".to_string()],
         vec!["Scoreboard".to_string(), "1".to_string()],
@@ -40,7 +40,7 @@ struct HelpRow {
 }
 
 // based on: https://github.com/Rigellute/spotify-tui/blob/master/src/ui/mod.rs#L76
-pub fn render_help<B>(f: &mut Frame<B>)
+pub fn draw_help<B>(f: &mut Frame<B>)
 where
     B: Backend,
 {
@@ -63,8 +63,7 @@ where
         .bottom_margin(0)
         .style(header_style);
 
-    let help_docs = get_help_docs();
-    let help_docs = help_docs
+    let help_docs = get_help_docs()
         .into_iter()
         .map(format_row)
         .collect::<Vec<HelpRow>>();
@@ -73,33 +72,46 @@ where
         false => Row::new(item.text.clone()).style(help_menu_style),
     });
 
+    // TODO test these on different terminals
+    // if the terminal height is too small hide the logo
+    let constraints = match f.size().height {
+        w if w < 29 => [Constraint::Percentage(100), Constraint::Length(0)],
+        _ => [Constraint::Percentage(70), Constraint::Length(15)],
+    };
+
+    // if the terminal is too small display a red border
+    let mut border_style = Style::default();
+    if f.size().height < 20 || f.size().width < 35 {
+        border_style = border_style.fg(Color::Red);
+    }
+
     let help_menu = Table::new(rows)
         .widths(&[Constraint::Max(50)])
         .header(header)
         .style(help_menu_style)
         .block(
             Block::default()
-                .borders(Borders::ALL)
+                .borders(Borders::LEFT | Borders::RIGHT | Borders::TOP)
                 .border_type(BorderType::Rounded)
+                .border_style(border_style)
                 .title(Span::styled("Help - press <Esc> to exit", help_menu_style)),
         );
 
-    let vert = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(70), Constraint::Length(15)].as_ref())
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints(constraints.as_ref())
         .split(f.size());
 
     let logo = Paragraph::new(format!("{}\nv {}", BANNER, env!("CARGO_PKG_VERSION")))
         .alignment(Alignment::Center)
         .block(
             Block::default()
-                .borders(Borders::ALL)
+                .borders(Borders::LEFT | Borders::RIGHT | Borders::BOTTOM)
                 .border_type(BorderType::Rounded)
                 .style(help_menu_style),
         );
 
-    f.render_widget(Clear, vert[0]); //this clears out the background
-    f.render_widget(Clear, vert[1]); //this clears out the background
-    f.render_widget(help_menu, vert[0]);
-    f.render_widget(logo, vert[1]);
+    f.render_widget(Clear, f.size());
+    f.render_widget(help_menu, chunks[0]);
+    f.render_widget(logo, chunks[1]);
 }
