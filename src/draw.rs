@@ -1,7 +1,7 @@
 use tui::backend::Backend;
 use tui::layout::Rect;
 use tui::style::{Color, Style};
-use tui::widgets::{Block, BorderType, Borders, Paragraph};
+use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph};
 use tui::{Frame, Terminal};
 
 use crate::app::{App, DebugState, MenuItem};
@@ -9,7 +9,7 @@ use crate::debug::DebugInfo;
 use crate::ui::at_bat::AtBatWidget;
 use crate::ui::boxscore_stats::TeamBatterBoxscoreWidget;
 use crate::ui::help::{HelpWidget, DOCS_LEN};
-use crate::ui::layout::{LayoutAreas, TOP_BAR_HEIGHT};
+use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
 use crate::ui::matchup::MatchupWidget;
 use crate::ui::plays::InningPlaysWidget;
@@ -67,7 +67,7 @@ where
                         &mut app.standings,
                     );
                 }
-                MenuItem::Help => draw_help(f, main_layout.main),
+                MenuItem::Help => draw_help(f, f.size()),
             }
             if app.debug_state == DebugState::On {
                 let mut dbi = DebugInfo::new();
@@ -128,9 +128,11 @@ fn draw_help<B>(f: &mut Frame<B>, rect: Rect)
 where
     B: Backend,
 {
+    f.render_widget(Clear, rect);
+
     // if the terminal is too small display a red border
     let mut color = Color::White;
-    let min_height = DOCS_LEN as u16 + TOP_BAR_HEIGHT;
+    let min_height = DOCS_LEN as u16 + 3; // 3 for table header, top border, bottom border
     if rect.height < min_height || rect.width < 35 {
         color = Color::Red;
     }

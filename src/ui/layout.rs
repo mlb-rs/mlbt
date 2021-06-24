@@ -6,7 +6,7 @@ pub struct LayoutAreas {
     pub main: Rect,
 }
 
-pub const TOP_BAR_HEIGHT: u16 = 3; // length
+const TOP_BAR_HEIGHT: u16 = 3; // length
 const MAIN_HEIGHT: u16 = 100; // percent
 
 impl LayoutAreas {
