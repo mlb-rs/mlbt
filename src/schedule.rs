@@ -27,10 +27,11 @@ impl ScheduleState {
         ss
     }
 
+    /// Update the date from the API. It is assumed that the date is already updated, aka don't use
+    /// a random date without first setting the `date` field. Use `set_date_from_input` for this.
     pub fn update(&mut self, schedule: &ScheduleResponse) {
         self.schedule.game_info = Schedule::create_table(schedule);
         self.schedule.game_ids = Schedule::get_game_pks(schedule);
-        self.date = Schedule::get_date_from_schedule(schedule);
     }
 
     /// Set the date from the input string from the date picker.
@@ -146,16 +147,20 @@ impl Schedule {
     fn get_date_from_schedule(schedule: &ScheduleResponse) -> NaiveDate {
         let now = Utc::now().naive_local();
         let now = NaiveDate::from_ymd(now.year(), now.month(), now.day());
-        match &schedule.dates[0].date {
-            None => now,
-            Some(d) => {
-                if let Ok(p) = NaiveDate::parse_from_str(d, "%Y-%m-%d") {
-                    p
-                } else {
-                    now
+        return if let Some(games) = &schedule.dates.get(0) {
+            match &games.date {
+                None => now,
+                Some(d) => {
+                    if let Ok(p) = NaiveDate::parse_from_str(d, "%Y-%m-%d") {
+                        p
+                    } else {
+                        now
+                    }
                 }
             }
-        }
+        } else {
+            now
+        };
     }
 }
 
@@ -178,6 +183,7 @@ lazy_static! {
         m.insert("Atlanta Braves", "Braves");
         m.insert("Chicago White Sox", "White Sox");
         m.insert("Miami Marlins", "Marlins");
+        m.insert("Florida Marlins", "Marlins");
         m.insert("New York Yankees", "Yankees");
         m.insert("Milwaukee Brewers", "Brewers");
         m.insert("Los Angeles Angels", "Angels");
