@@ -27,7 +27,7 @@ impl ScheduleState {
         ss
     }
 
-    /// Update the date from the API. It is assumed that the date is already updated, aka don't use
+    /// Update the data from the API. It is assumed that the date is already updated, aka don't use
     /// a random date without first setting the `date` field. Use `set_date_from_input` for this.
     pub fn update(&mut self, schedule: &ScheduleResponse) {
         self.schedule.game_info = Schedule::create_table(schedule);
