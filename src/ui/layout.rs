@@ -97,4 +97,33 @@ impl LayoutAreas {
             .constraints(constraints.as_slice())
             .split(area)
     }
+
+    /// Create a centered rectangle of 4 height and 42% width.
+    pub fn create_date_picker(area: Rect) -> Rect {
+        let height = 4;
+        let percent_width = 42;
+        let popup_layout = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Ratio(1, 2),
+                    Constraint::Length(height),
+                    Constraint::Ratio(1, 2),
+                ]
+                .as_ref(),
+            )
+            .split(area);
+
+        Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage((100 - percent_width) / 2),
+                    Constraint::Percentage(percent_width),
+                    Constraint::Percentage((100 - percent_width) / 2),
+                ]
+                .as_ref(),
+            )
+            .split(popup_layout[1])[1]
+    }
 }

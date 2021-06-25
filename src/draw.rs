@@ -1,5 +1,5 @@
 use tui::backend::Backend;
-use tui::layout::Rect;
+use tui::layout::{Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Style};
 use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph};
 use tui::{Frame, Terminal};
@@ -35,31 +35,12 @@ where
 
             let tempblock = Block::default().borders(Borders::ALL);
             match app.active_tab {
-                MenuItem::Scoreboard => {
-                    let chunks = LayoutAreas::for_boxscore(main_layout.main);
-
-                    f.render_stateful_widget(ScheduleWidget {}, chunks[1], &mut app.schedule);
-
-                    // add borders around the line score
-                    let block = Block::default()
-                        .borders(Borders::ALL)
-                        .border_type(BorderType::Rounded);
-                    f.render_widget(block, chunks[0]);
-
-                    app.live_game.linescore.mini = false;
-                    f.render_stateful_widget(
-                        LineScoreWidget {},
-                        chunks[0],
-                        &mut app.live_game.linescore,
-                    );
-                }
+                MenuItem::Scoreboard => draw_scoreboard(f, main_layout.main, app),
                 MenuItem::DatePicker => {
-                    // let chunks =
-                    // draw_date_picker(f, main_layout.main, app);
+                    draw_scoreboard(f, main_layout.main, app);
+                    draw_date_picker(f, main_layout.main, app);
                 }
-                MenuItem::Gameday => {
-                    draw_gameday(f, main_layout.main, app);
-                }
+                MenuItem::Gameday => draw_gameday(f, main_layout.main, app),
                 MenuItem::Stats => {
                     let gameday = Paragraph::new("stats").block(tempblock.clone());
                     f.render_widget(gameday, main_layout.main);
@@ -91,6 +72,52 @@ where
         .border_type(BorderType::Rounded)
         .border_style(Style::default().fg(color));
     f.render_widget(block, rect);
+}
+
+fn draw_scoreboard<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
+where
+    B: Backend,
+{
+    let chunks = LayoutAreas::for_boxscore(rect);
+    // add borders around the line score
+    draw_border(f, chunks[0], Color::White);
+
+    app.live_game.linescore.mini = false;
+    f.render_stateful_widget(LineScoreWidget {}, chunks[0], &mut app.live_game.linescore);
+    f.render_stateful_widget(ScheduleWidget {}, chunks[1], &mut app.schedule);
+}
+
+fn draw_date_picker<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
+where
+    B: Backend,
+{
+    let chunk = LayoutAreas::create_date_picker(rect);
+    f.render_widget(Clear, chunk);
+
+    let lines = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints(
+            [
+                Constraint::Length(1), // top border
+                Constraint::Length(1), // directions
+                Constraint::Length(1), // input
+            ]
+            .as_ref(),
+        )
+        .split(chunk);
+
+    let directions = Paragraph::new(" Press Enter to submit or Esc to cancel");
+    f.render_widget(directions, lines[1]);
+
+    let input = Paragraph::new(" > ");
+    f.render_widget(input, lines[2]);
+
+    let block = Block::default()
+        .title("Enter a date in YYYY-MM-DD form")
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .border_style(Style::default().fg(Color::Blue));
+    f.render_widget(block, chunk);
 }
 
 fn draw_gameday<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
