@@ -109,7 +109,7 @@ where
     let directions = Paragraph::new(" Press Enter to submit or Esc to cancel");
     f.render_widget(directions, lines[1]);
 
-    let input = Paragraph::new(" > ");
+    let input = Paragraph::new(format!(" {}", app.date_input));
     f.render_widget(input, lines[2]);
 
     let block = Block::default()
@@ -118,6 +118,9 @@ where
         .border_type(BorderType::Rounded)
         .border_style(Style::default().fg(Color::Blue));
     f.render_widget(block, chunk);
+
+    // display cursor
+    f.set_cursor(lines[2].x + app.date_input.len() as u16 + 1, lines[2].y)
 }
 
 fn draw_gameday<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)

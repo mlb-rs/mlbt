@@ -54,6 +54,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         active_tab: MenuItem::Scoreboard,
         previous_state: MenuItem::Scoreboard,
         schedule: ScheduleState::from_schedule(&CLIENT.get_todays_schedule()),
+        date_input: String::new(),
         standings: StandingsState::default(),
         live_game: GameState::new(),
         debug_state: DebugState::Off,
@@ -84,6 +85,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                         // update linescore only when a different game is selected
                         Ok(MenuItem::Scoreboard) => {
                             // TODO replace live_data with linescore endpoint for speed
+                            let game_id = app.schedule.get_selected_game();
+                            app.update_live_data(&CLIENT.get_live_data(game_id));
+                        }
+                        // update schedule and linescore when a new date is picked
+                        Ok(MenuItem::DatePicker) => {
+                            let date = app.schedule.date;
+                            app.schedule.update(&CLIENT.get_schedule_date(date));
                             let game_id = app.schedule.get_selected_game();
                             app.update_live_data(&CLIENT.get_live_data(game_id));
                         }

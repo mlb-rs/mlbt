@@ -16,6 +16,11 @@ pub fn handle_key_bindings(
             cleanup_terminal();
             std::process::exit(0);
         }
+
+        // needs to be before the tab switches to capture number inputs
+        (MenuItem::DatePicker, Char(c)) => {
+            app.date_input.push(c);
+        }
         (_, Char('1')) => app.update_tab(MenuItem::Scoreboard),
         (_, Char('2')) => app.update_tab(MenuItem::Gameday),
         (_, Char('3')) => app.update_tab(MenuItem::Stats),
@@ -35,10 +40,19 @@ pub fn handle_key_bindings(
         (MenuItem::Scoreboard, Char(':')) => app.update_tab(MenuItem::DatePicker),
 
         (MenuItem::DatePicker, KeyCode::Enter) => {
+            let date: String = app.date_input.drain(..).collect();
+            // TODO alert user of parse error
+            let _ = app.schedule.set_date_from_input(date);
             app.update_tab(MenuItem::Scoreboard);
-            let _ = selective_update.try_send(MenuItem::Scoreboard);
+            let _ = selective_update.try_send(MenuItem::DatePicker);
         }
-        (MenuItem::DatePicker, KeyCode::Esc) => app.update_tab(MenuItem::Scoreboard),
+        (MenuItem::DatePicker, KeyCode::Esc) => {
+            app.date_input.clear();
+            app.update_tab(MenuItem::Scoreboard)
+        }
+        (MenuItem::DatePicker, KeyCode::Backspace) => {
+            app.date_input.pop();
+        }
 
         (MenuItem::Standings, Char('j')) => app.standings.next(),
         (MenuItem::Standings, Char('k')) => app.standings.previous(),

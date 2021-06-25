@@ -1,4 +1,4 @@
-use chrono::{DateTime, Datelike, NaiveDate, Utc};
+use chrono::{DateTime, Datelike, NaiveDate, ParseError, Utc};
 use chrono_tz::America::Los_Angeles;
 use core::option::Option::{None, Some};
 use lazy_static::lazy_static;
@@ -31,6 +31,16 @@ impl ScheduleState {
         self.schedule.game_info = Schedule::create_table(schedule);
         self.schedule.game_ids = Schedule::get_game_pks(schedule);
         self.date = Schedule::get_date_from_schedule(schedule);
+    }
+
+    /// Set the date from the input string from the date picker.
+    pub fn set_date_from_input(&mut self, date: String) -> Result<(), ParseError> {
+        match NaiveDate::parse_from_str(date.as_str(), "%Y-%m-%d") {
+            Ok(d) => self.date = d,
+            Err(err) => return Err(err),
+        };
+        self.state.select(Some(0));
+        Ok(())
     }
 
     pub fn get_selected_game(&self) -> u64 {
