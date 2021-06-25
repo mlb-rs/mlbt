@@ -33,7 +33,8 @@ impl StatefulWidget for ScheduleWidget {
             .block(
                 Block::default()
                     .borders(Borders::ALL)
-                    .border_type(BorderType::Rounded),
+                    .border_type(BorderType::Rounded)
+                    .title(state.date.format("%B %e, %Y").to_string()),
             )
             .highlight_style(selected_style)
             .highlight_symbol(">> ")

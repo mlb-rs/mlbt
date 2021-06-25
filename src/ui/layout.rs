@@ -78,7 +78,7 @@ impl LayoutAreas {
     }
 
     /// Create the Gameday layouts based on how many of the panels are active.
-    pub fn generate_layouts(active: &GamedayPanels, area: Rect) -> Vec<Rect> {
+    pub fn generate_gameday_panels(active: &GamedayPanels, area: Rect) -> Vec<Rect> {
         let constraints = match active.count() {
             0 | 1 => vec![Constraint::Percentage(100)],
             2 => vec![Constraint::Percentage(50), Constraint::Percentage(50)],

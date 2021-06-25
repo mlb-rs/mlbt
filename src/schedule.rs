@@ -1,4 +1,4 @@
-use chrono::DateTime;
+use chrono::{DateTime, Datelike, NaiveDate, Utc};
 use chrono_tz::America::Los_Angeles;
 use core::option::Option::{None, Some};
 use lazy_static::lazy_static;
@@ -9,6 +9,7 @@ use tui::widgets::TableState;
 pub struct ScheduleState {
     pub state: TableState,
     pub schedule: Schedule,
+    pub date: NaiveDate,
 }
 
 impl ScheduleState {
@@ -20,6 +21,7 @@ impl ScheduleState {
         let mut ss = ScheduleState {
             state: TableState::default(),
             schedule: s,
+            date: Schedule::get_date_from_schedule(schedule),
         };
         ss.state.select(Some(0));
         ss
@@ -28,6 +30,7 @@ impl ScheduleState {
     pub fn update(&mut self, schedule: &ScheduleResponse) {
         self.schedule.game_info = Schedule::create_table(schedule);
         self.schedule.game_ids = Schedule::get_game_pks(schedule);
+        self.date = Schedule::get_date_from_schedule(schedule);
     }
 
     pub fn get_selected_game(&self) -> u64 {
@@ -127,6 +130,22 @@ impl Schedule {
             }
         }
         game_pks
+    }
+
+    /// The date is stored in schedule -> dates -> date.
+    fn get_date_from_schedule(schedule: &ScheduleResponse) -> NaiveDate {
+        let now = Utc::now().naive_local();
+        let now = NaiveDate::from_ymd(now.year(), now.month(), now.day());
+        match &schedule.dates[0].date {
+            None => now,
+            Some(d) => {
+                if let Ok(p) = NaiveDate::parse_from_str(d, "%Y-%m-%d") {
+                    p
+                } else {
+                    now
+                }
+            }
+        }
     }
 }
 

@@ -10,6 +10,7 @@ pub enum MenuItem {
     Stats,
     Standings,
     Help,
+    DatePicker,
 }
 
 pub struct App {

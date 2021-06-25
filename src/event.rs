@@ -32,6 +32,13 @@ pub fn handle_key_bindings(
             app.schedule.previous();
             let _ = selective_update.try_send(MenuItem::Scoreboard);
         }
+        (MenuItem::Scoreboard, Char(':')) => {
+            app.update_tab(MenuItem::DatePicker);
+        }
+        (MenuItem::DatePicker, KeyCode::Enter) => {
+            app.update_tab(MenuItem::Scoreboard);
+            let _ = selective_update.try_send(MenuItem::Scoreboard);
+        }
         (MenuItem::Standings, Char('j')) => {
             app.standings.next();
         }
@@ -45,7 +52,7 @@ pub fn handle_key_bindings(
         }
 
         (_, Char('?')) => app.update_tab(MenuItem::Help),
-        (_, KeyCode::Esc) => app.exit_help(),
+        (MenuItem::Help, KeyCode::Esc) => app.exit_help(),
         (_, Char('d')) => app.toggle_debug(),
 
         (MenuItem::Gameday, Char('i')) => app.gameday.info = !app.gameday.info,

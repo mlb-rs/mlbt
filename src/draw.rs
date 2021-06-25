@@ -53,6 +53,10 @@ where
                         &mut app.live_game.linescore,
                     );
                 }
+                MenuItem::DatePicker => {
+                    // let chunks =
+                    // draw_date_picker(f, main_layout.main, app);
+                }
                 MenuItem::Gameday => {
                     draw_gameday(f, main_layout.main, app);
                 }
@@ -93,7 +97,7 @@ fn draw_gameday<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
 where
     B: Backend,
 {
-    let mut panels = LayoutAreas::generate_layouts(&app.gameday, rect);
+    let mut panels = LayoutAreas::generate_gameday_panels(&app.gameday, rect);
 
     // I want the panels to be displayed [Info, Heat, Box] from left to right. So pop off
     // available panels starting with Box. Since `generate_layouts` takes into account how many

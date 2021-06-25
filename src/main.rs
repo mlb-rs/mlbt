@@ -100,7 +100,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let mut app = app.lock().unwrap();
                     match app.active_tab {
                         MenuItem::Scoreboard => {
-                            app.schedule.update(&CLIENT.get_todays_schedule());
+                            let date = app.schedule.date;
+                            app.schedule.update(&CLIENT.get_schedule_date(date));
                             let game_id = app.schedule.get_selected_game();
                             app.update_live_data(&CLIENT.get_live_data(game_id));
                         },
@@ -112,6 +113,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                             // Don't update the standings every 10 seconds, only on tab switch
                         },
                         MenuItem::Stats => {},
+                        MenuItem::DatePicker => {},
                         MenuItem::Help => {},
                     }
                     let _ = request_redraw.try_send(());
