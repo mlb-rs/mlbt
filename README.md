@@ -74,7 +74,7 @@ TODO - add to crates.io
 ## Features
 
 - [X] scoreboard and box score
-  - [ ] selectable date
+  - [X] selectable date
 
 - [X] gameday
 
@@ -104,6 +104,10 @@ Press `1` to activate this tab.
 
 - `j`: move down
 - `k`: move up
+- `:`: activate date picker
+
+With the date picker active, input a date in the form of `YYYY-MM-DD` and press
+`Enter`. This will display the schedule for that day.
 
 ### Gameday
 

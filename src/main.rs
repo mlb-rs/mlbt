@@ -54,6 +54,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         active_tab: MenuItem::Scoreboard,
         previous_state: MenuItem::Scoreboard,
         schedule: ScheduleState::from_schedule(&CLIENT.get_todays_schedule()),
+        date_input: String::new(),
         standings: StandingsState::default(),
         live_game: GameState::new(),
         debug_state: DebugState::Off,
@@ -87,6 +88,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                             let game_id = app.schedule.get_selected_game();
                             app.update_live_data(&CLIENT.get_live_data(game_id));
                         }
+                        // update schedule and linescore when a new date is picked
+                        Ok(MenuItem::DatePicker) => {
+                            let date = app.schedule.date;
+                            app.schedule.update(&CLIENT.get_schedule_date(date));
+                            let game_id = app.schedule.get_selected_game();
+                            app.update_live_data(&CLIENT.get_live_data(game_id));
+                        }
                         // update standings only when tab is switched to
                         Ok(MenuItem::Standings) => {
                             app.standings.update(&CLIENT.get_standings());
@@ -100,7 +108,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let mut app = app.lock().unwrap();
                     match app.active_tab {
                         MenuItem::Scoreboard => {
-                            app.schedule.update(&CLIENT.get_todays_schedule());
+                            let date = app.schedule.date;
+                            app.schedule.update(&CLIENT.get_schedule_date(date));
                             let game_id = app.schedule.get_selected_game();
                             app.update_live_data(&CLIENT.get_live_data(game_id));
                         },
@@ -112,6 +121,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                             // Don't update the standings every 10 seconds, only on tab switch
                         },
                         MenuItem::Stats => {},
+                        MenuItem::DatePicker => {},
                         MenuItem::Help => {},
                     }
                     let _ = request_redraw.try_send(());

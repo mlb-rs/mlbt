@@ -16,6 +16,11 @@ pub fn handle_key_bindings(
             cleanup_terminal();
             std::process::exit(0);
         }
+
+        // needs to be before the tab switches to capture number inputs
+        (MenuItem::DatePicker, Char(c)) => {
+            app.date_input.push(c);
+        }
         (_, Char('1')) => app.update_tab(MenuItem::Scoreboard),
         (_, Char('2')) => app.update_tab(MenuItem::Gameday),
         (_, Char('3')) => app.update_tab(MenuItem::Stats),
@@ -32,27 +37,41 @@ pub fn handle_key_bindings(
             app.schedule.previous();
             let _ = selective_update.try_send(MenuItem::Scoreboard);
         }
-        (MenuItem::Standings, Char('j')) => {
-            app.standings.next();
+        (MenuItem::Scoreboard, Char(':')) => app.update_tab(MenuItem::DatePicker),
+
+        (MenuItem::DatePicker, KeyCode::Enter) => {
+            let date: String = app.date_input.drain(..).collect();
+            // TODO alert user of parse error
+            let _ = app.schedule.set_date_from_input(date);
+            app.update_tab(MenuItem::Scoreboard);
+            let _ = selective_update.try_send(MenuItem::DatePicker);
         }
-        (MenuItem::Standings, Char('k')) => {
-            app.standings.previous();
+        (MenuItem::DatePicker, KeyCode::Esc) => {
+            app.date_input.clear();
+            app.update_tab(MenuItem::Scoreboard)
         }
+        (MenuItem::DatePicker, KeyCode::Backspace) => {
+            app.date_input.pop();
+        }
+
+        (MenuItem::Standings, Char('j')) => app.standings.next(),
+        (MenuItem::Standings, Char('k')) => app.standings.previous(),
         (MenuItem::Standings, KeyCode::Enter) => {
             let team_id = app.standings.get_selected();
             println!("team id: {:?}", team_id);
             // TODO
         }
 
-        (_, Char('?')) => app.update_tab(MenuItem::Help),
-        (_, KeyCode::Esc) => app.exit_help(),
-        (_, Char('d')) => app.toggle_debug(),
-
         (MenuItem::Gameday, Char('i')) => app.gameday.info = !app.gameday.info,
         (MenuItem::Gameday, Char('p')) => app.gameday.at_bat = !app.gameday.at_bat,
         (MenuItem::Gameday, Char('b')) => app.gameday.boxscore = !app.gameday.boxscore,
         (MenuItem::Gameday, Char('h')) => app.boxscore_tab = BoxscoreTab::Home,
         (MenuItem::Gameday, Char('a')) => app.boxscore_tab = BoxscoreTab::Away,
+
+        (_, Char('?')) => app.update_tab(MenuItem::Help),
+        (MenuItem::Help, KeyCode::Esc) => app.exit_help(),
+        (_, Char('d')) => app.toggle_debug(),
+
         _ => {}
     }
     let _ = request_redraw.try_send(());

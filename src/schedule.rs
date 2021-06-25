@@ -1,4 +1,4 @@
-use chrono::DateTime;
+use chrono::{DateTime, Datelike, NaiveDate, ParseError, Utc};
 use chrono_tz::America::Los_Angeles;
 use core::option::Option::{None, Some};
 use lazy_static::lazy_static;
@@ -9,6 +9,7 @@ use tui::widgets::TableState;
 pub struct ScheduleState {
     pub state: TableState,
     pub schedule: Schedule,
+    pub date: NaiveDate,
 }
 
 impl ScheduleState {
@@ -20,14 +21,27 @@ impl ScheduleState {
         let mut ss = ScheduleState {
             state: TableState::default(),
             schedule: s,
+            date: Schedule::get_date_from_schedule(schedule),
         };
         ss.state.select(Some(0));
         ss
     }
 
+    /// Update the data from the API. It is assumed that the date is already updated, aka don't use
+    /// a random date without first setting the `date` field. Use `set_date_from_input` for this.
     pub fn update(&mut self, schedule: &ScheduleResponse) {
         self.schedule.game_info = Schedule::create_table(schedule);
         self.schedule.game_ids = Schedule::get_game_pks(schedule);
+    }
+
+    /// Set the date from the input string from the date picker.
+    pub fn set_date_from_input(&mut self, date: String) -> Result<(), ParseError> {
+        match NaiveDate::parse_from_str(date.as_str(), "%Y-%m-%d") {
+            Ok(d) => self.date = d,
+            Err(err) => return Err(err),
+        };
+        self.state.select(Some(0));
+        Ok(())
     }
 
     pub fn get_selected_game(&self) -> u64 {
@@ -128,6 +142,26 @@ impl Schedule {
         }
         game_pks
     }
+
+    /// The date is stored in schedule -> dates -> date.
+    fn get_date_from_schedule(schedule: &ScheduleResponse) -> NaiveDate {
+        let now = Utc::now().naive_local();
+        let now = NaiveDate::from_ymd(now.year(), now.month(), now.day());
+        return if let Some(games) = &schedule.dates.get(0) {
+            match &games.date {
+                None => now,
+                Some(d) => {
+                    if let Ok(p) = NaiveDate::parse_from_str(d, "%Y-%m-%d") {
+                        p
+                    } else {
+                        now
+                    }
+                }
+            }
+        } else {
+            now
+        };
+    }
 }
 
 lazy_static! {
@@ -149,6 +183,7 @@ lazy_static! {
         m.insert("Atlanta Braves", "Braves");
         m.insert("Chicago White Sox", "White Sox");
         m.insert("Miami Marlins", "Marlins");
+        m.insert("Florida Marlins", "Marlins");
         m.insert("New York Yankees", "Yankees");
         m.insert("Milwaukee Brewers", "Brewers");
         m.insert("Los Angeles Angels", "Angels");

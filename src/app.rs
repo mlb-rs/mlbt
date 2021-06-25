@@ -10,6 +10,7 @@ pub enum MenuItem {
     Stats,
     Standings,
     Help,
+    DatePicker,
 }
 
 pub struct App {
@@ -17,6 +18,7 @@ pub struct App {
     pub previous_state: MenuItem,
     pub debug_state: DebugState,
     pub schedule: ScheduleState,
+    pub date_input: String,
     pub live_game: GameState,
     pub gameday: GamedayPanels,
     pub boxscore_tab: BoxscoreTab,

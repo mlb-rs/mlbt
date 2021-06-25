@@ -78,7 +78,7 @@ impl LayoutAreas {
     }
 
     /// Create the Gameday layouts based on how many of the panels are active.
-    pub fn generate_layouts(active: &GamedayPanels, area: Rect) -> Vec<Rect> {
+    pub fn generate_gameday_panels(active: &GamedayPanels, area: Rect) -> Vec<Rect> {
         let constraints = match active.count() {
             0 | 1 => vec![Constraint::Percentage(100)],
             2 => vec![Constraint::Percentage(50), Constraint::Percentage(50)],
@@ -96,5 +96,34 @@ impl LayoutAreas {
             .direction(Direction::Horizontal)
             .constraints(constraints.as_slice())
             .split(area)
+    }
+
+    /// Create a centered rectangle of 4 height and 42% width.
+    pub fn create_date_picker(area: Rect) -> Rect {
+        let height = 4;
+        let percent_width = 42;
+        let popup_layout = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Ratio(1, 2),
+                    Constraint::Length(height),
+                    Constraint::Ratio(1, 2),
+                ]
+                .as_ref(),
+            )
+            .split(area);
+
+        Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage((100 - percent_width) / 2),
+                    Constraint::Percentage(percent_width),
+                    Constraint::Percentage((100 - percent_width) / 2),
+                ]
+                .as_ref(),
+            )
+            .split(popup_layout[1])[1]
     }
 }

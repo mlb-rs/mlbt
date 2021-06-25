@@ -12,8 +12,8 @@ pub const HOME_PLATE_WIDTH: f64 = 17.0; // inches
 const X_COORDS: [f64; 3] = [-8.5, 17.0 / -6.0, 17.0 / 6.0];
 
 /// The default strike zone bottom and top represent the horizontal bounds for the strike zone. They
-/// They are measured in feet from the ground. Note that the MLB considers this the z-axis (not y),
-/// with the ground being z = 0.
+/// are measured in feet from the ground. Note that the MLB considers this the z-axis (not y), with
+/// the ground being z = 0.
 pub const DEFAULT_SZ_BOT: f64 = 1.5; // feet
 pub const DEFAULT_SZ_TOP: f64 = 3.3; // feet
 
@@ -59,6 +59,9 @@ impl StrikeZone {
             None => return StrikeZone::default(),
         };
         // TODO set strike zone top/bottom here
+        if colors.len() < 9 {
+            return StrikeZone::default();
+        }
         StrikeZone::new(colors)
     }
 
@@ -73,9 +76,9 @@ impl StrikeZone {
             .collect()
     }
 
-    /// Builds the coordinates for the 3x3 heatmap. Each coordinate represents the upper left corner of
-    /// a heatmap zone. A tui-rs rectangle is then built from a coordinate; its positive X axis going
-    /// right, and positive Y axis going down, from the coordinate.
+    /// Builds the coordinates for the 3x3 heatmap. Each coordinate represents the upper left corner
+    /// of a heatmap zone. A tui-rs rectangle is then built from a coordinate; its positive X axis
+    /// going right, and positive Y axis going down, from the coordinate.
     pub fn build_coords(strike_zone_bot: f64, strike_zone_top: f64) -> Vec<Coordinate> {
         let y_chunk = (strike_zone_top - strike_zone_bot) / 3.0;
         let y_coords = vec![
