@@ -29,6 +29,21 @@ impl StatefulWidget for AtBatWidget {
 
         let total_width = 4.0 * 12.0; // 4 feet (arbitrary)
 
+        // Constrain and center the strikezone and pitch display. Without this they get stretched
+        // on wider terminals. This does, unfortunately, over compress when the terminal is small.
+        // TODO when terminal width is too small, don't apply these constraints
+        let strikezone = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage((100 - total_width as u16) / 2),
+                    Constraint::Percentage(total_width as u16),
+                    Constraint::Percentage((100 - total_width as u16) / 2),
+                ]
+                .as_ref(),
+            )
+            .split(chunks[0]);
+
         // grab the strike zone from the first pitch since it doesn't change during the at bat.
         let (strike_zone_bot, strike_zone_top) = match state.pitches.pitches.get(0) {
             Some(p) => (p.strike_zone_bot * 12.0, p.strike_zone_top * 12.0),
@@ -65,7 +80,7 @@ impl StatefulWidget for AtBatWidget {
             })
             .x_bounds([-0.5 * total_width, 0.5 * total_width])
             .y_bounds([0.0, 60.0])
-            .render(chunks[0], buf);
+            .render(strikezone[1], buf);
 
         // display the pitch information
         let pitches: Vec<ListItem> = state

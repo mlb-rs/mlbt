@@ -78,8 +78,13 @@ fn draw_scoreboard<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
 where
     B: Backend,
 {
+    // TODO calculate width based on table sizes
+    let direction = match f.size().width {
+        w if w < 125 => Direction::Vertical,
+        _ => Direction::Horizontal,
+    };
     let chunks = Layout::default()
-        .direction(Direction::Horizontal)
+        .direction(direction)
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
         .split(rect);
 

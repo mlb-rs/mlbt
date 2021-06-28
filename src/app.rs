@@ -82,12 +82,11 @@ impl GamedayPanels {
 }
 
 impl Default for GamedayPanels {
-    /// All panels should be active to start.
     fn default() -> Self {
         GamedayPanels {
             info: true,
             at_bat: true,
-            boxscore: true,
+            boxscore: false,
         }
     }
 }
