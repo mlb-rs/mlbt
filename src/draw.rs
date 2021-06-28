@@ -8,7 +8,7 @@ use tui::{Frame, Terminal};
 use crate::app::{App, DebugState, MenuItem};
 use crate::debug::DebugInfo;
 use crate::ui::at_bat::AtBatWidget;
-use crate::ui::boxscore_stats::TeamBatterBoxscoreWidget;
+use crate::ui::boxscore::TeamBatterBoxscoreWidget;
 use crate::ui::help::{HelpWidget, DOCS_LEN};
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;

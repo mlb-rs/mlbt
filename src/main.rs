@@ -1,7 +1,7 @@
 mod app;
 mod at_bat;
 mod banner;
-mod boxscore_stats;
+mod boxscore;
 mod debug;
 mod draw;
 mod event;

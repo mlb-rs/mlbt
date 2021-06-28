@@ -1,5 +1,5 @@
 use crate::app::HomeOrAway;
-use crate::boxscore_stats::TeamBatterBoxscore;
+use crate::boxscore::TeamBatterBoxscore;
 
 use tui::{
     buffer::Buffer,

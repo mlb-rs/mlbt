@@ -1,5 +1,5 @@
 pub(crate) mod at_bat;
-pub(crate) mod boxscore_stats;
+pub(crate) mod boxscore;
 pub(crate) mod debug;
 pub(crate) mod help;
 pub(crate) mod layout;
