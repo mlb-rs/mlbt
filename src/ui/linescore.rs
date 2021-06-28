@@ -28,16 +28,18 @@ impl StatefulWidget for LineScoreWidget {
             false => 5,
         };
         let mut widths = vec![Constraint::Length(width); state.header.len()];
-        // the first width needs to be wider to display the team name
-        widths[0] = Constraint::Length(11);
+        // the first width needs to be wider to display the team abbreviation
+        widths[0] = Constraint::Length(6);
+        // extra padding before R H E
+        widths[state.header.len() - 4] = Constraint::Length(width + 1);
 
         let header = Row::new(state.header.clone())
             .height(1)
             .style(Style::default().add_modifier(Modifier::BOLD));
 
         let t = Table::new(vec![
-            Row::new(state.away.create_score_vec()),
-            Row::new(state.home.create_score_vec()),
+            Row::new(state.away.create_score_vec(state.mini)),
+            Row::new(state.home.create_score_vec(state.mini)),
         ])
         .widths(widths.as_slice())
         .column_spacing(0)

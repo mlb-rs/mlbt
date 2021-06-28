@@ -17,11 +17,13 @@ impl Default for LineScore {
             away: LineScoreLine {
                 home: false,
                 name: "away".to_string(),
+                abbreviation: "A".to_string(),
                 ..Default::default()
             },
             home: LineScoreLine {
                 home: true,
                 name: "home".to_string(),
+                abbreviation: "H".to_string(),
                 ..Default::default()
             },
             mini: false,
@@ -34,6 +36,7 @@ impl Default for LineScore {
 pub struct LineScoreLine {
     pub home: bool,
     pub name: String,
+    pub abbreviation: String,
     pub runs: u8,
     pub hits: u8,
     pub errors: u8,
@@ -64,6 +67,7 @@ impl LineScoreLine {
         let mut line = LineScoreLine {
             home,
             name: name.team_name.to_string(),
+            abbreviation: name.abbreviation.to_string(),
             ..Default::default()
         };
         for inning in &live_game.live_data.linescore.innings {
@@ -80,13 +84,18 @@ impl LineScoreLine {
         line
     }
 
-    pub fn create_score_vec(&self) -> Vec<String> {
-        let mut row = vec![self.name.clone()];
+    // TODO return a Vec<Cell> or use a span directly
+    pub fn create_score_vec(&self, mini: bool) -> Vec<String> {
+        let mut row = vec![];
         let scores = self
             .inning_score
             .iter()
             .map(|s| s.to_string())
             .collect::<Vec<_>>();
+        match mini {
+            true => row.push(self.abbreviation.clone()),
+            false => row.push(self.name.clone()),
+        };
         row.extend(scores);
 
         // fill out the rest of the innings if needed

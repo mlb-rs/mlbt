@@ -78,13 +78,26 @@ fn draw_scoreboard<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
 where
     B: Backend,
 {
-    let chunks = LayoutAreas::for_boxscore(rect);
-    // add borders around the line score
-    draw_border(f, chunks[0], Color::White);
+    let chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+        .split(rect);
 
-    app.live_game.linescore.mini = false;
-    f.render_stateful_widget(LineScoreWidget {}, chunks[0], &mut app.live_game.linescore);
-    f.render_stateful_widget(ScheduleWidget {}, chunks[1], &mut app.schedule);
+    // display scores on left side
+    f.render_stateful_widget(ScheduleWidget {}, chunks[0], &mut app.schedule);
+
+    // display line score and box score on right
+    draw_border(f, chunks[1], Color::White);
+
+    app.live_game.linescore.mini = true;
+    f.render_stateful_widget(LineScoreWidget {}, chunks[1], &mut app.live_game.linescore);
+    f.render_stateful_widget(
+        TeamBatterBoxscoreWidget {
+            active: app.boxscore_tab,
+        },
+        chunks[1],
+        &mut app.live_game.boxscore,
+    );
 }
 
 fn draw_date_picker<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)

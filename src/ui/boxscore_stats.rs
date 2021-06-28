@@ -20,6 +20,7 @@ impl StatefulWidget for TeamBatterBoxscoreWidget {
     type State = TeamBatterBoxscore;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+        // TODO extract layout generation
         let chunk = Layout::default()
             .direction(Direction::Vertical)
             .horizontal_margin(2)
