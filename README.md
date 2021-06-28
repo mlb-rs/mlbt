@@ -109,11 +109,17 @@ Press `1` to activate this tab.
 With the date picker active, input a date in the form of `YYYY-MM-DD` and press
 `Enter`. This will display the schedule for that day.
 
+To switch the team displayed in the box score:
+
+- `h`: home team
+- `a`: away team
+
 ### Gameday
 
 Press `2` to activate this tab.
 
-Each pane can be toggled on and off using:
+By default, the `info` and `pitches` panes are shown. However, each pane can be
+toggled on and off using:
 
 - `i`: info pane
 - `p`: pitches pane

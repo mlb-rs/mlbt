@@ -11,8 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Standings view: [PR 19](https://github.com/mlb-rs/mlbt/pull/19)
 - Added integration tests for the API
-- Updated `Help` display to alert user if terminal is too small: [PR 20](https://github.com/mlb-rs/mlbt/pull/20)
 - Added a date picker to view schedule on a different day: [PR 21](https://github.com/mlb-rs/mlbt/pull/21)
+
+### Changed
+
+- Updated `Help` display to alert user if terminal is too small: [PR 20](https://github.com/mlb-rs/mlbt/pull/20)
+- UI tweaks: [PR 22](https://github.com/mlb-rs/mlbt/pull/22)
 
 ## [0.0.7] - 2021-06-05
 
