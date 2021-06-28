@@ -57,7 +57,7 @@ impl LayoutAreas {
     pub fn for_boxscore(rect: Rect) -> Vec<Rect> {
         Layout::default()
             .direction(Direction::Vertical)
-            .constraints([Constraint::Length(7), Constraint::Percentage(100)].as_ref())
+            .constraints([Constraint::Length(5), Constraint::Percentage(100)].as_ref())
             .split(rect)
     }
 

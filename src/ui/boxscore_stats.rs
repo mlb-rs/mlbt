@@ -26,13 +26,15 @@ impl StatefulWidget for TeamBatterBoxscoreWidget {
             .vertical_margin(0)
             .constraints(
                 [
-                    Constraint::Length(8),       // score board
-                    Constraint::Length(3),       // team tabs
+                    Constraint::Length(5),       // line score
+                    Constraint::Length(2),       // team tabs
                     Constraint::Percentage(100), // box score
                 ]
                 .as_ref(),
             )
             .split(area);
+
+        // Team tabs
 
         Widget::render(
             Tabs::new(
@@ -64,16 +66,17 @@ impl StatefulWidget for TeamBatterBoxscoreWidget {
             buf,
         );
 
-        let width = 3;
+        // Box score
+
+        let width = 4;
         let mut widths = vec![Constraint::Length(width); HEADER.len()];
-        // the first width needs to be wider to display the team name
+        // the first width needs to be wider to display the player name
         widths[0] = Constraint::Length(15);
         // the last width needs to be wider to display batting average
         widths[HEADER.len() - 1] = Constraint::Length(5);
 
         let header = Row::new(HEADER.iter().map(|h| Cell::from(*h)).collect::<Vec<Cell>>())
             .height(1)
-            .bottom_margin(1)
             .style(Style::default().add_modifier(Modifier::BOLD));
 
         Widget::render(
@@ -84,7 +87,7 @@ impl StatefulWidget for TeamBatterBoxscoreWidget {
                     .map(|row| Row::new(row.clone())),
             )
             .widths(widths.as_slice())
-            .column_spacing(1)
+            .column_spacing(0)
             .style(Style::default().fg(Color::White))
             .header(header)
             .block(Block::default().borders(Borders::NONE)),

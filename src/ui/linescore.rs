@@ -22,26 +22,25 @@ impl StatefulWidget for LineScoreWidget {
             .constraints([Constraint::Percentage(100)].as_ref())
             .split(area);
 
-        let mut width = 4;
-        if state.mini {
-            // TODO set dynamically based on rect size?
-            width = 2;
-        }
+        // TODO set dynamically based on rect size?
+        let width = match state.mini {
+            true => 3,
+            false => 5,
+        };
         let mut widths = vec![Constraint::Length(width); state.header.len()];
         // the first width needs to be wider to display the team name
-        widths[0] = Constraint::Length(10);
+        widths[0] = Constraint::Length(11);
 
         let header = Row::new(state.header.clone())
             .height(1)
-            .bottom_margin(1)
             .style(Style::default().add_modifier(Modifier::BOLD));
 
         let t = Table::new(vec![
-            Row::new(state.away.create_score_vec()).bottom_margin(1),
+            Row::new(state.away.create_score_vec()),
             Row::new(state.home.create_score_vec()),
         ])
         .widths(widths.as_slice())
-        .column_spacing(1)
+        .column_spacing(0)
         .style(Style::default().fg(Color::White))
         .header(header)
         .block(Block::default().borders(Borders::NONE));

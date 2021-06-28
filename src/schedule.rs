@@ -1,27 +1,45 @@
+use mlb_api::schedule::{Game, ScheduleResponse};
+
 use chrono::{DateTime, Datelike, NaiveDate, ParseError, Utc};
 use chrono_tz::America::Los_Angeles;
 use core::option::Option::{None, Some};
 use lazy_static::lazy_static;
-use mlb_api::schedule::{Game, ScheduleResponse};
-use std::collections::HashMap;
 use tui::widgets::TableState;
 
+use std::cmp::Ordering;
+use std::collections::HashMap;
+
+/// ScheduleState is used to render the schedule as a `tui-rs` table.
 pub struct ScheduleState {
     pub state: TableState,
-    pub schedule: Schedule,
+    pub schedule: Vec<ScheduleRow>,
     pub date: NaiveDate,
+}
+
+/// The information needed to create a single row in a table.
+#[derive(Default)]
+pub struct ScheduleRow {
+    pub game_id: u64,
+    pub home_team: String,
+    pub home_score: Option<u8>,
+    pub away_team: String,
+    pub away_score: Option<u8>,
+    pub start_time: String,
+    pub game_status: String,
+}
+
+/// A team must be either Home or Away.
+pub enum TeamOption {
+    Home,
+    Away,
 }
 
 impl ScheduleState {
     pub fn from_schedule(schedule: &ScheduleResponse) -> Self {
-        let s = Schedule {
-            game_info: Schedule::create_table(schedule),
-            game_ids: Schedule::get_game_pks(schedule),
-        };
         let mut ss = ScheduleState {
             state: TableState::default(),
-            schedule: s,
-            date: Schedule::get_date_from_schedule(schedule),
+            schedule: ScheduleRow::create_table(schedule),
+            date: ScheduleRow::get_date_from_schedule(schedule),
         };
         ss.state.select(Some(0));
         ss
@@ -30,8 +48,7 @@ impl ScheduleState {
     /// Update the data from the API. It is assumed that the date is already updated, aka don't use
     /// a random date without first setting the `date` field. Use `set_date_from_input` for this.
     pub fn update(&mut self, schedule: &ScheduleResponse) {
-        self.schedule.game_info = Schedule::create_table(schedule);
-        self.schedule.game_ids = Schedule::get_game_pks(schedule);
+        self.schedule = ScheduleRow::create_table(schedule);
     }
 
     /// Set the date from the input string from the date picker.
@@ -44,22 +61,22 @@ impl ScheduleState {
         Ok(())
     }
 
+    /// Return the `game_id` of the row that is selected.
     pub fn get_selected_game(&self) -> u64 {
-        *self
-            .schedule
-            .game_ids
-            .get(
-                self.state
-                    .selected()
-                    .expect("there is always a selected game"),
-            )
-            .unwrap_or(&0)
+        match self.schedule.get(
+            self.state
+                .selected()
+                .expect("there is always a selected game"),
+        ) {
+            Some(s) => s.game_id,
+            _ => 0,
+        }
     }
 
     pub fn next(&mut self) {
         let i = match self.state.selected() {
             Some(i) => {
-                if i >= self.schedule.game_info.len() - 1 {
+                if i >= self.schedule.len() - 1 {
                     0
                 } else {
                     i + 1
@@ -74,7 +91,7 @@ impl ScheduleState {
         let i = match self.state.selected() {
             Some(i) => {
                 if i == 0 {
-                    self.schedule.game_info.len() - 1
+                    self.schedule.len() - 1
                 } else {
                     i - 1
                 }
@@ -85,21 +102,36 @@ impl ScheduleState {
     }
 }
 
-pub struct Schedule {
-    pub game_info: Vec<Vec<String>>,
-    pub game_ids: Vec<u64>,
-}
+impl ScheduleRow {
+    /// Determine which team, if either, is winning the game. A team may not have a score, e.g. if
+    /// the game hasn't started yet, or the game may be tied, so return None in these cases.
+    pub fn winning_team(&self) -> Option<TeamOption> {
+        let home = match self.home_score {
+            Some(h) => h,
+            None => return None,
+        };
+        let away = match self.away_score {
+            Some(a) => a,
+            None => return None,
+        };
 
-impl Schedule {
+        match home.cmp(&away) {
+            Ordering::Greater => Some(TeamOption::Home),
+            Ordering::Less => Some(TeamOption::Away),
+            Ordering::Equal => None,
+        }
+    }
+
     /// Create the matchup information to be displayed in the table. The current information that is
     /// extracted from the game data:
-    /// away team name, home team name, start time, and game status
-    fn create_matchup(game: &Game) -> Vec<String> {
-        let home = TEAM_NAME_MAP
+    /// away team name and score, home team name and score, start time, and game status
+    fn create_matchup(game: &Game) -> Self {
+        let home_team = TEAM_NAME_MAP
             .get(&*game.teams.home.team.name)
             .unwrap()
             .to_string();
-        let away = TEAM_NAME_MAP
+
+        let away_team = TEAM_NAME_MAP
             .get(&*game.teams.away.team.name)
             .unwrap()
             .to_string();
@@ -108,39 +140,35 @@ impl Schedule {
         let datetime = DateTime::parse_from_rfc3339(&game.game_date)
             .unwrap()
             .with_timezone(&Los_Angeles);
-        let formatted = datetime.format("%l:%M %P").to_string();
+        let start_time = datetime.format("%l:%M %P").to_string();
 
-        let status = match &game.status.detailed_state {
+        let game_status = match &game.status.detailed_state {
             Some(s) => s.to_string(),
             _ => "-".to_string(),
         };
 
-        vec![away, home, formatted, status]
+        ScheduleRow {
+            game_id: game.game_pk,
+            home_team,
+            home_score: game.teams.home.score,
+            away_team,
+            away_score: game.teams.away.score,
+            game_status,
+            start_time,
+        }
     }
 
-    /// Generate the scoreboard data to be used to render a table widget.
-    fn create_table(schedule: &ScheduleResponse) -> Vec<Vec<String>> {
-        let mut todays_games: Vec<Vec<String>> = vec![];
+    /// Transform the data from the API into a vector of ScheduleRows.
+    fn create_table(schedule: &ScheduleResponse) -> Vec<Self> {
+        let mut todays_games: Vec<ScheduleRow> = Vec::new();
         if let Some(games) = &schedule.dates.get(0) {
             for game in &games.games {
                 for g in game {
-                    todays_games.push(Schedule::create_matchup(&g));
+                    todays_games.push(ScheduleRow::create_matchup(&g));
                 }
             }
         }
         todays_games
-    }
-
-    fn get_game_pks(schedule: &ScheduleResponse) -> Vec<u64> {
-        let mut game_pks: Vec<u64> = vec![];
-        if let Some(games) = &schedule.dates.get(0) {
-            for game in &games.games {
-                for g in game {
-                    game_pks.push(g.game_pk);
-                }
-            }
-        }
-        game_pks
     }
 
     /// The date is stored in schedule -> dates -> date.

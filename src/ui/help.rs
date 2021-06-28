@@ -71,6 +71,7 @@ impl Widget for HelpWidget {
             .direction(Direction::Horizontal)
             .constraints([Constraint::Length(50), Constraint::Length(15)].as_ref())
             .margin(1)
+            .horizontal_margin(2)
             .split(area);
 
         Table::new(rows)
