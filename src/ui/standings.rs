@@ -18,7 +18,7 @@ impl StatefulWidget for StandingsWidget {
         let header_cells = HEADER.iter().map(|h| Cell::from(*h));
         let header = Row::new(header_cells)
             .height(1)
-            .style(Style::default().add_modifier(Modifier::BOLD));
+            .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
 
         let mut rows = Vec::new();
         for d in &state.standings {

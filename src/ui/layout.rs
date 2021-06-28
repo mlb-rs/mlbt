@@ -45,7 +45,7 @@ impl LayoutAreas {
         self.main = chunks[1];
     }
 
-    fn create_top_bar(area: Rect) -> Vec<Rect> {
+    pub fn create_top_bar(area: Rect) -> Vec<Rect> {
         Layout::default()
             .direction(Direction::Horizontal)
             .constraints([Constraint::Percentage(90), Constraint::Percentage(10)].as_ref())

@@ -1,7 +1,8 @@
 use tui::backend::Backend;
-use tui::layout::{Constraint, Direction, Layout, Rect};
-use tui::style::{Color, Style};
-use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph};
+use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
+use tui::style::{Color, Modifier, Style};
+use tui::text::{Span, Spans};
+use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, Tabs};
 use tui::{Frame, Terminal};
 
 use crate::app::{App, DebugState, MenuItem};
@@ -15,7 +16,8 @@ use crate::ui::matchup::MatchupWidget;
 use crate::ui::plays::InningPlaysWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::standings::StandingsWidget;
-use crate::ui::tabs::render_top_bar;
+
+static TABS: &[&str; 4] = &["Scoreboard", "Gameday", "Stats", "Standings"];
 
 pub fn draw<B>(terminal: &mut Terminal<B>, app: &mut App)
 where
@@ -31,7 +33,7 @@ where
     terminal
         .draw(|f| {
             main_layout.update(f.size());
-            render_top_bar(f, &main_layout.top_bar);
+            draw_tabs(f, &main_layout.top_bar, app);
 
             let tempblock = Block::default().borders(Borders::ALL);
             match app.active_tab {
@@ -72,6 +74,52 @@ where
         .border_type(BorderType::Rounded)
         .border_style(Style::default().fg(color));
     f.render_widget(block, rect);
+}
+
+fn draw_tabs<B>(f: &mut Frame<B>, top_bar: &[Rect], app: &App)
+where
+    B: Backend,
+{
+    let style = Style::default().fg(Color::White);
+    let border_style = Style::default();
+    let border_type = BorderType::Rounded;
+
+    let titles = TABS
+        .iter()
+        .enumerate()
+        .map(|(i, t)| {
+            // underline the active tab
+            if i == app.active_tab as usize {
+                Spans::from(Span::styled(
+                    *t,
+                    Style::default().add_modifier(Modifier::UNDERLINED),
+                ))
+            } else {
+                Spans::from(*t)
+            }
+        })
+        .collect();
+
+    let tabs = Tabs::new(titles)
+        .block(
+            Block::default()
+                .borders(Borders::LEFT | Borders::BOTTOM | Borders::TOP)
+                .border_type(border_type)
+                .border_style(border_style),
+        )
+        .style(style);
+    f.render_widget(tabs, top_bar[0]);
+
+    let help = Paragraph::new("Help: ? ")
+        .alignment(Alignment::Right)
+        .block(
+            Block::default()
+                .borders(Borders::RIGHT | Borders::BOTTOM | Borders::TOP)
+                .border_type(border_type)
+                .border_style(border_style),
+        )
+        .style(style);
+    f.render_widget(help, top_bar[1]);
 }
 
 fn draw_scoreboard<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)

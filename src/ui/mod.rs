@@ -8,4 +8,3 @@ pub(crate) mod matchup;
 pub(crate) mod plays;
 pub(crate) mod schedule;
 pub(crate) mod standings;
-pub(crate) mod tabs;

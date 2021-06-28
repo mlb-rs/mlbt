@@ -23,20 +23,16 @@ impl ScheduleRow {
                 _ => "-".to_string(),
             }
         }
-        let win_style = Style::default().add_modifier(Modifier::ITALIC);
+        let lose_style = Style::default().fg(Color::Gray);
 
         let away_score = match winning_team {
-            Some(HomeOrAway::Away) => {
-                Span::styled(format!("{:<3}", default_score(self.away_score)), win_style)
-            }
-            _ => Span::raw(format!("{:<3}", default_score(self.away_score))),
+            Some(HomeOrAway::Away) => Span::raw(format!("{:<3}", default_score(self.away_score))),
+            _ => Span::styled(format!("{:<3}", default_score(self.away_score)), lose_style),
         };
 
         let home_score = match winning_team {
-            Some(HomeOrAway::Home) => {
-                Span::styled(format!("{:<6}", default_score(self.home_score)), win_style)
-            }
-            _ => Span::raw(format!("{:<6}", default_score(self.home_score))),
+            Some(HomeOrAway::Home) => Span::raw(format!("{:<6}", default_score(self.home_score))),
+            _ => Span::styled(format!("{:<6}", default_score(self.home_score)), lose_style),
         };
 
         vec![
