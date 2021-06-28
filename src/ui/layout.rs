@@ -52,12 +52,19 @@ impl LayoutAreas {
             .split(area)
     }
 
-    /// Create a split in the `main` section so that the top Rect is sized correctly to display a
-    /// box score.
+    /// Create two splits for displaying the line score on top and a box score below.
     pub fn for_boxscore(rect: Rect) -> Vec<Rect> {
         Layout::default()
             .direction(Direction::Vertical)
-            .constraints([Constraint::Length(5), Constraint::Percentage(100)].as_ref())
+            .horizontal_margin(2)
+            .vertical_margin(1)
+            .constraints(
+                [
+                    Constraint::Length(5),       // line score
+                    Constraint::Percentage(100), // box score
+                ]
+                .as_ref(),
+            )
             .split(rect)
     }
 

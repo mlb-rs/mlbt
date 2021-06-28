@@ -1,4 +1,9 @@
+use crate::app::HomeOrAway;
 use mlb_api::live::LiveResponse;
+
+use tui::style::{Color, Modifier, Style};
+use tui::text::Span;
+use tui::widgets::Cell;
 
 /// LineScore is used for the two line summary of a game. It shows each teams runs per inning and
 /// their total runs, hits, and errors.
@@ -10,37 +15,37 @@ pub struct LineScore {
     pub mini: bool,
 }
 
-impl Default for LineScore {
-    fn default() -> Self {
-        LineScore {
-            header: LineScoreLine::create_header_vec(0),
-            away: LineScoreLine {
-                home: false,
-                name: "away".to_string(),
-                abbreviation: "A".to_string(),
-                ..Default::default()
-            },
-            home: LineScoreLine {
-                home: true,
-                name: "home".to_string(),
-                abbreviation: "H".to_string(),
-                ..Default::default()
-            },
-            mini: false,
-        }
-    }
-}
-
 /// LineScoreLine stores the high level game information for a single team.
 #[derive(Default, Debug)]
 pub struct LineScoreLine {
-    pub home: bool,
+    pub team: HomeOrAway,
     pub name: String,
     pub abbreviation: String,
     pub runs: u8,
     pub hits: u8,
     pub errors: u8,
     pub inning_score: Vec<u8>,
+}
+
+impl Default for LineScore {
+    fn default() -> Self {
+        LineScore {
+            header: LineScoreLine::create_header_vec(0),
+            away: LineScoreLine {
+                team: HomeOrAway::Away,
+                name: "away".to_string(),
+                abbreviation: "A".to_string(),
+                ..Default::default()
+            },
+            home: LineScoreLine {
+                team: HomeOrAway::Home,
+                name: "home".to_string(),
+                abbreviation: "H".to_string(),
+                ..Default::default()
+            },
+            mini: true,
+        }
+    }
 }
 
 impl LineScore {
@@ -53,19 +58,19 @@ impl LineScore {
             header,
             away,
             home,
-            mini: false,
+            mini: true,
         }
     }
 }
 
 impl LineScoreLine {
     pub fn from_live_data(live_game: &LiveResponse, home: bool) -> Self {
-        let name = match home {
-            true => &live_game.game_data.teams.home,
-            false => &live_game.game_data.teams.away,
+        let (name, team) = match home {
+            true => (&live_game.game_data.teams.home, HomeOrAway::Home),
+            false => (&live_game.game_data.teams.away, HomeOrAway::Away),
         };
         let mut line = LineScoreLine {
-            home,
+            team,
             name: name.team_name.to_string(),
             abbreviation: name.abbreviation.to_string(),
             ..Default::default()
@@ -84,29 +89,34 @@ impl LineScoreLine {
         line
     }
 
-    // TODO return a Vec<Cell> or use a span directly
-    pub fn create_score_vec(&self, mini: bool) -> Vec<String> {
+    pub fn create_score_vec(&self, active: HomeOrAway) -> Vec<Cell> {
         let mut row = vec![];
+        // Display a blue background if the team is active
+        let team = match active == self.team {
+            true => Span::styled(self.abbreviation.clone(), Style::default().bg(Color::Blue)),
+            false => Span::raw(self.abbreviation.clone()),
+        };
+        row.push(Cell::from(team));
+
         let scores = self
             .inning_score
             .iter()
-            .map(|s| s.to_string())
+            .map(|s| Cell::from(s.to_string()))
             .collect::<Vec<_>>();
-        match mini {
-            true => row.push(self.abbreviation.clone()),
-            false => row.push(self.name.clone()),
-        };
         row.extend(scores);
 
         // fill out the rest of the innings if needed
         while row.len() <= 9 {
-            row.push("-".to_string())
+            row.push(Cell::from("-"))
         }
 
         // add the runs, hits, and errors to the end
-        row.push(self.runs.to_string());
-        row.push(self.hits.to_string());
-        row.push(self.errors.to_string());
+        row.push(Cell::from(Span::styled(
+            self.runs.to_string(),
+            Style::default().add_modifier(Modifier::BOLD),
+        )));
+        row.push(Cell::from(self.hits.to_string()));
+        row.push(Cell::from(self.errors.to_string()));
         row
     }
 

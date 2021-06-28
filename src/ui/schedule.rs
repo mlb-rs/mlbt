@@ -1,4 +1,5 @@
-use crate::schedule::{ScheduleRow, ScheduleState, TeamOption};
+use crate::app::HomeOrAway;
+use crate::schedule::{ScheduleRow, ScheduleState};
 
 use tui::{
     buffer::Buffer,
@@ -22,17 +23,17 @@ impl ScheduleRow {
                 _ => "-".to_string(),
             }
         }
-        let win_style = Style::default().add_modifier(Modifier::BOLD);
+        let win_style = Style::default().add_modifier(Modifier::ITALIC);
 
         let away_score = match winning_team {
-            Some(TeamOption::Away) => {
+            Some(HomeOrAway::Away) => {
                 Span::styled(format!("{:<3}", default_score(self.away_score)), win_style)
             }
             _ => Span::raw(format!("{:<3}", default_score(self.away_score))),
         };
 
         let home_score = match winning_team {
-            Some(TeamOption::Home) => {
+            Some(HomeOrAway::Home) => {
                 Span::styled(format!("{:<6}", default_score(self.home_score)), win_style)
             }
             _ => Span::raw(format!("{:<6}", default_score(self.home_score))),
@@ -56,7 +57,7 @@ impl StatefulWidget for ScheduleWidget {
         let header_cells = HEADER.iter().map(|h| Cell::from(*h));
         let header = Row::new(header_cells)
             .height(1)
-            .style(Style::default().add_modifier(Modifier::BOLD));
+            .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
 
         let rows = state.schedule.iter().map(|r| Row::new(r.format()));
         let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);

@@ -21,7 +21,7 @@ pub struct App {
     pub date_input: String,
     pub live_game: GameState,
     pub gameday: GamedayPanels,
-    pub boxscore_tab: BoxscoreTab,
+    pub boxscore_tab: HomeOrAway,
     pub standings: StandingsState,
 }
 
@@ -53,11 +53,17 @@ pub enum DebugState {
     Off,
 }
 
-/// Store which team should be displayed in the boxscore in the Gameday tab.
+/// A team must be either Home or Away.
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum BoxscoreTab {
+pub enum HomeOrAway {
     Home = 0,
     Away = 1,
+}
+
+impl Default for HomeOrAway {
+    fn default() -> Self {
+        HomeOrAway::Home
+    }
 }
 
 /// Store which panels should be rendered in the Gameday tab.

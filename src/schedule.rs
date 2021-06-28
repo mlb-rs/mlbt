@@ -1,5 +1,7 @@
 use mlb_api::schedule::{Game, ScheduleResponse};
 
+use crate::app::HomeOrAway;
+
 use chrono::{DateTime, Datelike, NaiveDate, ParseError, Utc};
 use chrono_tz::America::Los_Angeles;
 use core::option::Option::{None, Some};
@@ -26,12 +28,6 @@ pub struct ScheduleRow {
     pub away_score: Option<u8>,
     pub start_time: String,
     pub game_status: String,
-}
-
-/// A team must be either Home or Away.
-pub enum TeamOption {
-    Home,
-    Away,
 }
 
 impl ScheduleState {
@@ -105,7 +101,7 @@ impl ScheduleState {
 impl ScheduleRow {
     /// Determine which team, if either, is winning the game. A team may not have a score, e.g. if
     /// the game hasn't started yet, or the game may be tied, so return None in these cases.
-    pub fn winning_team(&self) -> Option<TeamOption> {
+    pub fn winning_team(&self) -> Option<HomeOrAway> {
         let home = match self.home_score {
             Some(h) => h,
             None => return None,
@@ -116,8 +112,8 @@ impl ScheduleRow {
         };
 
         match home.cmp(&away) {
-            Ordering::Greater => Some(TeamOption::Home),
-            Ordering::Less => Some(TeamOption::Away),
+            Ordering::Greater => Some(HomeOrAway::Home),
+            Ordering::Less => Some(HomeOrAway::Away),
             Ordering::Equal => None,
         }
     }

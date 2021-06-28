@@ -1,4 +1,4 @@
-use crate::app::{BoxscoreTab, MenuItem};
+use crate::app::{HomeOrAway, MenuItem};
 use crate::{app, cleanup_terminal};
 use crossbeam_channel::Sender;
 use crossterm::event::KeyCode::Char;
@@ -65,8 +65,12 @@ pub fn handle_key_bindings(
         (MenuItem::Gameday, Char('i')) => app.gameday.info = !app.gameday.info,
         (MenuItem::Gameday, Char('p')) => app.gameday.at_bat = !app.gameday.at_bat,
         (MenuItem::Gameday, Char('b')) => app.gameday.boxscore = !app.gameday.boxscore,
-        (MenuItem::Gameday, Char('h')) => app.boxscore_tab = BoxscoreTab::Home,
-        (MenuItem::Gameday, Char('a')) => app.boxscore_tab = BoxscoreTab::Away,
+
+        // TODO use bitflags to enable (MenuItem::Gameday | MenuItem::Scoreboard)?
+        (MenuItem::Gameday, Char('h')) => app.boxscore_tab = HomeOrAway::Home,
+        (MenuItem::Gameday, Char('a')) => app.boxscore_tab = HomeOrAway::Away,
+        (MenuItem::Scoreboard, Char('h')) => app.boxscore_tab = HomeOrAway::Home,
+        (MenuItem::Scoreboard, Char('a')) => app.boxscore_tab = HomeOrAway::Away,
 
         (_, Char('?')) => app.update_tab(MenuItem::Help),
         (MenuItem::Help, KeyCode::Esc) => app.exit_help(),

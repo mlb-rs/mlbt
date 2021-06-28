@@ -1,4 +1,4 @@
-use crate::app::BoxscoreTab;
+use crate::app::HomeOrAway;
 use mlb_api::boxscore::{Player, Team};
 use mlb_api::live::LiveResponse;
 
@@ -102,10 +102,10 @@ impl TeamBatterBoxscore {
             .collect()
     }
 
-    pub fn to_table_row(&self, active: BoxscoreTab) -> Vec<Vec<String>> {
+    pub fn to_table_row(&self, active: HomeOrAway) -> Vec<Vec<String>> {
         match active {
-            BoxscoreTab::Home => self.home_batting.iter().map(|p| p.to_vec()).collect(),
-            BoxscoreTab::Away => self.away_batting.iter().map(|p| p.to_vec()).collect(),
+            HomeOrAway::Home => self.home_batting.iter().map(|p| p.to_vec()).collect(),
+            HomeOrAway::Away => self.away_batting.iter().map(|p| p.to_vec()).collect(),
         }
     }
 }

@@ -1,27 +1,23 @@
 use crate::linescore::LineScore;
 
+use crate::app::HomeOrAway;
 use tui::{
     buffer::Buffer,
-    layout::{Constraint, Direction, Layout, Rect},
+    layout::{Constraint, Rect},
     style::{Color, Modifier, Style},
     widgets::{Block, Borders, Row, StatefulWidget, Table, TableState},
 };
 
 // TODO depending on the terminal size the number of columns display should be changed. Only two columns *need* to be shown, the current inning and the run totals - eveything else can get chopped off.
 
-pub struct LineScoreWidget {}
+pub struct LineScoreWidget {
+    pub active: HomeOrAway,
+}
 
 impl StatefulWidget for LineScoreWidget {
     type State = LineScore;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        let chunk = Layout::default()
-            .direction(Direction::Horizontal)
-            .horizontal_margin(2)
-            .vertical_margin(1)
-            .constraints([Constraint::Percentage(100)].as_ref())
-            .split(area);
-
         // TODO set dynamically based on rect size?
         let width = match state.mini {
             true => 3,
@@ -35,11 +31,11 @@ impl StatefulWidget for LineScoreWidget {
 
         let header = Row::new(state.header.clone())
             .height(1)
-            .style(Style::default().add_modifier(Modifier::BOLD));
+            .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
 
         let t = Table::new(vec![
-            Row::new(state.away.create_score_vec(state.mini)),
-            Row::new(state.home.create_score_vec(state.mini)),
+            Row::new(state.away.create_score_vec(self.active)),
+            Row::new(state.home.create_score_vec(self.active)),
         ])
         .widths(widths.as_slice())
         .column_spacing(0)
@@ -48,6 +44,6 @@ impl StatefulWidget for LineScoreWidget {
         .block(Block::default().borders(Borders::NONE));
 
         let mut table_state = TableState::default();
-        StatefulWidget::render(t, chunk[0], buf, &mut table_state);
+        StatefulWidget::render(t, area, buf, &mut table_state);
     }
 }

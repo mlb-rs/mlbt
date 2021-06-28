@@ -88,9 +88,23 @@ where
 
     // display line score and box score on right
     draw_border(f, chunks[1], Color::White);
+    draw_linescore_boxscore(f, chunks[1], app);
+}
+
+fn draw_linescore_boxscore<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
+where
+    B: Backend,
+{
+    let chunks = LayoutAreas::for_boxscore(rect);
 
     app.live_game.linescore.mini = true;
-    f.render_stateful_widget(LineScoreWidget {}, chunks[1], &mut app.live_game.linescore);
+    f.render_stateful_widget(
+        LineScoreWidget {
+            active: app.boxscore_tab,
+        },
+        chunks[0],
+        &mut app.live_game.linescore,
+    );
     f.render_stateful_widget(
         TeamBatterBoxscoreWidget {
             active: app.boxscore_tab,
@@ -148,15 +162,7 @@ where
     if app.gameday.boxscore {
         let p = panels.pop().unwrap();
         draw_border(f, p, Color::White);
-        app.live_game.linescore.mini = true;
-        f.render_stateful_widget(LineScoreWidget {}, p, &mut app.live_game.linescore);
-        f.render_stateful_widget(
-            TeamBatterBoxscoreWidget {
-                active: app.boxscore_tab,
-            },
-            p,
-            &mut app.live_game.boxscore,
-        );
+        draw_linescore_boxscore(f, p, app);
     }
     if app.gameday.at_bat {
         let p = panels.pop().unwrap();
