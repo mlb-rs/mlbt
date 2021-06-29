@@ -18,20 +18,18 @@ impl StatefulWidget for StandingsWidget {
         let header_cells = HEADER.iter().map(|h| Cell::from(*h));
         let header = Row::new(header_cells)
             .height(1)
-            .bottom_margin(1)
-            .style(Style::default().add_modifier(Modifier::BOLD));
+            .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
 
         let mut rows = Vec::new();
         for d in &state.standings {
             // create a row for the division name
             let division = Row::new(vec![d.name.clone()])
                 .height(1)
-                .bottom_margin(1)
                 .style(Style::default().add_modifier(Modifier::BOLD));
             rows.push(division);
             // then add all the teams in the division
             for s in &d.standings {
-                rows.push(Row::new(s.to_cells()).height(1).bottom_margin(1))
+                rows.push(Row::new(s.to_cells()).height(1))
             }
         }
 

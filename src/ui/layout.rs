@@ -29,35 +29,43 @@ impl LayoutAreas {
         }
     }
 
-    pub(crate) fn update(&mut self, size: Rect) {
+    pub(crate) fn update(&mut self, size: Rect, full_screen: bool) {
+        let constraints = match full_screen {
+            true => vec![Constraint::Percentage(0), Constraint::Percentage(100)],
+            false => vec![
+                Constraint::Length(TOP_BAR_HEIGHT),
+                Constraint::Percentage(MAIN_HEIGHT),
+            ],
+        };
         let chunks = Layout::default()
             .direction(Direction::Vertical)
-            .constraints(
-                [
-                    Constraint::Length(TOP_BAR_HEIGHT),
-                    Constraint::Percentage(MAIN_HEIGHT),
-                ]
-                .as_ref(),
-            )
+            .constraints(constraints.as_ref())
             .split(size);
 
         self.top_bar = LayoutAreas::create_top_bar(chunks[0]);
         self.main = chunks[1];
     }
 
-    fn create_top_bar(area: Rect) -> Vec<Rect> {
+    pub fn create_top_bar(area: Rect) -> Vec<Rect> {
         Layout::default()
             .direction(Direction::Horizontal)
             .constraints([Constraint::Percentage(90), Constraint::Percentage(10)].as_ref())
             .split(area)
     }
 
-    /// Create a split in the `main` section so that the top Rect is sized correctly to display a
-    /// box score.
+    /// Create two splits for displaying the line score on top and a box score below.
     pub fn for_boxscore(rect: Rect) -> Vec<Rect> {
         Layout::default()
             .direction(Direction::Vertical)
-            .constraints([Constraint::Length(7), Constraint::Percentage(100)].as_ref())
+            .horizontal_margin(2)
+            .vertical_margin(1)
+            .constraints(
+                [
+                    Constraint::Length(4),       // line score
+                    Constraint::Percentage(100), // box score
+                ]
+                .as_ref(),
+            )
             .split(rect)
     }
 

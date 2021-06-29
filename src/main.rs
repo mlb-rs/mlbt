@@ -1,7 +1,7 @@
 mod app;
 mod at_bat;
 mod banner;
-mod boxscore_stats;
+mod boxscore;
 mod debug;
 mod draw;
 mod event;
@@ -21,7 +21,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use std::{io, thread};
 
-use crate::app::{App, BoxscoreTab, DebugState, GamedayPanels, MenuItem};
+use crate::app::{App, DateInput, DebugState, GamedayPanels, HomeOrAway, MenuItem};
 use crate::live_game::GameState;
 use crate::schedule::ScheduleState;
 use mlb_api::client::{MLBApi, MLBApiBuilder};
@@ -52,14 +52,15 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let app = Arc::new(Mutex::new(App {
         active_tab: MenuItem::Scoreboard,
-        previous_state: MenuItem::Scoreboard,
+        previous_tab: MenuItem::Scoreboard,
+        full_screen: false,
         schedule: ScheduleState::from_schedule(&CLIENT.get_todays_schedule()),
-        date_input: String::new(),
+        date_input: DateInput::default(),
         standings: StandingsState::default(),
         live_game: GameState::new(),
         debug_state: DebugState::Off,
         gameday: GamedayPanels::default(),
-        boxscore_tab: BoxscoreTab::Home,
+        boxscore_tab: HomeOrAway::Home,
     }));
 
     // Network thread

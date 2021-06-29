@@ -15,14 +15,15 @@ pub enum MenuItem {
 
 pub struct App {
     pub active_tab: MenuItem,
-    pub previous_state: MenuItem,
+    pub previous_tab: MenuItem,
     pub debug_state: DebugState,
     pub schedule: ScheduleState,
-    pub date_input: String,
+    pub date_input: DateInput,
     pub live_game: GameState,
     pub gameday: GamedayPanels,
-    pub boxscore_tab: BoxscoreTab,
+    pub boxscore_tab: HomeOrAway,
     pub standings: StandingsState,
+    pub full_screen: bool,
 }
 
 impl App {
@@ -30,13 +31,13 @@ impl App {
         self.live_game.update(live_data);
     }
     pub fn update_tab(&mut self, next: MenuItem) {
-        self.previous_state = self.active_tab;
+        self.previous_tab = self.active_tab;
         self.active_tab = next;
         self.debug_state = DebugState::Off;
     }
     pub fn exit_help(&mut self) {
         if self.active_tab == MenuItem::Help {
-            self.active_tab = self.previous_state;
+            self.active_tab = self.previous_tab;
         }
     }
     pub fn toggle_debug(&mut self) {
@@ -44,6 +45,9 @@ impl App {
             DebugState::Off => self.debug_state = DebugState::On,
             DebugState::On => self.debug_state = DebugState::Off,
         }
+    }
+    pub fn toggle_full_screen(&mut self) {
+        self.full_screen = !self.full_screen;
     }
 }
 
@@ -53,11 +57,32 @@ pub enum DebugState {
     Off,
 }
 
-/// Store which team should be displayed in the boxscore in the Gameday tab.
+/// A team must be either Home or Away.
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum BoxscoreTab {
+pub enum HomeOrAway {
     Home = 0,
     Away = 1,
+}
+
+impl Default for HomeOrAway {
+    fn default() -> Self {
+        HomeOrAway::Home
+    }
+}
+
+/// Get user input for the date and store whether it's valid.
+pub struct DateInput {
+    pub is_valid: bool,
+    pub text: String,
+}
+
+impl Default for DateInput {
+    fn default() -> Self {
+        DateInput {
+            is_valid: true,
+            text: String::new(),
+        }
+    }
 }
 
 /// Store which panels should be rendered in the Gameday tab.
@@ -76,12 +101,11 @@ impl GamedayPanels {
 }
 
 impl Default for GamedayPanels {
-    /// All panels should be active to start.
     fn default() -> Self {
         GamedayPanels {
             info: true,
             at_bat: true,
-            boxscore: true,
+            boxscore: false,
         }
     }
 }

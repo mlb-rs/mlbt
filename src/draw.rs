@@ -1,13 +1,14 @@
 use tui::backend::Backend;
-use tui::layout::{Constraint, Direction, Layout, Rect};
-use tui::style::{Color, Style};
-use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph};
+use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
+use tui::style::{Color, Modifier, Style};
+use tui::text::{Span, Spans};
+use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, Tabs};
 use tui::{Frame, Terminal};
 
 use crate::app::{App, DebugState, MenuItem};
 use crate::debug::DebugInfo;
 use crate::ui::at_bat::AtBatWidget;
-use crate::ui::boxscore_stats::TeamBatterBoxscoreWidget;
+use crate::ui::boxscore::TeamBatterBoxscoreWidget;
 use crate::ui::help::{HelpWidget, DOCS_LEN};
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
@@ -15,7 +16,8 @@ use crate::ui::matchup::MatchupWidget;
 use crate::ui::plays::InningPlaysWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::standings::StandingsWidget;
-use crate::ui::tabs::render_top_bar;
+
+static TABS: &[&str; 4] = &["Scoreboard", "Gameday", "Stats", "Standings"];
 
 pub fn draw<B>(terminal: &mut Terminal<B>, app: &mut App)
 where
@@ -30,8 +32,11 @@ where
 
     terminal
         .draw(|f| {
-            main_layout.update(f.size());
-            render_top_bar(f, &main_layout.top_bar);
+            main_layout.update(f.size(), app.full_screen);
+
+            if !app.full_screen {
+                draw_tabs(f, &main_layout.top_bar, app);
+            }
 
             let tempblock = Block::default().borders(Borders::ALL);
             match app.active_tab {
@@ -74,17 +79,95 @@ where
     f.render_widget(block, rect);
 }
 
+fn draw_tabs<B>(f: &mut Frame<B>, top_bar: &[Rect], app: &App)
+where
+    B: Backend,
+{
+    let style = Style::default().fg(Color::White);
+    let border_style = Style::default();
+    let border_type = BorderType::Rounded;
+
+    let titles = TABS
+        .iter()
+        .enumerate()
+        .map(|(i, t)| {
+            // underline the active tab
+            if i == app.active_tab as usize {
+                Spans::from(Span::styled(
+                    *t,
+                    Style::default().add_modifier(Modifier::UNDERLINED),
+                ))
+            } else {
+                Spans::from(*t)
+            }
+        })
+        .collect();
+
+    let tabs = Tabs::new(titles)
+        .block(
+            Block::default()
+                .borders(Borders::LEFT | Borders::BOTTOM | Borders::TOP)
+                .border_type(border_type)
+                .border_style(border_style),
+        )
+        .style(style);
+    f.render_widget(tabs, top_bar[0]);
+
+    let help = Paragraph::new("Help: ? ")
+        .alignment(Alignment::Right)
+        .block(
+            Block::default()
+                .borders(Borders::RIGHT | Borders::BOTTOM | Borders::TOP)
+                .border_type(border_type)
+                .border_style(border_style),
+        )
+        .style(style);
+    f.render_widget(help, top_bar[1]);
+}
+
 fn draw_scoreboard<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
 where
     B: Backend,
 {
-    let chunks = LayoutAreas::for_boxscore(rect);
-    // add borders around the line score
-    draw_border(f, chunks[0], Color::White);
+    // TODO calculate width based on table sizes
+    let direction = match f.size().width {
+        w if w < 125 => Direction::Vertical,
+        _ => Direction::Horizontal,
+    };
+    let chunks = Layout::default()
+        .direction(direction)
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+        .split(rect);
 
-    app.live_game.linescore.mini = false;
-    f.render_stateful_widget(LineScoreWidget {}, chunks[0], &mut app.live_game.linescore);
-    f.render_stateful_widget(ScheduleWidget {}, chunks[1], &mut app.schedule);
+    // display scores on left side
+    f.render_stateful_widget(ScheduleWidget {}, chunks[0], &mut app.schedule);
+
+    // display line score and box score on right
+    draw_border(f, chunks[1], Color::White);
+    draw_linescore_boxscore(f, chunks[1], app);
+}
+
+fn draw_linescore_boxscore<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
+where
+    B: Backend,
+{
+    let chunks = LayoutAreas::for_boxscore(rect);
+
+    app.live_game.linescore.mini = true;
+    f.render_stateful_widget(
+        LineScoreWidget {
+            active: app.boxscore_tab,
+        },
+        chunks[0],
+        &mut app.live_game.linescore,
+    );
+    f.render_stateful_widget(
+        TeamBatterBoxscoreWidget {
+            active: app.boxscore_tab,
+        },
+        chunks[1],
+        &mut app.live_game.boxscore,
+    );
 }
 
 fn draw_date_picker<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
@@ -109,18 +192,25 @@ where
     let directions = Paragraph::new(" Press Enter to submit or Esc to cancel");
     f.render_widget(directions, lines[1]);
 
-    let input = Paragraph::new(format!(" {}", app.date_input));
+    let input = Paragraph::new(format!(" {}", app.date_input.text));
     f.render_widget(input, lines[2]);
 
+    let border = match app.date_input.is_valid {
+        true => Style::default().fg(Color::Blue),
+        false => Style::default().fg(Color::Red),
+    };
     let block = Block::default()
         .title("Enter a date in YYYY-MM-DD form")
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
-        .border_style(Style::default().fg(Color::Blue));
+        .border_style(border);
     f.render_widget(block, chunk);
 
     // display cursor
-    f.set_cursor(lines[2].x + app.date_input.len() as u16 + 1, lines[2].y)
+    f.set_cursor(
+        lines[2].x + app.date_input.text.len() as u16 + 1,
+        lines[2].y,
+    )
 }
 
 fn draw_gameday<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
@@ -135,15 +225,7 @@ where
     if app.gameday.boxscore {
         let p = panels.pop().unwrap();
         draw_border(f, p, Color::White);
-        app.live_game.linescore.mini = true;
-        f.render_stateful_widget(LineScoreWidget {}, p, &mut app.live_game.linescore);
-        f.render_stateful_widget(
-            TeamBatterBoxscoreWidget {
-                active: app.boxscore_tab,
-            },
-            p,
-            &mut app.live_game.boxscore,
-        );
+        draw_linescore_boxscore(f, p, app);
     }
     if app.gameday.at_bat {
         let p = panels.pop().unwrap();

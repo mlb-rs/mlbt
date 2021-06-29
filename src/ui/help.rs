@@ -8,10 +8,11 @@ use tui::{
 use crate::banner::BANNER;
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
-pub const DOCS_LEN: usize = 19;
+pub const DOCS_LEN: usize = 21;
 const DOCS: &[&[&str; 2]; DOCS_LEN] = &[
     &["Exit help", "Esc"],
     &["Quit", "q"],
+    &["Full screen", "f"],
     &["Scoreboard", "1"],
     &["Gameday", "2"],
     &["Stats", "3"],
@@ -20,6 +21,7 @@ const DOCS: &[&[&str; 2]; DOCS_LEN] = &[
     &["Move down", "j"],
     &["Move up", "k"],
     &["Select date", ":"],
+    &["Switch boxscore team", "h/a"],
     &["Gameday", ""],
     &["Toggle game info", "i"],
     &["Toggle pitches", "p"],
@@ -71,6 +73,7 @@ impl Widget for HelpWidget {
             .direction(Direction::Horizontal)
             .constraints([Constraint::Length(50), Constraint::Length(15)].as_ref())
             .margin(1)
+            .horizontal_margin(2)
             .split(area);
 
         Table::new(rows)

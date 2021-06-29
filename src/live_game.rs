@@ -1,5 +1,5 @@
 use crate::at_bat::AtBat;
-use crate::boxscore_stats::TeamBatterBoxscore;
+use crate::boxscore::TeamBatterBoxscore;
 use crate::linescore::LineScore;
 use crate::matchup::Matchup;
 use crate::plays::InningPlays;
