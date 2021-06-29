@@ -49,9 +49,12 @@ impl ScheduleState {
 
     /// Set the date from the input string from the date picker.
     pub fn set_date_from_input(&mut self, date: String) -> Result<(), ParseError> {
-        match NaiveDate::parse_from_str(date.as_str(), "%Y-%m-%d") {
-            Ok(d) => self.date = d,
-            Err(err) => return Err(err),
+        self.date = match date.as_str() {
+            "today" => {
+                let today = Utc::now().naive_local();
+                NaiveDate::from_ymd(today.year(), today.month(), today.day())
+            }
+            _ => NaiveDate::parse_from_str(date.as_str(), "%Y-%m-%d")?,
         };
         self.state.select(Some(0));
         Ok(())

@@ -17,12 +17,13 @@ pub fn handle_key_bindings(
             std::process::exit(0);
         }
 
-        (_, Char('f')) => app.toggle_full_screen(),
-
         // needs to be before the tab switches to capture number inputs
         (MenuItem::DatePicker, Char(c)) => {
-            app.date_input.push(c);
+            app.date_input.is_valid = true; // reset status
+            app.date_input.text.push(c);
         }
+
+        (_, Char('f')) => app.toggle_full_screen(),
         (_, Char('1')) => app.update_tab(MenuItem::Scoreboard),
         (_, Char('2')) => app.update_tab(MenuItem::Gameday),
         (_, Char('3')) => app.update_tab(MenuItem::Stats),
@@ -42,18 +43,21 @@ pub fn handle_key_bindings(
         (MenuItem::Scoreboard, Char(':')) => app.update_tab(MenuItem::DatePicker),
 
         (MenuItem::DatePicker, KeyCode::Enter) => {
-            let date: String = app.date_input.drain(..).collect();
-            // TODO alert user of parse error
-            let _ = app.schedule.set_date_from_input(date);
-            app.update_tab(MenuItem::Scoreboard);
-            let _ = selective_update.try_send(MenuItem::DatePicker);
+            let date: String = app.date_input.text.drain(..).collect();
+            if app.schedule.set_date_from_input(date).is_ok() {
+                app.date_input.is_valid = true;
+                app.update_tab(MenuItem::Scoreboard);
+                let _ = selective_update.try_send(MenuItem::DatePicker);
+            } else {
+                app.date_input.is_valid = false;
+            }
         }
         (MenuItem::DatePicker, KeyCode::Esc) => {
-            app.date_input.clear();
+            app.date_input.text.clear();
             app.update_tab(MenuItem::Scoreboard)
         }
         (MenuItem::DatePicker, KeyCode::Backspace) => {
-            app.date_input.pop();
+            app.date_input.text.pop();
         }
 
         (MenuItem::Standings, Char('j')) => app.standings.next(),

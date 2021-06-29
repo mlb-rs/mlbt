@@ -21,7 +21,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use std::{io, thread};
 
-use crate::app::{App, DebugState, GamedayPanels, HomeOrAway, MenuItem};
+use crate::app::{App, DateInput, DebugState, GamedayPanels, HomeOrAway, MenuItem};
 use crate::live_game::GameState;
 use crate::schedule::ScheduleState;
 use mlb_api::client::{MLBApi, MLBApiBuilder};
@@ -55,7 +55,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         previous_tab: MenuItem::Scoreboard,
         full_screen: false,
         schedule: ScheduleState::from_schedule(&CLIENT.get_todays_schedule()),
-        date_input: String::new(),
+        date_input: DateInput::default(),
         standings: StandingsState::default(),
         live_game: GameState::new(),
         debug_state: DebugState::Off,

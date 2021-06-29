@@ -18,7 +18,7 @@ pub struct App {
     pub previous_tab: MenuItem,
     pub debug_state: DebugState,
     pub schedule: ScheduleState,
-    pub date_input: String,
+    pub date_input: DateInput,
     pub live_game: GameState,
     pub gameday: GamedayPanels,
     pub boxscore_tab: HomeOrAway,
@@ -67,6 +67,21 @@ pub enum HomeOrAway {
 impl Default for HomeOrAway {
     fn default() -> Self {
         HomeOrAway::Home
+    }
+}
+
+/// Get user input for the date and store whether it's valid.
+pub struct DateInput {
+    pub is_valid: bool,
+    pub text: String,
+}
+
+impl Default for DateInput {
+    fn default() -> Self {
+        DateInput {
+            is_valid: true,
+            text: String::new(),
+        }
     }
 }
 

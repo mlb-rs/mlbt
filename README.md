@@ -98,7 +98,7 @@ There are four main tabs:
 - Stats
 - Standings
 
-- `f`: full screen (hide tabs)
+`f` - full screen (hide tabs)
 
 ### Scoreboard
 
@@ -109,7 +109,8 @@ Press `1` to activate this tab.
 - `:`: activate date picker
 
 With the date picker active, input a date in the form of `YYYY-MM-DD` and press
-`Enter`. This will display the schedule for that day.
+`Enter`. This will display the schedule for that day. To view games for the
+current day, input `today`.
 
 To switch the team displayed in the box score:
 
