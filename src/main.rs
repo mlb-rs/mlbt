@@ -52,7 +52,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let app = Arc::new(Mutex::new(App {
         active_tab: MenuItem::Scoreboard,
-        previous_state: MenuItem::Scoreboard,
+        previous_tab: MenuItem::Scoreboard,
+        full_screen: false,
         schedule: ScheduleState::from_schedule(&CLIENT.get_todays_schedule()),
         date_input: String::new(),
         standings: StandingsState::default(),

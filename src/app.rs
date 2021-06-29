@@ -15,7 +15,7 @@ pub enum MenuItem {
 
 pub struct App {
     pub active_tab: MenuItem,
-    pub previous_state: MenuItem,
+    pub previous_tab: MenuItem,
     pub debug_state: DebugState,
     pub schedule: ScheduleState,
     pub date_input: String,
@@ -23,6 +23,7 @@ pub struct App {
     pub gameday: GamedayPanels,
     pub boxscore_tab: HomeOrAway,
     pub standings: StandingsState,
+    pub full_screen: bool,
 }
 
 impl App {
@@ -30,13 +31,13 @@ impl App {
         self.live_game.update(live_data);
     }
     pub fn update_tab(&mut self, next: MenuItem) {
-        self.previous_state = self.active_tab;
+        self.previous_tab = self.active_tab;
         self.active_tab = next;
         self.debug_state = DebugState::Off;
     }
     pub fn exit_help(&mut self) {
         if self.active_tab == MenuItem::Help {
-            self.active_tab = self.previous_state;
+            self.active_tab = self.previous_tab;
         }
     }
     pub fn toggle_debug(&mut self) {
@@ -44,6 +45,9 @@ impl App {
             DebugState::Off => self.debug_state = DebugState::On,
             DebugState::On => self.debug_state = DebugState::Off,
         }
+    }
+    pub fn toggle_full_screen(&mut self) {
+        self.full_screen = !self.full_screen;
     }
 }
 

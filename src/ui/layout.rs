@@ -29,16 +29,17 @@ impl LayoutAreas {
         }
     }
 
-    pub(crate) fn update(&mut self, size: Rect) {
+    pub(crate) fn update(&mut self, size: Rect, full_screen: bool) {
+        let constraints = match full_screen {
+            true => vec![Constraint::Percentage(0), Constraint::Percentage(100)],
+            false => vec![
+                Constraint::Length(TOP_BAR_HEIGHT),
+                Constraint::Percentage(MAIN_HEIGHT),
+            ],
+        };
         let chunks = Layout::default()
             .direction(Direction::Vertical)
-            .constraints(
-                [
-                    Constraint::Length(TOP_BAR_HEIGHT),
-                    Constraint::Percentage(MAIN_HEIGHT),
-                ]
-                .as_ref(),
-            )
+            .constraints(constraints.as_ref())
             .split(size);
 
         self.top_bar = LayoutAreas::create_top_bar(chunks[0]);

@@ -98,6 +98,8 @@ There are four main tabs:
 - Stats
 - Standings
 
+- `f`: full screen (hide tabs)
+
 ### Scoreboard
 
 Press `1` to activate this tab.

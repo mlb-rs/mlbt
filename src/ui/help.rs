@@ -8,10 +8,11 @@ use tui::{
 use crate::banner::BANNER;
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
-pub const DOCS_LEN: usize = 20;
+pub const DOCS_LEN: usize = 21;
 const DOCS: &[&[&str; 2]; DOCS_LEN] = &[
     &["Exit help", "Esc"],
     &["Quit", "q"],
+    &["Full screen", "f"],
     &["Scoreboard", "1"],
     &["Gameday", "2"],
     &["Stats", "3"],

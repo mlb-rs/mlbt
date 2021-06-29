@@ -32,8 +32,11 @@ where
 
     terminal
         .draw(|f| {
-            main_layout.update(f.size());
-            draw_tabs(f, &main_layout.top_bar, app);
+            main_layout.update(f.size(), app.full_screen);
+
+            if !app.full_screen {
+                draw_tabs(f, &main_layout.top_bar, app);
+            }
 
             let tempblock = Block::default().borders(Borders::ALL);
             match app.active_tab {

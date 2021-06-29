@@ -65,8 +65,8 @@ impl StatefulWidget for ScheduleWidget {
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded)
                     .title(Span::styled(
-                        state.date.format("%B %d, %Y").to_string(),
-                        Style::default().fg(Color::Blue),
+                        state.date.format(" %B %d, %Y ").to_string(),
+                        Style::default().fg(Color::Black).bg(Color::Blue),
                     )),
             )
             .highlight_style(selected_style)

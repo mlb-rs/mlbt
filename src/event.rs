@@ -17,6 +17,8 @@ pub fn handle_key_bindings(
             std::process::exit(0);
         }
 
+        (_, Char('f')) => app.toggle_full_screen(),
+
         // needs to be before the tab switches to capture number inputs
         (MenuItem::DatePicker, Char(c)) => {
             app.date_input.push(c);
