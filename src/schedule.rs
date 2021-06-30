@@ -51,7 +51,8 @@ impl ScheduleState {
     pub fn set_date_from_input(&mut self, date: String) -> Result<(), ParseError> {
         self.date = match date.as_str() {
             "today" => {
-                let today = Utc::now().naive_local();
+                // TODO configurable timezone
+                let today = Utc::now().with_timezone(&Los_Angeles);
                 NaiveDate::from_ymd(today.year(), today.month(), today.day())
             }
             _ => NaiveDate::parse_from_str(date.as_str(), "%Y-%m-%d")?,
