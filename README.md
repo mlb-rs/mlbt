@@ -1,6 +1,7 @@
 # mlbt
 
 [![CI](https://github.com/andschneider/mlbt/actions/workflows/ci.yml/badge.svg?event=push)](https://github.com/andschneider/mlbt/actions/workflows/ci.yml)
+[![dependency status](https://deps.rs/repo/github/mlb-rs/mlbt/status.svg)](https://deps.rs/repo/github/mlb-rs/mlbt)
 
 A terminal user interface for the MLB Statcast API, written in Rust.
 
