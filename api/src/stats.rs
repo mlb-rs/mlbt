@@ -3,41 +3,41 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct StatResponse {
-    stats: Vec<Stat>,
+    pub stats: Vec<Stat>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Stat {
     #[serde(rename = "type")]
-    stat_type: DisplayName,
-    group: DisplayName,
-    total_splits: u16,
-    splits: Vec<Split>,
+    pub stat_type: DisplayName,
+    pub group: DisplayName,
+    pub total_splits: u16,
+    pub splits: Vec<Split>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DisplayName {
-    display_name: String,
+    pub display_name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Split {
     season: String,
-    stat: PitchingStat,
-    team: IdNameLink,
+    pub stat: PitchingStat,
+    pub team: IdNameLink,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PitchingStat {
-    games_played: i64,
-    games_started: i64,
-    ground_outs: i64,
-    air_outs: i64,
-    runs: i64,
+    pub games_played: u16,
+    pub games_started: u16,
+    ground_outs: u16,
+    air_outs: u16,
+    runs: u16,
     doubles: i64,
     triples: i64,
     home_runs: i64,
@@ -56,10 +56,10 @@ pub struct PitchingStat {
     stolen_base_percentage: String,
     ground_into_double_play: i64,
     number_of_pitches: i64,
-    era: String,
+    pub era: String,
     innings_pitched: String,
-    wins: i64,
-    losses: i64,
+    pub wins: u16,
+    pub losses: u16,
     saves: i64,
     save_opportunities: i64,
     holds: i64,

@@ -1,6 +1,7 @@
 use crate::live_game::GameState;
 use crate::schedule::ScheduleState;
 use crate::standings::StandingsState;
+use crate::stats::StatsState;
 use mlb_api::live::LiveResponse;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -23,6 +24,7 @@ pub struct App {
     pub gameday: GamedayPanels,
     pub boxscore_tab: HomeOrAway,
     pub standings: StandingsState,
+    pub stats: StatsState,
     pub full_screen: bool,
 }
 

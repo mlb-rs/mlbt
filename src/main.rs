@@ -12,6 +12,7 @@ mod pitches;
 mod plays;
 mod schedule;
 mod standings;
+mod stats;
 mod strikezone;
 mod ui;
 mod util;
@@ -27,6 +28,7 @@ use crate::schedule::ScheduleState;
 use mlb_api::client::{MLBApi, MLBApiBuilder};
 
 use crate::standings::StandingsState;
+use crate::stats::StatsState;
 use crossbeam_channel::{bounded, select, unbounded, Receiver, Sender};
 use crossterm::event::Event;
 use crossterm::{cursor, execute, terminal};
@@ -61,6 +63,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         schedule: ScheduleState::from_schedule(&CLIENT.get_todays_schedule()),
         date_input: DateInput::default(),
         standings: StandingsState::default(),
+        stats: StatsState::default(),
         live_game: GameState::new(),
         debug_state: DebugState::Off,
         gameday: GamedayPanels::default(),
@@ -103,6 +106,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                         // update standings only when tab is switched to
                         Ok(MenuItem::Standings) => {
                             app.standings.update(&CLIENT.get_standings());
+                        }
+                        // update stats only when tab is switched to
+                        Ok(MenuItem::Stats) => {
+                            app.stats.update(&CLIENT.get_team_stats(mlb_api::client::StatGroup::Pitching));
                         }
                         _ => {}
                     }

@@ -16,6 +16,7 @@ use crate::ui::matchup::MatchupWidget;
 use crate::ui::plays::InningPlaysWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::standings::StandingsWidget;
+use crate::ui::stats::StatsWidget;
 
 static TABS: &[&str; 4] = &["Scoreboard", "Gameday", "Stats", "Standings"];
 
@@ -38,7 +39,6 @@ where
                 draw_tabs(f, &main_layout.top_bar, app);
             }
 
-            let tempblock = Block::default().borders(Borders::ALL);
             match app.active_tab {
                 MenuItem::Scoreboard => draw_scoreboard(f, main_layout.main, app),
                 MenuItem::DatePicker => {
@@ -47,8 +47,7 @@ where
                 }
                 MenuItem::Gameday => draw_gameday(f, main_layout.main, app),
                 MenuItem::Stats => {
-                    let gameday = Paragraph::new("stats").block(tempblock.clone());
-                    f.render_widget(gameday, main_layout.main);
+                    f.render_stateful_widget(StatsWidget {}, main_layout.main, &mut app.stats);
                 }
                 MenuItem::Standings => {
                     f.render_stateful_widget(

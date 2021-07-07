@@ -26,7 +26,10 @@ pub fn handle_key_bindings(
         (_, Char('f')) => app.toggle_full_screen(),
         (_, Char('1')) => app.update_tab(MenuItem::Scoreboard),
         (_, Char('2')) => app.update_tab(MenuItem::Gameday),
-        (_, Char('3')) => app.update_tab(MenuItem::Stats),
+        (_, Char('3')) => {
+            app.update_tab(MenuItem::Stats);
+            let _ = selective_update.try_send(MenuItem::Stats);
+        }
         (_, Char('4')) => {
             app.update_tab(MenuItem::Standings);
             let _ = selective_update.try_send(MenuItem::Standings);
