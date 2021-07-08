@@ -1,4 +1,4 @@
-use mlb_api::stats::{Split, StatResponse};
+use mlb_api::stats::{PitchingStat, StatResponse};
 use tui::widgets::TableState;
 
 /// Stores the state for rendering the stats.
@@ -7,9 +7,13 @@ pub struct StatsState {
     pub stats: Vec<Stats>,
 }
 
+pub enum Stats {
+    Pitching(PStats),
+}
+
 /// Stat information per team.
 #[derive(Debug, Default)]
-pub struct Stats {
+pub struct PStats {
     pub team_name: String,
     pub wins: u16,
     pub losses: u16,
@@ -66,33 +70,46 @@ impl StatsState {
 impl Stats {
     /// Generate the stats data to be used to render a table widget.
     fn create_table(stats: &StatResponse) -> Vec<Stats> {
-        // let s = stats.stats[0];
+        // TODO loop over all stats
         stats.stats[0]
             .splits
             .iter()
-            .map(|s| Stats::from_pitching_stats(s))
+            .map(|s| {
+                let name = s.team.name.clone();
+                match &s.stat {
+                    mlb_api::stats::StatSplit::Pitching(p) => Stats::from_pitching_stats(name, p),
+                    mlb_api::stats::StatSplit::Hitting(_) => todo!(),
+                }
+            })
             .collect()
     }
 
-    fn from_pitching_stats(stat: &Split) -> Self {
-        Self {
-            team_name: stat.team.name.clone(),
-            wins: stat.stat.wins,
-            losses: stat.stat.losses,
-            era: stat.stat.era.clone(),
-            games_played: stat.stat.games_played,
-            games_started: stat.stat.games_started,
-        }
+    // TODO add hitting stats
+
+    fn from_pitching_stats(name: String, stat: &PitchingStat) -> Stats {
+        let p = PStats {
+            team_name: name,
+            wins: stat.wins,
+            losses: stat.losses,
+            era: stat.era.clone(),
+            games_played: stat.games_played,
+            games_started: stat.games_started,
+        };
+        Stats::Pitching(p)
     }
 
     pub fn to_cells(&self) -> Vec<String> {
-        vec![
-            self.team_name.clone(),
-            self.wins.to_string(),
-            self.losses.to_string(),
-            self.era.clone(),
-            self.games_played.to_string(),
-            self.games_started.to_string(),
-        ]
+        match self {
+            Stats::Pitching(s) => {
+                vec![
+                    s.team_name.clone(),
+                    s.wins.to_string(),
+                    s.losses.to_string(),
+                    s.era.clone(),
+                    s.games_played.to_string(),
+                    s.games_started.to_string(),
+                ]
+            }
+        }
     }
 }

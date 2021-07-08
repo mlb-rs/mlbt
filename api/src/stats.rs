@@ -22,12 +22,31 @@ pub struct DisplayName {
     pub display_name: String,
 }
 
+// TODO this needed?
+// #[derive(Deserialize, Serialize, Debug)]
+// #[serde(rename_all = "lowercase")]
+// pub enum StatType {
+//     Season,
+//     Pitching,
+//     Hitting,
+// }
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Split {
     season: String,
-    pub stat: PitchingStat,
+    pub stat: StatSplit,
     pub team: IdNameLink,
+}
+
+/// StatSplit stores the two options for deserializing a Split.
+/// It uses the `untagged` enum representation to determine which one.
+/// https://serde.rs/enum-representations.html#untagged
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum StatSplit {
+    Pitching(PitchingStat),
+    Hitting(HittingStat),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -91,4 +110,41 @@ pub struct PitchingStat {
     catchers_interference: i64,
     sac_bunts: i64,
     sac_flies: i64,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HittingStat {
+    pub games_played: i64,
+    pub ground_outs: i64,
+    pub air_outs: i64,
+    pub runs: i64,
+    pub doubles: i64,
+    pub triples: i64,
+    pub home_runs: i64,
+    pub strike_outs: i64,
+    pub base_on_balls: i64,
+    pub intentional_walks: i64,
+    pub hits: i64,
+    pub hit_by_pitch: i64,
+    pub avg: String,
+    pub at_bats: i64,
+    pub obp: String,
+    pub slg: String,
+    pub ops: String,
+    pub caught_stealing: i64,
+    pub stolen_bases: i64,
+    pub stolen_base_percentage: String,
+    pub ground_into_double_play: i64,
+    pub number_of_pitches: i64,
+    pub plate_appearances: i64,
+    pub total_bases: i64,
+    pub rbi: i64,
+    pub left_on_base: i64,
+    pub sac_bunts: i64,
+    pub sac_flies: i64,
+    pub babip: String,
+    pub ground_outs_to_airouts: String,
+    pub catchers_interference: i64,
+    pub at_bats_per_home_run: String,
 }
