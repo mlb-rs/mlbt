@@ -4,10 +4,8 @@ use tui::{
     buffer::Buffer,
     layout::{Constraint, Rect},
     style::{Color, Modifier, Style},
-    widgets::{Block, BorderType, Borders, Cell, Row, StatefulWidget, Table},
+    widgets::{Block, BorderType, Borders, Row, StatefulWidget, Table},
 };
-
-const HEADER: &[&str; 6] = &["Team", "W", "L", "ERA", "G", "GS"];
 
 pub struct StatsWidget {}
 
@@ -15,12 +13,14 @@ impl StatefulWidget for StatsWidget {
     type State = StatsState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        let header_cells = HEADER.iter().map(|h| Cell::from(*h));
-        let header = Row::new(header_cells)
+        let (header, rows) = state.generate_table();
+
+        let header = Row::new(header)
             .height(1)
             .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
 
-        let rows: Vec<Row> = state.stats.iter().map(|s| Row::new(s.to_cells())).collect();
+        // TODO see if possible to remove another iter and clone here
+        let rows: Vec<Row> = rows.iter().map(|r| Row::new(r.iter().cloned())).collect();
 
         let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
         let t = Table::new(rows)
