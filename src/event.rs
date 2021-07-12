@@ -63,6 +63,10 @@ pub fn handle_key_bindings(
             app.date_input.text.pop();
         }
 
+        (MenuItem::Stats, Char('j')) => app.stats.next(),
+        (MenuItem::Stats, Char('k')) => app.stats.previous(),
+        (MenuItem::Stats, KeyCode::Enter) => app.stats.toggle_stat(),
+
         (MenuItem::Standings, Char('j')) => app.standings.next(),
         (MenuItem::Standings, Char('k')) => app.standings.previous(),
         (MenuItem::Standings, KeyCode::Enter) => {

@@ -21,10 +21,13 @@ pub struct StatsState {
     pub stats: IndexMap<String, TableEntry>,
 }
 
-#[derive(Clone)]
+/// The information for a stat, including all the data values.
 pub struct TableEntry {
+    /// Longer description of the stat to be displayed in the options toggle pane.
     pub description: String,
+    /// Whether to display the column or not.
     pub active: bool,
+    /// The data values. Note they are stored as strings to allow for creation of a tui-rs Cell.
     pub rows: Vec<String>,
 }
 
@@ -42,6 +45,7 @@ impl Default for StatsState {
 
 impl StatsState {
     pub fn update(&mut self, stats: &StatResponse) {
+        self.stats.clear();
         self.create_table(stats);
     }
 
@@ -58,6 +62,8 @@ impl StatsState {
         }
     }
 
+    /// Create the header and the table rows from the table map. Basically transforms from columnar
+    /// to row based, filtering on whether the data is active.
     pub fn generate_table(&self) -> (Vec<String>, Vec<Vec<String>>) {
         if self.stats.is_empty() {
             return (vec![], vec![vec![]]);
@@ -68,7 +74,7 @@ impl StatsState {
             // StatOption::TeamHitting => self.stats.get("Team").unwrap().rows.len(),
             // StatOption::PlayerPitching => self.stats.get("Player").unwrap().rows.len(),
         };
-        let mut rows = vec![Vec::new(); len];
+        let mut rows = vec![Vec::with_capacity(self.stats.len()); len];
         let mut header = Vec::with_capacity(self.stats.len());
 
         // access the data in stored order because of `IndexMap`
@@ -83,7 +89,12 @@ impl StatsState {
         (header, rows)
     }
 
-    fn table_helper(&mut self, key: &str, description: &str, active: bool, value: &str) {
+    /// Insert stats into the table map. If the key isn't present a new column is created, otherwise
+    /// the data is simply added.
+    fn table_helper<T>(&mut self, key: &str, description: &str, active: bool, value: T)
+    where
+        T: ToString,
+    {
         if !self.stats.contains_key(key) {
             self.stats.insert(
                 key.to_string(),
@@ -102,41 +113,65 @@ impl StatsState {
         }
     }
 
+    /// Create the pitching stats table. Note that the order of the calls to `table_helper` is the
+    /// order in which the stats will be displayed from left to right.
     fn from_pitching_stats(&mut self, name: String, stat: &PitchingStat) {
-        self.table_helper("Team", "", true, &name);
-        self.table_helper("W", "wins", true, &stat.wins.to_string());
-        self.table_helper("L", "losses", true, &stat.losses.to_string());
+        self.table_helper("Team", "", true, name);
+        self.table_helper("W", "wins", true, stat.wins);
+        self.table_helper("L", "losses", true, stat.losses);
         self.table_helper("ERA", "earned run average", true, &stat.era);
-        self.table_helper("G", "game played", true, &stat.games_played.to_string());
-        self.table_helper("GS", "games started", true, &stat.games_started.to_string());
+        self.table_helper("G", "game played", true, stat.games_played);
+        self.table_helper("GS", "games started", true, stat.games_started);
+        self.table_helper("CG", "complete games", true, stat.complete_games);
+        self.table_helper("SHO", "shutouts", false, stat.shutouts);
+        self.table_helper("SV", "saves", true, stat.saves);
+        self.table_helper("SVO", "save opportunities", true, stat.save_opportunities);
+        self.table_helper("IP", "innings pitched", true, &stat.innings_pitched);
+        self.table_helper("H", "hits", true, stat.hits);
+        self.table_helper("R", "runs", true, stat.runs);
+        self.table_helper("ER", "earned runs", true, stat.earned_runs);
+        self.table_helper("HR", "home runs", true, stat.home_runs);
+        self.table_helper("HB", "hit batsmen", false, stat.hit_batsmen);
+        self.table_helper("BB", "walks", true, stat.base_on_balls);
+        self.table_helper("SO", "strike outs", true, stat.strike_outs);
     }
 
-    // TODO enable table selection
-    // pub fn next(&mut self) {
-    //     let i = match self.state.selected() {
-    //         Some(i) => {
-    //             if i >= self.stats.len() - 1 {
-    //                 0
-    //             } else {
-    //                 i + 1
-    //             }
-    //         }
-    //         None => 0,
-    //     };
-    //     self.state.select(Some(i));
-    // }
+    /// Toggle the visibility of the stat column that is selected.
+    pub fn toggle_stat(&mut self) {
+        if let Some((_, v)) = self.stats.get_index_mut(
+            self.state
+                .selected()
+                .expect("there is always a selected stat"),
+        ) {
+            v.active = !v.active;
+        }
+    }
 
-    // pub fn previous(&mut self) {
-    //     let i = match self.state.selected() {
-    //         Some(i) => {
-    //             if i == 0 {
-    //                 self.stats.len() - 1
-    //             } else {
-    //                 i - 1
-    //             }
-    //         }
-    //         None => 0,
-    //     };
-    //     self.state.select(Some(i));
-    // }
+    pub fn next(&mut self) {
+        let i = match self.state.selected() {
+            Some(i) => {
+                if i >= self.stats.len() - 1 {
+                    0
+                } else {
+                    i + 1
+                }
+            }
+            None => 0,
+        };
+        self.state.select(Some(i));
+    }
+
+    pub fn previous(&mut self) {
+        let i = match self.state.selected() {
+            Some(i) => {
+                if i == 0 {
+                    self.stats.len() - 1
+                } else {
+                    i - 1
+                }
+            }
+            None => 0,
+        };
+        self.state.select(Some(i));
+    }
 }
