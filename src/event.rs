@@ -65,6 +65,7 @@ pub fn handle_key_bindings(
 
         (MenuItem::Stats, Char('j')) => app.stats.next(),
         (MenuItem::Stats, Char('k')) => app.stats.previous(),
+        (MenuItem::Stats, Char('o')) => app.stats.stats_options = !app.stats.stats_options,
         (MenuItem::Stats, KeyCode::Enter) => app.stats.toggle_stat(),
 
         (MenuItem::Standings, Char('j')) => app.standings.next(),

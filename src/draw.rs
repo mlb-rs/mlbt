@@ -16,7 +16,7 @@ use crate::ui::matchup::MatchupWidget;
 use crate::ui::plays::InningPlaysWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::standings::StandingsWidget;
-use crate::ui::stats::StatsWidget;
+use crate::ui::stats::{StatsWidget, STATS_OPTIONS_WIDTH};
 
 static TABS: &[&str; 4] = &["Scoreboard", "Gameday", "Stats", "Standings"];
 
@@ -46,9 +46,7 @@ where
                     draw_date_picker(f, main_layout.main, app);
                 }
                 MenuItem::Gameday => draw_gameday(f, main_layout.main, app),
-                MenuItem::Stats => {
-                    f.render_stateful_widget(StatsWidget {}, main_layout.main, &mut app.stats);
-                }
+                MenuItem::Stats => draw_stats(f, main_layout.main, app),
                 MenuItem::Standings => {
                     f.render_stateful_widget(
                         StandingsWidget {},
@@ -237,6 +235,27 @@ where
         f.render_stateful_widget(MatchupWidget {}, p, &mut app.live_game.matchup);
         f.render_stateful_widget(InningPlaysWidget {}, p, &mut app.live_game.plays);
     }
+}
+
+fn draw_stats<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
+where
+    B: Backend,
+{
+    // TODO by taking into account the width of the options pane I'm basically removing that amount
+    // of space for columns. If I didn't, you could select columns that would be covered by the
+    // options pane, but then when its disabled would become visible.
+    let width = match app.stats.stats_options {
+        true => rect.width - STATS_OPTIONS_WIDTH,
+        false => rect.width,
+    };
+    app.stats.trim_columns(width);
+    f.render_stateful_widget(
+        StatsWidget {
+            show_options: app.stats.stats_options,
+        },
+        rect,
+        &mut app.stats,
+    );
 }
 
 fn draw_help<B>(f: &mut Frame<B>, rect: Rect)

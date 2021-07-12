@@ -1,4 +1,4 @@
-use crate::stats::StatsState;
+use crate::stats::{StatsState, STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH};
 
 use tui::{
     buffer::Buffer,
@@ -7,21 +7,27 @@ use tui::{
     widgets::{Block, BorderType, Borders, Row, StatefulWidget, Table},
 };
 
-pub struct StatsWidget {}
+pub const STATS_OPTIONS_WIDTH: u16 = 35;
+pub struct StatsWidget {
+    pub show_options: bool,
+}
 
 impl StatefulWidget for StatsWidget {
     type State = StatsState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+        let constraints = match self.show_options {
+            true => {
+                vec![
+                    Constraint::Length(area.width - STATS_OPTIONS_WIDTH), // stats
+                    Constraint::Length(STATS_OPTIONS_WIDTH),              // options
+                ]
+            }
+            false => vec![Constraint::Percentage(100)],
+        };
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
-            .constraints(
-                [
-                    Constraint::Percentage(80), // stats
-                    Constraint::Percentage(20), // options
-                ]
-                .as_ref(),
-            )
+            .constraints(constraints.as_ref())
             .split(area);
 
         let (header, rows) = state.generate_table();
@@ -52,16 +58,17 @@ impl StatefulWidget for StatsWidget {
         }
 
         // Build the constraints. On first load the active will be 0, hence the check.
-        let mut constraints = vec![Constraint::Length(5); active];
+        let mut constraints = vec![Constraint::Length(STATS_DEFAULT_COL_WIDTH); active];
         if active == 0 {
-            constraints.push(Constraint::Length(25));
+            constraints.push(Constraint::Length(STATS_FIRST_COL_WIDTH));
         } else {
-            constraints[0] = Constraint::Length(25);
+            constraints[0] = Constraint::Length(STATS_FIRST_COL_WIDTH);
         }
 
         // stats
         let t = Table::new(rows)
             .header(header)
+            .column_spacing(0)
             .block(
                 Block::default()
                     .borders(Borders::ALL)
@@ -72,19 +79,22 @@ impl StatefulWidget for StatsWidget {
         StatefulWidget::render(t, chunks[0], buf, &mut state.state);
 
         // options
-        let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
-        let t = Table::new(options)
-            .block(
-                Block::default()
-                    .borders(Borders::ALL)
-                    .border_type(BorderType::Rounded),
-            )
-            .highlight_style(selected_style)
-            .widths(&[
-                Constraint::Length(4),
-                Constraint::Length(5),
-                Constraint::Length(25),
-            ]);
-        StatefulWidget::render(t, chunks[1], buf, &mut state.state);
+        if self.show_options {
+            let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
+            let t = Table::new(options)
+                .column_spacing(0)
+                .block(
+                    Block::default()
+                        .borders(Borders::ALL)
+                        .border_type(BorderType::Rounded),
+                )
+                .highlight_style(selected_style)
+                .widths(&[
+                    Constraint::Length(4),
+                    Constraint::Length(5),
+                    Constraint::Length(25),
+                ]);
+            StatefulWidget::render(t, chunks[1], buf, &mut state.state);
+        }
     }
 }

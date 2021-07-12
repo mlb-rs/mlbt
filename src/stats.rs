@@ -4,6 +4,11 @@ use tui::widgets::TableState;
 
 use std::string::ToString;
 
+/// The width of the first column, which is a longer item like team name.
+pub const STATS_FIRST_COL_WIDTH: u16 = 25;
+/// The width of normal columns.
+pub const STATS_DEFAULT_COL_WIDTH: u16 = 6;
+
 pub enum StatOption {
     TeamPitching,
     // TeamHitting,
@@ -14,11 +19,13 @@ pub enum StatOption {
 /// Stores the state for rendering the stats.
 pub struct StatsState {
     pub state: TableState,
-    pub active: StatOption,
-    /// stats stores the data in columnar form. The key is the column name and the value contains
-    /// the data stored as a vector. `IndexMap` is used to store the data in inserted order, which
+    pub stat_type: StatOption,
+    /// Stores the data in columnar form. The key is the column name and the value contains the
+    /// data stored as a vector. `IndexMap` is used to store the data in inserted order, which
     /// enables deterministic access of the data (for transforming to row oriented).
     pub stats: IndexMap<String, TableEntry>,
+    /// Whether to display the side bar for toggling stats
+    pub stats_options: bool,
 }
 
 /// The information for a stat, including all the data values.
@@ -35,8 +42,9 @@ impl Default for StatsState {
     fn default() -> Self {
         let mut ss = StatsState {
             state: TableState::default(),
-            active: StatOption::TeamPitching,
+            stat_type: StatOption::TeamPitching,
             stats: IndexMap::new(),
+            stats_options: true,
         };
         ss.state.select(Some(0));
         ss
@@ -69,7 +77,7 @@ impl StatsState {
             return (vec![], vec![vec![]]);
         }
 
-        let len = match self.active {
+        let len = match self.stat_type {
             StatOption::TeamPitching => self.stats.get("Team").unwrap().rows.len(),
             // StatOption::TeamHitting => self.stats.get("Team").unwrap().rows.len(),
             // StatOption::PlayerPitching => self.stats.get("Player").unwrap().rows.len(),
@@ -134,6 +142,32 @@ impl StatsState {
         self.table_helper("HB", "hit batsmen", false, stat.hit_batsmen);
         self.table_helper("BB", "walks", true, stat.base_on_balls);
         self.table_helper("SO", "strike outs", true, stat.strike_outs);
+    }
+
+    /// Deactivate columns that would overflow the available width.
+    pub fn trim_columns(&mut self, available_width: u16) {
+        // Get the indices of active columns
+        let mut active: Vec<usize> = self
+            .stats
+            .values()
+            .enumerate()
+            .filter(|(_, v)| v.active)
+            .map(|(i, _)| i)
+            .collect();
+
+        // calculate total width of active columns
+        let mut column_width = (active.len() as u16 * STATS_DEFAULT_COL_WIDTH)
+            + (STATS_FIRST_COL_WIDTH - STATS_DEFAULT_COL_WIDTH) // add remainder of first column
+            - 2; // 2 for left/right borders
+
+        // start deactivating columns as needed, from left to right
+        while column_width >= available_width && !active.is_empty() {
+            let key = active.pop().unwrap();
+            if let Some((_, v)) = self.stats.get_index_mut(key) {
+                v.active = false;
+                column_width -= STATS_DEFAULT_COL_WIDTH;
+            }
+        }
     }
 
     /// Toggle the visibility of the stat column that is selected.
