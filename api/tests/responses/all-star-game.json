@@ -1,0 +1,92 @@
+{
+  "copyright": "Copyright 2021 MLB Advanced Media, L.P.  Use of any content on this page acknowledges agreement to the terms posted here http://gdx.mlb.com/components/copyright.txt",
+  "totalItems": 1,
+  "totalEvents": 0,
+  "totalGames": 1,
+  "totalGamesInProgress": 0,
+  "dates": [
+    {
+      "date": "2021-07-13",
+      "totalItems": 1,
+      "totalEvents": 0,
+      "totalGames": 1,
+      "totalGamesInProgress": 0,
+      "games": [
+        {
+          "gamePk": 634675,
+          "link": "/api/v1.1/game/634675/feed/live",
+          "gameType": "A",
+          "season": "2021",
+          "gameDate": "2021-07-13T23:30:00Z",
+          "officialDate": "2021-07-13",
+          "status": {
+            "abstractGameState": "Preview",
+            "codedGameState": "P",
+            "detailedState": "Pre-Game",
+            "statusCode": "P",
+            "startTimeTBD": false,
+            "abstractGameCode": "P"
+          },
+          "teams": {
+            "away": {
+              "leagueRecord": {
+                "wins": 0,
+                "losses": 0,
+                "pct": ".000"
+              },
+              "score": 0,
+              "team": {
+                "id": 159,
+                "name": "American League All-Stars",
+                "link": "/api/v1/teams/159"
+              },
+              "splitSquad": false,
+              "seriesNumber": 0
+            },
+            "home": {
+              "leagueRecord": {
+                "wins": 0,
+                "losses": 0,
+                "pct": ".000"
+              },
+              "score": 0,
+              "team": {
+                "id": 160,
+                "name": "National League All-Stars",
+                "link": "/api/v1/teams/160"
+              },
+              "splitSquad": false,
+              "seriesNumber": 0
+            }
+          },
+          "venue": {
+            "id": 19,
+            "name": "Coors Field",
+            "link": "/api/v1/venues/19"
+          },
+          "content": {
+            "link": "/api/v1/game/634675/content"
+          },
+          "gameNumber": 1,
+          "publicFacing": true,
+          "doubleHeader": "N",
+          "gamedayType": "P",
+          "tiebreaker": "N",
+          "calendarEventID": "14-634675-2021-07-13",
+          "seasonDisplay": "2021",
+          "dayNight": "night",
+          "description": "91st All-Star Game, at Coors Field",
+          "scheduledInnings": 9,
+          "reverseHomeAwayStatus": false,
+          "gamesInSeries": 0,
+          "seriesGameNumber": 0,
+          "seriesDescription": "All-Star Game",
+          "recordSource": "S",
+          "ifNecessary": "N",
+          "ifNecessaryDescription": "Normal Game"
+        }
+      ],
+      "events": []
+    }
+  ]
+}
