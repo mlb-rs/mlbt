@@ -1,6 +1,6 @@
 [package]
 name = "mlbt"
-version = "0.0.9-alpha1"
+version = "0.0.9"
 authors = ["Andrew Schneider <andjschneider@gmail.com>"]
 edition = "2018"
 
@@ -8,7 +8,7 @@ edition = "2018"
 members = [".", "api"]
 
 [dependencies]
-mlb-api = {path = "api/", version = "0.0.6-alpha2"}
+mlb-api = {path = "api/", version = "0.0.6"}
 
 better-panic = "0.2"
 chrono = "0.4"
