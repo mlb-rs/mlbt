@@ -1,9 +1,10 @@
 use crate::app::{HomeOrAway, MenuItem};
-use crate::stats::StatOption;
+use crate::stats::TeamOrPlayer;
 use crate::{app, cleanup_terminal};
 use crossbeam_channel::Sender;
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent};
+use mlb_api::client::StatGroup;
 
 pub fn handle_key_bindings(
     mode: MenuItem,
@@ -68,11 +69,19 @@ pub fn handle_key_bindings(
         (MenuItem::Stats, Char('k')) => app.stats.previous(),
         (MenuItem::Stats, Char('o')) => app.stats.stats_options = !app.stats.stats_options,
         (MenuItem::Stats, Char('p')) => {
-            app.stats.stat_type = StatOption::TeamPitching;
+            app.stats.stat_type.group = StatGroup::Pitching;
             let _ = selective_update.try_send(MenuItem::Stats);
         }
         (MenuItem::Stats, Char('h')) => {
-            app.stats.stat_type = StatOption::TeamHitting;
+            app.stats.stat_type.group = StatGroup::Hitting;
+            let _ = selective_update.try_send(MenuItem::Stats);
+        }
+        (MenuItem::Stats, Char('l')) => {
+            app.stats.stat_type.stat_type = TeamOrPlayer::Player;
+            let _ = selective_update.try_send(MenuItem::Stats);
+        }
+        (MenuItem::Stats, Char('t')) => {
+            app.stats.stat_type.stat_type = TeamOrPlayer::Team;
             let _ = selective_update.try_send(MenuItem::Stats);
         }
         (MenuItem::Stats, KeyCode::Enter) => app.stats.toggle_stat(),

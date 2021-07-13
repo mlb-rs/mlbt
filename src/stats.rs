@@ -1,5 +1,7 @@
-use indexmap::IndexMap;
+use mlb_api::client::StatGroup;
 use mlb_api::stats::{HittingStat, PitchingStat, StatResponse, StatSplit};
+
+use indexmap::IndexMap;
 use tui::widgets::TableState;
 
 use std::string::ToString;
@@ -9,11 +11,17 @@ pub const STATS_FIRST_COL_WIDTH: u16 = 25;
 /// The width of normal columns.
 pub const STATS_DEFAULT_COL_WIDTH: u16 = 6;
 
-pub enum StatOption {
-    TeamPitching,
-    TeamHitting,
-    // PlayerPitching,
-    // PlayerHitting,
+/// Stores whether a team/player and pitching/hitting stat should be viewed.
+#[derive(Clone, Debug)]
+pub struct StatOption {
+    pub group: StatGroup,
+    pub stat_type: TeamOrPlayer,
+}
+
+#[derive(Clone, Debug)]
+pub enum TeamOrPlayer {
+    Team,
+    Player,
 }
 
 /// Stores the state for rendering the stats.
@@ -42,7 +50,10 @@ impl Default for StatsState {
     fn default() -> Self {
         let mut ss = StatsState {
             state: TableState::default(),
-            stat_type: StatOption::TeamPitching,
+            stat_type: StatOption {
+                group: StatGroup::Pitching,
+                stat_type: TeamOrPlayer::Team,
+            },
             stats: IndexMap::new(),
             stats_options: true,
         };
@@ -60,9 +71,12 @@ impl StatsState {
     fn create_table(&mut self, stats: &StatResponse) {
         for stat in &stats.stats {
             for split in &stat.splits {
-                let name = split.team.name.clone();
+                // if the `player` field exists, then its a Player stat
+                let name = match &split.player {
+                    Some(p) => p.full_name.clone(),
+                    None => split.team.name.clone(),
+                };
                 match &split.stat {
-                    // TODO do I need to differentiate between team/player stats here?
                     StatSplit::Pitching(s) => self.from_pitching_stats(name, s),
                     StatSplit::Hitting(s) => self.from_hitting_stats(name, s),
                 };
@@ -77,10 +91,10 @@ impl StatsState {
             return (vec![], vec![vec![]]);
         }
 
-        let len = match self.stat_type {
-            StatOption::TeamPitching => self.stats.get("Team").unwrap().rows.len(),
-            StatOption::TeamHitting => self.stats.get("Team").unwrap().rows.len(),
-            // StatOption::PlayerPitching => self.stats.get("Player").unwrap().rows.len(),
+        // get the number or rows, which might be zero while data is loading
+        let len = match self.stats.first() {
+            Some((_, v)) => v.rows.len(),
+            None => 0,
         };
         let mut rows = vec![Vec::with_capacity(self.stats.len()); len];
         let mut header = Vec::with_capacity(self.stats.len());
@@ -124,7 +138,11 @@ impl StatsState {
     /// Create the pitching stats table. Note that the order of the calls to `table_helper` is the
     /// order in which the stats will be displayed from left to right.
     fn from_pitching_stats(&mut self, name: String, stat: &PitchingStat) {
-        self.table_helper("Team", "", true, name);
+        let col_name = match self.stat_type.stat_type {
+            TeamOrPlayer::Team => "Team",
+            TeamOrPlayer::Player => "Player",
+        };
+        self.table_helper(col_name, "", true, name);
         self.table_helper("W", "wins", true, stat.wins);
         self.table_helper("L", "losses", true, stat.losses);
         self.table_helper("ERA", "earned run average", true, &stat.era);
@@ -147,7 +165,11 @@ impl StatsState {
     /// Create the hitting stats table. Note that the order of the calls to `table_helper` is the
     /// order in which the stats will be displayed from left to right.
     fn from_hitting_stats(&mut self, name: String, stat: &HittingStat) {
-        self.table_helper("Team", "", true, name);
+        let col_name = match self.stat_type.stat_type {
+            TeamOrPlayer::Team => "Team",
+            TeamOrPlayer::Player => "Player",
+        };
+        self.table_helper(col_name, "", true, name);
         self.table_helper("G", "games played", true, stat.games_played);
         self.table_helper("AB", "at bats", true, stat.at_bats);
         self.table_helper("AVG", "batting avg", true, &stat.avg);

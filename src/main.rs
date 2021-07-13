@@ -28,7 +28,7 @@ use crate::schedule::ScheduleState;
 use mlb_api::client::{MLBApi, MLBApiBuilder};
 
 use crate::standings::StandingsState;
-use crate::stats::{StatOption, StatsState};
+use crate::stats::{StatsState, TeamOrPlayer};
 use crossbeam_channel::{bounded, select, unbounded, Receiver, Sender};
 use crossterm::event::Event;
 use crossterm::{cursor, execute, terminal};
@@ -109,11 +109,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                         }
                         // update stats only when tab is switched to or pitching/hitting is changed
                         Ok(MenuItem::Stats) => {
-                            let stat = match app.stats.stat_type {
-                                StatOption::TeamPitching => mlb_api::client::StatGroup::Pitching,
-                                StatOption::TeamHitting  => mlb_api::client::StatGroup::Hitting,
+                            let response = match app.stats.stat_type.stat_type {
+                                TeamOrPlayer::Team => CLIENT.get_team_stats(app.stats.stat_type.group.clone()),
+                                TeamOrPlayer::Player => CLIENT.get_player_stats(app.stats.stat_type.group.clone()),
                             };
-                            app.stats.update(&CLIENT.get_team_stats(stat));
+                            app.stats.update(&response);
                         }
                         _ => {}
                     }

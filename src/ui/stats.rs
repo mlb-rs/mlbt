@@ -1,4 +1,6 @@
-use crate::stats::{StatOption, StatsState, STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH};
+use mlb_api::client::StatGroup;
+
+use crate::stats::{StatsState, TeamOrPlayer, STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH};
 
 use tui::{
     buffer::Buffer,
@@ -8,7 +10,7 @@ use tui::{
     widgets::{Block, BorderType, Borders, Paragraph, Row, StatefulWidget, Table, Widget, Wrap},
 };
 
-pub const STATS_OPTIONS_WIDTH: u16 = 35;
+pub const STATS_OPTIONS_WIDTH: u16 = 36;
 pub struct StatsWidget {
     pub show_options: bool,
 }
@@ -87,9 +89,14 @@ impl StatefulWidget for StatsWidget {
                 .constraints([Constraint::Length(4), Constraint::Percentage(100)].as_ref())
                 .split(chunks[1]);
             // hitting | pitching
-            let (hitting_style, pitching_style) = match state.stat_type {
-                StatOption::TeamPitching => (Style::default(), selected_style),
-                StatOption::TeamHitting => (selected_style, Style::default()),
+            // team | player
+            let (hitting_style, pitching_style) = match state.stat_type.group {
+                StatGroup::Pitching => (Style::default(), selected_style),
+                StatGroup::Hitting => (selected_style, Style::default()),
+            };
+            let (team_style, player_style) = match state.stat_type.stat_type {
+                TeamOrPlayer::Player => (Style::default(), selected_style),
+                TeamOrPlayer::Team => (selected_style, Style::default()),
             };
             let text = vec![
                 Spans::from(vec![
@@ -97,7 +104,11 @@ impl StatefulWidget for StatsWidget {
                     Span::raw(" | "),
                     Span::styled("pitching", pitching_style),
                 ]),
-                Spans::from(Span::styled("team | player", Style::default())), // TODO add selection
+                Spans::from(vec![
+                    Span::styled("team", team_style),
+                    Span::raw(" | "),
+                    Span::styled("player", player_style),
+                ]),
             ];
             Paragraph::new(text)
                 .block(
@@ -120,7 +131,7 @@ impl StatefulWidget for StatsWidget {
                 .highlight_style(selected_style)
                 .widths(&[
                     Constraint::Length(4),
-                    Constraint::Length(5),
+                    Constraint::Length(6),
                     Constraint::Length(25),
                 ]);
             StatefulWidget::render(t, chunks[1], buf, &mut state.state);
