@@ -24,16 +24,17 @@ pub struct MLBApi {
 
 /// The available stat groups. These are taken from the "meta" endpoint:
 /// https://statsapi.mlb.com/api/v1/statGroups
-#[derive(Debug)]
+/// I only need to use Hitting and Pitching for now.
+#[derive(Clone, Debug)]
 pub enum StatGroup {
     Hitting,
     Pitching,
-    Fielding,
-    Catching,
-    Running,
-    Game,
-    Team,
-    Streak,
+    // Fielding,
+    // Catching,
+    // Running,
+    // Game,
+    // Team,
+    // Streak,
 }
 
 /// Display the StatGroup in all lowercase.
@@ -84,6 +85,17 @@ impl MLBApi {
         let local: DateTime<Local> = Local::now();
         let url = format!(
             "{}v1/teams/stats?sportId=1&stats=season&season={}&group={}",
+            self.base_url,
+            local.year().to_string(),
+            group
+        );
+        self.get::<StatResponse>(url)
+    }
+
+    pub fn get_player_stats(&self, group: StatGroup) -> StatResponse {
+        let local: DateTime<Local> = Local::now();
+        let url = format!(
+            "{}v1/stats?stats=season&season={}&group={}",
             self.base_url,
             local.year().to_string(),
             group

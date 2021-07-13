@@ -66,10 +66,27 @@ mod tests {
             let _m = mock("GET", Matcher::Exact(url))
                 .with_status(200)
                 .with_header("content-type", "application/json;charset=UTF-8")
-                .with_body_from_file("./tests/responses/stats.json")
+                .with_body_from_file("./tests/responses/team-stats.json")
                 .create();
 
             let resp = client.get_team_stats(group);
+            println!("{:?}", resp);
+        }
+    }
+
+    #[test]
+    fn test_player_stats() {
+        let client = MLBApiBuilder::default().build().unwrap();
+        for group in vec![StatGroup::Hitting, StatGroup::Pitching] {
+            let url = format!("v1/stats?stats=season&season=2021&group={}", group);
+
+            let _m = mock("GET", Matcher::Exact(url))
+                .with_status(200)
+                .with_header("content-type", "application/json;charset=UTF-8")
+                .with_body_from_file("./tests/responses/player-stats.json")
+                .create();
+
+            let resp = client.get_player_stats(group);
             println!("{:?}", resp);
         }
     }

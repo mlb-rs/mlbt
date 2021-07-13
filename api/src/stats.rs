@@ -22,21 +22,22 @@ pub struct DisplayName {
     pub display_name: String,
 }
 
-// TODO this needed?
-// #[derive(Deserialize, Serialize, Debug)]
-// #[serde(rename_all = "lowercase")]
-// pub enum StatType {
-//     Season,
-//     Pitching,
-//     Hitting,
-// }
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Split {
     season: String,
     pub stat: StatSplit,
     pub team: IdNameLink,
+    pub player: Option<Player>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Player {
+    pub id: u64,
+    pub full_name: String,
+    pub first_name: String,
+    pub last_name: String,
 }
 
 /// StatSplit stores the two options for deserializing a Split.
