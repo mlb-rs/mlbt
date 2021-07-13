@@ -228,6 +228,8 @@ lazy_static! {
         m.insert("Los Angeles Dodgers", "Dodgers");
         m.insert("Washington Nationals", "Nationals");
         m.insert("New York Mets", "Mets");
+        m.insert("American League All-Stars", "AL All-Stars");
+        m.insert("National League All-Stars", "NL All-Stars");
         m
     };
 }
