@@ -1,5 +1,5 @@
 use indexmap::IndexMap;
-use mlb_api::stats::{PitchingStat, StatResponse, StatSplit};
+use mlb_api::stats::{HittingStat, PitchingStat, StatResponse, StatSplit};
 use tui::widgets::TableState;
 
 use std::string::ToString;
@@ -11,7 +11,7 @@ pub const STATS_DEFAULT_COL_WIDTH: u16 = 6;
 
 pub enum StatOption {
     TeamPitching,
-    // TeamHitting,
+    TeamHitting,
     // PlayerPitching,
     // PlayerHitting,
 }
@@ -63,8 +63,8 @@ impl StatsState {
                 let name = split.team.name.clone();
                 match &split.stat {
                     // TODO do I need to differentiate between team/player stats here?
-                    StatSplit::Pitching(p) => self.from_pitching_stats(name, p),
-                    StatSplit::Hitting(_) => todo!(),
+                    StatSplit::Pitching(s) => self.from_pitching_stats(name, s),
+                    StatSplit::Hitting(s) => self.from_hitting_stats(name, s),
                 };
             }
         }
@@ -79,7 +79,7 @@ impl StatsState {
 
         let len = match self.stat_type {
             StatOption::TeamPitching => self.stats.get("Team").unwrap().rows.len(),
-            // StatOption::TeamHitting => self.stats.get("Team").unwrap().rows.len(),
+            StatOption::TeamHitting => self.stats.get("Team").unwrap().rows.len(),
             // StatOption::PlayerPitching => self.stats.get("Player").unwrap().rows.len(),
         };
         let mut rows = vec![Vec::with_capacity(self.stats.len()); len];
@@ -128,7 +128,7 @@ impl StatsState {
         self.table_helper("W", "wins", true, stat.wins);
         self.table_helper("L", "losses", true, stat.losses);
         self.table_helper("ERA", "earned run average", true, &stat.era);
-        self.table_helper("G", "game played", true, stat.games_played);
+        self.table_helper("G", "games played", true, stat.games_played);
         self.table_helper("GS", "games started", true, stat.games_started);
         self.table_helper("CG", "complete games", true, stat.complete_games);
         self.table_helper("SHO", "shutouts", false, stat.shutouts);
@@ -142,6 +142,28 @@ impl StatsState {
         self.table_helper("HB", "hit batsmen", false, stat.hit_batsmen);
         self.table_helper("BB", "walks", true, stat.base_on_balls);
         self.table_helper("SO", "strike outs", true, stat.strike_outs);
+    }
+
+    /// Create the hitting stats table. Note that the order of the calls to `table_helper` is the
+    /// order in which the stats will be displayed from left to right.
+    fn from_hitting_stats(&mut self, name: String, stat: &HittingStat) {
+        self.table_helper("Team", "", true, name);
+        self.table_helper("G", "games played", true, stat.games_played);
+        self.table_helper("AB", "at bats", true, stat.at_bats);
+        self.table_helper("AVG", "batting avg", true, &stat.avg);
+        self.table_helper("OBP", "on-base percent", true, &stat.obp);
+        self.table_helper("SLG", "slugging percent", true, &stat.slg);
+        self.table_helper("OPS", "on-base + slug", true, &stat.ops);
+        self.table_helper("R", "runs", true, stat.runs);
+        self.table_helper("H", "hits", true, stat.hits);
+        self.table_helper("2B", "doubles", true, stat.doubles);
+        self.table_helper("3B", "triples", true, stat.triples);
+        self.table_helper("HR", "home runs", true, stat.home_runs);
+        self.table_helper("RBI", "runs batted in", true, stat.rbi);
+        self.table_helper("BB", "walks", true, stat.base_on_balls);
+        self.table_helper("SO", "strike outs", true, stat.strike_outs);
+        self.table_helper("SB", "stolen bases", true, stat.stolen_bases);
+        self.table_helper("CS", "caught stealing", true, stat.caught_stealing);
     }
 
     /// Deactivate columns that would overflow the available width.

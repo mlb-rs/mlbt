@@ -1,10 +1,11 @@
-use crate::stats::{StatsState, STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH};
+use crate::stats::{StatOption, StatsState, STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH};
 
 use tui::{
     buffer::Buffer,
-    layout::{Constraint, Direction, Layout, Rect},
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
-    widgets::{Block, BorderType, Borders, Row, StatefulWidget, Table},
+    text::{Span, Spans},
+    widgets::{Block, BorderType, Borders, Paragraph, Row, StatefulWidget, Table, Widget, Wrap},
 };
 
 pub const STATS_OPTIONS_WIDTH: u16 = 35;
@@ -78,9 +79,37 @@ impl StatefulWidget for StatsWidget {
 
         StatefulWidget::render(t, chunks[0], buf, &mut state.state);
 
-        // options
         if self.show_options {
             let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
+
+            let chunks = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([Constraint::Length(4), Constraint::Percentage(100)].as_ref())
+                .split(chunks[1]);
+            // hitting | pitching
+            let (hitting_style, pitching_style) = match state.stat_type {
+                StatOption::TeamPitching => (Style::default(), selected_style),
+                StatOption::TeamHitting => (selected_style, Style::default()),
+            };
+            let text = vec![
+                Spans::from(vec![
+                    Span::styled("hitting", hitting_style),
+                    Span::raw(" | "),
+                    Span::styled("pitching", pitching_style),
+                ]),
+                Spans::from(Span::styled("team | player", Style::default())), // TODO add selection
+            ];
+            Paragraph::new(text)
+                .block(
+                    Block::default()
+                        .borders(Borders::ALL)
+                        .border_type(BorderType::Rounded),
+                )
+                .alignment(Alignment::Center)
+                .wrap(Wrap { trim: true })
+                .render(chunks[0], buf);
+
+            // options
             let t = Table::new(options)
                 .column_spacing(0)
                 .block(

@@ -28,7 +28,7 @@ use crate::schedule::ScheduleState;
 use mlb_api::client::{MLBApi, MLBApiBuilder};
 
 use crate::standings::StandingsState;
-use crate::stats::StatsState;
+use crate::stats::{StatOption, StatsState};
 use crossbeam_channel::{bounded, select, unbounded, Receiver, Sender};
 use crossterm::event::Event;
 use crossterm::{cursor, execute, terminal};
@@ -107,9 +107,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                         Ok(MenuItem::Standings) => {
                             app.standings.update(&CLIENT.get_standings());
                         }
-                        // update stats only when tab is switched to
+                        // update stats only when tab is switched to or pitching/hitting is changed
                         Ok(MenuItem::Stats) => {
-                            app.stats.update(&CLIENT.get_team_stats(mlb_api::client::StatGroup::Pitching));
+                            let stat = match app.stats.stat_type {
+                                StatOption::TeamPitching => mlb_api::client::StatGroup::Pitching,
+                                StatOption::TeamHitting  => mlb_api::client::StatGroup::Hitting,
+                            };
+                            app.stats.update(&CLIENT.get_team_stats(stat));
                         }
                         _ => {}
                     }
