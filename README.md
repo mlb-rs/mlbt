@@ -84,9 +84,9 @@ TODO - add to crates.io
 - [X] standings
   - [ ] team information
 
-- [ ] stats
-  - [ ] player stats
-  - [ ] team stats
+- [X] stats
+  - [X] player stats
+  - [X] team stats
   - [ ] stat search (store in sqlite or an embedded db?)
 
 - [ ] CLI
@@ -140,7 +140,26 @@ To switch the team displayed in the box score:
 
 Press `3` to activate this tab.
 
-TODO
+You can switch between `pitching` and `hitting` stats and filter based on `team`
+or `player` using:
+
+- `p`: pitching
+- `h`: hitting
+- `t`: team
+- `l`: player
+
+Within each stat group (pitching or hitting) you can toggle the display of
+individual stat columns by selecting the stat with `Enter`. This selection pane
+can be turned on/off with `o`.
+
+- `j`: move down
+- `k`: move up
+- `Enter`: toggle stat column
+- `o`: toggle stat selection pane
+
+> If your terminal is too small to display all columns, they will be turned off
+> starting from the left side.
+
 
 ### Standings
 
