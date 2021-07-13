@@ -13,9 +13,9 @@ pub const STATS_DEFAULT_COL_WIDTH: u16 = 6;
 
 /// Stores whether a team/player and pitching/hitting stat should be viewed.
 #[derive(Clone, Debug)]
-pub struct StatOption {
+pub struct StatType {
     pub group: StatGroup,
-    pub stat_type: TeamOrPlayer,
+    pub team_player: TeamOrPlayer,
 }
 
 #[derive(Clone, Debug)]
@@ -27,13 +27,14 @@ pub enum TeamOrPlayer {
 /// Stores the state for rendering the stats.
 pub struct StatsState {
     pub state: TableState,
-    pub stat_type: StatOption,
+    /// The stat type combination of team/player and pitching/hitting.
+    pub stat_type: StatType,
     /// Stores the data in columnar form. The key is the column name and the value contains the
     /// data stored as a vector. `IndexMap` is used to store the data in inserted order, which
     /// enables deterministic access of the data (for transforming to row oriented).
     pub stats: IndexMap<String, TableEntry>,
     /// Whether to display the side bar for toggling stats
-    pub stats_options: bool,
+    pub show_options: bool,
 }
 
 /// The information for a stat, including all the data values.
@@ -50,12 +51,12 @@ impl Default for StatsState {
     fn default() -> Self {
         let mut ss = StatsState {
             state: TableState::default(),
-            stat_type: StatOption {
+            stat_type: StatType {
                 group: StatGroup::Pitching,
-                stat_type: TeamOrPlayer::Team,
+                team_player: TeamOrPlayer::Team,
             },
             stats: IndexMap::new(),
-            stats_options: true,
+            show_options: true,
         };
         ss.state.select(Some(0));
         ss
@@ -77,8 +78,8 @@ impl StatsState {
                     None => split.team.name.clone(),
                 };
                 match &split.stat {
-                    StatSplit::Pitching(s) => self.from_pitching_stats(name, s),
-                    StatSplit::Hitting(s) => self.from_hitting_stats(name, s),
+                    StatSplit::Pitching(s) => self.load_pitching_stats(name, s),
+                    StatSplit::Hitting(s) => self.load_hitting_stats(name, s),
                 };
             }
         }
@@ -137,8 +138,8 @@ impl StatsState {
 
     /// Create the pitching stats table. Note that the order of the calls to `table_helper` is the
     /// order in which the stats will be displayed from left to right.
-    fn from_pitching_stats(&mut self, name: String, stat: &PitchingStat) {
-        let col_name = match self.stat_type.stat_type {
+    fn load_pitching_stats(&mut self, name: String, stat: &PitchingStat) {
+        let col_name = match self.stat_type.team_player {
             TeamOrPlayer::Team => "Team",
             TeamOrPlayer::Player => "Player",
         };
@@ -164,8 +165,8 @@ impl StatsState {
 
     /// Create the hitting stats table. Note that the order of the calls to `table_helper` is the
     /// order in which the stats will be displayed from left to right.
-    fn from_hitting_stats(&mut self, name: String, stat: &HittingStat) {
-        let col_name = match self.stat_type.stat_type {
+    fn load_hitting_stats(&mut self, name: String, stat: &HittingStat) {
+        let col_name = match self.stat_type.team_player {
             TeamOrPlayer::Team => "Team",
             TeamOrPlayer::Player => "Player",
         };

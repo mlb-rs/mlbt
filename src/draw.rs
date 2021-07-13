@@ -244,14 +244,14 @@ where
     // TODO by taking into account the width of the options pane I'm basically removing that amount
     // of space for columns. If I didn't, you could select columns that would be covered by the
     // options pane, but then when its disabled would become visible.
-    let width = match app.stats.stats_options {
+    let width = match app.stats.show_options {
         true => rect.width - STATS_OPTIONS_WIDTH,
         false => rect.width,
     };
     app.stats.trim_columns(width);
     f.render_stateful_widget(
         StatsWidget {
-            show_options: app.stats.stats_options,
+            show_options: app.stats.show_options,
         },
         rect,
         &mut app.stats,

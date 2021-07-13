@@ -107,9 +107,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                         Ok(MenuItem::Standings) => {
                             app.standings.update(&CLIENT.get_standings());
                         }
-                        // update stats only when tab is switched to or pitching/hitting is changed
+                        // update stats only when tab is switched to, team/player is changed, or
+                        // pitching/hitting is changed
                         Ok(MenuItem::Stats) => {
-                            let response = match app.stats.stat_type.stat_type {
+                            let response = match app.stats.stat_type.team_player {
                                 TeamOrPlayer::Team => CLIENT.get_team_stats(app.stats.stat_type.group.clone()),
                                 TeamOrPlayer::Player => CLIENT.get_player_stats(app.stats.stat_type.group.clone()),
                             };

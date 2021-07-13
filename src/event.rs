@@ -67,7 +67,7 @@ pub fn handle_key_bindings(
 
         (MenuItem::Stats, Char('j')) => app.stats.next(),
         (MenuItem::Stats, Char('k')) => app.stats.previous(),
-        (MenuItem::Stats, Char('o')) => app.stats.stats_options = !app.stats.stats_options,
+        (MenuItem::Stats, Char('o')) => app.stats.show_options = !app.stats.show_options,
         (MenuItem::Stats, Char('p')) => {
             app.stats.stat_type.group = StatGroup::Pitching;
             let _ = selective_update.try_send(MenuItem::Stats);
@@ -77,11 +77,11 @@ pub fn handle_key_bindings(
             let _ = selective_update.try_send(MenuItem::Stats);
         }
         (MenuItem::Stats, Char('l')) => {
-            app.stats.stat_type.stat_type = TeamOrPlayer::Player;
+            app.stats.stat_type.team_player = TeamOrPlayer::Player;
             let _ = selective_update.try_send(MenuItem::Stats);
         }
         (MenuItem::Stats, Char('t')) => {
-            app.stats.stat_type.stat_type = TeamOrPlayer::Team;
+            app.stats.stat_type.team_player = TeamOrPlayer::Team;
             let _ = selective_update.try_send(MenuItem::Stats);
         }
         (MenuItem::Stats, KeyCode::Enter) => app.stats.toggle_stat(),

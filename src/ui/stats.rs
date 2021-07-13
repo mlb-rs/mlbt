@@ -94,7 +94,7 @@ impl StatefulWidget for StatsWidget {
                 StatGroup::Pitching => (Style::default(), selected_style),
                 StatGroup::Hitting => (selected_style, Style::default()),
             };
-            let (team_style, player_style) = match state.stat_type.stat_type {
+            let (team_style, player_style) = match state.stat_type.team_player {
                 TeamOrPlayer::Player => (Style::default(), selected_style),
                 TeamOrPlayer::Team => (selected_style, Style::default()),
             };
