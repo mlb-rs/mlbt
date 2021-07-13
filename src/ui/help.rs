@@ -8,26 +8,28 @@ use tui::{
 use crate::banner::BANNER;
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
-pub const DOCS_LEN: usize = 21;
+pub const DOCS_LEN: usize = 23;
 const DOCS: &[&[&str; 2]; DOCS_LEN] = &[
     &["Exit help", "Esc"],
     &["Quit", "q"],
     &["Full screen", "f"],
     &["Scoreboard", "1"],
-    &["Gameday", "2"],
-    &["Stats", "3"],
-    &["Standings", "4"],
-    &["Scoreboard", ""],
     &["Move down", "j"],
     &["Move up", "k"],
     &["Select date", ":"],
     &["Switch boxscore team", "h/a"],
-    &["Gameday", ""],
+    &["Gameday", "2"],
     &["Toggle game info", "i"],
     &["Toggle pitches", "p"],
     &["Toggle boxscore", "b"],
     &["Switch boxscore team", "h/a"],
-    &["Standings", ""],
+    &["Stats", "3"],
+    &["Switch hitting/pitching", "h/p"],
+    &["Switch team/player", "t/l"],
+    &["Move down", "j"],
+    &["Move up", "k"],
+    &["Toggle stat", "Enter"],
+    &["Standings", "4"],
     &["Move down", "j"],
     &["Move up", "k"],
     &["View team info", "Enter"],
@@ -47,11 +49,11 @@ impl Widget for HelpWidget {
         // resolving constraints on widths of table columns.
         let format_row = |r: &[&str; 2]| -> HelpRow {
             HelpRow {
-                is_header: r[1].is_empty(),
+                is_header: r[1].parse::<u8>().is_ok(),
                 text: vec![format!("{:30}{:15}", r[0], r[1])],
             }
         };
-        let header_style = Style::default().add_modifier(Modifier::BOLD);
+        let header_style = Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED);
         let help_menu_style = Style::default();
 
         let header = Row::new(format_row(HEADER).text)

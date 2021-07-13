@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Stats view: [PR 25](https://github.com/mlb-rs/mlbt/pull/25)
 - Added a panic hook to print a nice stack trace on crash
 
 ### Fixed
