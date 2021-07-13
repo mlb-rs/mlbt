@@ -19,7 +19,7 @@ mod util;
 use std::error::Error;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
-use std::{io, thread};
+use std::{io, panic, thread};
 
 use crate::app::{App, DateInput, DebugState, GamedayPanels, HomeOrAway, MenuItem};
 use crate::live_game::GameState;
@@ -41,8 +41,12 @@ lazy_static! {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
+    better_panic::install();
+
     let backend = CrosstermBackend::new(io::stdout());
     let mut terminal = Terminal::new(backend).unwrap();
+
+    setup_panic_hook();
     setup_terminal();
 
     let schedule_update = UPDATE_REQUEST.0.clone();
@@ -187,4 +191,11 @@ fn setup_ui_events() -> Receiver<Event> {
         sender.send(crossterm::event::read().unwrap()).unwrap();
     });
     receiver
+}
+
+fn setup_panic_hook() {
+    panic::set_hook(Box::new(|panic_info| {
+        cleanup_terminal();
+        better_panic::Settings::auto().create_panic_handler()(panic_info);
+    }));
 }
