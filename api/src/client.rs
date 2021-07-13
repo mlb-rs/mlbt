@@ -1,6 +1,9 @@
+use std::fmt;
+
 use crate::live::LiveResponse;
 use crate::schedule::ScheduleResponse;
 use crate::standings::StandingsResponse;
+use crate::stats::StatResponse;
 
 use chrono::{DateTime, Datelike, Local, NaiveDate};
 use derive_builder::Builder;
@@ -17,6 +20,28 @@ pub struct MLBApi {
     client: Client,
     #[builder(setter(into), default = "String::from(BASE_URL)")]
     base_url: String,
+}
+
+/// The available stat groups. These are taken from the "meta" endpoint:
+/// https://statsapi.mlb.com/api/v1/statGroups
+/// I only need to use Hitting and Pitching for now.
+#[derive(Clone, Debug)]
+pub enum StatGroup {
+    Hitting,
+    Pitching,
+    // Fielding,
+    // Catching,
+    // Running,
+    // Game,
+    // Team,
+    // Streak,
+}
+
+/// Display the StatGroup in all lowercase.
+impl fmt::Display for StatGroup {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", format!("{:?}", self).to_lowercase())
+    }
 }
 
 impl MLBApi {
@@ -56,6 +81,28 @@ impl MLBApi {
         self.get::<StandingsResponse>(url)
     }
 
+    pub fn get_team_stats(&self, group: StatGroup) -> StatResponse {
+        let local: DateTime<Local> = Local::now();
+        let url = format!(
+            "{}v1/teams/stats?sportId=1&stats=season&season={}&group={}",
+            self.base_url,
+            local.year().to_string(),
+            group
+        );
+        self.get::<StatResponse>(url)
+    }
+
+    pub fn get_player_stats(&self, group: StatGroup) -> StatResponse {
+        let local: DateTime<Local> = Local::now();
+        let url = format!(
+            "{}v1/stats?stats=season&season={}&group={}",
+            self.base_url,
+            local.year().to_string(),
+            group
+        );
+        self.get::<StatResponse>(url)
+    }
+
     // TODO need better error handling, especially on parsing
     fn get<T: Default + DeserializeOwned>(&self, url: String) -> T {
         let response = self.client.get(url).send().unwrap_or_else(|err| {
@@ -66,4 +113,10 @@ impl MLBApi {
             T::default()
         })
     }
+}
+
+#[test]
+fn test_stat_group_lowercase() {
+    assert_eq!("hitting".to_string(), StatGroup::Hitting.to_string());
+    assert_eq!("pitching".to_string(), StatGroup::Pitching.to_string());
 }

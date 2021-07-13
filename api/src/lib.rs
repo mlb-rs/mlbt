@@ -4,3 +4,4 @@ pub mod live;
 pub mod plays;
 pub mod schedule;
 pub mod standings;
+pub mod stats;

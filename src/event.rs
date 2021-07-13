@@ -1,8 +1,10 @@
 use crate::app::{HomeOrAway, MenuItem};
+use crate::stats::TeamOrPlayer;
 use crate::{app, cleanup_terminal};
 use crossbeam_channel::Sender;
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent};
+use mlb_api::client::StatGroup;
 
 pub fn handle_key_bindings(
     mode: MenuItem,
@@ -26,7 +28,10 @@ pub fn handle_key_bindings(
         (_, Char('f')) => app.toggle_full_screen(),
         (_, Char('1')) => app.update_tab(MenuItem::Scoreboard),
         (_, Char('2')) => app.update_tab(MenuItem::Gameday),
-        (_, Char('3')) => app.update_tab(MenuItem::Stats),
+        (_, Char('3')) => {
+            app.update_tab(MenuItem::Stats);
+            let _ = selective_update.try_send(MenuItem::Stats);
+        }
         (_, Char('4')) => {
             app.update_tab(MenuItem::Standings);
             let _ = selective_update.try_send(MenuItem::Standings);
@@ -59,6 +64,27 @@ pub fn handle_key_bindings(
         (MenuItem::DatePicker, KeyCode::Backspace) => {
             app.date_input.text.pop();
         }
+
+        (MenuItem::Stats, Char('j')) => app.stats.next(),
+        (MenuItem::Stats, Char('k')) => app.stats.previous(),
+        (MenuItem::Stats, Char('o')) => app.stats.show_options = !app.stats.show_options,
+        (MenuItem::Stats, Char('p')) => {
+            app.stats.stat_type.group = StatGroup::Pitching;
+            let _ = selective_update.try_send(MenuItem::Stats);
+        }
+        (MenuItem::Stats, Char('h')) => {
+            app.stats.stat_type.group = StatGroup::Hitting;
+            let _ = selective_update.try_send(MenuItem::Stats);
+        }
+        (MenuItem::Stats, Char('l')) => {
+            app.stats.stat_type.team_player = TeamOrPlayer::Player;
+            let _ = selective_update.try_send(MenuItem::Stats);
+        }
+        (MenuItem::Stats, Char('t')) => {
+            app.stats.stat_type.team_player = TeamOrPlayer::Team;
+            let _ = selective_update.try_send(MenuItem::Stats);
+        }
+        (MenuItem::Stats, KeyCode::Enter) => app.stats.toggle_stat(),
 
         (MenuItem::Standings, Char('j')) => app.standings.next(),
         (MenuItem::Standings, Char('k')) => app.standings.previous(),
