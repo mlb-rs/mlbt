@@ -164,7 +164,7 @@ impl ScheduleRow {
         if let Some(games) = &schedule.dates.get(0) {
             for game in &games.games {
                 for g in game {
-                    todays_games.push(ScheduleRow::create_matchup(&g));
+                    todays_games.push(ScheduleRow::create_matchup(g));
                 }
             }
         }

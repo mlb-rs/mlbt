@@ -50,8 +50,8 @@ impl Default for LineScore {
 
 impl LineScore {
     pub fn from_live_data(live_game: &LiveResponse) -> Self {
-        let home = LineScoreLine::from_live_data(&live_game, true);
-        let away = LineScoreLine::from_live_data(&live_game, false);
+        let home = LineScoreLine::from_live_data(live_game, true);
+        let away = LineScoreLine::from_live_data(live_game, false);
         let played = live_game.live_data.linescore.current_inning.unwrap_or(0);
         let header = LineScoreLine::create_header_vec(played);
         LineScore {

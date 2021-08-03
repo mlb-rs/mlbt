@@ -58,7 +58,7 @@ where
             }
             if app.debug_state == DebugState::On {
                 let mut dbi = DebugInfo::new();
-                dbi.gather_info(f, &app);
+                dbi.gather_info(f, app);
                 dbi.render(f, main_layout.main)
             }
         })

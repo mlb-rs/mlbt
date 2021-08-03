@@ -143,7 +143,7 @@ impl Pitches {
         plays
             .iter()
             .filter(|play| play.is_pitch)
-            .map(|play| Pitch::from_play(&play))
+            .map(|play| Pitch::from_play(play))
             .rev()
             .collect()
     }
