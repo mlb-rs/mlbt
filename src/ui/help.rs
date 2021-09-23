@@ -80,7 +80,7 @@ impl Widget for HelpWidget {
             .split(area);
 
         Table::new(rows)
-            .widths(&[Constraint::Max(50)])
+            .widths(&[Constraint::Percentage(100)])
             .header(header)
             .style(help_menu_style)
             .render(chunks[0], buf);
