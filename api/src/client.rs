@@ -47,7 +47,7 @@ impl fmt::Display for StatGroup {
 impl MLBApi {
     pub fn get_todays_schedule(&self) -> ScheduleResponse {
         let url = format!("{}v1/schedule?sportId=1", self.base_url);
-        self.get::<ScheduleResponse>(url)
+        self.get(url)
     }
 
     pub fn get_schedule_date(&self, date: NaiveDate) -> ScheduleResponse {
@@ -56,7 +56,7 @@ impl MLBApi {
             self.base_url,
             date.format("%Y-%m-%d").to_string()
         );
-        self.get::<ScheduleResponse>(url)
+        self.get(url)
     }
 
     pub fn get_live_data(&self, game_id: u64) -> LiveResponse {
@@ -67,7 +67,7 @@ impl MLBApi {
             "{}v1.1/game/{}/feed/live?language=en",
             self.base_url, game_id
         );
-        self.get::<LiveResponse>(url)
+        self.get(url)
     }
 
     pub fn get_standings(&self) -> StandingsResponse {
@@ -78,7 +78,7 @@ impl MLBApi {
             local.year().to_string(),
             local.format("%Y-%m-%d").to_string(),
         );
-        self.get::<StandingsResponse>(url)
+        self.get(url)
     }
 
     pub fn get_team_stats(&self, group: StatGroup) -> StatResponse {
@@ -89,7 +89,7 @@ impl MLBApi {
             local.year().to_string(),
             group
         );
-        self.get::<StatResponse>(url)
+        self.get(url)
     }
 
     pub fn get_player_stats(&self, group: StatGroup) -> StatResponse {
@@ -100,7 +100,7 @@ impl MLBApi {
             local.year().to_string(),
             group
         );
-        self.get::<StatResponse>(url)
+        self.get(url)
     }
 
     // TODO need better error handling, especially on parsing
