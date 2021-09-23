@@ -7,13 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.0.10] - 2021-09-23
+
 ### Changed
 
 - Update `tui-rs` to 0.16.0, which fixed table flickering
+- Update `crossterm` to 0.21 and `chrono_tz` to 0.6
 
-## Fixed
+### Fixed
 
 - Table column flickering: [Issue 10](https://github.com/mlb-rs/mlbt/issues/10)
+- API error when deserializing season stats, as it turns out batters leave more
+  than 256 men on base in a season. Switched everything to `u16`s.
 
 ## [0.0.9] - 2021-07-13
 

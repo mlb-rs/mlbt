@@ -1,6 +1,6 @@
 [package]
 name = "mlbt"
-version = "0.0.9"
+version = "0.0.10"
 authors = ["Andrew Schneider <andjschneider@gmail.com>"]
 edition = "2018"
 
@@ -8,13 +8,13 @@ edition = "2018"
 members = [".", "api"]
 
 [dependencies]
-mlb-api = {path = "api/", version = "0.0.6"}
+mlb-api = {path = "api/", version = "0.0.7"}
 
 better-panic = "0.2"
 chrono = "0.4"
-chrono-tz = "0.5"
+chrono-tz = "0.6"
 crossbeam-channel = "0.5"
-crossterm = "0.20"
+crossterm = "0.21"
 indexmap = "1.7.0"
 lazy_static = "1.4.0"
 serde = { version = "1.0", features = ["derive"] }
