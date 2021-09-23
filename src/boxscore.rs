@@ -8,12 +8,12 @@ pub struct BatterBoxscore {
     name: String,
     position: String,
     at_bats: u16,
-    runs: u8,
-    hits: u8,
-    rbis: u8,
-    walks: u8,
-    strike_outs: u8,
-    left_on: u8,
+    runs: u16,
+    hits: u16,
+    rbis: u16,
+    walks: u16,
+    strike_outs: u16,
+    left_on: u16,
     batting_average: String,
 }
 
