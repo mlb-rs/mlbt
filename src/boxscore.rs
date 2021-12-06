@@ -62,18 +62,10 @@ impl BatterBoxscore {
     }
 }
 
+#[derive(Default)]
 pub struct TeamBatterBoxscore {
     home_batting: Vec<BatterBoxscore>,
     away_batting: Vec<BatterBoxscore>,
-}
-
-impl Default for TeamBatterBoxscore {
-    fn default() -> Self {
-        TeamBatterBoxscore {
-            home_batting: vec![],
-            away_batting: vec![],
-        }
-    }
 }
 
 impl TeamBatterBoxscore {

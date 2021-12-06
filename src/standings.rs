@@ -125,7 +125,7 @@ impl Division {
                 standings: r
                     .team_records
                     .iter()
-                    .map(|r| Standing::from_team_record(r))
+                    .map(Standing::from_team_record)
                     .collect(),
             })
             .collect();

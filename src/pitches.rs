@@ -19,7 +19,7 @@ pub const PITCH_IDX: &[&str] = &[
 ];
 pub const DEFAULT_IDX: &str = "-";
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Pitches {
     pub pitches: Vec<Pitch>,
 }
@@ -120,12 +120,6 @@ impl Pitch {
     }
 }
 
-impl Default for Pitches {
-    fn default() -> Self {
-        Pitches { pitches: vec![] }
-    }
-}
-
 impl Pitches {
     pub fn new(pitches: Vec<Pitch>) -> Self {
         Pitches { pitches }
@@ -143,7 +137,7 @@ impl Pitches {
         plays
             .iter()
             .filter(|play| play.is_pitch)
-            .map(|play| Pitch::from_play(play))
+            .map(Pitch::from_play)
             .rev()
             .collect()
     }
