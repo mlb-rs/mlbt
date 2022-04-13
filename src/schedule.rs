@@ -128,12 +128,12 @@ impl ScheduleRow {
     fn create_matchup(game: &Game) -> Self {
         let home_team = TEAM_NAME_MAP
             .get(&*game.teams.home.team.name)
-            .unwrap()
+            .unwrap_or(&"unknown")
             .to_string();
 
         let away_team = TEAM_NAME_MAP
             .get(&*game.teams.away.team.name)
-            .unwrap()
+            .unwrap_or(&"unknown")
             .to_string();
 
         // TODO let timezone be configurable
@@ -221,6 +221,7 @@ lazy_static! {
         m.insert("Chicago Cubs", "Cubs");
         m.insert("Cincinnati Reds", "Reds");
         m.insert("Cleveland Indians", "Indians");
+        m.insert("Cleveland Guardians", "Guardians");
         m.insert("Colorado Rockies", "Rockies");
         m.insert("Detroit Tigers", "Tigers");
         m.insert("Houston Astros", "Astros");
