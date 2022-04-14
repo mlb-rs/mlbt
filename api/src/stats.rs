@@ -46,8 +46,8 @@ pub struct Player {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum StatSplit {
-    Pitching(PitchingStat),
-    Hitting(HittingStat),
+    Pitching(Box<PitchingStat>),
+    Hitting(Box<HittingStat>),
 }
 
 #[derive(Debug, Serialize, Deserialize)]

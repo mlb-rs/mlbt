@@ -5,6 +5,8 @@ use crate::strikezone::{StrikeZone, DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_W
 use tui::{
     buffer::Buffer,
     layout::{Constraint, Corner, Direction, Layout, Rect},
+    style::Style,
+    text::Span,
     widgets::canvas::{Canvas, Rectangle},
     widgets::{Block, Borders, List, ListItem, StatefulWidget, Widget},
 };
@@ -58,12 +60,12 @@ impl StatefulWidget for AtBatWidget {
             .paint(|ctx| {
                 for pitch in &state.pitches.pitches {
                     let ball = pitch.as_rectangle();
+                    let pitch_count = PITCH_IDX.get(pitch.index as usize).unwrap_or(&DEFAULT_IDX);
                     ctx.draw(&ball);
                     ctx.print(
                         ball.x,
                         ball.y,
-                        PITCH_IDX.get(pitch.index as usize).unwrap_or(&DEFAULT_IDX),
-                        pitch.color,
+                        Span::styled(*pitch_count, Style::default().fg(pitch.color)),
                     )
                 }
                 ctx.layer();

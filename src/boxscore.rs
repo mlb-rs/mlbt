@@ -44,10 +44,7 @@ impl BatterBoxscore {
             format!(
                 "{} {} {}",
                 self.order,
-                self.name
-                    .split_whitespace()
-                    .last()
-                    .unwrap_or(&"-".to_string()),
+                self.name.split_whitespace().last().unwrap_or("-"),
                 self.position
             ),
             self.at_bats.to_string(),
@@ -62,18 +59,10 @@ impl BatterBoxscore {
     }
 }
 
+#[derive(Default)]
 pub struct TeamBatterBoxscore {
     home_batting: Vec<BatterBoxscore>,
     away_batting: Vec<BatterBoxscore>,
-}
-
-impl Default for TeamBatterBoxscore {
-    fn default() -> Self {
-        TeamBatterBoxscore {
-            home_batting: vec![],
-            away_batting: vec![],
-        }
-    }
 }
 
 impl TeamBatterBoxscore {

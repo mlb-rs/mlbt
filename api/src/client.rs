@@ -54,7 +54,7 @@ impl MLBApi {
         let url = format!(
             "{}v1/schedule?sportId=1&date={}",
             self.base_url,
-            date.format("%Y-%m-%d").to_string()
+            date.format("%Y-%m-%d")
         );
         self.get(url)
     }
@@ -75,8 +75,8 @@ impl MLBApi {
         let url = format!(
             "{}v1/standings?sportId=1&season={}&date={}&leagueId=103,104",
             self.base_url,
-            local.year().to_string(),
-            local.format("%Y-%m-%d").to_string(),
+            local.year(),
+            local.format("%Y-%m-%d"),
         );
         self.get(url)
     }
@@ -86,7 +86,7 @@ impl MLBApi {
         let url = format!(
             "{}v1/teams/stats?sportId=1&stats=season&season={}&group={}",
             self.base_url,
-            local.year().to_string(),
+            local.year(),
             group
         );
         self.get(url)
@@ -97,7 +97,7 @@ impl MLBApi {
         let url = format!(
             "{}v1/stats?stats=season&season={}&group={}",
             self.base_url,
-            local.year().to_string(),
+            local.year(),
             group
         );
         self.get(url)
