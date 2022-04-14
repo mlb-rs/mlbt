@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.0.11] - 2022-04-13
+
+### Changed
+
+- Update to Rust 2021 version
+- Update dependencies, notably `tui-rs` to 0.17.0
+
+### Fixed
+
+- Crash due to Indian Guardians name change: [Issue 27](https://github.com/mlb-rs/mlbt/issues/27)
+
 ## [0.0.10] - 2021-09-23
 
 ### Changed
