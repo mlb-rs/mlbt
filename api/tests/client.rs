@@ -19,7 +19,7 @@ mod tests {
             .with_body_from_file("./tests/responses/all-star-game.json")
             .create();
 
-        let date = NaiveDate::from_ymd(2021, 07, 13);
+        let date = NaiveDate::from_ymd(2021, 7, 13);
         let resp = client.get_schedule_date(date);
         println!("{:?}", resp);
     }
