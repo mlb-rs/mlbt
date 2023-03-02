@@ -102,6 +102,12 @@ fn main() -> Result<(), Box<dyn Error>> {
                             app.schedule.update(&CLIENT.get_schedule_date(date));
                             let game_id = app.schedule.get_selected_game();
                             app.update_live_data(&CLIENT.get_live_data(game_id));
+
+                            let response = match app.stats.stat_type.team_player {
+                                TeamOrPlayer::Team => CLIENT.get_team_stats_on_date(app.stats.stat_type.group.clone(), app.schedule.date),
+                                TeamOrPlayer::Player => CLIENT.get_player_stats_on_date(app.stats.stat_type.group.clone(), app.schedule.date),
+                            };
+                            app.stats.update(&response);
                         }
                         // update standings only when tab is switched to
                         Ok(MenuItem::Standings) => {
