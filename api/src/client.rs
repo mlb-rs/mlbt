@@ -92,12 +92,34 @@ impl MLBApi {
         self.get(url)
     }
 
+    pub fn get_team_stats_on_date(&self, group: StatGroup, date: NaiveDate) -> StatResponse {
+        let url = format!(
+            "{}v1/teams/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}",
+            self.base_url,
+            date.year(),
+            date.format("%Y-%m-%d"),
+            group
+        );
+        self.get(url)
+    }
+
     pub fn get_player_stats(&self, group: StatGroup) -> StatResponse {
         let local: DateTime<Local> = Local::now();
         let url = format!(
             "{}v1/stats?stats=season&season={}&group={}",
             self.base_url,
             local.year(),
+            group
+        );
+        self.get(url)
+    }
+
+    pub fn get_player_stats_on_date(&self, group: StatGroup, date: NaiveDate) -> StatResponse {
+        let url = format!(
+            "{}v1/stats?stats=byDateRange&season={}&endDate={}&group={}",
+            self.base_url,
+            date.year(),
+            date.format("%Y-%m-%d"),
             group
         );
         self.get(url)
