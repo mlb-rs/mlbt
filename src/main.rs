@@ -111,8 +111,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                         // pitching/hitting is changed
                         Ok(MenuItem::Stats) => {
                             let response = match app.stats.stat_type.team_player {
-                                TeamOrPlayer::Team => CLIENT.get_team_stats(app.stats.stat_type.group.clone()),
-                                TeamOrPlayer::Player => CLIENT.get_player_stats(app.stats.stat_type.group.clone()),
+                                TeamOrPlayer::Team => CLIENT.get_team_stats_on_date(app.stats.stat_type.group.clone(), app.schedule.date),
+                                TeamOrPlayer::Player => CLIENT.get_player_stats_on_date(app.stats.stat_type.group.clone(), app.schedule.date),
                             };
                             app.stats.update(&response);
                         }

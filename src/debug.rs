@@ -1,5 +1,7 @@
 use crate::app::{App, GamedayPanels};
 use std::fmt;
+use chrono::NaiveDate;
+use mlb_api::client::StatGroup;
 use tui::backend::Backend;
 use tui::Frame;
 
@@ -9,18 +11,23 @@ pub struct DebugInfo {
     pub terminal_width: u16,
     pub terminal_height: u16,
     pub gameday_active_views: GamedayPanels,
+    pub date: NaiveDate,
+    pub stat_type: StatGroup,
 }
 
 impl fmt::Display for DebugInfo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "game id: {}\ngameday: {}\nterminal height: {} width: {}\n{:?}",
+            "game id: {}\ngameday: {}\nterminal height: {} width: {}\ndate: {}\nstat group: {}\n{:?}",
             self.game_id,
             self.gameday_url,
             self.terminal_height,
             self.terminal_width,
-            self.gameday_active_views
+            self.date,
+            self.stat_type,
+            self.gameday_active_views,
+
         )
     }
 }
@@ -33,6 +40,8 @@ impl DebugInfo {
             terminal_width: 0,
             terminal_height: 0,
             gameday_active_views: GamedayPanels::default(),
+            date: NaiveDate::from_ymd(2022, 07, 09),
+            stat_type: StatGroup::Pitching
         }
     }
     // TODO add more info
@@ -47,5 +56,7 @@ impl DebugInfo {
         self.terminal_width = f.size().width;
         self.terminal_height = f.size().height;
         self.gameday_active_views = app.gameday;
+        self.date = app.schedule.date;
+        self.stat_type = app.stats.stat_type.group.clone();
     }
 }
