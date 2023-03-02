@@ -2,8 +2,7 @@ use mlb_api::schedule::{Game, ScheduleResponse};
 
 use crate::app::HomeOrAway;
 
-use chrono::{DateTime, Datelike, NaiveDate, ParseError, Utc};
-use chrono_tz::America::Los_Angeles;
+use chrono::{DateTime, Datelike, NaiveDate, ParseError, Utc, Local};
 use core::option::Option::{None, Some};
 use lazy_static::lazy_static;
 use tui::widgets::TableState;
@@ -52,7 +51,7 @@ impl ScheduleState {
         self.date = match date.as_str() {
             "today" => {
                 // TODO configurable timezone
-                let today = Utc::now().with_timezone(&Los_Angeles);
+                let today = Utc::now().with_timezone(&Local);
                 NaiveDate::from_ymd(today.year(), today.month(), today.day())
             }
             _ => NaiveDate::parse_from_str(date.as_str(), "%Y-%m-%d")?,
@@ -139,7 +138,7 @@ impl ScheduleRow {
         // TODO let timezone be configurable
         let datetime = DateTime::parse_from_rfc3339(&game.game_date)
             .unwrap()
-            .with_timezone(&Los_Angeles);
+            .with_timezone(&Local);
         let start_time = datetime.format("%l:%M %P").to_string();
 
         let game_status = match &game.status.detailed_state {

@@ -13,6 +13,7 @@ pub struct BatterBoxscore {
     rbis: u16,
     walks: u16,
     strike_outs: u16,
+    home_runs: u16,
     left_on: u16,
     batting_average: String,
 }
@@ -29,6 +30,7 @@ impl BatterBoxscore {
             rbis: player.stats.batting.rbi.unwrap_or(0),
             walks: player.stats.batting.base_on_balls.unwrap_or(0),
             strike_outs: player.stats.batting.strike_outs.unwrap_or(0),
+            home_runs: player.stats.batting.home_runs.unwrap_or(0),
             left_on: player.stats.batting.left_on_base.unwrap_or(0),
             batting_average: player
                 .season_stats
@@ -53,6 +55,7 @@ impl BatterBoxscore {
             self.rbis.to_string(),
             self.walks.to_string(),
             self.strike_outs.to_string(),
+            self.home_runs.to_string(),
             self.left_on.to_string(),
             self.batting_average.to_string(),
         ]

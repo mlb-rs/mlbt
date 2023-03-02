@@ -35,7 +35,7 @@ use crossterm::{cursor, execute, terminal};
 use lazy_static::lazy_static;
 use tui::{backend::CrosstermBackend, Terminal};
 
-const UPDATE_INTERVAL: u64 = 10; // seconds
+const UPDATE_INTERVAL: u64 = 5; // seconds
 lazy_static! {
     static ref CLIENT: MLBApi = MLBApiBuilder::default().build().unwrap();
     pub static ref REDRAW_REQUEST: (Sender<()>, Receiver<()>) = bounded(1);

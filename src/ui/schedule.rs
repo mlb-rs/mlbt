@@ -9,7 +9,7 @@ use tui::{
     widgets::{Block, BorderType, Borders, Cell, Row, StatefulWidget, Table},
 };
 
-const HEADER: &[&str; 6] = &["away", "", "home", "", "time [PST]", "status"];
+const HEADER: &[&str; 6] = &["away", "", "home", "", "time [EST]", "status"];
 
 pub struct ScheduleWidget {}
 

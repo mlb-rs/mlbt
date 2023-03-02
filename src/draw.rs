@@ -5,7 +5,7 @@ use tui::text::{Span, Spans};
 use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, Tabs};
 use tui::{Frame, Terminal};
 
-use crate::app::{App, DebugState, MenuItem};
+use crate::app::{App, DebugState, MenuItem, HomeOrAway};
 use crate::debug::DebugInfo;
 use crate::ui::at_bat::AtBatWidget;
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
@@ -160,10 +160,17 @@ where
     );
     f.render_stateful_widget(
         TeamBatterBoxscoreWidget {
-            active: app.boxscore_tab,
+            active: HomeOrAway::Away
         },
         chunks[1],
         &mut app.live_game.boxscore,
+    );
+    f.render_stateful_widget(
+        TeamBatterBoxscoreWidget {
+            active: HomeOrAway::Home
+        }, 
+        chunks[2], 
+        &mut app.live_game.boxscore
     );
 }
 

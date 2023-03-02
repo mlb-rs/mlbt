@@ -66,7 +66,7 @@ pub struct Batting {
     pub runs: Option<u16>,
     doubles: Option<u16>,
     triples: Option<u16>,
-    home_runs: Option<u16>,
+    pub home_runs: Option<u16>,
     pub strike_outs: Option<u16>,
     pub base_on_balls: Option<u16>,
     pub hits: Option<u16>,
