@@ -73,8 +73,8 @@ impl StatefulWidget for AtBatWidget {
                     let r = Rectangle {
                         x: coord.0,
                         y: coord.1,
-                        width: (HOME_PLATE_WIDTH / 3.0) as f64,
-                        height: (height / 3.0) as f64,
+                        width: (HOME_PLATE_WIDTH / 3.0),
+                        height: (height / 3.0),
                         color: state.strike_zone.colors[i],
                     };
                     ctx.draw(&r);

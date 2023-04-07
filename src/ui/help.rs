@@ -62,10 +62,7 @@ impl Widget for HelpWidget {
             .bottom_margin(0)
             .style(header_style);
 
-        let docs = DOCS
-            .iter()
-            .map(|d| format_row(*d))
-            .collect::<Vec<HelpRow>>();
+        let docs = DOCS.iter().map(|d| format_row(d)).collect::<Vec<HelpRow>>();
 
         let rows = docs.iter().map(|item| match item.is_header {
             true => Row::new(item.text.clone()).style(header_style),

@@ -1,6 +1,6 @@
 use core::option::Option::{None, Some};
-use lazy_static::lazy_static;
 use mlb_api::standings::{StandingsResponse, TeamRecord};
+use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use tui::widgets::TableState;
 
@@ -162,19 +162,17 @@ impl Standing {
     }
 }
 
-lazy_static! {
-    /// This maps the `teamId` to the `shortName` for each division and league.
-    /// The team names are taken from the `divisions` endpoint.
-    static ref DIVISION_MAP: HashMap<u8, &'static str> = {
-        let mut m = HashMap::new();
-        m.insert(103, "American League");
-        m.insert(104, "National League");
-        m.insert(200, "AL West");
-        m.insert(201, "AL East");
-        m.insert(202, "AL Central");
-        m.insert(203, "NL West");
-        m.insert(204, "NL East");
-        m.insert(205, "NL Central");
-        m
-    };
-}
+/// This maps the `teamId` to the `shortName` for each division and league.
+/// The team names are taken from the `divisions` endpoint.
+static DIVISION_MAP: Lazy<HashMap<u8, &'static str>> = Lazy::new(|| {
+    HashMap::from([
+        (103, "American League"),
+        (104, "National League"),
+        (200, "AL West"),
+        (201, "AL East"),
+        (202, "AL Central"),
+        (203, "NL West"),
+        (204, "NL East"),
+        (205, "NL Central"),
+    ])
+});

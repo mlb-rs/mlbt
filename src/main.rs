@@ -25,22 +25,19 @@ use std::{io, panic, thread};
 use crate::app::{App, DateInput, DebugState, GamedayPanels, HomeOrAway, MenuItem};
 use crate::live_game::GameState;
 use crate::schedule::ScheduleState;
-use mlb_api::client::{MLBApi, MLBApiBuilder};
-
 use crate::standings::StandingsState;
 use crate::stats::{StatsState, TeamOrPlayer};
 use crossbeam_channel::{bounded, select, unbounded, Receiver, Sender};
 use crossterm::event::Event;
 use crossterm::{cursor, execute, terminal};
-use lazy_static::lazy_static;
+use mlb_api::client::{MLBApi, MLBApiBuilder};
+use once_cell::sync::Lazy;
 use tui::{backend::CrosstermBackend, Terminal};
 
 const UPDATE_INTERVAL: u64 = 10; // seconds
-lazy_static! {
-    static ref CLIENT: MLBApi = MLBApiBuilder::default().build().unwrap();
-    pub static ref REDRAW_REQUEST: (Sender<()>, Receiver<()>) = bounded(1);
-    pub static ref UPDATE_REQUEST: (Sender<MenuItem>, Receiver<MenuItem>) = bounded(1);
-}
+static CLIENT: Lazy<MLBApi> = Lazy::new(|| MLBApiBuilder::default().build().unwrap());
+pub static REDRAW_REQUEST: Lazy<(Sender<()>, Receiver<()>)> = Lazy::new(|| bounded(1));
+pub static UPDATE_REQUEST: Lazy<(Sender<MenuItem>, Receiver<MenuItem>)> = Lazy::new(|| bounded(1));
 
 fn main() -> Result<(), Box<dyn Error>> {
     better_panic::install();

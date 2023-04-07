@@ -1,15 +1,13 @@
-use mlb_api::schedule::{Game, ScheduleResponse};
+use std::cmp::Ordering;
+use std::collections::HashMap;
 
 use crate::app::HomeOrAway;
-
 use chrono::{DateTime, Datelike, NaiveDate, ParseError, Utc};
 use chrono_tz::America::Los_Angeles;
 use core::option::Option::{None, Some};
-use lazy_static::lazy_static;
+use mlb_api::schedule::{Game, ScheduleResponse};
+use once_cell::sync::Lazy;
 use tui::widgets::TableState;
-
-use std::cmp::Ordering;
-use std::collections::HashMap;
 
 /// ScheduleState is used to render the schedule as a `tui-rs` table.
 pub struct ScheduleState {
@@ -192,45 +190,43 @@ impl ScheduleRow {
     }
 }
 
-lazy_static! {
-    /// This maps the full name of a team to its short name. The short name is used in the boxscore.
-    /// The team names are taken from the `teams` endpoint.
-    static ref TEAM_NAME_MAP: HashMap<&'static str, &'static str> = {
-        let mut m = HashMap::new();
-        m.insert("Oakland Athletics", "Athletics");
-        m.insert("Pittsburgh Pirates", "Pirates");
-        m.insert("San Diego Padres", "Padres");
-        m.insert("Seattle Mariners", "Mariners");
-        m.insert("San Francisco Giants", "Giants");
-        m.insert("St. Louis Cardinals", "Cardinals");
-        m.insert("Tampa Bay Rays", "Rays");
-        m.insert("Texas Rangers", "Rangers");
-        m.insert("Toronto Blue Jays", "Blue Jays");
-        m.insert("Minnesota Twins", "Twins");
-        m.insert("Philadelphia Phillies", "Phillies");
-        m.insert("Atlanta Braves", "Braves");
-        m.insert("Chicago White Sox", "White Sox");
-        m.insert("Miami Marlins", "Marlins");
-        m.insert("Florida Marlins", "Marlins");
-        m.insert("New York Yankees", "Yankees");
-        m.insert("Milwaukee Brewers", "Brewers");
-        m.insert("Los Angeles Angels", "Angels");
-        m.insert("Arizona Diamondbacks", "D-backs");
-        m.insert("Baltimore Orioles", "Orioles");
-        m.insert("Boston Red Sox", "Red Sox");
-        m.insert("Chicago Cubs", "Cubs");
-        m.insert("Cincinnati Reds", "Reds");
-        m.insert("Cleveland Indians", "Indians");
-        m.insert("Cleveland Guardians", "Guardians");
-        m.insert("Colorado Rockies", "Rockies");
-        m.insert("Detroit Tigers", "Tigers");
-        m.insert("Houston Astros", "Astros");
-        m.insert("Kansas City Royals", "Royals");
-        m.insert("Los Angeles Dodgers", "Dodgers");
-        m.insert("Washington Nationals", "Nationals");
-        m.insert("New York Mets", "Mets");
-        m.insert("American League All-Stars", "AL All-Stars");
-        m.insert("National League All-Stars", "NL All-Stars");
-        m
-    };
-}
+/// This maps the full name of a team to its short name. The short name is used in the boxscore.
+/// The team names are taken from the `teams` endpoint.
+static TEAM_NAME_MAP: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
+    HashMap::from([
+        ("Oakland Athletics", "Athletics"),
+        ("Pittsburgh Pirates", "Pirates"),
+        ("San Diego Padres", "Padres"),
+        ("Seattle Mariners", "Mariners"),
+        ("San Francisco Giants", "Giants"),
+        ("St. Louis Cardinals", "Cardinals"),
+        ("Tampa Bay Rays", "Rays"),
+        ("Texas Rangers", "Rangers"),
+        ("Toronto Blue Jays", "Blue Jays"),
+        ("Minnesota Twins", "Twins"),
+        ("Philadelphia Phillies", "Phillies"),
+        ("Atlanta Braves", "Braves"),
+        ("Chicago White Sox", "White Sox"),
+        ("Miami Marlins", "Marlins"),
+        ("Florida Marlins", "Marlins"),
+        ("New York Yankees", "Yankees"),
+        ("Milwaukee Brewers", "Brewers"),
+        ("Los Angeles Angels", "Angels"),
+        ("Arizona Diamondbacks", "D-backs"),
+        ("Baltimore Orioles", "Orioles"),
+        ("Boston Red Sox", "Red Sox"),
+        ("Chicago Cubs", "Cubs"),
+        ("Cincinnati Reds", "Reds"),
+        ("Cleveland Indians", "Indians"),
+        ("Cleveland Guardians", "Guardians"),
+        ("Colorado Rockies", "Rockies"),
+        ("Detroit Tigers", "Tigers"),
+        ("Houston Astros", "Astros"),
+        ("Kansas City Royals", "Royals"),
+        ("Los Angeles Dodgers", "Dodgers"),
+        ("Washington Nationals", "Nationals"),
+        ("New York Mets", "Mets"),
+        ("American League All-Stars", "AL All-Stars"),
+        ("National League All-Stars", "NL All-Stars"),
+    ])
+});
