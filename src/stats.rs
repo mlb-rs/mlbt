@@ -118,22 +118,14 @@ impl StatsState {
     where
         T: ToString,
     {
-        if !self.stats.contains_key(key) {
-            self.stats.insert(
-                key.to_string(),
-                TableEntry {
-                    description: description.to_string(),
-                    active,
-                    rows: vec![value.to_string()],
-                },
-            );
-        } else {
-            self.stats
-                .get_mut(key)
-                .unwrap()
-                .rows
-                .push(value.to_string());
-        }
+        self.stats
+            .entry(key.to_string())
+            .and_modify(|table_entry| table_entry.rows.push(value.to_string()))
+            .or_insert(TableEntry {
+                description: description.to_string(),
+                active,
+                rows: vec![value.to_string()],
+            });
     }
 
     /// Create the pitching stats table. Note that the order of the calls to `table_helper` is the

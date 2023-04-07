@@ -15,18 +15,16 @@ pub struct Teams {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Team {
     pub team: IdName,
-    #[serde(rename = "teamStats")]
     pub team_stats: TeamStats,
     pub players: HashMap<String, Player>,
     pub batters: Vec<u64>,
     pub pitchers: Vec<u64>,
     bench: Vec<u64>,
     bullpen: Vec<u64>,
-    #[serde(rename = "battingOrder")]
     pub batting_order: Vec<u64>,
-    #[serde(rename = "seasonStats")]
     pub season_stats: Option<TeamStats>,
 }
 
@@ -38,11 +36,11 @@ pub struct IdName {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Player {
     pub person: Person,
     pub position: Position,
     pub stats: TeamStats,
-    #[serde(rename = "seasonStats")]
     pub season_stats: TeamStats,
 }
 

@@ -82,10 +82,7 @@ impl TeamBatterBoxscore {
             .iter()
             .enumerate()
             .filter_map(|(idx, player_id)| {
-                let player = match team.players.get(&*format!("ID{}", player_id)) {
-                    Some(p) => p,
-                    None => return None,
-                };
+                let player = team.players.get(&*format!("ID{}", player_id))?;
                 Some(BatterBoxscore::from_data(player, idx as u8 + 1))
             })
             .collect()

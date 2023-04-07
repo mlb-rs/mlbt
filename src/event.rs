@@ -89,9 +89,9 @@ pub fn handle_key_bindings(
         (MenuItem::Standings, Char('j')) => app.standings.next(),
         (MenuItem::Standings, Char('k')) => app.standings.previous(),
         (MenuItem::Standings, KeyCode::Enter) => {
-            let team_id = app.standings.get_selected();
-            println!("team id: {:?}", team_id);
-            // TODO
+            let _team_id = app.standings.get_selected();
+            // println!("team id: {:?}", team_id);
+            // TODO show team info panel
         }
 
         (MenuItem::Gameday, Char('i')) => app.gameday.info = !app.gameday.info,

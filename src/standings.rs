@@ -1,7 +1,6 @@
+use crate::constants::DIVISIONS;
 use core::option::Option::{None, Some};
 use mlb_api::standings::{StandingsResponse, TeamRecord};
-use once_cell::sync::Lazy;
-use std::collections::HashMap;
 use tui::widgets::TableState;
 
 /// Stores the state for rendering the standings. The `standings` field is a nested Vec to make
@@ -107,7 +106,7 @@ impl Division {
     fn create_divisions() -> Vec<Division> {
         (200..206)
             .map(|id| Division {
-                name: DIVISION_MAP.get(&id).unwrap().to_string(),
+                name: DIVISIONS.get(&id).unwrap().to_string(),
                 id,
                 standings: vec![],
             })
@@ -120,7 +119,7 @@ impl Division {
             .records
             .iter()
             .map(|r| Division {
-                name: DIVISION_MAP.get(&r.division.id).unwrap().to_string(),
+                name: DIVISIONS.get(&r.division.id).unwrap().to_string(),
                 id: r.division.id,
                 standings: r
                     .team_records
@@ -161,18 +160,3 @@ impl Standing {
         ]
     }
 }
-
-/// This maps the `teamId` to the `shortName` for each division and league.
-/// The team names are taken from the `divisions` endpoint.
-static DIVISION_MAP: Lazy<HashMap<u8, &'static str>> = Lazy::new(|| {
-    HashMap::from([
-        (103, "American League"),
-        (104, "National League"),
-        (200, "AL West"),
-        (201, "AL East"),
-        (202, "AL Central"),
-        (203, "NL West"),
-        (204, "NL East"),
-        (205, "NL Central"),
-    ])
-});

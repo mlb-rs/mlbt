@@ -2,6 +2,7 @@ mod app;
 mod at_bat;
 mod banner;
 mod boxscore;
+mod constants;
 mod debug;
 mod draw;
 mod event;

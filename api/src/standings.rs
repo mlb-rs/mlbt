@@ -8,14 +8,12 @@ pub struct StandingsResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Record {
-    #[serde(rename = "standingsType")]
     pub standings_type: String,
     pub league: IdLink,
     pub division: IdLink,
-    #[serde(rename = "lastUpdated")]
     pub last_updated: String,
-    #[serde(rename = "teamRecords")]
     pub team_records: Vec<TeamRecord>,
 }
 
