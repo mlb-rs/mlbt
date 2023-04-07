@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.0.12]
+
+### Changed
+
+- Switch from `tui-rs` to a new (maintained) fork `ratatui`. Thanks `tui-rs`!
+- Update dependencies
+
 ## [0.0.11] - 2022-04-13
 
 ### Changed

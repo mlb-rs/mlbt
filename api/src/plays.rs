@@ -13,12 +13,12 @@ pub struct Plays {
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Play {
     pub result: Result,
     pub about: About,
     pub count: Count,
     pub matchup: Matchup,
-    #[serde(rename = "playEvents")]
     pub play_events: Vec<PlayEvent>,
 }
 
@@ -32,17 +32,15 @@ pub struct PlaysByInning {
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Result {
     // #[serde(rename = "type")]
     // pub result_type: Option<ResultType>,
     pub event: Option<String>,
-    #[serde(rename = "eventType")]
     pub event_type: Option<String>,
     pub description: Option<String>,
     pub rbi: Option<u8>,
-    #[serde(rename = "awayScore")]
     pub away_score: Option<u8>,
-    #[serde(rename = "homeScore")]
     pub home_score: Option<u8>,
 }
 

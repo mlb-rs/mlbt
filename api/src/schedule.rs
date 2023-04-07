@@ -110,10 +110,9 @@ pub struct TeamInfo {
 }
 
 #[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum DayNight {
-    #[serde(rename = "day")]
     Day,
-    #[serde(rename = "night")]
     Night,
 }
 

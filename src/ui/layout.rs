@@ -51,6 +51,7 @@ impl LayoutAreas {
             .direction(Direction::Horizontal)
             .constraints([Constraint::Percentage(90), Constraint::Percentage(10)].as_ref())
             .split(area)
+            .to_vec()
     }
 
     /// Create two splits for displaying the line score on top and a box score below.
@@ -67,6 +68,7 @@ impl LayoutAreas {
                 .as_ref(),
             )
             .split(rect)
+            .to_vec()
     }
 
     /// Create two splits for displaying game info and the plays that have happened in the current
@@ -83,6 +85,7 @@ impl LayoutAreas {
                 .as_ref(),
             )
             .split(rect)
+            .to_vec()
     }
 
     /// Create the Gameday layouts based on how many of the panels are active.
@@ -104,6 +107,7 @@ impl LayoutAreas {
             .direction(Direction::Horizontal)
             .constraints(constraints.as_slice())
             .split(area)
+            .to_vec()
     }
 
     /// Create a centered rectangle of 4 height and 42% width.

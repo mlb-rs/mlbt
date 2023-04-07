@@ -1,15 +1,12 @@
-use mlb_api::schedule::{Game, ScheduleResponse};
+use std::cmp::Ordering;
 
 use crate::app::HomeOrAway;
-
-use chrono::{DateTime, Datelike, NaiveDate, ParseError, Utc};
+use crate::constants::TEAM_NAMES;
+use chrono::{DateTime, NaiveDate, ParseError, Utc};
 use chrono_tz::America::Los_Angeles;
 use core::option::Option::{None, Some};
-use lazy_static::lazy_static;
+use mlb_api::schedule::{Game, ScheduleResponse};
 use tui::widgets::TableState;
-
-use std::cmp::Ordering;
-use std::collections::HashMap;
 
 /// ScheduleState is used to render the schedule as a `tui-rs` table.
 pub struct ScheduleState {
@@ -52,8 +49,7 @@ impl ScheduleState {
         self.date = match date.as_str() {
             "today" => {
                 // TODO configurable timezone
-                let today = Utc::now().with_timezone(&Los_Angeles);
-                NaiveDate::from_ymd(today.year(), today.month(), today.day())
+                Utc::now().with_timezone(&Los_Angeles).date_naive()
             }
             _ => NaiveDate::parse_from_str(date.as_str(), "%Y-%m-%d")?,
         };
@@ -106,14 +102,8 @@ impl ScheduleRow {
     /// Determine which team, if either, is winning the game. A team may not have a score, e.g. if
     /// the game hasn't started yet, or the game may be tied, so return None in these cases.
     pub fn winning_team(&self) -> Option<HomeOrAway> {
-        let home = match self.home_score {
-            Some(h) => h,
-            None => return None,
-        };
-        let away = match self.away_score {
-            Some(a) => a,
-            None => return None,
-        };
+        let home = self.home_score?;
+        let away = self.away_score?;
 
         match home.cmp(&away) {
             Ordering::Greater => Some(HomeOrAway::Home),
@@ -126,12 +116,12 @@ impl ScheduleRow {
     /// extracted from the game data:
     /// away team name and score, home team name and score, start time, and game status
     fn create_matchup(game: &Game) -> Self {
-        let home_team = TEAM_NAME_MAP
+        let home_team = TEAM_NAMES
             .get(&*game.teams.home.team.name)
             .unwrap_or(&"unknown")
             .to_string();
 
-        let away_team = TEAM_NAME_MAP
+        let away_team = TEAM_NAMES
             .get(&*game.teams.away.team.name)
             .unwrap_or(&"unknown")
             .to_string();
@@ -160,7 +150,7 @@ impl ScheduleRow {
 
     /// Transform the data from the API into a vector of ScheduleRows.
     fn create_table(schedule: &ScheduleResponse) -> Vec<Self> {
-        let mut todays_games: Vec<ScheduleRow> = Vec::new();
+        let mut todays_games: Vec<ScheduleRow> = Vec::with_capacity(schedule.dates.len());
         if let Some(games) = &schedule.dates.get(0) {
             for game in &games.games {
                 for g in game {
@@ -173,9 +163,8 @@ impl ScheduleRow {
 
     /// The date is stored in schedule -> dates -> date.
     fn get_date_from_schedule(schedule: &ScheduleResponse) -> NaiveDate {
-        let now = Utc::now().naive_local();
-        let now = NaiveDate::from_ymd(now.year(), now.month(), now.day());
-        return if let Some(games) = &schedule.dates.get(0) {
+        let now = Utc::now().naive_local().date();
+        if let Some(games) = &schedule.dates.get(0) {
             match &games.date {
                 None => now,
                 Some(d) => {
@@ -188,49 +177,6 @@ impl ScheduleRow {
             }
         } else {
             now
-        };
+        }
     }
-}
-
-lazy_static! {
-    /// This maps the full name of a team to its short name. The short name is used in the boxscore.
-    /// The team names are taken from the `teams` endpoint.
-    static ref TEAM_NAME_MAP: HashMap<&'static str, &'static str> = {
-        let mut m = HashMap::new();
-        m.insert("Oakland Athletics", "Athletics");
-        m.insert("Pittsburgh Pirates", "Pirates");
-        m.insert("San Diego Padres", "Padres");
-        m.insert("Seattle Mariners", "Mariners");
-        m.insert("San Francisco Giants", "Giants");
-        m.insert("St. Louis Cardinals", "Cardinals");
-        m.insert("Tampa Bay Rays", "Rays");
-        m.insert("Texas Rangers", "Rangers");
-        m.insert("Toronto Blue Jays", "Blue Jays");
-        m.insert("Minnesota Twins", "Twins");
-        m.insert("Philadelphia Phillies", "Phillies");
-        m.insert("Atlanta Braves", "Braves");
-        m.insert("Chicago White Sox", "White Sox");
-        m.insert("Miami Marlins", "Marlins");
-        m.insert("Florida Marlins", "Marlins");
-        m.insert("New York Yankees", "Yankees");
-        m.insert("Milwaukee Brewers", "Brewers");
-        m.insert("Los Angeles Angels", "Angels");
-        m.insert("Arizona Diamondbacks", "D-backs");
-        m.insert("Baltimore Orioles", "Orioles");
-        m.insert("Boston Red Sox", "Red Sox");
-        m.insert("Chicago Cubs", "Cubs");
-        m.insert("Cincinnati Reds", "Reds");
-        m.insert("Cleveland Indians", "Indians");
-        m.insert("Cleveland Guardians", "Guardians");
-        m.insert("Colorado Rockies", "Rockies");
-        m.insert("Detroit Tigers", "Tigers");
-        m.insert("Houston Astros", "Astros");
-        m.insert("Kansas City Royals", "Royals");
-        m.insert("Los Angeles Dodgers", "Dodgers");
-        m.insert("Washington Nationals", "Nationals");
-        m.insert("New York Mets", "Mets");
-        m.insert("American League All-Stars", "AL All-Stars");
-        m.insert("National League All-Stars", "NL All-Stars");
-        m
-    };
 }
