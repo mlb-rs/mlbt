@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 use crate::app::HomeOrAway;
 use crate::constants::TEAM_NAMES;
-use chrono::{DateTime, Datelike, NaiveDate, ParseError, Utc};
+use chrono::{DateTime, NaiveDate, ParseError, Utc};
 use chrono_tz::America::Los_Angeles;
 use core::option::Option::{None, Some};
 use mlb_api::schedule::{Game, ScheduleResponse};
@@ -49,8 +49,7 @@ impl ScheduleState {
         self.date = match date.as_str() {
             "today" => {
                 // TODO configurable timezone
-                let today = Utc::now().with_timezone(&Los_Angeles);
-                NaiveDate::from_ymd(today.year(), today.month(), today.day())
+                Utc::now().with_timezone(&Los_Angeles).date_naive()
             }
             _ => NaiveDate::parse_from_str(date.as_str(), "%Y-%m-%d")?,
         };
@@ -164,8 +163,7 @@ impl ScheduleRow {
 
     /// The date is stored in schedule -> dates -> date.
     fn get_date_from_schedule(schedule: &ScheduleResponse) -> NaiveDate {
-        let now = Utc::now().naive_local();
-        let now = NaiveDate::from_ymd(now.year(), now.month(), now.day());
+        let now = Utc::now().naive_local().date();
         if let Some(games) = &schedule.dates.get(0) {
             match &games.date {
                 None => now,

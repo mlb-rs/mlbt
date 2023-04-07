@@ -60,16 +60,11 @@ pub enum DebugState {
 }
 
 /// A team must be either Home or Away.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub enum HomeOrAway {
+    #[default]
     Home = 0,
     Away = 1,
-}
-
-impl Default for HomeOrAway {
-    fn default() -> Self {
-        HomeOrAway::Home
-    }
 }
 
 /// Get user input for the date and store whether it's valid.
