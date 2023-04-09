@@ -7,12 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-## [0.0.12]
-
 ### Changed
 
+- Move API to be async and do api calls concurrently when possible: [Issue 13](https://github.com/mlb-rs/mlbt/issues/13)
 - Switch from `tui-rs` to a new (maintained) fork `ratatui`. Thanks `tui-rs`!
-- Update dependencies
+- Update dependencies and refactor code a bit
+
+### Fixed
+
+- Getting stuck in help menu: [Issue 29](https://github.com/mlb-rs/mlbt/issues/29)
 
 ## [0.0.11] - 2022-04-13
 

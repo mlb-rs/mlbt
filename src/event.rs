@@ -7,13 +7,12 @@ use crossterm::event::{KeyCode, KeyEvent};
 use mlb_api::client::StatGroup;
 
 pub fn handle_key_bindings(
-    mode: MenuItem,
     key_event: KeyEvent,
     mut app: &mut app::App,
     request_redraw: &Sender<()>,
     selective_update: &Sender<MenuItem>,
 ) {
-    match (mode, key_event.code) {
+    match (app.state.active_tab, key_event.code) {
         (_, Char('q')) => {
             cleanup_terminal();
             std::process::exit(0);
@@ -21,8 +20,8 @@ pub fn handle_key_bindings(
 
         // needs to be before the tab switches to capture number inputs
         (MenuItem::DatePicker, Char(c)) => {
-            app.date_input.is_valid = true; // reset status
-            app.date_input.text.push(c);
+            app.state.date_input.is_valid = true; // reset status
+            app.state.date_input.text.push(c);
         }
 
         (_, Char('f')) => app.toggle_full_screen(),
@@ -38,71 +37,73 @@ pub fn handle_key_bindings(
         }
 
         (MenuItem::Scoreboard, Char('j')) => {
-            app.schedule.next();
+            app.state.schedule.next();
             let _ = selective_update.try_send(MenuItem::Scoreboard);
         }
         (MenuItem::Scoreboard, Char('k')) => {
-            app.schedule.previous();
+            app.state.schedule.previous();
             let _ = selective_update.try_send(MenuItem::Scoreboard);
         }
         (MenuItem::Scoreboard, Char(':')) => app.update_tab(MenuItem::DatePicker),
 
         (MenuItem::DatePicker, KeyCode::Enter) => {
-            let date: String = app.date_input.text.drain(..).collect();
-            if app.schedule.set_date_from_input(date).is_ok() {
-                app.date_input.is_valid = true;
+            let date: String = app.state.date_input.text.drain(..).collect();
+            if app.state.schedule.set_date_from_input(date).is_ok() {
+                app.state.date_input.is_valid = true;
                 app.update_tab(MenuItem::Scoreboard);
                 let _ = selective_update.try_send(MenuItem::DatePicker);
             } else {
-                app.date_input.is_valid = false;
+                app.state.date_input.is_valid = false;
             }
         }
         (MenuItem::DatePicker, KeyCode::Esc) => {
-            app.date_input.text.clear();
+            app.state.date_input.text.clear();
             app.update_tab(MenuItem::Scoreboard)
         }
         (MenuItem::DatePicker, KeyCode::Backspace) => {
-            app.date_input.text.pop();
+            app.state.date_input.text.pop();
         }
 
-        (MenuItem::Stats, Char('j')) => app.stats.next(),
-        (MenuItem::Stats, Char('k')) => app.stats.previous(),
-        (MenuItem::Stats, Char('o')) => app.stats.show_options = !app.stats.show_options,
+        (MenuItem::Stats, Char('j')) => app.state.stats.next(),
+        (MenuItem::Stats, Char('k')) => app.state.stats.previous(),
+        (MenuItem::Stats, Char('o')) => {
+            app.state.stats.show_options = !app.state.stats.show_options
+        }
         (MenuItem::Stats, Char('p')) => {
-            app.stats.stat_type.group = StatGroup::Pitching;
+            app.state.stats.stat_type.group = StatGroup::Pitching;
             let _ = selective_update.try_send(MenuItem::Stats);
         }
         (MenuItem::Stats, Char('h')) => {
-            app.stats.stat_type.group = StatGroup::Hitting;
+            app.state.stats.stat_type.group = StatGroup::Hitting;
             let _ = selective_update.try_send(MenuItem::Stats);
         }
         (MenuItem::Stats, Char('l')) => {
-            app.stats.stat_type.team_player = TeamOrPlayer::Player;
+            app.state.stats.stat_type.team_player = TeamOrPlayer::Player;
             let _ = selective_update.try_send(MenuItem::Stats);
         }
         (MenuItem::Stats, Char('t')) => {
-            app.stats.stat_type.team_player = TeamOrPlayer::Team;
+            app.state.stats.stat_type.team_player = TeamOrPlayer::Team;
             let _ = selective_update.try_send(MenuItem::Stats);
         }
-        (MenuItem::Stats, KeyCode::Enter) => app.stats.toggle_stat(),
+        (MenuItem::Stats, KeyCode::Enter) => app.state.stats.toggle_stat(),
 
-        (MenuItem::Standings, Char('j')) => app.standings.next(),
-        (MenuItem::Standings, Char('k')) => app.standings.previous(),
+        (MenuItem::Standings, Char('j')) => app.state.standings.next(),
+        (MenuItem::Standings, Char('k')) => app.state.standings.previous(),
         (MenuItem::Standings, KeyCode::Enter) => {
-            let _team_id = app.standings.get_selected();
+            let _team_id = app.state.standings.get_selected();
             // println!("team id: {:?}", team_id);
             // TODO show team info panel
         }
 
-        (MenuItem::Gameday, Char('i')) => app.gameday.info = !app.gameday.info,
-        (MenuItem::Gameday, Char('p')) => app.gameday.at_bat = !app.gameday.at_bat,
-        (MenuItem::Gameday, Char('b')) => app.gameday.boxscore = !app.gameday.boxscore,
+        (MenuItem::Gameday, Char('i')) => app.state.gameday.info = !app.state.gameday.info,
+        (MenuItem::Gameday, Char('p')) => app.state.gameday.at_bat = !app.state.gameday.at_bat,
+        (MenuItem::Gameday, Char('b')) => app.state.gameday.boxscore = !app.state.gameday.boxscore,
 
         // TODO use bitflags to enable (MenuItem::Gameday | MenuItem::Scoreboard)?
-        (MenuItem::Gameday, Char('h')) => app.boxscore_tab = HomeOrAway::Home,
-        (MenuItem::Gameday, Char('a')) => app.boxscore_tab = HomeOrAway::Away,
-        (MenuItem::Scoreboard, Char('h')) => app.boxscore_tab = HomeOrAway::Home,
-        (MenuItem::Scoreboard, Char('a')) => app.boxscore_tab = HomeOrAway::Away,
+        (MenuItem::Gameday, Char('h')) => app.state.boxscore_tab = HomeOrAway::Home,
+        (MenuItem::Gameday, Char('a')) => app.state.boxscore_tab = HomeOrAway::Away,
+        (MenuItem::Scoreboard, Char('h')) => app.state.boxscore_tab = HomeOrAway::Home,
+        (MenuItem::Scoreboard, Char('a')) => app.state.boxscore_tab = HomeOrAway::Away,
 
         (_, Char('?')) => app.update_tab(MenuItem::Help),
         (MenuItem::Help, KeyCode::Esc) => app.exit_help(),
