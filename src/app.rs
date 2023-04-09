@@ -33,9 +33,11 @@ impl App {
         self.live_game.update(live_data);
     }
     pub fn update_tab(&mut self, next: MenuItem) {
-        self.previous_tab = self.active_tab;
-        self.active_tab = next;
-        self.debug_state = DebugState::Off;
+        if self.active_tab != next {
+            self.previous_tab = self.active_tab;
+            self.active_tab = next;
+            self.debug_state = DebugState::Off;
+        }
     }
     pub fn exit_help(&mut self) {
         if self.active_tab == MenuItem::Help {
