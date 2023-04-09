@@ -7,7 +7,7 @@ use crate::stats::StatResponse;
 
 use chrono::{DateTime, Datelike, Local, NaiveDate};
 use derive_builder::Builder;
-use reqwest::blocking::Client;
+use reqwest::Client;
 use serde::de::DeserializeOwned;
 
 pub const BASE_URL: &str = "http://statsapi.mlb.com/api/";
@@ -45,21 +45,21 @@ impl fmt::Display for StatGroup {
 }
 
 impl MLBApi {
-    pub fn get_todays_schedule(&self) -> ScheduleResponse {
+    pub async fn get_todays_schedule(&self) -> ScheduleResponse {
         let url = format!("{}v1/schedule?sportId=1", self.base_url);
-        self.get(url)
+        self.get(url).await
     }
 
-    pub fn get_schedule_date(&self, date: NaiveDate) -> ScheduleResponse {
+    pub async fn get_schedule_date(&self, date: NaiveDate) -> ScheduleResponse {
         let url = format!(
             "{}v1/schedule?sportId=1&date={}",
             self.base_url,
             date.format("%Y-%m-%d")
         );
-        self.get(url)
+        self.get(url).await
     }
 
-    pub fn get_live_data(&self, game_id: u64) -> LiveResponse {
+    pub async fn get_live_data(&self, game_id: u64) -> LiveResponse {
         if game_id == 0 {
             return LiveResponse::default();
         }
@@ -67,10 +67,10 @@ impl MLBApi {
             "{}v1.1/game/{}/feed/live?language=en",
             self.base_url, game_id
         );
-        self.get(url)
+        self.get(url).await
     }
 
-    pub fn get_standings(&self) -> StandingsResponse {
+    pub async fn get_standings(&self) -> StandingsResponse {
         let local: DateTime<Local> = Local::now();
         let url = format!(
             "{}v1/standings?sportId=1&season={}&date={}&leagueId=103,104",
@@ -78,10 +78,10 @@ impl MLBApi {
             local.year(),
             local.format("%Y-%m-%d"),
         );
-        self.get(url)
+        self.get(url).await
     }
 
-    pub fn get_team_stats(&self, group: StatGroup) -> StatResponse {
+    pub async fn get_team_stats(&self, group: StatGroup) -> StatResponse {
         let local: DateTime<Local> = Local::now();
         let url = format!(
             "{}v1/teams/stats?sportId=1&stats=season&season={}&group={}",
@@ -89,10 +89,10 @@ impl MLBApi {
             local.year(),
             group
         );
-        self.get(url)
+        self.get(url).await
     }
 
-    pub fn get_player_stats(&self, group: StatGroup) -> StatResponse {
+    pub async fn get_player_stats(&self, group: StatGroup) -> StatResponse {
         let local: DateTime<Local> = Local::now();
         let url = format!(
             "{}v1/stats?stats=season&season={}&group={}",
@@ -100,18 +100,19 @@ impl MLBApi {
             local.year(),
             group
         );
-        self.get(url)
+        self.get(url).await
     }
 
-    // TODO need better error handling, especially on parsing
-    fn get<T: Default + DeserializeOwned>(&self, url: String) -> T {
-        let response = self.client.get(url).send().unwrap_or_else(|err| {
-            panic!("network error {:?}", err);
-        });
-        response.json::<T>().map(From::from).unwrap_or_else(|err| {
-            eprintln!("parsing error {:?}", err);
-            T::default()
-        })
+    async fn get<T: Default + DeserializeOwned>(&self, url: String) -> T {
+        let response = self.client.get(url).send().await.expect("network error");
+        response
+            .json::<T>()
+            .await
+            .map(From::from)
+            .unwrap_or_else(|err| {
+                eprintln!("parsing error {:?}", err);
+                T::default()
+            })
     }
 }
 

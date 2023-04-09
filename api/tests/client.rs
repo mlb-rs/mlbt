@@ -12,8 +12,8 @@ mod tests {
     static CLIENT: Lazy<MLBApi> = Lazy::new(|| MLBApiBuilder::default().build().unwrap());
 
     /// Test the schedule for the All Star Game 2021
-    #[test]
-    fn test_schedule_all_star_game() {
+    #[tokio::test]
+    async fn test_schedule_all_star_game() {
         let mut server = mockito::Server::new();
 
         let _m = server
@@ -24,12 +24,12 @@ mod tests {
             .create();
 
         let date = NaiveDate::from_ymd_opt(2021, 7, 13).unwrap();
-        let resp = CLIENT.get_schedule_date(date);
+        let resp = CLIENT.get_schedule_date(date).await;
         println!("{:?}", resp);
     }
 
-    #[test]
-    fn test_standings() {
+    #[tokio::test]
+    async fn test_standings() {
         let mut server = mockito::Server::new();
 
         let _m = server
@@ -42,12 +42,12 @@ mod tests {
             .with_body_from_file("./tests/responses/standings.json")
             .create();
 
-        let resp = CLIENT.get_standings();
+        let resp = CLIENT.get_standings().await;
         println!("{:?}", resp);
     }
 
-    #[test]
-    fn test_live() {
+    #[tokio::test]
+    async fn test_live() {
         let mut server = mockito::Server::new();
 
         let _m = server
@@ -57,12 +57,12 @@ mod tests {
             .with_body_from_file("./tests/responses/live.json")
             .create();
 
-        let resp = CLIENT.get_live_data(632386);
+        let resp = CLIENT.get_live_data(632386).await;
         println!("{:?}", resp);
     }
 
-    #[test]
-    fn test_team_stats() {
+    #[tokio::test]
+    async fn test_team_stats() {
         let mut server = mockito::Server::new();
 
         for group in vec![StatGroup::Hitting, StatGroup::Pitching] {
@@ -78,13 +78,13 @@ mod tests {
                 .with_body_from_file("./tests/responses/team-stats.json")
                 .create();
 
-            let resp = CLIENT.get_team_stats(group);
+            let resp = CLIENT.get_team_stats(group).await;
             println!("{:?}", resp);
         }
     }
 
-    #[test]
-    fn test_player_stats() {
+    #[tokio::test]
+    async fn test_player_stats() {
         let mut server = mockito::Server::new();
 
         for group in vec![StatGroup::Hitting, StatGroup::Pitching] {
@@ -97,7 +97,7 @@ mod tests {
                 .with_body_from_file("./tests/responses/player-stats.json")
                 .create();
 
-            let resp = CLIENT.get_player_stats(group);
+            let resp = CLIENT.get_player_stats(group).await;
             println!("{:?}", resp);
         }
     }
