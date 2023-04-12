@@ -39,7 +39,7 @@ where
                 draw_tabs(f, &main_layout.top_bar, app);
             }
 
-            match app.active_tab {
+            match app.state.active_tab {
                 MenuItem::Scoreboard => draw_scoreboard(f, main_layout.main, app),
                 MenuItem::DatePicker => {
                     draw_scoreboard(f, main_layout.main, app);
@@ -51,12 +51,12 @@ where
                     f.render_stateful_widget(
                         StandingsWidget {},
                         main_layout.main,
-                        &mut app.standings,
+                        &mut app.state.standings,
                     );
                 }
                 MenuItem::Help => draw_help(f, f.size()),
             }
-            if app.debug_state == DebugState::On {
+            if app.state.debug_state == DebugState::On {
                 let mut dbi = DebugInfo::new();
                 dbi.gather_info(f, app);
                 dbi.render(f, main_layout.main)
@@ -89,7 +89,7 @@ where
         .enumerate()
         .map(|(i, t)| {
             // underline the active tab
-            if i == app.active_tab as usize {
+            if i == app.state.active_tab as usize {
                 Spans::from(Span::styled(
                     *t,
                     Style::default().add_modifier(Modifier::UNDERLINED),
@@ -137,7 +137,7 @@ where
         .split(rect);
 
     // display scores on left side
-    f.render_stateful_widget(ScheduleWidget {}, chunks[0], &mut app.schedule);
+    f.render_stateful_widget(ScheduleWidget {}, chunks[0], &mut app.state.schedule);
 
     // display line score and box score on right
     draw_border(f, chunks[1], Color::White);
@@ -150,20 +150,20 @@ where
 {
     let chunks = LayoutAreas::for_boxscore(rect);
 
-    app.live_game.linescore.mini = true;
+    app.state.live_game.linescore.mini = true;
     f.render_stateful_widget(
         LineScoreWidget {
-            active: app.boxscore_tab,
+            active: app.state.boxscore_tab,
         },
         chunks[0],
-        &mut app.live_game.linescore,
+        &mut app.state.live_game.linescore,
     );
     f.render_stateful_widget(
         TeamBatterBoxscoreWidget {
-            active: app.boxscore_tab,
+            active: app.state.boxscore_tab,
         },
         chunks[1],
-        &mut app.live_game.boxscore,
+        &mut app.state.live_game.boxscore,
     );
 }
 
@@ -189,10 +189,10 @@ where
     let directions = Paragraph::new(" Press Enter to submit or Esc to cancel");
     f.render_widget(directions, lines[1]);
 
-    let input = Paragraph::new(format!(" {}", app.date_input.text));
+    let input = Paragraph::new(format!(" {}", app.state.date_input.text));
     f.render_widget(input, lines[2]);
 
-    let border = match app.date_input.is_valid {
+    let border = match app.state.date_input.is_valid {
         true => Style::default().fg(Color::Blue),
         false => Style::default().fg(Color::Red),
     };
@@ -205,7 +205,7 @@ where
 
     // display cursor
     f.set_cursor(
-        lines[2].x + app.date_input.text.len() as u16 + 1,
+        lines[2].x + app.state.date_input.text.len() as u16 + 1,
         lines[2].y,
     )
 }
@@ -214,26 +214,26 @@ fn draw_gameday<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
 where
     B: Backend,
 {
-    let mut panels = LayoutAreas::generate_gameday_panels(&app.gameday, rect);
+    let mut panels = LayoutAreas::generate_gameday_panels(&app.state.gameday, rect);
 
     // I want the panels to be displayed [Info, Heat, Box] from left to right. So pop off
     // available panels starting with Box. Since `generate_layouts` takes into account how many
     // panels are active, all the pops are guaranteed to unwrap.
-    if app.gameday.boxscore {
+    if app.state.gameday.boxscore {
         let p = panels.pop().unwrap();
         draw_border(f, p, Color::White);
         draw_linescore_boxscore(f, p, app);
     }
-    if app.gameday.at_bat {
+    if app.state.gameday.at_bat {
         let p = panels.pop().unwrap();
         draw_border(f, p, Color::White);
-        f.render_stateful_widget(AtBatWidget {}, p, &mut app.live_game.at_bat);
+        f.render_stateful_widget(AtBatWidget {}, p, &mut app.state.live_game.at_bat);
     }
-    if app.gameday.info {
+    if app.state.gameday.info {
         let p = panels.pop().unwrap();
         draw_border(f, p, Color::White);
-        f.render_stateful_widget(MatchupWidget {}, p, &mut app.live_game.matchup);
-        f.render_stateful_widget(InningPlaysWidget {}, p, &mut app.live_game.plays);
+        f.render_stateful_widget(MatchupWidget {}, p, &mut app.state.live_game.matchup);
+        f.render_stateful_widget(InningPlaysWidget {}, p, &mut app.state.live_game.plays);
     }
 }
 
@@ -244,17 +244,17 @@ where
     // TODO by taking into account the width of the options pane I'm basically removing that amount
     // of space for columns. If I didn't, you could select columns that would be covered by the
     // options pane, but then when its disabled would become visible.
-    let width = match app.stats.show_options {
+    let width = match app.state.stats.show_options {
         true => rect.width - STATS_OPTIONS_WIDTH,
         false => rect.width,
     };
-    app.stats.trim_columns(width);
+    app.state.stats.trim_columns(width);
     f.render_stateful_widget(
         StatsWidget {
-            show_options: app.stats.show_options,
+            show_options: app.state.stats.show_options,
         },
         rect,
-        &mut app.stats,
+        &mut app.state.stats,
     );
 }
 

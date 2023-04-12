@@ -27,6 +27,17 @@ pub struct ScheduleRow {
     pub game_status: String,
 }
 
+impl Default for ScheduleState {
+    fn default() -> Self {
+        let date = Utc::now().with_timezone(&Los_Angeles).date_naive();
+        ScheduleState {
+            state: TableState::default(),
+            schedule: vec![],
+            date,
+        }
+    }
+}
+
 impl ScheduleState {
     pub fn from_schedule(schedule: &ScheduleResponse) -> Self {
         let mut ss = ScheduleState {
