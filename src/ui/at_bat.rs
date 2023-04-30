@@ -1,6 +1,6 @@
-use crate::at_bat::AtBat;
-use crate::pitches::{DEFAULT_IDX, PITCH_IDX};
-use crate::strikezone::{StrikeZone, DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH};
+use crate::components::at_bat::AtBat;
+use crate::components::pitches::{DEFAULT_IDX, PITCH_IDX};
+use crate::components::strikezone::{StrikeZone, DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH};
 
 use tui::{
     buffer::Buffer,

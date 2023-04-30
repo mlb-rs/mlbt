@@ -1,5 +1,5 @@
 use crate::app::{HomeOrAway, MenuItem};
-use crate::stats::TeamOrPlayer;
+use crate::components::stats::TeamOrPlayer;
 use crate::{app, cleanup_terminal};
 use crossbeam_channel::Sender;
 use crossterm::event::KeyCode::Char;

@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 
 use crate::app::HomeOrAway;
-use crate::constants::TEAM_NAMES;
+use crate::components::constants::TEAM_NAMES;
 use chrono::{DateTime, NaiveDate, ParseError, Utc};
 use chrono_tz::America::Los_Angeles;
 use core::option::Option::{None, Some};

@@ -1,22 +1,9 @@
 mod app;
-mod at_bat;
-mod banner;
-mod boxscore;
-mod constants;
-mod debug;
+mod components;
+mod config;
 mod draw;
 mod event;
-mod linescore;
-mod live_game;
-mod matchup;
-mod pitches;
-mod plays;
-mod schedule;
-mod standings;
-mod stats;
-mod strikezone;
 mod ui;
-mod util;
 
 use std::io::Stdout;
 use std::sync::Arc;
@@ -24,8 +11,8 @@ use std::time::Duration;
 use std::{io, panic};
 
 use crate::app::{App, MenuItem};
-use crate::schedule::ScheduleState;
-use crate::stats::TeamOrPlayer;
+use crate::components::schedule::ScheduleState;
+use crate::components::stats::TeamOrPlayer;
 use crossbeam_channel::{bounded, select, Receiver};
 use crossterm::event::Event;
 use crossterm::{cursor, execute, terminal};
@@ -49,7 +36,6 @@ async fn main() -> anyhow::Result<()> {
     let schedule = app.client.get_todays_schedule().await;
     app.state.schedule = ScheduleState::from_schedule(&schedule);
 
-    let ui_events = setup_ui_events();
     let app = Arc::new(Mutex::new(app));
 
     // network thread
@@ -60,6 +46,7 @@ async fn main() -> anyhow::Result<()> {
         }
     });
 
+    let ui_events = setup_ui_events();
     ui_thread(&mut terminal, ui_events, app.clone()).await;
 
     Ok(())

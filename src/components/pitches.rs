@@ -1,5 +1,5 @@
-use crate::strikezone::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP};
-use crate::util::convert_color;
+use crate::components::strikezone::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP};
+use crate::components::util::convert_color;
 
 use mlb_api::live::LiveResponse;
 use mlb_api::plays::PlayEvent;

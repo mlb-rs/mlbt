@@ -1,6 +1,6 @@
-use crate::linescore::LineScore;
-
 use crate::app::HomeOrAway;
+use crate::components::linescore::LineScore;
+
 use tui::{
     buffer::Buffer,
     layout::{Constraint, Rect},

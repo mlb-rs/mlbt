@@ -1,4 +1,4 @@
-use crate::standings::StandingsState;
+use crate::components::standings::StandingsState;
 
 use tui::{
     buffer::Buffer,

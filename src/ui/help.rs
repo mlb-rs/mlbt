@@ -5,7 +5,7 @@ use tui::{
     widgets::{Paragraph, Row, Table, Widget},
 };
 
-use crate::banner::BANNER;
+use crate::components::banner::BANNER;
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
 pub const DOCS_LEN: usize = 24;

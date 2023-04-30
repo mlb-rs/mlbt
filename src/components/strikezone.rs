@@ -3,7 +3,7 @@ use tui::style::Color;
 use mlb_api::live::LiveResponse;
 use mlb_api::plays::Zone;
 
-use crate::util::convert_color;
+use crate::components::util::convert_color;
 
 /// Create the x coordinates for the heat map zones based on the width of home plate, which is 17
 /// inches. The coordinates are centered around 0 in the x, thus the first coordinate is all the

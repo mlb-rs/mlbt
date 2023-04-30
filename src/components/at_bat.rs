@@ -1,5 +1,5 @@
-use crate::pitches::Pitches;
-use crate::strikezone::StrikeZone;
+use crate::components::pitches::Pitches;
+use crate::components::strikezone::StrikeZone;
 use mlb_api::live::LiveResponse;
 
 #[derive(Default)]

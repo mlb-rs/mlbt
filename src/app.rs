@@ -1,7 +1,7 @@
-use crate::live_game::GameState;
-use crate::schedule::ScheduleState;
-use crate::standings::StandingsState;
-use crate::stats::StatsState;
+use crate::components::live_game::GameState;
+use crate::components::schedule::ScheduleState;
+use crate::components::standings::StandingsState;
+use crate::components::stats::StatsState;
 use crossbeam_channel::{bounded, Receiver, Sender};
 use mlb_api::client::{MLBApi, MLBApiBuilder};
 use mlb_api::live::LiveResponse;
