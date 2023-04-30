@@ -56,6 +56,16 @@ pub fn handle_key_bindings(
                 app.state.date_input.is_valid = false;
             }
         }
+        (MenuItem::DatePicker, KeyCode::Right) => {
+            let date = app.state.schedule.set_date_with_arrows(true);
+            app.state.date_input.text.clear();
+            app.state.date_input.text.push_str(&date.to_string());
+        }
+        (MenuItem::DatePicker, KeyCode::Left) => {
+            let date = app.state.schedule.set_date_with_arrows(false);
+            app.state.date_input.text.clear();
+            app.state.date_input.text.push_str(&date.to_string());
+        }
         (MenuItem::DatePicker, KeyCode::Esc) => {
             app.state.date_input.text.clear();
             app.update_tab(MenuItem::Scoreboard)

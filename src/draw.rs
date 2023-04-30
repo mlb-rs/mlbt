@@ -197,7 +197,7 @@ where
         false => Style::default().fg(Color::Red),
     };
     let block = Block::default()
-        .title("Enter a date in YYYY-MM-DD form")
+        .title("Enter a date (YYYY-MM-DD) or use arrow keys")
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
         .border_style(border);

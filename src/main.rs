@@ -27,16 +27,11 @@ async fn main() -> anyhow::Result<()> {
 
     let backend = CrosstermBackend::new(io::stdout());
     let mut terminal = Terminal::new(backend).unwrap();
-    let mut app = App::new();
+    let app = App::new();
+    let app = Arc::new(Mutex::new(app));
 
     setup_panic_hook();
     setup_terminal();
-
-    // initialize schedule
-    let schedule = app.client.get_todays_schedule().await;
-    app.state.schedule = ScheduleState::from_schedule(&schedule);
-
-    let app = Arc::new(Mutex::new(app));
 
     // network thread
     tokio::spawn({
@@ -102,6 +97,9 @@ async fn network_thread(app: Arc<Mutex<App>>) {
         let update_received = app.update_channel.1.clone();
 
         // initial data load
+        let schedule = app.client.get_todays_schedule().await;
+        app.state.schedule = ScheduleState::from_schedule(&schedule);
+
         let game = app
             .client
             .get_live_data(app.state.schedule.get_selected_game())
@@ -125,11 +123,11 @@ async fn network_thread(app: Arc<Mutex<App>>) {
                     }
                     // update schedule and linescore when a new date is picked
                     Ok(MenuItem::DatePicker) => {
-                        let (schedule, game) = tokio::join!(
-                            app.client.get_schedule_date(app.state.schedule.date),
-                            app.client.get_live_data(app.state.schedule.get_selected_game())
-                        );
+                        let schedule = app.client.get_schedule_date(app.state.schedule.date).await;
                         app.state.schedule.update(&schedule);
+                        // run sequentially to get the correct selected game id
+                        let game_id = app.state.schedule.get_selected_game();
+                        let game = app.client.get_live_data(game_id).await;
                         app.update_live_data(&game);
                     }
                     // update standings only when tab is switched to
@@ -155,6 +153,7 @@ async fn network_thread(app: Arc<Mutex<App>>) {
                 let mut app = app.lock().await;
                 match app.state.active_tab {
                     MenuItem::Scoreboard => {
+                        // run concurrently since game id is already correct
                         let (schedule, game) = tokio::join!(
                             app.client.get_schedule_date(app.state.schedule.date),
                             app.client.get_live_data(app.state.schedule.get_selected_game())

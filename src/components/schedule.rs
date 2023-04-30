@@ -4,15 +4,21 @@ use crate::app::HomeOrAway;
 use crate::components::constants::TEAM_NAMES;
 use chrono::{DateTime, NaiveDate, ParseError, Utc};
 use chrono_tz::America::Los_Angeles;
+use chrono_tz::Tz;
 use core::option::Option::{None, Some};
 use mlb_api::schedule::{Game, ScheduleResponse};
 use tui::widgets::TableState;
+
+// TODO configurable timezone
+const TIMEZONE: Tz = Los_Angeles;
 
 /// ScheduleState is used to render the schedule as a `tui-rs` table.
 pub struct ScheduleState {
     pub state: TableState,
     pub schedule: Vec<ScheduleRow>,
     pub date: NaiveDate,
+    /// Used for selecting the date with arrow keys.
+    pub selection_offset: i64,
 }
 
 /// The information needed to create a single row in a table.
@@ -29,11 +35,12 @@ pub struct ScheduleRow {
 
 impl Default for ScheduleState {
     fn default() -> Self {
-        let date = Utc::now().with_timezone(&Los_Angeles).date_naive();
+        let date = Utc::now().with_timezone(&TIMEZONE).date_naive();
         ScheduleState {
             state: TableState::default(),
             schedule: vec![],
             date,
+            selection_offset: 0,
         }
     }
 }
@@ -44,6 +51,7 @@ impl ScheduleState {
             state: TableState::default(),
             schedule: ScheduleRow::create_table(schedule),
             date: ScheduleRow::get_date_from_schedule(schedule),
+            selection_offset: 0,
         };
         ss.state.select(Some(0));
         ss
@@ -58,23 +66,30 @@ impl ScheduleState {
     /// Set the date from the input string from the date picker.
     pub fn set_date_from_input(&mut self, date: String) -> Result<(), ParseError> {
         self.date = match date.as_str() {
-            "today" => {
-                // TODO configurable timezone
-                Utc::now().with_timezone(&Los_Angeles).date_naive()
-            }
+            "today" => Utc::now().with_timezone(&TIMEZONE).date_naive(),
             _ => NaiveDate::parse_from_str(date.as_str(), "%Y-%m-%d")?,
         };
         self.state.select(Some(0));
         Ok(())
     }
 
+    /// Set the date using Left/Right arrow keys to move a single day at a time.
+    pub fn set_date_with_arrows(&mut self, forward: bool) -> NaiveDate {
+        match forward {
+            true => self.selection_offset += 1,
+            false => self.selection_offset -= 1,
+        }
+        Utc::now().with_timezone(&TIMEZONE).date_naive()
+            + chrono::Duration::days(self.selection_offset)
+    }
+
     /// Return the `game_id` of the row that is selected.
     pub fn get_selected_game(&self) -> u64 {
-        match self.schedule.get(
-            self.state
-                .selected()
-                .expect("there is always a selected game"),
-        ) {
+        let idx = match self.state.selected() {
+            Some(s) => s,
+            None => return 0,
+        };
+        match self.schedule.get(idx) {
             Some(s) => s.game_id,
             _ => 0,
         }
