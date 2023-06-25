@@ -1,7 +1,7 @@
 use tui::backend::Backend;
 use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Modifier, Style};
-use tui::text::{Span, Spans};
+use tui::text::{Line, Span};
 use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, Tabs};
 use tui::{Frame, Terminal};
 
@@ -90,12 +90,12 @@ where
         .map(|(i, t)| {
             // underline the active tab
             if i == app.state.active_tab as usize {
-                Spans::from(Span::styled(
+                Line::from(Span::styled(
                     *t,
                     Style::default().add_modifier(Modifier::UNDERLINED),
                 ))
             } else {
-                Spans::from(*t)
+                Line::from(*t)
             }
         })
         .collect();

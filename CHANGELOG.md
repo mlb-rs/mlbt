@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.0.12] - 2023-06-25
+
 ### Added
 
 - Config file for setting your favorite team, which will always be first in 

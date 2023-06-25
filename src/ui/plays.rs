@@ -5,7 +5,7 @@ use tui::{
     buffer::Buffer,
     layout::{Corner, Rect},
     style::{Color, Style},
-    text::{Span, Spans},
+    text::{Line, Span},
     widgets::{Block, Borders, List, ListItem, StatefulWidget, Widget},
 };
 
@@ -27,8 +27,8 @@ impl InningPlays {
                     _ => Span::styled("!! ", Style::default().fg(BLUE)),
                 };
                 ListItem::new(vec![
-                    Spans::from(vec![alert, Span::raw(&play.description)]),
-                    Spans::from(InningPlays::format_info(play)),
+                    Line::from(vec![alert, Span::raw(&play.description)]),
+                    Line::from(InningPlays::format_info(play)),
                 ])
             })
             .rev()
