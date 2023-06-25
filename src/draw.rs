@@ -33,9 +33,9 @@ where
 
     terminal
         .draw(|f| {
-            main_layout.update(f.size(), app.full_screen);
+            main_layout.update(f.size(), app.settings.full_screen);
 
-            if !app.full_screen {
+            if !app.settings.full_screen {
                 draw_tabs(f, &main_layout.top_bar, app);
             }
 

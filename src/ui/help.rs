@@ -6,6 +6,7 @@ use tui::{
 };
 
 use crate::components::banner::BANNER;
+use crate::config::CONFIG_LOCATION;
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
 pub const DOCS_LEN: usize = 24;
@@ -82,8 +83,18 @@ impl Widget for HelpWidget {
             .style(help_menu_style)
             .render(chunks[0], buf);
 
-        Paragraph::new(format!("{}\nv {}", BANNER, env!("CARGO_PKG_VERSION")))
-            .alignment(Alignment::Center)
-            .render(chunks[1], buf);
+        let config_file = if let Some(path) = CONFIG_LOCATION.clone() {
+            path.to_string_lossy().to_string()
+        } else {
+            "not found".to_string()
+        };
+        Paragraph::new(format!(
+            "{}\nv {}\n\nconfig:\n{}",
+            BANNER,
+            env!("CARGO_PKG_VERSION"),
+            config_file
+        ))
+        .alignment(Alignment::Center)
+        .render(chunks[1], buf);
     }
 }

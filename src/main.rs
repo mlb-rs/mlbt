@@ -27,6 +27,7 @@ async fn main() -> anyhow::Result<()> {
 
     let backend = CrosstermBackend::new(io::stdout());
     let mut terminal = Terminal::new(backend).unwrap();
+
     let app = App::new();
     let app = Arc::new(Mutex::new(app));
 
@@ -98,7 +99,7 @@ async fn network_thread(app: Arc<Mutex<App>>) {
 
         // initial data load
         let schedule = app.client.get_todays_schedule().await;
-        app.state.schedule = ScheduleState::from_schedule(&schedule);
+        app.state.schedule = ScheduleState::from_schedule(&app.settings, &schedule);
 
         let game = app
             .client
@@ -124,7 +125,7 @@ async fn network_thread(app: Arc<Mutex<App>>) {
                     // update schedule and linescore when a new date is picked
                     Ok(MenuItem::DatePicker) => {
                         let schedule = app.client.get_schedule_date(app.state.schedule.date).await;
-                        app.state.schedule.update(&schedule);
+                        app.update_schedule(&schedule);
                         // run sequentially to get the correct selected game id
                         let game_id = app.state.schedule.get_selected_game();
                         let game = app.client.get_live_data(game_id).await;
@@ -158,7 +159,7 @@ async fn network_thread(app: Arc<Mutex<App>>) {
                             app.client.get_schedule_date(app.state.schedule.date),
                             app.client.get_live_data(app.state.schedule.get_selected_game())
                         );
-                        app.state.schedule.update(&schedule);
+                        app.update_schedule(&schedule);
                         app.update_live_data(&game);
                     },
                     MenuItem::Gameday => {

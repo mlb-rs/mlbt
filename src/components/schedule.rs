@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use crate::app::HomeOrAway;
+use crate::app::{AppSettings, HomeOrAway};
 use crate::components::constants::TEAM_NAMES;
 use chrono::{DateTime, NaiveDate, ParseError, Utc};
 use chrono_tz::America::Los_Angeles;
@@ -46,10 +46,10 @@ impl Default for ScheduleState {
 }
 
 impl ScheduleState {
-    pub fn from_schedule(schedule: &ScheduleResponse) -> Self {
+    pub fn from_schedule(settings: &AppSettings, schedule: &ScheduleResponse) -> Self {
         let mut ss = ScheduleState {
             state: TableState::default(),
-            schedule: ScheduleRow::create_table(schedule),
+            schedule: ScheduleRow::create_table(settings, schedule),
             date: ScheduleRow::get_date_from_schedule(schedule),
             selection_offset: 0,
         };
@@ -59,8 +59,8 @@ impl ScheduleState {
 
     /// Update the data from the API. It is assumed that the date is already updated, aka don't use
     /// a random date without first setting the `date` field. Use `set_date_from_input` for this.
-    pub fn update(&mut self, schedule: &ScheduleResponse) {
-        self.schedule = ScheduleRow::create_table(schedule);
+    pub fn update(&mut self, settings: &AppSettings, schedule: &ScheduleResponse) {
+        self.schedule = ScheduleRow::create_table(settings, schedule);
     }
 
     /// Set the date from the input string from the date picker.
@@ -175,12 +175,20 @@ impl ScheduleRow {
     }
 
     /// Transform the data from the API into a vector of ScheduleRows.
-    fn create_table(schedule: &ScheduleResponse) -> Vec<Self> {
+    fn create_table(settings: &AppSettings, schedule: &ScheduleResponse) -> Vec<Self> {
         let mut todays_games: Vec<ScheduleRow> = Vec::with_capacity(schedule.dates.len());
         if let Some(games) = &schedule.dates.get(0) {
+            let favorite = settings
+                .favorite_team
+                .clone()
+                .unwrap_or_else(|| "na".to_string());
             for game in &games.games {
                 for g in game {
-                    todays_games.push(ScheduleRow::create_matchup(g));
+                    if g.teams.home.team.name == favorite || g.teams.away.team.name == favorite {
+                        todays_games.insert(0, ScheduleRow::create_matchup(g));
+                    } else {
+                        todays_games.push(ScheduleRow::create_matchup(g));
+                    }
                 }
             }
         }
