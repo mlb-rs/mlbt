@@ -1,10 +1,12 @@
-use crate::live_game::GameState;
-use crate::schedule::ScheduleState;
-use crate::standings::StandingsState;
-use crate::stats::StatsState;
+use crate::components::live_game::GameState;
+use crate::components::schedule::ScheduleState;
+use crate::components::standings::StandingsState;
+use crate::components::stats::StatsState;
+use crate::config::{generate_config_file, load_config_file, CONFIG_LOCATION};
 use crossbeam_channel::{bounded, Receiver, Sender};
 use mlb_api::client::{MLBApi, MLBApiBuilder};
 use mlb_api::live::LiveResponse;
+use mlb_api::schedule::ScheduleResponse;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub enum MenuItem {
@@ -60,9 +62,14 @@ pub struct AppState {
     pub stats: StatsState,
 }
 
-pub struct App {
+#[derive(Debug, Clone)]
+pub struct AppSettings {
+    pub favorite_team: Option<String>,
     pub full_screen: bool,
-    // pub settings: AppSettings, // TODO
+}
+
+pub struct App {
+    pub settings: AppSettings,
     pub state: AppState,
 
     pub client: MLBApi,
@@ -72,17 +79,44 @@ pub struct App {
 
 impl App {
     pub fn new() -> Self {
-        Self {
+        let mut app = Self {
             state: AppState::default(),
-            full_screen: false,
+            settings: AppSettings {
+                favorite_team: None,
+                full_screen: false,
+            },
             client: MLBApiBuilder::default().build().unwrap(),
             redraw_channel: bounded(1),
             update_channel: bounded(1),
+        };
+        // if config file can't be loaded just print an error message but don't block starting app
+        if let Err(err) = app.load_config() {
+            eprintln!("could not load config file: {:?}", err);
         }
+        app
     }
+
+    fn load_config(&mut self) -> anyhow::Result<()> {
+        if let Some(path) = CONFIG_LOCATION.clone() {
+            if !path.exists() {
+                generate_config_file(&path)?;
+            }
+            let config = load_config_file(&path)?;
+            self.settings.favorite_team = config.validate_favorite_team();
+        } else {
+            eprintln!("could not find config file");
+        };
+        Ok(())
+    }
+
+    pub fn update_schedule(&mut self, schedule: &ScheduleResponse) {
+        self.state.schedule.update(&self.settings, schedule);
+    }
+
     pub fn update_live_data(&mut self, live_data: &LiveResponse) {
         self.state.live_game.update(live_data);
     }
+
     pub fn update_tab(&mut self, next: MenuItem) {
         if self.state.active_tab != next {
             self.state.previous_tab = self.state.active_tab;
@@ -90,19 +124,22 @@ impl App {
             self.state.debug_state = DebugState::Off;
         }
     }
+
     pub fn exit_help(&mut self) {
         if self.state.active_tab == MenuItem::Help {
             self.state.active_tab = self.state.previous_tab;
         }
     }
+
     pub fn toggle_debug(&mut self) {
         match self.state.debug_state {
             DebugState::Off => self.state.debug_state = DebugState::On,
             DebugState::On => self.state.debug_state = DebugState::Off,
         }
     }
+
     pub fn toggle_full_screen(&mut self) {
-        self.full_screen = !self.full_screen;
+        self.settings.full_screen = !self.settings.full_screen;
     }
 }
 

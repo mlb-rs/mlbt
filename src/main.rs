@@ -1,22 +1,9 @@
 mod app;
-mod at_bat;
-mod banner;
-mod boxscore;
-mod constants;
-mod debug;
+mod components;
+mod config;
 mod draw;
 mod event;
-mod linescore;
-mod live_game;
-mod matchup;
-mod pitches;
-mod plays;
-mod schedule;
-mod standings;
-mod stats;
-mod strikezone;
 mod ui;
-mod util;
 
 use std::io::Stdout;
 use std::sync::Arc;
@@ -24,8 +11,8 @@ use std::time::Duration;
 use std::{io, panic};
 
 use crate::app::{App, MenuItem};
-use crate::schedule::ScheduleState;
-use crate::stats::TeamOrPlayer;
+use crate::components::schedule::ScheduleState;
+use crate::components::stats::TeamOrPlayer;
 use crossbeam_channel::{bounded, select, Receiver};
 use crossterm::event::Event;
 use crossterm::{cursor, execute, terminal};
@@ -40,17 +27,12 @@ async fn main() -> anyhow::Result<()> {
 
     let backend = CrosstermBackend::new(io::stdout());
     let mut terminal = Terminal::new(backend).unwrap();
-    let mut app = App::new();
+
+    let app = App::new();
+    let app = Arc::new(Mutex::new(app));
 
     setup_panic_hook();
     setup_terminal();
-
-    // initialize schedule
-    let schedule = app.client.get_todays_schedule().await;
-    app.state.schedule = ScheduleState::from_schedule(&schedule);
-
-    let ui_events = setup_ui_events();
-    let app = Arc::new(Mutex::new(app));
 
     // network thread
     tokio::spawn({
@@ -60,6 +42,7 @@ async fn main() -> anyhow::Result<()> {
         }
     });
 
+    let ui_events = setup_ui_events();
     ui_thread(&mut terminal, ui_events, app.clone()).await;
 
     Ok(())
@@ -115,6 +98,9 @@ async fn network_thread(app: Arc<Mutex<App>>) {
         let update_received = app.update_channel.1.clone();
 
         // initial data load
+        let schedule = app.client.get_todays_schedule().await;
+        app.state.schedule = ScheduleState::from_schedule(&app.settings, &schedule);
+
         let game = app
             .client
             .get_live_data(app.state.schedule.get_selected_game())
@@ -138,11 +124,11 @@ async fn network_thread(app: Arc<Mutex<App>>) {
                     }
                     // update schedule and linescore when a new date is picked
                     Ok(MenuItem::DatePicker) => {
-                        let (schedule, game) = tokio::join!(
-                            app.client.get_schedule_date(app.state.schedule.date),
-                            app.client.get_live_data(app.state.schedule.get_selected_game())
-                        );
-                        app.state.schedule.update(&schedule);
+                        let schedule = app.client.get_schedule_date(app.state.schedule.date).await;
+                        app.update_schedule(&schedule);
+                        // run sequentially to get the correct selected game id
+                        let game_id = app.state.schedule.get_selected_game();
+                        let game = app.client.get_live_data(game_id).await;
                         app.update_live_data(&game);
                     }
                     // update standings only when tab is switched to
@@ -168,11 +154,12 @@ async fn network_thread(app: Arc<Mutex<App>>) {
                 let mut app = app.lock().await;
                 match app.state.active_tab {
                     MenuItem::Scoreboard => {
+                        // run concurrently since game id is already correct
                         let (schedule, game) = tokio::join!(
                             app.client.get_schedule_date(app.state.schedule.date),
                             app.client.get_live_data(app.state.schedule.get_selected_game())
                         );
-                        app.state.schedule.update(&schedule);
+                        app.update_schedule(&schedule);
                         app.update_live_data(&game);
                     },
                     MenuItem::Gameday => {

@@ -1,4 +1,4 @@
-use crate::plays::{InningPlays, PlayResult};
+use crate::components::plays::{InningPlays, PlayResult};
 use crate::ui::layout::LayoutAreas;
 
 use tui::{

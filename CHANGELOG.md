@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- Config file for setting your favorite team, which will always be first in 
+  schedule view: [Issue 16](https://github.com/mlb-rs/mlbt/issues/16)
+- Change the schedule date with arrow keys: use `left` for the previous day and
+  `right` for the next day
+
 ### Changed
 
 - Move API to be async and do api calls concurrently when possible: [Issue 13](https://github.com/mlb-rs/mlbt/issues/13)

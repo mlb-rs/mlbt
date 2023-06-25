@@ -90,7 +90,12 @@ TODO - add to crates.io
   - [ ] stat search (store in sqlite or an embedded db?)
 
 - [ ] CLI
-- [ ] configuration: favorite team, colors, keymap
+ 
+- [ ] configuration: 
+  - [X] favorite team
+  - [ ] time zone
+  - [ ] colors
+  - [ ] keymap
 
 ## Usage
 
@@ -111,9 +116,9 @@ Press `1` to activate this tab.
 - `k`: move up
 - `:`: activate date picker
 
-With the date picker active, input a date in the form of `YYYY-MM-DD` and press
-`Enter`. This will display the schedule for that day. To view games for the
-current day, input `today`.
+With the date picker active, input a date in the form of `YYYY-MM-DD`, or use
+the `left`/`right` arrow keys, and press `Enter`. This will display the schedule
+for that day. To view games for the current day, input `today`.
 
 To switch the team displayed in the box score:
 
@@ -160,7 +165,6 @@ can be turned on/off with `o`.
 > If your terminal is too small to display all columns, they will be turned off
 > starting from the left side.
 
-
 ### Standings
 
 Press `4` to activate this tab.
@@ -179,7 +183,28 @@ displayed red.
 
 ## Config
 
-TODO
+You can configure the TUI with the toml file located at your users' home
+directory. For a user named `Alice` this would be:
+
+- Linux:   /home/alice/.config/mlbt/mlbt.toml
+- Windows: C:\Users\Alice\AppData\Roaming\mlbt\mlbt.toml
+- macOS:   /Users/Alice/Library/Application Support/mlbt/mlbt.toml
+
+> you can see the path for your user in the `Help` page.
+
+### Available settings
+
+- `favorite_team`: This will make that team always show up first in the schedule
+  if they have a game that day. See [here](https://github.com/mlb-rs/mlbt/blob/main/src/components/constants.rs#L21)
+  for options (note: use the full name and not the short name).
+
+
+### Example config
+
+```toml
+# See https://github.com/mlb-rs/mlbt#config for options
+favorite_team = "Chicago Cubs"
+```
 
 ## Shout out
 

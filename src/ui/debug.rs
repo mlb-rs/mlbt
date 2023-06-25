@@ -1,4 +1,4 @@
-use crate::debug::DebugInfo;
+use crate::components::debug::DebugInfo;
 use tui::{
     backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},

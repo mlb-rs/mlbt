@@ -1,4 +1,4 @@
-use crate::matchup::Matchup;
+use crate::components::matchup::Matchup;
 use crate::ui::layout::LayoutAreas;
 
 use tui::{

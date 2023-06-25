@@ -1,5 +1,5 @@
 use crate::app::HomeOrAway;
-use crate::schedule::{ScheduleRow, ScheduleState};
+use crate::components::schedule::{ScheduleRow, ScheduleState};
 
 use tui::{
     buffer::Buffer,

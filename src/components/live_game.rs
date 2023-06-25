@@ -1,8 +1,8 @@
-use crate::at_bat::AtBat;
-use crate::boxscore::TeamBatterBoxscore;
-use crate::linescore::LineScore;
-use crate::matchup::Matchup;
-use crate::plays::InningPlays;
+use crate::components::at_bat::AtBat;
+use crate::components::boxscore::TeamBatterBoxscore;
+use crate::components::linescore::LineScore;
+use crate::components::matchup::Matchup;
+use crate::components::plays::InningPlays;
 use mlb_api::live::LiveResponse;
 
 #[derive(Default)]

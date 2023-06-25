@@ -1,5 +1,5 @@
-use crate::strikezone::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP};
-use crate::util::convert_color;
+use crate::components::strikezone::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP};
+use crate::components::util::convert_color;
 
 use mlb_api::live::LiveResponse;
 use mlb_api::plays::PlayEvent;
@@ -87,14 +87,14 @@ impl Pitch {
 
     /// Convert a pitch into a TUI Rectangle so it can be displayed in a Canvas.
     pub fn as_rectangle(&self) -> Rectangle {
-        let scale = 12f64; // feet to inches
-        let ball_scale = 1.0;
+        const SCALE: f64 = 12.0; // feet to inches
+        const BALL_SCALE: f64 = 1.0;
         Rectangle {
             color: self.color,
-            height: ball_scale,
-            width: ball_scale,
-            x: self.location.0 * scale,
-            y: self.location.1 * scale,
+            height: BALL_SCALE,
+            width: BALL_SCALE,
+            x: self.location.0 * SCALE,
+            y: self.location.1 * SCALE,
         }
     }
 

@@ -1,4 +1,4 @@
-use crate::constants::DIVISIONS;
+use crate::components::constants::DIVISIONS;
 use core::option::Option::{None, Some};
 use mlb_api::standings::{StandingsResponse, TeamRecord};
 use tui::widgets::TableState;
