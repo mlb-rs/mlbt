@@ -5,7 +5,7 @@ use mlb_api::live::LiveResponse;
 use mlb_api::plays::PlayEvent;
 use tui::{
     style::{Color, Style},
-    text::{Span, Spans},
+    text::{Line, Span},
     widgets::canvas::Rectangle,
     widgets::ListItem,
 };
@@ -102,7 +102,7 @@ impl Pitch {
     /// and pitch type (cutter, changeup, ect). For example:
     /// "1  Foul | Four-Seam Fastball"
     pub fn as_list_item(&self, debug: bool) -> ListItem {
-        ListItem::new(vec![Spans::from(vec![
+        ListItem::new(vec![Line::from(vec![
             Span::styled(format!(" {} ", self.index), Style::default().fg(self.color)),
             Span::raw(self.format(debug)),
         ])])

@@ -8,7 +8,7 @@ use tui::{
     buffer::Buffer,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
-    text::{Span, Spans},
+    text::{Line, Span},
     widgets::{Block, BorderType, Borders, Paragraph, Row, StatefulWidget, Table, Widget, Wrap},
 };
 
@@ -101,12 +101,12 @@ impl StatefulWidget for StatsWidget {
                 TeamOrPlayer::Team => (selected_style, Style::default()),
             };
             let text = vec![
-                Spans::from(vec![
+                Line::from(vec![
                     Span::styled("hitting", hitting_style),
                     Span::raw(" | "),
                     Span::styled("pitching", pitching_style),
                 ]),
-                Spans::from(vec![
+                Line::from(vec![
                     Span::styled("team", team_style),
                     Span::raw(" | "),
                     Span::styled("player", player_style),
