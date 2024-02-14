@@ -99,6 +99,11 @@ TODO - add to crates.io
 
 ## Usage
 
+After installing the package, run `mlbt` from you terminal
+to open the program.
+
+Press `q` to exit the program at any time.
+
 There are four main tabs:
 
 - Scoreboard
@@ -182,15 +187,6 @@ Press `4` to activate this tab.
 displayed red.
 
 ## Config
-
-You can configure the TUI with the toml file located at your users' home
-directory. For a user named `Alice` this would be:
-
-- Linux:   /home/alice/.config/mlbt/mlbt.toml
-- Windows: C:\Users\Alice\AppData\Roaming\mlbt\mlbt.toml
-- macOS:   /Users/Alice/Library/Application Support/mlbt/mlbt.toml
-
-> you can see the path for your user in the `Help` page.
 
 ### Available settings
 
