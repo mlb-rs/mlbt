@@ -140,8 +140,8 @@ async fn network_thread(app: Arc<Mutex<App>>) {
                     // pitching/hitting is changed
                     Ok(MenuItem::Stats) => {
                         let response = match app.state.stats.stat_type.team_player {
-                            TeamOrPlayer::Team => app.client.get_team_stats(app.state.stats.stat_type.group.clone()).await,
-                            TeamOrPlayer::Player => app.client.get_player_stats(app.state.stats.stat_type.group.clone()).await,
+                            TeamOrPlayer::Team => app.client.get_team_stats_on_date(app.state.stats.stat_type.group.clone(), app.state.schedule.date).await,
+                            TeamOrPlayer::Player => app.client.get_player_stats_on_date(app.state.stats.stat_type.group.clone(), app.state.schedule.date).await,
                         };
                         app.state.stats.update(&response);
                     }

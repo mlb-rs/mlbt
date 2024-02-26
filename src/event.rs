@@ -56,19 +56,10 @@ pub fn handle_key_bindings(
             let date: String = app.state.date_input.text.drain(..).collect();
             if app.state.schedule.set_date_from_input(date).is_ok() {
                 app.state.date_input.is_valid = true;
-                app.update_tab(MenuItem::Scoreboard);
-                let _ = selective_update.try_send(MenuItem::DatePicker);
+                app.update_tab(app.state.previous_tab);
+                let _ = selective_update.try_send(app.state.active_tab);
             } else {
                 app.state.date_input.is_valid = false;
-            }
-
-            match app.state.previous_tab {
-                MenuItem::Scoreboard => app.update_tab(MenuItem::Scoreboard),
-                MenuItem::Stats => {
-                    app.update_tab(MenuItem::Stats);
-                    let _ = selective_update.try_send(MenuItem::Stats);
-                },
-                _ => ()
             }
         }
         (MenuItem::DatePicker, KeyCode::Right) => {
