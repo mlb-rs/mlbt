@@ -138,15 +138,15 @@ impl MLBApi {
     }
 
     async fn get<T: Default + DeserializeOwned>(&self, url: String) -> T {
-      let response = self.client.get(url).send().await.expect("network error");
-      response
-        .json::<T>()
-        .await
-        .map(From::from)
-        .unwrap_or_else(|err| {
-          eprintln!("parsing error {:?}", err);
-          T::default()
-        })
+        let response = self.client.get(url).send().await.expect("network error");
+        response
+            .json::<T>()
+            .await
+            .map(From::from)
+            .unwrap_or_else(|err| {
+              eprintln!("parsing error {:?}", err);
+              T::default()
+            })
     }
 }
 
