@@ -63,7 +63,8 @@ impl LayoutAreas {
             .constraints(
                 [
                     Constraint::Length(4),       // line score
-                    Constraint::Percentage(100), // box score
+                    Constraint::Percentage(50), // box score
+                    Constraint::Percentage(50), // box score
                 ]
                 .as_ref(),
             )

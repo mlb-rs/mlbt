@@ -8,7 +8,7 @@ use tui::{
     widgets::{Block, Borders, Cell, Row, StatefulWidget, Table, Widget},
 };
 
-const HEADER: [&str; 9] = ["player", "ab", "r", "h", "rbi", "bb", "so", "lob", "avg"];
+const HEADER: [&str; 10] = ["player", "ab", "r", "h", "rbi", "bb", "so", "hr", "lob", "avg"];
 
 pub struct TeamBatterBoxscoreWidget {
     pub active: HomeOrAway,
@@ -21,7 +21,7 @@ impl StatefulWidget for TeamBatterBoxscoreWidget {
         let width = 4;
         let mut widths = vec![Constraint::Length(width); HEADER.len()];
         // the first width needs to be wider to display the player name
-        widths[0] = Constraint::Length(15);
+        widths[0] = Constraint::Length(20);
         // the last width needs to be wider to display batting average
         widths[HEADER.len() - 1] = Constraint::Length(5);
 

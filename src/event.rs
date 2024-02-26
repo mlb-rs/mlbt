@@ -36,6 +36,13 @@ pub fn handle_key_bindings(
             let _ = selective_update.try_send(MenuItem::Standings);
         }
 
+        (_, Char(':')) => {
+            match app.active_tab {
+                MenuItem::Scoreboard | MenuItem::Stats => app.update_tab(MenuItem::DatePicker),
+                _ => ()
+            }
+        }
+
         (MenuItem::Scoreboard, Char('j')) => {
             app.state.schedule.next();
             let _ = selective_update.try_send(MenuItem::Scoreboard);
@@ -44,7 +51,6 @@ pub fn handle_key_bindings(
             app.state.schedule.previous();
             let _ = selective_update.try_send(MenuItem::Scoreboard);
         }
-        (MenuItem::Scoreboard, Char(':')) => app.update_tab(MenuItem::DatePicker),
 
         (MenuItem::DatePicker, KeyCode::Enter) => {
             let date: String = app.state.date_input.text.drain(..).collect();
@@ -54,6 +60,15 @@ pub fn handle_key_bindings(
                 let _ = selective_update.try_send(MenuItem::DatePicker);
             } else {
                 app.state.date_input.is_valid = false;
+            }
+
+            match app.previous_tab {
+                MenuItem::Scoreboard => app.update_tab(MenuItem::Scoreboard),
+                MenuItem::Stats => {
+                    app.update_tab(MenuItem::Stats);
+                    let _ = selective_update.try_send(MenuItem::Stats);
+                },
+                _ => ()
             }
         }
         (MenuItem::DatePicker, KeyCode::Right) => {
