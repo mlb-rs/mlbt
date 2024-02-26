@@ -37,6 +37,12 @@ pub enum StatGroup {
     // Streak,
 }
 
+impl Default for StatGroup {
+  fn default() -> Self {
+    StatGroup::Pitching
+  }
+}
+
 /// Display the StatGroup in all lowercase.
 impl fmt::Display for StatGroup {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

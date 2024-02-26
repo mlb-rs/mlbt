@@ -1,5 +1,5 @@
 use crate::app::{App, GamedayPanels};
-use chrono::{NaiveDate, Utc};
+use chrono::NaiveDate;
 use mlb_api::client::StatGroup;
 use std::fmt;
 use tui::backend::Backend;
@@ -40,8 +40,8 @@ impl DebugInfo {
             terminal_width: 0,
             terminal_height: 0,
             gameday_active_views: GamedayPanels::default(),
-            date: Utc::now().date_naive(),
-            stat_type: StatGroup::Pitching,
+            date: NaiveDate::default(),
+            stat_type: StatGroup::default(),
         }
     }
     // TODO add more info
