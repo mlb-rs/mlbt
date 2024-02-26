@@ -177,13 +177,6 @@ where
         chunks[2],
         &mut app.state.live_game.boxscore
     );
-    f.render_stateful_widget(
-        TeamBatterBoxscoreWidget {
-            active: HomeOrAway::Home
-        },
-        chunks[2],
-        &mut app.live_game.boxscore
-    );
 }
 
 fn draw_date_picker<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
@@ -288,16 +281,6 @@ where
     );
 }
 
-fn draw_standings<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
-where
-    B: Backend,
-{
-    f.render_stateful_widget(
-        StandingsWidget {},
-        rect,
-        &mut app.standings,
-    );
-}
 
 fn draw_help<B>(f: &mut Frame<B>, rect: Rect)
 where
