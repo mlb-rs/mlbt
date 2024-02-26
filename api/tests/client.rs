@@ -87,7 +87,7 @@ mod tests {
     async fn test_team_stats_on_date() {
         let mut server = mockito::Server::new();
 
-        let date: NaiveDate = NaiveDate::from_ymd_opt(2022,7, 9).unwrap();
+        let date: NaiveDate = NaiveDate::from_ymd_opt(2022, 7, 9).unwrap();
         for group in vec![StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!(
                 "v1/teams/stats?sportId=1&stats=byDateRange&season=2022&endDate=2022-07-09&group={}",

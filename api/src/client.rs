@@ -38,9 +38,9 @@ pub enum StatGroup {
 }
 
 impl Default for StatGroup {
-  fn default() -> Self {
-    StatGroup::Pitching
-  }
+    fn default() -> Self {
+        StatGroup::Pitching
+    }
 }
 
 /// Display the StatGroup in all lowercase.
