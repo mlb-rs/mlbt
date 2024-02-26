@@ -36,12 +36,12 @@ pub fn handle_key_bindings(
             let _ = selective_update.try_send(MenuItem::Standings);
         }
 
-        (_, Char(':')) => {
-            match app.state.active_tab {
-                MenuItem::Scoreboard | MenuItem::Stats | MenuItem::Standings => app.update_tab(MenuItem::DatePicker),
-                _ => ()
+        (_, Char(':')) => match app.state.active_tab {
+            MenuItem::Scoreboard | MenuItem::Stats | MenuItem::Standings => {
+                app.update_tab(MenuItem::DatePicker)
             }
-        }
+            _ => (),
+        },
 
         (MenuItem::Scoreboard, Char('j')) => {
             app.state.schedule.next();

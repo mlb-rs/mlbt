@@ -95,11 +95,11 @@ mod tests {
             );
 
             let _m = server
-              .mock("GET", Matcher::Exact(url))
-              .with_status(200)
-              .with_header("content-type", "application/json;charset=UTF-8")
-              .with_body_from_file("./tests/responses/team-stats-date.json")
-              .create();
+                .mock("GET", Matcher::Exact(url))
+                .with_status(200)
+                .with_header("content-type", "application/json;charset=UTF-8")
+                .with_body_from_file("./tests/responses/team-stats-date.json")
+                .create();
 
             let resp = CLIENT.get_team_stats_on_date(group, date).await;
             println!("{:?}", resp);
@@ -135,11 +135,11 @@ mod tests {
             );
 
             let _m = server
-              .mock("GET", Matcher::Exact(url))
-              .with_status(200)
-              .with_header("content-type", "application/json;charset=UTF-8")
-              .with_body_from_file("./tests/responses/player-stats-date.json")
-              .create();
+                .mock("GET", Matcher::Exact(url))
+                .with_status(200)
+                .with_header("content-type", "application/json;charset=UTF-8")
+                .with_body_from_file("./tests/responses/player-stats-date.json")
+                .create();
 
             let resp = CLIENT.get_player_stats_on_date(group, date).await;
             println!("{:?}", resp);
@@ -166,5 +166,4 @@ mod tests {
             println!("{:?}", resp);
         }
     }
-
 }

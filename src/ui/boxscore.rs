@@ -8,7 +8,9 @@ use tui::{
     widgets::{Block, Borders, Cell, Row, StatefulWidget, Table, Widget},
 };
 
-const HEADER: [&str; 10] = ["player", "ab", "r", "h", "rbi", "bb", "so", "hr", "lob", "avg"];
+const HEADER: [&str; 10] = [
+    "player", "ab", "r", "h", "rbi", "bb", "so", "hr", "lob", "avg",
+];
 
 pub struct TeamBatterBoxscoreWidget {
     pub active: HomeOrAway,

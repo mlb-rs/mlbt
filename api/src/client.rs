@@ -126,7 +126,11 @@ impl MLBApi {
         self.get(url).await
     }
 
-    pub async fn get_player_stats_on_date(&self, group: StatGroup, date: NaiveDate) -> StatResponse {
+    pub async fn get_player_stats_on_date(
+        &self,
+        group: StatGroup,
+        date: NaiveDate,
+    ) -> StatResponse {
         let url = format!(
             "{}v1/stats?stats=byDateRange&season={}&endDate={}&group={}",
             self.base_url,
@@ -144,8 +148,8 @@ impl MLBApi {
             .await
             .map(From::from)
             .unwrap_or_else(|err| {
-              eprintln!("parsing error {:?}", err);
-              T::default()
+                eprintln!("parsing error {:?}", err);
+                T::default()
             })
     }
 }

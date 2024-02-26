@@ -5,7 +5,7 @@ use tui::text::{Line, Span};
 use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, Tabs};
 use tui::{Frame, Terminal};
 
-use crate::app::{App, DebugState, MenuItem, HomeOrAway};
+use crate::app::{App, DebugState, HomeOrAway, MenuItem};
 use crate::components::debug::DebugInfo;
 use crate::ui::at_bat::AtBatWidget;
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
@@ -46,7 +46,7 @@ where
                         MenuItem::Scoreboard => draw_scoreboard(f, main_layout.main, app),
                         MenuItem::Stats => draw_stats(f, main_layout.main, app),
                         MenuItem::Standings => draw_standings(f, main_layout.main, app),
-                        _ => ()
+                        _ => (),
                     }
 
                     draw_date_picker(f, main_layout.main, app);
@@ -162,7 +162,7 @@ where
     // Away Team Box Score
     f.render_stateful_widget(
         TeamBatterBoxscoreWidget {
-            active: HomeOrAway::Away
+            active: HomeOrAway::Away,
         },
         chunks[1],
         &mut app.state.live_game.boxscore,
@@ -171,10 +171,10 @@ where
     // Home Team Box Score
     f.render_stateful_widget(
         TeamBatterBoxscoreWidget {
-            active: HomeOrAway::Home
+            active: HomeOrAway::Home,
         },
         chunks[2],
-        &mut app.state.live_game.boxscore
+        &mut app.state.live_game.boxscore,
     );
 }
 
@@ -273,13 +273,8 @@ fn draw_standings<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
 where
     B: Backend,
 {
-    f.render_stateful_widget(
-        StandingsWidget {},
-        rect,
-        &mut app.state.standings,
-    );
+    f.render_stateful_widget(StandingsWidget {}, rect, &mut app.state.standings);
 }
-
 
 fn draw_help<B>(f: &mut Frame<B>, rect: Rect)
 where

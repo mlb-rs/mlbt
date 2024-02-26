@@ -1,7 +1,7 @@
 use crate::app::{App, GamedayPanels};
-use std::fmt;
 use chrono::NaiveDate;
 use mlb_api::client::StatGroup;
+use std::fmt;
 use tui::backend::Backend;
 use tui::Frame;
 
@@ -41,7 +41,7 @@ impl DebugInfo {
             terminal_height: 0,
             gameday_active_views: GamedayPanels::default(),
             date: NaiveDate::from_ymd_opt(2022, 07, 09).unwrap(),
-            stat_type: StatGroup::Pitching
+            stat_type: StatGroup::Pitching,
         }
     }
     // TODO add more info
