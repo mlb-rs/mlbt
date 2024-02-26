@@ -146,7 +146,7 @@ impl MLBApi {
         .unwrap_or_else(|err| {
           eprintln!("parsing error {:?}", err);
           T::default()
-        })   
+        })
     }
 }
 
