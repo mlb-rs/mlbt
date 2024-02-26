@@ -25,22 +25,17 @@ pub struct MLBApi {
 /// The available stat groups. These are taken from the "meta" endpoint:
 /// https://statsapi.mlb.com/api/v1/statGroups
 /// I only need to use Hitting and Pitching for now.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub enum StatGroup {
-    Hitting,
+    #[default]
     Pitching,
+    Hitting,
     // Fielding,
     // Catching,
     // Running,
     // Game,
     // Team,
     // Streak,
-}
-
-impl Default for StatGroup {
-    fn default() -> Self {
-        StatGroup::Pitching
-    }
 }
 
 /// Display the StatGroup in all lowercase.
