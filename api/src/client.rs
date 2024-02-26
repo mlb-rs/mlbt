@@ -81,6 +81,18 @@ impl MLBApi {
         self.get(url).await
     }
 
+    pub async fn get_standings_on_date<T: Datelike>(&self, date: T) -> StandingsResponse {
+        let url = format!(
+            "{}v1/standings?sportId=1&season={}&date={}-{}-{}&leagueId=103,104",
+            self.base_url,
+            date.year(),
+            date.year(),
+            date.month(),
+            date.day(),
+        );
+        self.get(url).await
+    }
+
     pub async fn get_team_stats(&self, group: StatGroup) -> StatResponse {
         let local: DateTime<Local> = Local::now();
         let url = format!(

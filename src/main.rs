@@ -133,7 +133,7 @@ async fn network_thread(app: Arc<Mutex<App>>) {
                     }
                     // update standings only when tab is switched to
                     Ok(MenuItem::Standings) => {
-                        let standings = app.client.get_standings().await;
+                        let standings = app.client.get_standings_on_date(app.state.schedule.date).await;
                         app.state.standings.update(&standings);
                     }
                     // update stats only when tab is switched to, team/player is changed, or
