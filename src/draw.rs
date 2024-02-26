@@ -45,6 +45,7 @@ where
                     match app.state.previous_tab {
                         MenuItem::Scoreboard => draw_scoreboard(f, main_layout.main, app),
                         MenuItem::Stats => draw_stats(f, main_layout.main, app),
+                        MenuItem::Standings => draw_standings(f, main_layout.main, app),
                         _ => ()
                     }
 
@@ -52,9 +53,7 @@ where
                 }
                 MenuItem::Gameday => draw_gameday(f, main_layout.main, app),
                 MenuItem::Stats => draw_stats(f, main_layout.main, app),
-                MenuItem::Standings => {
-                    draw_standings(f, main_layout.main, app);
-                }
+                MenuItem::Standings => draw_standings(f, main_layout.main, app),
                 MenuItem::Help => draw_help(f, f.size()),
             }
             if app.state.debug_state == DebugState::On {

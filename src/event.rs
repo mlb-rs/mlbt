@@ -38,7 +38,7 @@ pub fn handle_key_bindings(
 
         (_, Char(':')) => {
             match app.state.active_tab {
-                MenuItem::Scoreboard | MenuItem::Stats => app.update_tab(MenuItem::DatePicker),
+                MenuItem::Scoreboard | MenuItem::Stats | MenuItem::Standings => app.update_tab(MenuItem::DatePicker),
                 _ => ()
             }
         }
