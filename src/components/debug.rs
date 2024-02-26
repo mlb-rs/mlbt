@@ -40,7 +40,7 @@ impl DebugInfo {
             terminal_width: 0,
             terminal_height: 0,
             gameday_active_views: GamedayPanels::default(),
-            date: NaiveDate::from_ymd(2022, 07, 09),
+            date: NaiveDate::from_ymd_opt(2022, 07, 09).unwrap(),
             stat_type: StatGroup::Pitching
         }
     }
@@ -55,8 +55,8 @@ impl DebugInfo {
         self.gameday_url = format!("https://www.mlb.com/gameday/{}", self.game_id);
         self.terminal_width = f.size().width;
         self.terminal_height = f.size().height;
-        self.gameday_active_views = app.gameday;
-        self.date = app.schedule.date;
-        self.stat_type = app.stats.stat_type.group.clone();
+        self.gameday_active_views = app.state.gameday;
+        self.date = app.state.schedule.date;
+        self.stat_type = app.state.stats.stat_type.group.clone();
     }
 }

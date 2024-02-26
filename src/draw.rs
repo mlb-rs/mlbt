@@ -5,7 +5,7 @@ use tui::text::{Line, Span};
 use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, Tabs};
 use tui::{Frame, Terminal};
 
-use crate::app::{App, DebugState, MenuItem};
+use crate::app::{App, DebugState, MenuItem, HomeOrAway};
 use crate::components::debug::DebugInfo;
 use crate::ui::at_bat::AtBatWidget;
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
@@ -42,7 +42,7 @@ where
             match app.state.active_tab {
                 MenuItem::Scoreboard => draw_scoreboard(f, main_layout.main, app),
                 MenuItem::DatePicker => {
-                    match app.previous_tab {
+                    match app.state.previous_tab {
                         MenuItem::Scoreboard => draw_scoreboard(f, main_layout.main, app),
                         MenuItem::Stats => draw_stats(f, main_layout.main, app),
                         _ => ()
@@ -159,19 +159,23 @@ where
         chunks[0],
         &mut app.state.live_game.linescore,
     );
+
+    // Away Team Box Score
     f.render_stateful_widget(
         TeamBatterBoxscoreWidget {
-            active: app.state.boxscore_tab,
+            active: HomeOrAway::Away
         },
         chunks[1],
         &mut app.state.live_game.boxscore,
     );
+
+    // Home Team Box Score
     f.render_stateful_widget(
         TeamBatterBoxscoreWidget {
             active: HomeOrAway::Home
         },
         chunks[2],
-        &mut app.live_game.boxscore
+        &mut app.state.live_game.boxscore
     );
 }
 
@@ -273,7 +277,7 @@ where
     f.render_stateful_widget(
         StandingsWidget {},
         rect,
-        &mut app.standings,
+        &mut app.state.standings,
     );
 }
 

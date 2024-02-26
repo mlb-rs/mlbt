@@ -155,7 +155,7 @@ impl ScheduleRow {
         // TODO let timezone be configurable
         let datetime = DateTime::parse_from_rfc3339(&game.game_date)
             .unwrap()
-            .with_timezone(&Local);
+            .with_timezone(&TIMEZONE);
         let start_time = datetime.format("%l:%M %P").to_string();
 
         let game_status = match &game.status.detailed_state {

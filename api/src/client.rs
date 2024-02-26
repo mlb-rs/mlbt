@@ -92,7 +92,7 @@ impl MLBApi {
         self.get(url).await
     }
 
-    pub fn get_team_stats_on_date(&self, group: StatGroup, date: NaiveDate) -> StatResponse {
+    pub async fn get_team_stats_on_date(&self, group: StatGroup, date: NaiveDate) -> StatResponse {
         let url = format!(
             "{}v1/teams/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}",
             self.base_url,
@@ -100,10 +100,10 @@ impl MLBApi {
             date.format("%Y-%m-%d"),
             group
         );
-        self.get(url)
+        self.get(url).await
     }
 
-    pub fn get_player_stats(&self, group: StatGroup) -> StatResponse {
+    pub async fn get_player_stats(&self, group: StatGroup) -> StatResponse {
         let local: DateTime<Local> = Local::now();
         let url = format!(
             "{}v1/stats?stats=season&season={}&group={}",
@@ -114,7 +114,7 @@ impl MLBApi {
         self.get(url).await
     }
 
-    pub fn get_player_stats_on_date(&self, group: StatGroup, date: NaiveDate) -> StatResponse {
+    pub async fn get_player_stats_on_date(&self, group: StatGroup, date: NaiveDate) -> StatResponse {
         let url = format!(
             "{}v1/stats?stats=byDateRange&season={}&endDate={}&group={}",
             self.base_url,
@@ -122,18 +122,19 @@ impl MLBApi {
             date.format("%Y-%m-%d"),
             group
         );
-        self.get(url)
+        self.get(url).await
     }
 
-    // TODO need better error handling, especially on parsing
-    fn get<T: Default + DeserializeOwned>(&self, url: String) -> T {
-        let response = self.client.get(url).send().unwrap_or_else(|err| {
-            panic!("network error {:?}", err);
-        });
-        response.json::<T>().map(From::from).unwrap_or_else(|err| {
-            eprintln!("parsing error {:?}", err);
-            T::default()
-        })
+    async fn get<T: Default + DeserializeOwned>(&self, url: String) -> T {
+      let response = self.client.get(url).send().await.expect("network error");
+      response
+        .json::<T>()
+        .await
+        .map(From::from)
+        .unwrap_or_else(|err| {
+          eprintln!("parsing error {:?}", err);
+          T::default()
+        })   
     }
 }
 
