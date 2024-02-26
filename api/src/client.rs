@@ -25,10 +25,11 @@ pub struct MLBApi {
 /// The available stat groups. These are taken from the "meta" endpoint:
 /// https://statsapi.mlb.com/api/v1/statGroups
 /// I only need to use Hitting and Pitching for now.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub enum StatGroup {
-    Hitting,
+    #[default]
     Pitching,
+    Hitting,
     // Fielding,
     // Catching,
     // Running,
@@ -81,6 +82,18 @@ impl MLBApi {
         self.get(url).await
     }
 
+    pub async fn get_standings_on_date<T: Datelike>(&self, date: T) -> StandingsResponse {
+        let url = format!(
+            "{}v1/standings?sportId=1&season={}&date={}-{}-{}&leagueId=103,104",
+            self.base_url,
+            date.year(),
+            date.year(),
+            date.month(),
+            date.day(),
+        );
+        self.get(url).await
+    }
+
     pub async fn get_team_stats(&self, group: StatGroup) -> StatResponse {
         let local: DateTime<Local> = Local::now();
         let url = format!(
@@ -92,12 +105,38 @@ impl MLBApi {
         self.get(url).await
     }
 
+    pub async fn get_team_stats_on_date(&self, group: StatGroup, date: NaiveDate) -> StatResponse {
+        let url = format!(
+            "{}v1/teams/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}",
+            self.base_url,
+            date.year(),
+            date.format("%Y-%m-%d"),
+            group
+        );
+        self.get(url).await
+    }
+
     pub async fn get_player_stats(&self, group: StatGroup) -> StatResponse {
         let local: DateTime<Local> = Local::now();
         let url = format!(
             "{}v1/stats?stats=season&season={}&group={}",
             self.base_url,
             local.year(),
+            group
+        );
+        self.get(url).await
+    }
+
+    pub async fn get_player_stats_on_date(
+        &self,
+        group: StatGroup,
+        date: NaiveDate,
+    ) -> StatResponse {
+        let url = format!(
+            "{}v1/stats?stats=byDateRange&season={}&endDate={}&group={}",
+            self.base_url,
+            date.year(),
+            date.format("%Y-%m-%d"),
             group
         );
         self.get(url).await

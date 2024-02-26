@@ -120,11 +120,6 @@ With the date picker active, input a date in the form of `YYYY-MM-DD`, or use
 the `left`/`right` arrow keys, and press `Enter`. This will display the schedule
 for that day. To view games for the current day, input `today`.
 
-To switch the team displayed in the box score:
-
-- `h`: home team
-- `a`: away team
-
 ### Gameday
 
 Press `2` to activate this tab.
@@ -135,11 +130,6 @@ toggled on and off using:
 - `i`: info pane
 - `p`: pitches pane
 - `b`: box score pane
-
-To switch the team displayed in the box score:
-
-- `h`: home team
-- `a`: away team
 
 ### Stats
 
@@ -152,6 +142,11 @@ or `player` using:
 - `h`: hitting
 - `t`: team
 - `l`: player
+- `:`: activate date picker
+
+With the date picker active, input a date in the form of `YYYY-MM-DD`, or use
+the `left`/`right` arrow keys, and press `Enter`. This will display the selected stats
+for the season up to that day. To view stats for the up to the current day, input `today`.
 
 Within each stat group (pitching or hitting) you can toggle the display of
 individual stat columns by selecting the stat with `Enter`. This selection pane
@@ -171,7 +166,13 @@ Press `4` to activate this tab.
 
 - `j`: move down
 - `k`: move up
+- `:`: activate date picker
 - `Enter`: display a teams roster TODO
+
+With the date picker active, input a date in the form of `YYYY-MM-DD`, or use
+the `left`/`right` arrow keys, and press `Enter`. This will display the standings
+up to that day. To view the standingsup to the current day, input `today`.
+
 
 ### Help
 

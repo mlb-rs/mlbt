@@ -84,9 +84,31 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_player_stats() {
+    async fn test_team_stats_on_date() {
         let mut server = mockito::Server::new();
 
+        let date: NaiveDate = NaiveDate::from_ymd_opt(2022, 7, 9).unwrap();
+        for group in vec![StatGroup::Hitting, StatGroup::Pitching] {
+            let url = format!(
+                "v1/teams/stats?sportId=1&stats=byDateRange&season=2022&endDate=2022-07-09&group={}",
+                group
+            );
+
+            let _m = server
+                .mock("GET", Matcher::Exact(url))
+                .with_status(200)
+                .with_header("content-type", "application/json;charset=UTF-8")
+                .with_body_from_file("./tests/responses/team-stats-date.json")
+                .create();
+
+            let resp = CLIENT.get_team_stats_on_date(group, date).await;
+            println!("{:?}", resp);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_player_stats() {
+        let mut server = mockito::Server::new();
         for group in vec![StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!("v1/stats?stats=season&season=2021&group={}", group);
 
@@ -98,6 +120,28 @@ mod tests {
                 .create();
 
             let resp = CLIENT.get_player_stats(group).await;
+            println!("{:?}", resp);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_player_stats_on_date() {
+        let mut server = mockito::Server::new();
+        let date: NaiveDate = NaiveDate::from_ymd_opt(2022, 7, 9).unwrap();
+        for group in vec![StatGroup::Hitting, StatGroup::Pitching] {
+            let url = format!(
+                "v1/stats?sportId=1&stats=byDateRange&season=2022&endDate=2022-07-09&group={}",
+                group
+            );
+
+            let _m = server
+                .mock("GET", Matcher::Exact(url))
+                .with_status(200)
+                .with_header("content-type", "application/json;charset=UTF-8")
+                .with_body_from_file("./tests/responses/player-stats-date.json")
+                .create();
+
+            let resp = CLIENT.get_player_stats_on_date(group, date).await;
             println!("{:?}", resp);
         }
     }
