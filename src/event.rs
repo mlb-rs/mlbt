@@ -8,7 +8,7 @@ use mlb_api::client::StatGroup;
 
 pub fn handle_key_bindings(
     key_event: KeyEvent,
-    mut app: &mut app::App,
+    app: &mut app::App,
     request_redraw: &Sender<()>,
     selective_update: &Sender<MenuItem>,
 ) {

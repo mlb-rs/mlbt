@@ -39,7 +39,7 @@ impl LayoutAreas {
         };
         let chunks = Layout::default()
             .direction(Direction::Vertical)
-            .constraints(constraints.as_ref())
+            .constraints::<&[Constraint]>(constraints.as_ref())
             .split(size);
 
         self.top_bar = LayoutAreas::create_top_bar(chunks[0]);

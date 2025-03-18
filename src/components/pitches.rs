@@ -26,6 +26,7 @@ pub struct Pitches {
 
 #[derive(Debug)]
 pub struct Pitch {
+    #[allow(dead_code)]
     pub strike: bool,
     pub color: Color,
     pub description: String, // called strike, hit, strike out, ect.

@@ -108,7 +108,6 @@ impl MLBApi {
         response
             .json::<T>()
             .await
-            .map(From::from)
             .unwrap_or_else(|err| {
                 eprintln!("parsing error {:?}", err);
                 T::default()

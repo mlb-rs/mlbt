@@ -32,7 +32,7 @@ impl StatefulWidget for StatsWidget {
         };
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
-            .constraints(constraints.as_ref())
+            .constraints::<&[Constraint]>(constraints.as_ref())
             .split(area);
 
         let (header, rows) = state.generate_table();

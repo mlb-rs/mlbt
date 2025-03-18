@@ -47,7 +47,7 @@ impl StatefulWidget for AtBatWidget {
             .split(chunks[0]);
 
         // grab the strike zone from the first pitch since it doesn't change during the at bat.
-        let (strike_zone_bot, strike_zone_top) = match state.pitches.pitches.get(0) {
+        let (strike_zone_bot, strike_zone_top) = match state.pitches.pitches.first() {
             Some(p) => (p.strike_zone_bot * 12.0, p.strike_zone_top * 12.0),
             None => (DEFAULT_SZ_BOT * 12.0, DEFAULT_SZ_TOP * 12.0),
         };
