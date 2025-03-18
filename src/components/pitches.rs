@@ -71,7 +71,12 @@ impl Pitch {
         Pitch {
             strike: pitch_details.is_strike.unwrap_or(false),
             speed: pitch_data.start_speed.unwrap_or(0.0),
-            color: convert_color(pitch_details.ball_color.clone().unwrap_or_default()),
+            color: convert_color(
+                pitch_details
+                    .ball_color
+                    .clone()
+                    .unwrap_or_else(|| String::from("rgba(0, 0, 0, 0)")),
+            ),
             description: pitch_details.description.clone().unwrap_or_default(),
             pitch_type: pitch_details
                 .pitch_type

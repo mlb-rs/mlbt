@@ -21,6 +21,7 @@ pub static DIVISIONS: Lazy<HashMap<u8, &'static str>> = Lazy::new(|| {
 pub static TEAM_NAMES: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     HashMap::from([
         ("Oakland Athletics", "Athletics"),
+        ("Athletics", "Athletics"),
         ("Pittsburgh Pirates", "Pirates"),
         ("San Diego Padres", "Padres"),
         ("Seattle Mariners", "Mariners"),
