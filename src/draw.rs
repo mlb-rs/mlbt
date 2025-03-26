@@ -1,7 +1,7 @@
 use tui::backend::Backend;
 use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Modifier, Style};
-use tui::text::{Line, Span};
+use tui::text::Line;
 use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, Tabs};
 use tui::{Frame, Terminal};
 
@@ -78,21 +78,7 @@ fn draw_tabs(f: &mut Frame, top_bar: &[Rect], app: &App) {
     let border_style = Style::default();
     let border_type = BorderType::Rounded;
 
-    let titles = TABS
-        .iter()
-        .enumerate()
-        .map(|(i, t)| {
-            // underline the active tab
-            if i == app.state.active_tab as usize {
-                Line::from(Span::styled(
-                    *t,
-                    Style::default().add_modifier(Modifier::UNDERLINED),
-                ))
-            } else {
-                Line::from(*t)
-            }
-        })
-        .collect();
+    let titles: Vec<Line> = TABS.iter().map(|t| Line::from(*t)).collect();
 
     let tabs = Tabs::new(titles)
         .block(
@@ -101,6 +87,11 @@ fn draw_tabs(f: &mut Frame, top_bar: &[Rect], app: &App) {
                 .border_type(border_type)
                 .border_style(border_style),
         )
+        .highlight_style(
+            // underline the active tab
+            Style::default().add_modifier(Modifier::UNDERLINED),
+        )
+        .select(app.state.active_tab as usize)
         .style(style);
     f.render_widget(tabs, top_bar[0]);
 
