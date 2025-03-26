@@ -17,11 +17,13 @@ impl StatefulWidget for MatchupWidget {
         let chunks = LayoutAreas::for_info(area);
 
         Widget::render(
-            Table::new(state.to_table().iter().map(|row| Row::new(row.clone())))
-                .widths(&[Constraint::Length(12), Constraint::Length(25)])
-                .column_spacing(1)
-                .style(Style::default().fg(Color::White))
-                .block(Block::default().borders(Borders::NONE)),
+            Table::new(
+                state.to_table().iter().map(|row| Row::new(row.clone())),
+                [Constraint::Length(12), Constraint::Length(25)],
+            )
+            .column_spacing(1)
+            .style(Style::default().fg(Color::White))
+            .block(Block::default().borders(Borders::NONE)),
             chunks[0],
             buf,
         );

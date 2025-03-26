@@ -1,17 +1,13 @@
 use crate::components::debug::DebugInfo;
 use tui::{
-    backend::Backend,
+    Frame,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Style},
     widgets::{Block, Borders, Clear, Paragraph},
-    Frame,
 };
 
 impl DebugInfo {
-    pub fn render<B>(&self, f: &mut Frame<B>, rect: Rect)
-    where
-        B: Backend,
-    {
+    pub fn render(&self, f: &mut Frame, rect: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())

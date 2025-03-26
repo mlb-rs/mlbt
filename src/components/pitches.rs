@@ -6,8 +6,8 @@ use mlb_api::plays::PlayEvent;
 use tui::{
     style::{Color, Style},
     text::{Line, Span},
-    widgets::canvas::Rectangle,
     widgets::ListItem,
+    widgets::canvas::Rectangle,
 };
 
 /// Used to display the pitch number next to the pitch type in the Canvas. Hopefully no one has at

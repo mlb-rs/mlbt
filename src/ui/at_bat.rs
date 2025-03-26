@@ -1,14 +1,14 @@
 use crate::components::at_bat::AtBat;
 use crate::components::pitches::{DEFAULT_IDX, PITCH_IDX};
-use crate::components::strikezone::{StrikeZone, DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH};
+use crate::components::strikezone::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH, StrikeZone};
 
 use tui::{
     buffer::Buffer,
-    layout::{Constraint, Corner, Direction, Layout, Rect},
+    layout::{Constraint, Direction, Layout, Rect},
     style::Style,
     text::Span,
     widgets::canvas::{Canvas, Rectangle},
-    widgets::{Block, Borders, List, ListItem, StatefulWidget, Widget},
+    widgets::{Block, Borders, List, ListDirection, ListItem, StatefulWidget, Widget},
 };
 
 pub struct AtBatWidget {}
@@ -95,7 +95,7 @@ impl StatefulWidget for AtBatWidget {
         Widget::render(
             List::new(pitches)
                 .block(Block::default().borders(Borders::NONE))
-                .start_corner(Corner::TopLeft),
+                .direction(ListDirection::TopToBottom),
             chunks[1],
             buf,
         );

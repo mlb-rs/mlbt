@@ -77,8 +77,7 @@ impl Widget for HelpWidget {
             .horizontal_margin(2)
             .split(area);
 
-        Table::new(rows)
-            .widths(&[Constraint::Percentage(100)])
+        Table::new(rows, [Constraint::Percentage(100)])
             .header(header)
             .style(help_menu_style)
             .render(chunks[0], buf);

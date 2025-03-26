@@ -1,7 +1,7 @@
 use mlb_api::client::StatGroup;
 
 use crate::components::stats::{
-    StatsState, TeamOrPlayer, STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH,
+    STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH, StatsState, TeamOrPlayer,
 };
 
 use tui::{
@@ -71,15 +71,14 @@ impl StatefulWidget for StatsWidget {
         }
 
         // stats
-        let t = Table::new(rows)
+        let t = Table::new(rows, constraints)
             .header(header)
             .column_spacing(0)
             .block(
                 Block::default()
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded),
-            )
-            .widths(constraints.as_ref());
+            );
 
         StatefulWidget::render(t, chunks[0], buf, &mut state.state);
 
@@ -123,19 +122,19 @@ impl StatefulWidget for StatsWidget {
                 .render(chunks[0], buf);
 
             // options
-            let t = Table::new(options)
+            let widths = [
+                Constraint::Length(4),
+                Constraint::Length(6),
+                Constraint::Length(25),
+            ];
+            let t = Table::new(options, widths)
                 .column_spacing(0)
                 .block(
                     Block::default()
                         .borders(Borders::ALL)
                         .border_type(BorderType::Rounded),
                 )
-                .highlight_style(selected_style)
-                .widths(&[
-                    Constraint::Length(4),
-                    Constraint::Length(6),
-                    Constraint::Length(25),
-                ]);
+                .highlight_style(selected_style);
             StatefulWidget::render(t, chunks[1], buf, &mut state.state);
         }
     }

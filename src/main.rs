@@ -13,11 +13,11 @@ use std::{io, panic};
 use crate::app::{App, MenuItem};
 use crate::components::schedule::ScheduleState;
 use crate::components::stats::TeamOrPlayer;
-use crossbeam_channel::{bounded, select, Receiver};
+use crossbeam_channel::{Receiver, bounded, select};
 use crossterm::event::Event;
 use crossterm::{cursor, execute, terminal};
 use tokio::sync::Mutex;
-use tui::{backend::CrosstermBackend, Terminal};
+use tui::{Terminal, backend::CrosstermBackend};
 
 const UPDATE_INTERVAL_SECONDS: u64 = 10;
 
@@ -202,8 +202,10 @@ fn cleanup_terminal() {
 
 fn setup_ui_events() -> Receiver<Event> {
     let (sender, receiver) = bounded(100);
-    std::thread::spawn(move || loop {
-        sender.send(crossterm::event::read().unwrap()).unwrap();
+    std::thread::spawn(move || {
+        loop {
+            sender.send(crossterm::event::read().unwrap()).unwrap();
+        }
     });
     receiver
 }

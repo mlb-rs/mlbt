@@ -57,8 +57,16 @@ impl StatefulWidget for ScheduleWidget {
 
         let rows = state.schedule.iter().map(|r| Row::new(r.format()));
         let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
+        let widths = [
+            Constraint::Length(10), // away team name
+            Constraint::Length(3),  // away score
+            Constraint::Length(10), // home team name
+            Constraint::Length(6),  // home score + padding
+            Constraint::Length(14), // game time
+            Constraint::Length(20), // game status
+        ];
 
-        let t = Table::new(rows)
+        let t = Table::new(rows, widths)
             .header(header)
             .block(
                 Block::default()
@@ -70,15 +78,7 @@ impl StatefulWidget for ScheduleWidget {
                     )),
             )
             .highlight_style(selected_style)
-            .highlight_symbol(">> ")
-            .widths(&[
-                Constraint::Length(10), // away team name
-                Constraint::Length(3),  // away score
-                Constraint::Length(10), // home team name
-                Constraint::Length(6),  // home score + padding
-                Constraint::Length(14), // game time
-                Constraint::Length(20), // game status
-            ]);
+            .highlight_symbol(">> ");
 
         StatefulWidget::render(t, area, buf, &mut state.state);
     }

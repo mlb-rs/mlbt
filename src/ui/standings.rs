@@ -34,7 +34,16 @@ impl StatefulWidget for StandingsWidget {
         }
 
         let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
-        let t = Table::new(rows)
+        let widths = [
+            Constraint::Length(20),
+            Constraint::Length(5),
+            Constraint::Length(5),
+            Constraint::Length(5),
+            Constraint::Length(5),
+            Constraint::Length(5),
+            Constraint::Length(5),
+        ];
+        let t = Table::new(rows, widths)
             .header(header)
             .block(
                 Block::default()
@@ -42,16 +51,7 @@ impl StatefulWidget for StandingsWidget {
                     .border_type(BorderType::Rounded),
             )
             .highlight_style(selected_style)
-            .highlight_symbol(">> ")
-            .widths(&[
-                Constraint::Length(20),
-                Constraint::Length(5),
-                Constraint::Length(5),
-                Constraint::Length(5),
-                Constraint::Length(5),
-                Constraint::Length(5),
-                Constraint::Length(5),
-            ]);
+            .highlight_symbol(">> ");
 
         StatefulWidget::render(t, area, buf, &mut state.state);
     }
