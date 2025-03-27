@@ -76,7 +76,7 @@ impl Pitch {
                 pitch_details
                     .ball_color
                     .clone()
-                    .unwrap_or_else(|| String::from("rgba(0, 0, 0, 0)")),
+                    .unwrap_or_else(|| String::from("rgba(255, 255, 255, 0)")),
             ),
             description: pitch_details.description.clone().unwrap_or_default(),
             pitch_type: pitch_details
