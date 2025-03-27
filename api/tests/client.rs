@@ -14,7 +14,7 @@ mod tests {
     /// Test the schedule for the All Star Game 2021
     #[tokio::test]
     async fn test_schedule_all_star_game() {
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
 
         let _m = server
             .mock("GET", "v1/schedule?sportId=1&date=2021-07-13")
@@ -30,7 +30,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_standings() {
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
 
         let _m = server
             .mock(
@@ -48,7 +48,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_live() {
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
 
         let _m = server
             .mock("GET", "v1.1/game/632386/feed/live?language=en")
@@ -63,9 +63,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_team_stats() {
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
 
-        for group in vec![StatGroup::Hitting, StatGroup::Pitching] {
+        for group in [StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!(
                 "v1/teams/stats?sportId=1&stats=season&season=2021&group={}",
                 group
@@ -85,9 +85,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_player_stats() {
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
 
-        for group in vec![StatGroup::Hitting, StatGroup::Pitching] {
+        for group in [StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!("v1/stats?stats=season&season=2021&group={}", group);
 
             let _m = server
