@@ -77,7 +77,7 @@ impl StatefulWidget for ScheduleWidget {
                         Style::default().fg(Color::Black).bg(Color::Blue),
                     )),
             )
-            .highlight_style(selected_style)
+            .row_highlight_style(selected_style)
             .highlight_symbol(">> ");
 
         StatefulWidget::render(t, area, buf, &mut state.state);

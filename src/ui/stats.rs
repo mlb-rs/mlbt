@@ -134,7 +134,7 @@ impl StatefulWidget for StatsWidget {
                         .borders(Borders::ALL)
                         .border_type(BorderType::Rounded),
                 )
-                .highlight_style(selected_style);
+                .row_highlight_style(selected_style);
             StatefulWidget::render(t, chunks[1], buf, &mut state.state);
         }
     }

@@ -1,5 +1,5 @@
 use crate::app::GamedayPanels;
-use tui::layout::{Constraint, Direction, Layout, Rect};
+use tui::layout::{Constraint, Direction, Layout, Rect, Size};
 
 pub struct LayoutAreas {
     pub top_bar: Vec<Rect>,
@@ -10,7 +10,8 @@ const TOP_BAR_HEIGHT: u16 = 3; // length
 const MAIN_HEIGHT: u16 = 100; // percent
 
 impl LayoutAreas {
-    pub fn new(size: Rect) -> Self {
+    pub fn new(size: Size) -> Self {
+        let rect = Rect::new(0, 0, size.width, size.height);
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .margin(1)
@@ -21,7 +22,7 @@ impl LayoutAreas {
                 ]
                 .as_ref(),
             )
-            .split(size);
+            .split(rect);
 
         LayoutAreas {
             top_bar: LayoutAreas::create_top_bar(chunks[0]),

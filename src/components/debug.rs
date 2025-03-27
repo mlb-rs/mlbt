@@ -40,8 +40,8 @@ impl DebugInfo {
     pub fn gather_info(&mut self, f: &Frame, app: &App) {
         self.game_id = app.state.schedule.get_selected_game();
         self.gameday_url = format!("https://www.mlb.com/gameday/{}", self.game_id);
-        self.terminal_width = f.size().width;
-        self.terminal_height = f.size().height;
+        self.terminal_width = f.area().width;
+        self.terminal_height = f.area().height;
         self.gameday_active_views = app.state.gameday;
     }
 }

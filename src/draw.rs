@@ -33,7 +33,7 @@ where
 
     terminal
         .draw(|f| {
-            main_layout.update(f.size(), app.settings.full_screen);
+            main_layout.update(f.area(), app.settings.full_screen);
 
             if !app.settings.full_screen {
                 draw_tabs(f, &main_layout.top_bar, app);
@@ -54,7 +54,7 @@ where
                         &mut app.state.standings,
                     );
                 }
-                MenuItem::Help => draw_help(f, f.size()),
+                MenuItem::Help => draw_help(f, f.area()),
             }
             if app.state.debug_state == DebugState::On {
                 let mut dbi = DebugInfo::new();
@@ -109,7 +109,7 @@ fn draw_tabs(f: &mut Frame, top_bar: &[Rect], app: &App) {
 
 fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
     // TODO calculate width based on table sizes
-    let direction = match f.size().width {
+    let direction = match f.area().width {
         w if w < 125 => Direction::Vertical,
         _ => Direction::Horizontal,
     };
@@ -180,10 +180,10 @@ fn draw_date_picker(f: &mut Frame, rect: Rect, app: &mut App) {
     f.render_widget(block, chunk);
 
     // display cursor
-    f.set_cursor(
+    f.set_cursor_position((
         lines[2].x + app.state.date_input.text.len() as u16 + 1,
         lines[2].y,
-    )
+    ))
 }
 
 fn draw_gameday(f: &mut Frame, rect: Rect, app: &mut App) {

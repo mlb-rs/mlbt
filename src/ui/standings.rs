@@ -50,7 +50,7 @@ impl StatefulWidget for StandingsWidget {
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded),
             )
-            .highlight_style(selected_style)
+            .row_highlight_style(selected_style)
             .highlight_symbol(">> ");
 
         StatefulWidget::render(t, area, buf, &mut state.state);
