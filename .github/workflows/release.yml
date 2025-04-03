@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*.*.*"
+  pull_request:
 
 jobs:
   publish:
@@ -15,7 +16,7 @@ jobs:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
         rust: [ stable ]
         include:
-          - target: x86_64-apple-darwin
+          - target: aarch64-apple-darwin
             os: macos-latest
             artifact_prefix: macos
             cross: false
@@ -51,11 +52,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Running cargo build
-        uses: actions-rs/cargo@v1
         with:
           use-cross: ${{ matrix.cross }}
-          command: build
-          args: --release --target ${{ matrix.target }}
+          run: cargo build --release --target ${{ matrix.target }}
 
       - name: Packaging final binary (Windows)
         if: matrix.os == 'windows-latest'
@@ -81,11 +80,11 @@ jobs:
           shasum -a 256 $RELEASE_NAME.tar.gz > $RELEASE_NAME.sha256
           echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
 
-      - name: Releasing assets
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            target/${{ matrix.target }}/release/mlbt-${{ matrix.artifact_prefix }}.tar.gz
-            target/${{ matrix.target }}/release/mlbt-${{ matrix.artifact_prefix }}.sha256
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#       - name: Releasing assets
+#         uses: softprops/action-gh-release@v1
+#         with:
+#           files: |
+#             target/${{ matrix.target }}/release/mlbt-${{ matrix.artifact_prefix }}.tar.gz
+#             target/${{ matrix.target }}/release/mlbt-${{ matrix.artifact_prefix }}.sha256
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
