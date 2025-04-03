@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - "v*.*.*"
-  pull_request:
 
 jobs:
   publish:
@@ -82,11 +81,11 @@ jobs:
           shasum -a 256 $RELEASE_NAME.tar.gz > $RELEASE_NAME.sha256
           echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
 
-#       - name: Releasing assets
-#         uses: softprops/action-gh-release@v1
-#         with:
-#           files: |
-#             target/${{ matrix.target }}/release/mlbt-${{ matrix.artifact_prefix }}.tar.gz
-#             target/${{ matrix.target }}/release/mlbt-${{ matrix.artifact_prefix }}.sha256
-#         env:
-#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Releasing assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            target/${{ matrix.target }}/release/mlbt-${{ matrix.artifact_prefix }}.tar.gz
+            target/${{ matrix.target }}/release/mlbt-${{ matrix.artifact_prefix }}.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
