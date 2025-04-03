@@ -33,11 +33,13 @@ impl StatefulWidget for LineScoreWidget {
             .height(1)
             .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
 
-        let t = Table::new(vec![
-            Row::new(state.away.create_score_vec(self.active)),
-            Row::new(state.home.create_score_vec(self.active)),
-        ])
-        .widths(widths.as_slice())
+        let t = Table::new(
+            vec![
+                Row::new(state.away.create_score_vec(self.active)),
+                Row::new(state.home.create_score_vec(self.active)),
+            ],
+            widths.as_slice(),
+        )
         .column_spacing(0)
         .style(Style::default().fg(Color::White))
         .header(header)

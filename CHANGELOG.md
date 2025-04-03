@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- Updated Rust to 1.85 and 2024 version
+- Updated `ratatui` to 0.29.0
+
+### Fixed
+
+- The Athletics name was showing up as `unknown` because Oakland is no longer in
+  the name. RIP
+- The standings API had a couple fields that should be optional
+- Default to white if a pitch color is missing from the API
+
 ## [0.0.12] - 2023-06-25
 
 ### Added

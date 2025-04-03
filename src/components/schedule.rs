@@ -177,12 +177,12 @@ impl ScheduleRow {
     /// Transform the data from the API into a vector of ScheduleRows.
     fn create_table(settings: &AppSettings, schedule: &ScheduleResponse) -> Vec<Self> {
         let mut todays_games: Vec<ScheduleRow> = Vec::with_capacity(schedule.dates.len());
-        if let Some(games) = &schedule.dates.get(0) {
+        if let Some(games) = &schedule.dates.first() {
             let favorite = settings
                 .favorite_team
                 .clone()
                 .unwrap_or_else(|| "na".to_string());
-            for game in &games.games {
+            if let Some(game) = &games.games {
                 for g in game {
                     if g.teams.home.team.name == favorite || g.teams.away.team.name == favorite {
                         todays_games.insert(0, ScheduleRow::create_matchup(g));
@@ -198,7 +198,7 @@ impl ScheduleRow {
     /// The date is stored in schedule -> dates -> date.
     fn get_date_from_schedule(schedule: &ScheduleResponse) -> NaiveDate {
         let now = Utc::now().naive_local().date();
-        if let Some(games) = &schedule.dates.get(0) {
+        if let Some(games) = &schedule.dates.first() {
             match &games.date {
                 None => now,
                 Some(d) => {

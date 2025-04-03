@@ -22,7 +22,9 @@ pub struct Coordinate(pub f64, pub f64);
 
 pub struct StrikeZone {
     pub colors: Vec<Color>,
+    #[allow(dead_code)]
     pub strike_zone_bot: f64,
+    #[allow(dead_code)]
     pub strike_zone_top: f64,
 }
 
@@ -81,7 +83,7 @@ impl StrikeZone {
     /// going right, and positive Y axis going down, from the coordinate.
     pub fn build_coords(strike_zone_bot: f64, strike_zone_top: f64) -> Vec<Coordinate> {
         let y_chunk = (strike_zone_top - strike_zone_bot) / 3.0;
-        let y_coords = vec![
+        let y_coords = [
             strike_zone_bot + (2.0 * y_chunk),
             strike_zone_bot + y_chunk,
             strike_zone_bot,

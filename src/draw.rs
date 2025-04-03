@@ -1,7 +1,7 @@
 use tui::backend::Backend;
 use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Modifier, Style};
-use tui::text::{Line, Span};
+use tui::text::Line;
 use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, Tabs};
 use tui::{Frame, Terminal};
 
@@ -9,14 +9,14 @@ use crate::app::{App, DebugState, MenuItem};
 use crate::components::debug::DebugInfo;
 use crate::ui::at_bat::AtBatWidget;
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
-use crate::ui::help::{HelpWidget, DOCS_LEN};
+use crate::ui::help::{DOCS_LEN, HelpWidget};
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
 use crate::ui::matchup::MatchupWidget;
 use crate::ui::plays::InningPlaysWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::standings::StandingsWidget;
-use crate::ui::stats::{StatsWidget, STATS_OPTIONS_WIDTH};
+use crate::ui::stats::{STATS_OPTIONS_WIDTH, StatsWidget};
 
 static TABS: &[&str; 4] = &["Scoreboard", "Gameday", "Stats", "Standings"];
 
@@ -33,7 +33,7 @@ where
 
     terminal
         .draw(|f| {
-            main_layout.update(f.size(), app.settings.full_screen);
+            main_layout.update(f.area(), app.settings.full_screen);
 
             if !app.settings.full_screen {
                 draw_tabs(f, &main_layout.top_bar, app);
@@ -54,7 +54,7 @@ where
                         &mut app.state.standings,
                     );
                 }
-                MenuItem::Help => draw_help(f, f.size()),
+                MenuItem::Help => draw_help(f, f.area()),
             }
             if app.state.debug_state == DebugState::On {
                 let mut dbi = DebugInfo::new();
@@ -65,10 +65,7 @@ where
         .unwrap();
 }
 
-fn draw_border<B>(f: &mut Frame<B>, rect: Rect, color: Color)
-where
-    B: Backend,
-{
+fn draw_border(f: &mut Frame, rect: Rect, color: Color) {
     let block = Block::default()
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
@@ -76,29 +73,12 @@ where
     f.render_widget(block, rect);
 }
 
-fn draw_tabs<B>(f: &mut Frame<B>, top_bar: &[Rect], app: &App)
-where
-    B: Backend,
-{
+fn draw_tabs(f: &mut Frame, top_bar: &[Rect], app: &App) {
     let style = Style::default().fg(Color::White);
     let border_style = Style::default();
     let border_type = BorderType::Rounded;
 
-    let titles = TABS
-        .iter()
-        .enumerate()
-        .map(|(i, t)| {
-            // underline the active tab
-            if i == app.state.active_tab as usize {
-                Line::from(Span::styled(
-                    *t,
-                    Style::default().add_modifier(Modifier::UNDERLINED),
-                ))
-            } else {
-                Line::from(*t)
-            }
-        })
-        .collect();
+    let titles: Vec<Line> = TABS.iter().map(|t| Line::from(*t)).collect();
 
     let tabs = Tabs::new(titles)
         .block(
@@ -107,6 +87,11 @@ where
                 .border_type(border_type)
                 .border_style(border_style),
         )
+        .highlight_style(
+            // underline the active tab
+            Style::default().add_modifier(Modifier::UNDERLINED),
+        )
+        .select(app.state.active_tab as usize)
         .style(style);
     f.render_widget(tabs, top_bar[0]);
 
@@ -122,12 +107,9 @@ where
     f.render_widget(help, top_bar[1]);
 }
 
-fn draw_scoreboard<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
-where
-    B: Backend,
-{
+fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
     // TODO calculate width based on table sizes
-    let direction = match f.size().width {
+    let direction = match f.area().width {
         w if w < 125 => Direction::Vertical,
         _ => Direction::Horizontal,
     };
@@ -144,10 +126,7 @@ where
     draw_linescore_boxscore(f, chunks[1], app);
 }
 
-fn draw_linescore_boxscore<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
-where
-    B: Backend,
-{
+fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App) {
     let chunks = LayoutAreas::for_boxscore(rect);
 
     app.state.live_game.linescore.mini = true;
@@ -167,10 +146,7 @@ where
     );
 }
 
-fn draw_date_picker<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
-where
-    B: Backend,
-{
+fn draw_date_picker(f: &mut Frame, rect: Rect, app: &mut App) {
     let chunk = LayoutAreas::create_date_picker(rect);
     f.render_widget(Clear, chunk);
 
@@ -204,16 +180,13 @@ where
     f.render_widget(block, chunk);
 
     // display cursor
-    f.set_cursor(
+    f.set_cursor_position((
         lines[2].x + app.state.date_input.text.len() as u16 + 1,
         lines[2].y,
-    )
+    ))
 }
 
-fn draw_gameday<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
-where
-    B: Backend,
-{
+fn draw_gameday(f: &mut Frame, rect: Rect, app: &mut App) {
     let mut panels = LayoutAreas::generate_gameday_panels(&app.state.gameday, rect);
 
     // I want the panels to be displayed [Info, Heat, Box] from left to right. So pop off
@@ -237,10 +210,7 @@ where
     }
 }
 
-fn draw_stats<B>(f: &mut Frame<B>, rect: Rect, app: &mut App)
-where
-    B: Backend,
-{
+fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
     // TODO by taking into account the width of the options pane I'm basically removing that amount
     // of space for columns. If I didn't, you could select columns that would be covered by the
     // options pane, but then when its disabled would become visible.
@@ -258,10 +228,7 @@ where
     );
 }
 
-fn draw_help<B>(f: &mut Frame<B>, rect: Rect)
-where
-    B: Backend,
-{
+fn draw_help(f: &mut Frame, rect: Rect) {
     f.render_widget(Clear, rect);
 
     // if the terminal is too small display a red border

@@ -3,17 +3,20 @@ use mlb_api::plays::{Count, Play};
 
 #[derive(Default)]
 pub struct InningPlays {
+    #[allow(dead_code)]
     pub inning: u8, // do i need this?
     pub play_results: Vec<PlayResult>,
 }
 
-#[derive(Debug)]
 pub struct PlayResult {
     pub description: String,
     pub rbi: u8,
+    #[allow(dead_code)]
     pub away_score: u8,
+    #[allow(dead_code)]
     pub home_score: u8,
     pub count: Count,
+    #[allow(dead_code)]
     pub out: u8,
 }
 

@@ -1,14 +1,14 @@
 use crate::components::at_bat::AtBat;
 use crate::components::pitches::{DEFAULT_IDX, PITCH_IDX};
-use crate::components::strikezone::{StrikeZone, DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH};
+use crate::components::strikezone::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH, StrikeZone};
 
 use tui::{
     buffer::Buffer,
-    layout::{Constraint, Corner, Direction, Layout, Rect},
+    layout::{Constraint, Direction, Layout, Rect},
     style::Style,
     text::Span,
     widgets::canvas::{Canvas, Rectangle},
-    widgets::{Block, Borders, List, ListItem, StatefulWidget, Widget},
+    widgets::{Block, Borders, List, ListDirection, ListItem, StatefulWidget, Widget},
 };
 
 pub struct AtBatWidget {}
@@ -47,7 +47,7 @@ impl StatefulWidget for AtBatWidget {
             .split(chunks[0]);
 
         // grab the strike zone from the first pitch since it doesn't change during the at bat.
-        let (strike_zone_bot, strike_zone_top) = match state.pitches.pitches.get(0) {
+        let (strike_zone_bot, strike_zone_top) = match state.pitches.pitches.first() {
             Some(p) => (p.strike_zone_bot * 12.0, p.strike_zone_top * 12.0),
             None => (DEFAULT_SZ_BOT * 12.0, DEFAULT_SZ_TOP * 12.0),
         };
@@ -95,7 +95,7 @@ impl StatefulWidget for AtBatWidget {
         Widget::render(
             List::new(pitches)
                 .block(Block::default().borders(Borders::NONE))
-                .start_corner(Corner::TopLeft),
+                .direction(ListDirection::TopToBottom),
             chunks[1],
             buf,
         );

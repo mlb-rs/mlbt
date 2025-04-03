@@ -136,6 +136,11 @@ impl Division {
 
 impl Standing {
     fn from_team_record(team: &TeamRecord) -> Self {
+        let streak = if let Some(s) = team.streak.as_ref() {
+            s.streak_code.clone()
+        } else {
+            "-".to_string()
+        };
         Standing {
             team_name: team.team.name.clone(),
             team_id: team.team.id,
@@ -144,7 +149,7 @@ impl Standing {
             winning_percentage: team.winning_percentage.clone(),
             games_back: team.games_back.clone(),
             wild_card_games_back: team.wild_card_games_back.clone(),
-            streak: team.streak.streak_code.clone(),
+            streak,
         }
     }
 

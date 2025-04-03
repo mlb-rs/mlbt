@@ -19,6 +19,7 @@ pub struct LineScore {
 #[derive(Default, Debug)]
 pub struct LineScoreLine {
     pub team: HomeOrAway,
+    #[allow(dead_code)]
     pub name: String,
     pub abbreviation: String,
     pub runs: u8,

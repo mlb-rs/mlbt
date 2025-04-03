@@ -3,10 +3,10 @@ use crate::ui::layout::LayoutAreas;
 
 use tui::{
     buffer::Buffer,
-    layout::{Corner, Rect},
+    layout::Rect,
     style::{Color, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, List, ListItem, StatefulWidget, Widget},
+    widgets::{Block, Borders, List, ListDirection, ListItem, StatefulWidget, Widget},
 };
 
 // These colors match the red, green, and blue used in the pitch data from the API.
@@ -70,7 +70,7 @@ impl StatefulWidget for InningPlaysWidget {
         Widget::render(
             List::new(state.as_list())
                 .block(Block::default().borders(Borders::NONE))
-                .start_corner(Corner::TopLeft),
+                .direction(ListDirection::TopToBottom),
             chunks[1],
             buf,
         );

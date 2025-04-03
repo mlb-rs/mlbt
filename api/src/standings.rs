@@ -28,7 +28,7 @@ pub struct IdLink {
 pub struct TeamRecord {
     pub team: IdNameLink,
     pub season: String,
-    pub streak: Streak,
+    pub streak: Option<Streak>,
     pub division_rank: String,
     pub league_rank: String,
     pub sport_rank: String,
@@ -77,7 +77,7 @@ pub struct Records {
     pub division_records: Vec<RecordElement>,
     pub overall_records: Vec<RecordElement>,
     pub league_records: Vec<RecordElement>,
-    pub expected_records: Vec<RecordElement>,
+    pub expected_records: Option<Vec<RecordElement>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

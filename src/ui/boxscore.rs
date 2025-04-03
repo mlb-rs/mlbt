@@ -35,8 +35,8 @@ impl StatefulWidget for TeamBatterBoxscoreWidget {
                     .to_table_row(self.active)
                     .iter()
                     .map(|row| Row::new(row.clone())),
+                widths.as_slice(),
             )
-            .widths(widths.as_slice())
             .column_spacing(0)
             .style(Style::default().fg(Color::White))
             .header(header)

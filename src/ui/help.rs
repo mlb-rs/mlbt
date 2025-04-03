@@ -1,6 +1,6 @@
 use tui::{
     buffer::Buffer,
-    layout::{Alignment, Constraint, Direction, Layout, Rect},
+    layout::{Alignment, Constraint, Flex, Layout, Rect},
     style::{Modifier, Style},
     widgets::{Paragraph, Row, Table, Widget},
 };
@@ -70,15 +70,13 @@ impl Widget for HelpWidget {
             false => Row::new(item.text.clone()).style(help_menu_style),
         });
 
-        let chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Length(50), Constraint::Length(15)].as_ref())
+        let chunks = Layout::horizontal([Constraint::Length(50), Constraint::Length(15)])
+            .flex(Flex::Legacy)
             .margin(1)
             .horizontal_margin(2)
             .split(area);
 
-        Table::new(rows)
-            .widths(&[Constraint::Percentage(100)])
+        Table::new(rows, [Constraint::Percentage(100)])
             .header(header)
             .style(help_menu_style)
             .render(chunks[0], buf);

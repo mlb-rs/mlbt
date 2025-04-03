@@ -6,8 +6,8 @@ use mlb_api::plays::PlayEvent;
 use tui::{
     style::{Color, Style},
     text::{Line, Span},
-    widgets::canvas::Rectangle,
     widgets::ListItem,
+    widgets::canvas::Rectangle,
 };
 
 /// Used to display the pitch number next to the pitch type in the Canvas. Hopefully no one has at
@@ -26,6 +26,7 @@ pub struct Pitches {
 
 #[derive(Debug)]
 pub struct Pitch {
+    #[allow(dead_code)]
     pub strike: bool,
     pub color: Color,
     pub description: String, // called strike, hit, strike out, ect.
@@ -71,7 +72,12 @@ impl Pitch {
         Pitch {
             strike: pitch_details.is_strike.unwrap_or(false),
             speed: pitch_data.start_speed.unwrap_or(0.0),
-            color: convert_color(pitch_details.ball_color.clone().unwrap_or_default()),
+            color: convert_color(
+                pitch_details
+                    .ball_color
+                    .clone()
+                    .unwrap_or_else(|| String::from("rgba(255, 255, 255, 0)")),
+            ),
             description: pitch_details.description.clone().unwrap_or_default(),
             pitch_type: pitch_details
                 .pitch_type
