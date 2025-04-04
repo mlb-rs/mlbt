@@ -72,6 +72,18 @@ After cloning or downloading the source:
 cargo install mlbt --path .
 ```
 
+### Docker
+
+Build image with:
+```bash
+docker build -t mlbt .
+```
+
+Execute mlbt within the container with:
+```bash
+docker run -it --rm --name mlbt mlbt:latest
+```
+
 TODO - add to crates.io
 
 ## Features
