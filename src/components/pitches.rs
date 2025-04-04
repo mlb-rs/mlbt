@@ -24,6 +24,21 @@ pub struct Pitches {
     pub pitches: Vec<Pitch>,
 }
 
+#[derive(Debug, Default)]
+pub struct Count {
+    pub balls: u8,
+    pub strikes: u8,
+}
+
+impl From<mlb_api::plays::Count> for Count {
+    fn from(value: mlb_api::plays::Count) -> Self {
+        Self {
+            balls: value.balls,
+            strikes: value.strikes,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Pitch {
     #[allow(dead_code)]
@@ -36,6 +51,7 @@ pub struct Pitch {
     pub speed: f64,
     pub strike_zone_bot: f64,
     pub strike_zone_top: f64,
+    pub count: Count,
 }
 
 impl Default for Pitch {
@@ -50,6 +66,7 @@ impl Default for Pitch {
             speed: 0.0,
             strike_zone_bot: DEFAULT_SZ_BOT,
             strike_zone_top: DEFAULT_SZ_TOP,
+            count: Count::default(),
         }
     }
 }
@@ -88,6 +105,7 @@ impl Pitch {
             index: play.pitch_number.unwrap_or_default(),
             strike_zone_bot: pitch_data.strike_zone_bottom.unwrap_or(DEFAULT_SZ_BOT),
             strike_zone_top: pitch_data.strike_zone_top.unwrap_or(DEFAULT_SZ_TOP),
+            count: play.count.clone().into(),
         }
     }
 
@@ -116,8 +134,8 @@ impl Pitch {
 
     fn format(&self, debug: bool) -> String {
         let s = format!(
-            " {:<20}| {:^5.1}| {}",
-            self.description, self.speed, self.pitch_type
+            " {:<20}| {}-{} | {:^5.1}| {}",
+            self.description, self.count.balls, self.count.strikes, self.speed, self.pitch_type
         );
         if debug {
             return format!(" {} | {:?}", s, self.location);

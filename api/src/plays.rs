@@ -42,6 +42,7 @@ pub struct Result {
     pub rbi: Option<u8>,
     pub away_score: Option<u8>,
     pub home_score: Option<u8>,
+    pub is_out: Option<bool>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
