@@ -9,10 +9,13 @@ use tui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span},
-    widgets::{Block, BorderType, Borders, Paragraph, Row, StatefulWidget, Table, Widget, Wrap},
+    widgets::{
+        Block, BorderType, Borders, Cell, Paragraph, Row, StatefulWidget, Table, Widget, Wrap,
+    },
 };
 
 pub const STATS_OPTIONS_WIDTH: u16 = 36;
+
 pub struct StatsWidget {
     pub show_options: bool,
 }
@@ -37,12 +40,23 @@ impl StatefulWidget for StatsWidget {
 
         let (header, rows) = state.generate_table();
 
-        let header = Row::new(header)
+        // use the sort column to include up/down arrow in the column name
+        let sort_column = state.sorting.column_name.as_deref().unwrap_or_default();
+        let header = header
+            .into_iter()
+            .map(|name| {
+                if name == sort_column {
+                    Cell::from(format!("{name} {}", state.sorting.order.arrow_symbol()))
+                        .style(Style::default().bg(Color::Blue))
+                } else {
+                    Cell::from(name)
+                }
+            })
+            .collect::<Row>()
             .height(1)
             .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
 
-        // TODO see if possible to remove another iter and clone here
-        let rows: Vec<Row> = rows.iter().map(|r| Row::new(r.iter().cloned())).collect();
+        let rows: Vec<Row> = rows.into_iter().map(Row::new).collect();
 
         // Create the options rows, e.g. ["[X]", "ERA", "earned run average"]
         let mut active = 0;

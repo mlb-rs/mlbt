@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- Add sorting to stats view! Use `s` to sort the stats by a column: [PR 52](https://github.com/mlb-rs/mlbt/pull/52)
+
 ### Changed
 
-- Update GameDay UI to display more information:
+- Update GameDay UI to display more information [PR 50](https://github.com/mlb-rs/mlbt/pull/50):
   - play descriptions now wrap lines
   - if runs are scored the new game score is shown
   - other events (e.g. pickoff attempt, wild pitch, mount visit, etc.) that
