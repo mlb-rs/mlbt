@@ -15,6 +15,7 @@ pub struct PlayResult {
     pub home_score: u8,
     pub count: Count,
     pub is_out: bool,
+    pub is_scoring_play: bool,
 }
 
 impl InningPlays {
@@ -58,6 +59,7 @@ impl InningPlays {
                 home_score: play.result.home_score.unwrap_or(0),
                 count: play.count.clone(),
                 is_out: play.result.is_out.unwrap_or(false),
+                is_scoring_play: play.about.is_scoring_play.unwrap_or(false),
             })
             .collect();
 

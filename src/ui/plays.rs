@@ -11,7 +11,8 @@ use tui::{
 
 // This matches the blue used in the pitch data from the API. It's used for contact (hit, out, run
 // scoring).
-const BLUE: Color = Color::Rgb(26, 86, 190);
+pub const BLUE: Color = Color::Rgb(26, 86, 190);
+pub const SCORING_SYMBOL: char = '!';
 
 impl InningPlays {
     pub fn as_lines(&self) -> Vec<Line> {
@@ -35,8 +36,10 @@ impl InningPlays {
     // If runs were scored display as blue exclamation mark(s). Otherwise use `-` to indicate a new
     // line.
     fn format_runs(play: &PlayResult) -> Span {
-        if play.rbi > 0 {
-            let rbis = '!'.to_string().repeat(play.rbi as usize);
+        if play.is_scoring_play {
+            // there could be no rbis on certain plays like a wild pitch but `!` should still be shown
+            let runs = if play.rbi == 0 { 1 } else { play.rbi as usize };
+            let rbis = SCORING_SYMBOL.to_string().repeat(runs);
             Span::styled(rbis.to_string(), Style::default().fg(BLUE))
         } else {
             Span::raw("-")
@@ -45,7 +48,7 @@ impl InningPlays {
 
     // If runs were scored display the new score.
     fn format_score(play: &PlayResult) -> Span {
-        if play.rbi > 0 {
+        if play.is_scoring_play {
             Span::raw(format!(" {}-{}", play.away_score, play.home_score))
         } else {
             Span::raw("")

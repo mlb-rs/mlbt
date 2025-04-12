@@ -88,6 +88,7 @@ pub struct PlayEvent {
     pub count: Count,
     pub pitch_data: Option<PitchData>,
     pub is_pitch: bool,
+    pub is_base_running_play: Option<bool>,
     pub pitch_number: Option<u8>,
 }
 
@@ -108,6 +109,9 @@ pub struct Details {
     pub is_in_play: Option<bool>,
     pub is_strike: Option<bool>,
     pub is_ball: Option<bool>,
+    pub is_scoring_play: Option<bool>,
+    pub away_score: Option<u8>,
+    pub home_score: Option<u8>,
     #[serde(rename = "type")]
     pub pitch_type: Option<CodeDescription>,
 }
