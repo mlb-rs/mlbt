@@ -1,0 +1,10 @@
+target/
+api/target/
+**/*.rs.bk
+
+.github/
+.git/
+.idea/
+.vscode/
+
+.DS_Store
