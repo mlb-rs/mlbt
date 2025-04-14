@@ -33,8 +33,8 @@ impl InningPlays {
             .collect()
     }
 
-    // If runs were scored display as blue exclamation mark(s). Otherwise use `-` to indicate a new
-    // line.
+    /// If runs were scored display as blue exclamation mark(s). Otherwise use `-` to indicate a new
+    /// line.
     fn format_runs(play: &PlayResult) -> Span {
         if play.is_scoring_play {
             // there could be no rbis on certain plays like a wild pitch but `!` should still be shown
@@ -46,7 +46,7 @@ impl InningPlays {
         }
     }
 
-    // If runs were scored display the new score.
+    /// If runs were scored display the new score.
     fn format_score(play: &PlayResult) -> Span {
         if play.is_scoring_play {
             Span::raw(format!(" {}-{}", play.away_score, play.home_score))
@@ -55,7 +55,7 @@ impl InningPlays {
         }
     }
 
-    // If an out was made display it.
+    /// If an out was made display it.
     fn format_outs(play: &PlayResult) -> Span {
         if play.is_out {
             let out = if play.count.outs == 1 { "out" } else { "outs" };
