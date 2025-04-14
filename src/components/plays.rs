@@ -11,13 +11,11 @@ pub struct InningPlays {
 pub struct PlayResult {
     pub description: String,
     pub rbi: u8,
-    #[allow(dead_code)]
     pub away_score: u8,
-    #[allow(dead_code)]
     pub home_score: u8,
     pub count: Count,
-    #[allow(dead_code)]
-    pub out: u8,
+    pub is_out: bool,
+    pub is_scoring_play: bool,
 }
 
 impl InningPlays {
@@ -60,7 +58,8 @@ impl InningPlays {
                 away_score: play.result.away_score.unwrap_or(0),
                 home_score: play.result.home_score.unwrap_or(0),
                 count: play.count.clone(),
-                out: play.count.outs,
+                is_out: play.result.is_out.unwrap_or(false),
+                is_scoring_play: play.about.is_scoring_play.unwrap_or(false),
             })
             .collect();
 

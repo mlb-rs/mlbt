@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+- Update GameDay UI to display more information:
+  - play descriptions now wrap lines
+  - if runs are scored the new game score is shown
+  - other events (e.g. pickoff attempt, wild pitch, mount visit, etc.) that
+    happen during the at bat are now shown
+
 ## [0.0.13] - 2025-04-02
 
 ### Changed

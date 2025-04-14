@@ -1,14 +1,13 @@
 use crate::components::at_bat::AtBat;
-use crate::components::pitches::{DEFAULT_IDX, PITCH_IDX};
 use crate::components::strikezone::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH, StrikeZone};
 
 use tui::{
     buffer::Buffer,
     layout::{Constraint, Direction, Layout, Rect},
     style::Style,
-    text::Span,
+    text::{Line, Span, Text},
     widgets::canvas::{Canvas, Rectangle},
-    widgets::{Block, Borders, List, ListDirection, ListItem, StatefulWidget, Widget},
+    widgets::{Block, Borders, Paragraph, StatefulWidget, Widget, Wrap},
 };
 
 pub struct AtBatWidget {}
@@ -47,10 +46,15 @@ impl StatefulWidget for AtBatWidget {
             .split(chunks[0]);
 
         // grab the strike zone from the first pitch since it doesn't change during the at bat.
-        let (strike_zone_bot, strike_zone_top) = match state.pitches.pitches.first() {
-            Some(p) => (p.strike_zone_bot * 12.0, p.strike_zone_top * 12.0),
-            None => (DEFAULT_SZ_BOT * 12.0, DEFAULT_SZ_TOP * 12.0),
-        };
+        let mut strike_zone_bot = DEFAULT_SZ_BOT * 12.0;
+        let mut strike_zone_top = DEFAULT_SZ_TOP * 12.0;
+        for pe in &state.pitches.pitch_events {
+            if let Some(pitch) = pe.pitch.as_ref() {
+                strike_zone_bot = pitch.strike_zone_bot * 12.0;
+                strike_zone_top = pitch.strike_zone_top * 12.0;
+                break;
+            }
+        }
         let height = strike_zone_top - strike_zone_bot;
         let coords = StrikeZone::build_coords(strike_zone_bot, strike_zone_top);
 
@@ -58,17 +62,6 @@ impl StatefulWidget for AtBatWidget {
         Canvas::default()
             .block(Block::default().borders(Borders::NONE))
             .paint(|ctx| {
-                for pitch in &state.pitches.pitches {
-                    let ball = pitch.as_rectangle();
-                    let pitch_count = PITCH_IDX.get(pitch.index as usize).unwrap_or(&DEFAULT_IDX);
-                    ctx.draw(&ball);
-                    ctx.print(
-                        ball.x,
-                        ball.y,
-                        Span::styled(*pitch_count, Style::default().fg(pitch.color)),
-                    )
-                }
-                ctx.layer();
                 for (i, coord) in coords.iter().enumerate() {
                     let r = Rectangle {
                         x: coord.0,
@@ -79,25 +72,34 @@ impl StatefulWidget for AtBatWidget {
                     };
                     ctx.draw(&r);
                 }
+                for pe in &state.pitches.pitch_events {
+                    if let Some(pitch) = &pe.pitch {
+                        let ball = pitch.as_rectangle();
+                        let pitch_count = pitch.index.to_string();
+                        ctx.draw(&ball);
+                        ctx.print(
+                            ball.x,
+                            ball.y,
+                            Span::styled(pitch_count, Style::default().fg(pitch.color)),
+                        );
+                    }
+                }
             })
             .x_bounds([-0.5 * total_width, 0.5 * total_width])
             .y_bounds([0.0, 60.0])
             .render(strikezone[1], buf);
 
-        // display the pitch information
-        let pitches: Vec<ListItem> = state
+        // display the event information
+        let events: Vec<Line> = state
             .pitches
-            .pitches
+            .pitch_events
             .iter()
-            .map(|pitch| pitch.as_list_item(false))
+            .filter_map(|event| event.as_lines(false))
+            .flatten()
             .collect();
 
-        Widget::render(
-            List::new(pitches)
-                .block(Block::default().borders(Borders::NONE))
-                .direction(ListDirection::TopToBottom),
-            chunks[1],
-            buf,
-        );
+        let text = Text::from(events);
+        let paragraph = Paragraph::new(text).wrap(Wrap { trim: false });
+        Widget::render(paragraph, chunks[1], buf);
     }
 }
