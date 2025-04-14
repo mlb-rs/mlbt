@@ -9,20 +9,18 @@ Check scores, standings, and stats. Even watch a live game using Gameday!
 
 <img src="assets/demo.gif" alt="Demo showing schedule view, Gameday, and standings."/>
 
-> This project is under active development! See the [v0.1.0 Milestone](https://github.com/mlb-rs/mlbt/milestone/1) for more information, planned features, and known bugs.
-
 ## Table of Contents
 
 - [What](#what)
 - [Installation](#installation)
-  - [Homebrew](#homebrew)
-  - [Binaries](#binaries)
-  - [Cargo](#cargo)
+    - [Homebrew](#homebrew)
+    - [Binaries](#binaries)
+    - [Cargo](#cargo)
 - [Features](#features)
 - [Usage](#usage)
-  - [Scoreboard](#scoreboard)
-  - [Gameday](#gameday)
-  - [Help](#help)
+    - [Scoreboard](#scoreboard)
+    - [Gameday](#gameday)
+    - [Help](#help)
 - [Config](#config)
 - [Shout out](#shout-out)
 - [Copyright Notice](#copyright-notice)
@@ -50,13 +48,17 @@ version is to mimic the official version as closely as possible.
 
 ## Installation
 
-WIP - more platform support
-
 ### Homebrew
 
 ```bash
 brew tap mlb-rs/mlbt
 brew install mlbt
+```
+
+To update to the latest version:
+
+```bash
+brew upgrade mlbt
 ```
 
 ### Binaries
@@ -75,50 +77,56 @@ cargo install mlbt --path .
 ### Docker
 
 Build image with:
+
 ```bash
 docker build -t mlbt .
 ```
 
-Execute mlbt within the container with:
+Execute `mlbt` within the container with:
+
 ```bash
 docker run -it --rm --name mlbt mlbt:latest
 ```
 
-TODO - add to crates.io
-
 ## Features
 
 - [X] scoreboard and box score
-  - [X] selectable date
+    - [X] selectable date
 
 - [X] gameday
 
 - [X] standings
-  - [ ] team information
+    - [ ] team information
 
 - [X] stats
-  - [X] player stats
-  - [X] team stats
-  - [ ] stat search (store in sqlite or an embedded db?)
+    - [X] player stats
+    - [X] team stats
+    - [ ] stat search (store in sqlite or an embedded db?)
 
 - [ ] CLI
- 
-- [ ] configuration: 
-  - [X] favorite team
-  - [ ] time zone
-  - [ ] colors
-  - [ ] keymap
+
+- [ ] configuration:
+    - [X] favorite team
+    - [ ] time zone
+    - [ ] colors
+    - [ ] keymap
 
 ## Usage
 
-There are four main tabs:
+After installing, run `mlbt` from you terminal to open the program.
+
+Press `q` to exit the program at any time.
+
+### Tabs
+
+There are four main tabs.
 
 - Scoreboard
 - Gameday
 - Stats
 - Standings
 
-`f` - full screen (hide tabs)
+Press `f` for full screen mode to hide them.
 
 ### Scoreboard
 
@@ -191,7 +199,7 @@ Press `4` to activate this tab.
 - `Esc`: close help box
 
 > If your terminal is too small to display the full help box, the border will be
-displayed red.
+> displayed red.
 
 ## Config
 
@@ -202,14 +210,14 @@ directory. For a user named `Alice` this would be:
 - Windows: C:\Users\Alice\AppData\Roaming\mlbt\mlbt.toml
 - macOS:   /Users/Alice/Library/Application Support/mlbt/mlbt.toml
 
-> you can see the path for your user in the `Help` page.
+> You can see the path for your user in the `Help` page.
 
 ### Available settings
 
 - `favorite_team`: This will make that team always show up first in the schedule
-  if they have a game that day. See [here](https://github.com/mlb-rs/mlbt/blob/main/src/components/constants.rs#L21)
+  if they have a game that day.
+  See [here](https://github.com/mlb-rs/mlbt/blob/main/src/components/constants.rs#L21)
   for options (note: use the full name and not the short name).
-
 
 ### Example config
 
@@ -220,7 +228,9 @@ favorite_team = "Chicago Cubs"
 
 ## Shout out
 
-This is built with the wonderful [tui-rs](https://github.com/fdehau/tui-rs).
+This was originally built with the
+wonderful [tui-rs](https://github.com/fdehau/tui-rs). It is now using the also
+wonderful fork, [ratatui](https://github.com/ratatui/ratatui).
 
 These TUIs were extremely helpful:
 [spotify-tui](https://github.com/Rigellute/spotify-tui),
