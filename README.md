@@ -177,9 +177,13 @@ Within each stat group (pitching or hitting) you can toggle the display of
 individual stat columns by selecting the stat with `Enter`. This selection pane
 can be turned on/off with `o`.
 
+To sort the stats by a column, instead of hitting `Enter` you can press `s`. To
+flip the sort order from ascending to descending or vice versa press `s` again.
+
 - `j`: move down
 - `k`: move up
 - `Enter`: toggle stat column
+- `s`: sort by the currently selected column
 - `o`: toggle stat selection pane
 
 > If your terminal is too small to display all columns, they will be turned off

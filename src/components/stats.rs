@@ -4,12 +4,15 @@ use mlb_api::stats::{HittingStat, PitchingStat, StatResponse, StatSplit};
 use indexmap::IndexMap;
 use tui::widgets::TableState;
 
+use std::cmp::Ordering;
 use std::string::ToString;
 
 /// The width of the first column, which is a longer item like team name.
 pub const STATS_FIRST_COL_WIDTH: u16 = 25;
 /// The width of normal columns.
 pub const STATS_DEFAULT_COL_WIDTH: u16 = 6;
+const PLAYER_COLUMN_NAME: &str = "Player";
+const TEAM_COLUMN_NAME: &str = "Team";
 
 /// Stores whether a team/player and pitching/hitting stat should be viewed.
 #[derive(Clone, Debug)]
@@ -18,10 +21,55 @@ pub struct StatType {
     pub team_player: TeamOrPlayer,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub enum TeamOrPlayer {
+    #[default]
     Team,
     Player,
+}
+
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq)]
+pub enum Order {
+    #[default]
+    Ascending,
+    Descending,
+}
+
+impl std::ops::Not for Order {
+    type Output = Self;
+
+    // Useful for toggling between order directions
+    fn not(self) -> Self::Output {
+        match self {
+            Order::Ascending => Order::Descending,
+            Order::Descending => Order::Ascending,
+        }
+    }
+}
+
+impl Order {
+    /// Returns an arrow character representing the direction.
+    pub fn arrow_symbol(&self) -> &'static str {
+        match self {
+            Order::Ascending => "^",
+            Order::Descending => "v",
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct Sort {
+    pub column_name: Option<String>,
+    pub order: Order,
+}
+
+impl Default for Sort {
+    fn default() -> Self {
+        Sort {
+            column_name: None,
+            order: Order::Ascending,
+        }
+    }
 }
 
 /// Stores the state for rendering the stats.
@@ -33,6 +81,8 @@ pub struct StatsState {
     /// data stored as a vector. `IndexMap` is used to store the data in inserted order, which
     /// enables deterministic access of the data (for transforming to row oriented).
     pub stats: IndexMap<String, TableEntry>,
+    /// The column and direction used for sorting the stats
+    pub sorting: Sort,
     /// Whether to display the side bar for toggling stats
     pub show_options: bool,
 }
@@ -56,6 +106,7 @@ impl Default for StatsState {
                 team_player: TeamOrPlayer::Team,
             },
             stats: IndexMap::new(),
+            sorting: Sort::default(),
             show_options: true,
         };
         ss.state.select(Some(0));
@@ -92,11 +143,14 @@ impl StatsState {
             return (vec![], vec![vec![]]);
         }
 
-        // get the number or rows, which might be zero while data is loading
+        // get the number of rows, which might be zero while data is loading
         let len = match self.stats.first() {
             Some((_, v)) => v.rows.len(),
             None => 0,
         };
+        if len == 0 {
+            return (vec![], vec![vec![]]);
+        }
         let mut rows = vec![Vec::with_capacity(self.stats.len()); len];
         let mut header = Vec::with_capacity(self.stats.len());
 
@@ -109,6 +163,9 @@ impl StatsState {
                 }
             }
         }
+
+        self.sort_table(&mut rows);
+
         (header, rows)
     }
 
@@ -132,8 +189,8 @@ impl StatsState {
     /// order in which the stats will be displayed from left to right.
     fn load_pitching_stats(&mut self, name: String, stat: &PitchingStat) {
         let col_name = match self.stat_type.team_player {
-            TeamOrPlayer::Team => "Team",
-            TeamOrPlayer::Player => "Player",
+            TeamOrPlayer::Team => TEAM_COLUMN_NAME,
+            TeamOrPlayer::Player => PLAYER_COLUMN_NAME,
         };
         self.table_helper(col_name, "", true, name);
         self.table_helper("W", "wins", true, stat.wins);
@@ -209,12 +266,82 @@ impl StatsState {
 
     /// Toggle the visibility of the stat column that is selected.
     pub fn toggle_stat(&mut self) {
-        if let Some((_, v)) = self.stats.get_index_mut(
-            self.state
-                .selected()
-                .expect("there is always a selected stat"),
-        ) {
+        let toggled_column_index = self.state.selected().unwrap_or_default();
+        let sort_column_index = self.get_sort_column_index();
+
+        if let Some((_, v)) = self.stats.get_index_mut(toggled_column_index) {
             v.active = !v.active;
+            // if the column is the sort column and it's toggled off, reset the sorting
+            if sort_column_index.is_some_and(|idx| idx == toggled_column_index) && !v.active {
+                self.sorting.column_name = None;
+            }
+        }
+    }
+
+    /// Get the index of the sort column while taking into account if columns to the left of it are
+    /// active.
+    fn get_sort_column_index(&self) -> Option<usize> {
+        let sort_column = self.sorting.column_name.as_ref()?;
+
+        let mut active_idx = 0;
+        for (column_name, entry) in self.stats.iter() {
+            if column_name == sort_column {
+                return Some(active_idx);
+            }
+            if entry.active {
+                active_idx += 1;
+            }
+        }
+        None
+    }
+
+    /// Sort the table by this stat.
+    pub fn store_sort_column(&mut self) {
+        let Some(selected_index) = self.state.selected() else {
+            return;
+        };
+
+        // if the stat isn't already active don't sort
+        if let Some((column_name, entry)) = self.stats.get_index(selected_index) {
+            if !entry.active {
+                return;
+            }
+            self.sorting = Sort {
+                column_name: Some(column_name.clone()),
+                order: !self.sorting.order,
+            };
+        }
+    }
+
+    /// Sort the rows by the selected stat.
+    fn sort_table(&self, rows: &mut [Vec<String>]) {
+        let sort_column_index = self.get_sort_column_index();
+        let sort_column_name = self.sorting.column_name.as_ref();
+
+        if let (Some(sort_column_index), Some(sort_column)) = (sort_column_index, sort_column_name)
+        {
+            rows.sort_by(|a, b| {
+                let a = a.get(sort_column_index);
+                let b = b.get(sort_column_index);
+                if let (Some(a), Some(b)) = (a, b) {
+                    // if the column is a name don't try to convert to float
+                    if sort_column == TEAM_COLUMN_NAME || sort_column == PLAYER_COLUMN_NAME {
+                        match self.sorting.order {
+                            Order::Ascending => a.cmp(b),
+                            Order::Descending => b.cmp(a),
+                        }
+                    } else {
+                        let a: f64 = a.parse().unwrap_or_default();
+                        let b: f64 = b.parse().unwrap_or_default();
+                        match self.sorting.order {
+                            Order::Ascending => a.partial_cmp(&b).unwrap_or(Ordering::Equal),
+                            Order::Descending => b.partial_cmp(&a).unwrap_or(Ordering::Equal),
+                        }
+                    }
+                } else {
+                    Ordering::Equal
+                }
+            });
         }
     }
 

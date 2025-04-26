@@ -9,7 +9,7 @@ use crate::app::{App, DebugState, MenuItem};
 use crate::components::debug::DebugInfo;
 use crate::ui::at_bat::AtBatWidget;
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
-use crate::ui::help::{DOCS_LEN, HelpWidget};
+use crate::ui::help::{DOCS, HelpWidget};
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
 use crate::ui::matchup::MatchupWidget;
@@ -233,7 +233,7 @@ fn draw_help(f: &mut Frame, rect: Rect) {
 
     // if the terminal is too small display a red border
     let mut color = Color::White;
-    let min_height = DOCS_LEN as u16 + 3; // 3 for table header, top border, bottom border
+    let min_height = DOCS.len() as u16 + 3; // 3 for table header, top border, bottom border
     if rect.height < min_height || rect.width < 35 {
         color = Color::Red;
     }

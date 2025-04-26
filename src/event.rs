@@ -96,6 +96,7 @@ pub fn handle_key_bindings(
             let _ = selective_update.try_send(MenuItem::Stats);
         }
         (MenuItem::Stats, KeyCode::Enter) => app.state.stats.toggle_stat(),
+        (MenuItem::Stats, Char('s')) => app.state.stats.store_sort_column(),
 
         (MenuItem::Standings, Char('j')) => app.state.standings.next(),
         (MenuItem::Standings, Char('k')) => app.state.standings.previous(),

@@ -9,8 +9,7 @@ use crate::components::banner::BANNER;
 use crate::config::CONFIG_LOCATION;
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
-pub const DOCS_LEN: usize = 24;
-const DOCS: &[&[&str; 2]; DOCS_LEN] = &[
+pub const DOCS: &[&[&str; 2]; 25] = &[
     &["Exit help", "Esc"],
     &["Quit", "q"],
     &["Full screen", "f"],
@@ -30,6 +29,7 @@ const DOCS: &[&[&str; 2]; DOCS_LEN] = &[
     &["Move down", "j"],
     &["Move up", "k"],
     &["Toggle stat", "Enter"],
+    &["Sort by stat", "s"],
     &["Toggle stat selection", "o"],
     &["Standings", "4"],
     &["Move down", "j"],

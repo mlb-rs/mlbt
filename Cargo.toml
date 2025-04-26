@@ -1,6 +1,6 @@
 [package]
 name = "mlbt"
-version = "0.0.14-alpha.1"
+version = "0.0.14-alpha.2"
 authors = ["Andrew Schneider <andjschneider@gmail.com>"]
 edition = "2024"
 
@@ -8,7 +8,7 @@ edition = "2024"
 members = [".", "api"]
 
 [dependencies]
-anyhow = "1.0.97"
+anyhow = "1.0.98"
 better-panic = "0.3.0"
 chrono = "0.4.40"
 chrono-tz = "0.10.3"
