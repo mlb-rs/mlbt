@@ -20,6 +20,8 @@ Check scores, standings, and stats. Even watch a live game using Gameday!
 - [Usage](#usage)
     - [Scoreboard](#scoreboard)
     - [Gameday](#gameday)
+    - [Stats](#stats)
+    - [Standings](#standings)
     - [Help](#help)
 - [Config](#config)
 - [Shout out](#shout-out)
