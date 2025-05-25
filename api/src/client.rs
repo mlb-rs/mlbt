@@ -70,13 +70,16 @@ impl MLBApi {
         self.get(url).await
     }
 
-    pub async fn get_standings(&self) -> StandingsResponse {
-        let local: DateTime<Local> = Local::now();
+    pub async fn get_standings(&self, date: Option<NaiveDate>) -> StandingsResponse {
+        let date = date.unwrap_or_else(|| {
+            let now = Local::now();
+            NaiveDate::from_ymd_opt(now.year(), now.month(), now.day()).unwrap()
+        });
         let url = format!(
             "{}v1/standings?sportId=1&season={}&date={}&leagueId=103,104",
             self.base_url,
-            local.year(),
-            local.format("%Y-%m-%d"),
+            date.year(),
+            date.format("%Y-%m-%d"),
         );
         self.get(url).await
     }

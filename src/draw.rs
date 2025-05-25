@@ -42,18 +42,16 @@ where
             match app.state.active_tab {
                 MenuItem::Scoreboard => draw_scoreboard(f, main_layout.main, app),
                 MenuItem::DatePicker => {
-                    draw_scoreboard(f, main_layout.main, app);
+                    match app.state.previous_tab {
+                        MenuItem::Scoreboard => draw_scoreboard(f, main_layout.main, app),
+                        MenuItem::Standings => draw_standings(f, main_layout.main, app),
+                        _ => (),
+                    }
                     draw_date_picker(f, main_layout.main, app);
                 }
                 MenuItem::Gameday => draw_gameday(f, main_layout.main, app),
                 MenuItem::Stats => draw_stats(f, main_layout.main, app),
-                MenuItem::Standings => {
-                    f.render_stateful_widget(
-                        StandingsWidget {},
-                        main_layout.main,
-                        &mut app.state.standings,
-                    );
-                }
+                MenuItem::Standings => draw_standings(f, main_layout.main, app),
                 MenuItem::Help => draw_help(f, f.area()),
             }
             if app.state.debug_state == DebugState::On {
@@ -226,6 +224,10 @@ fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
         rect,
         &mut app.state.stats,
     );
+}
+
+fn draw_standings(f: &mut Frame, rect: Rect, app: &mut App) {
+    f.render_stateful_widget(StandingsWidget {}, rect, &mut app.state.standings);
 }
 
 fn draw_help(f: &mut Frame, rect: Rect) {

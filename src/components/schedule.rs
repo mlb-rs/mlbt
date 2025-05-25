@@ -1,16 +1,12 @@
 use std::cmp::Ordering;
 
-use crate::app::{AppSettings, HomeOrAway};
+use crate::app::{AppSettings, HomeOrAway, TIMEZONE};
 use crate::components::constants::TEAM_NAMES;
 use chrono::{DateTime, NaiveDate, ParseError, Utc};
 use chrono_tz::America::Los_Angeles;
-use chrono_tz::Tz;
 use core::option::Option::{None, Some};
 use mlb_api::schedule::{Game, ScheduleResponse};
 use tui::widgets::TableState;
-
-// TODO configurable timezone
-const TIMEZONE: Tz = Los_Angeles;
 
 /// ScheduleState is used to render the schedule as a `tui-rs` table.
 pub struct ScheduleState {

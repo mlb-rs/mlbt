@@ -1,7 +1,9 @@
 use crate::components::constants::DIVISIONS;
 use core::option::Option::{None, Some};
+use chrono::{NaiveDate, ParseError, Utc};
 use mlb_api::standings::{StandingsResponse, TeamRecord};
 use tui::widgets::TableState;
+use crate::app::TIMEZONE;
 
 /// Stores the state for rendering the standings. The `standings` field is a nested Vec to make
 /// displaying by division easier.
@@ -9,6 +11,9 @@ pub struct StandingsState {
     pub state: TableState,
     pub standings: Vec<Division>,
     pub team_ids: Vec<u16>,
+    pub date: NaiveDate,
+    /// Used for selecting the date with arrow keys.
+    pub selection_offset: i64,
 }
 
 /// Groups teams into their divisions.
@@ -33,10 +38,13 @@ pub struct Standing {
 
 impl Default for StandingsState {
     fn default() -> Self {
+        let date = Utc::now().with_timezone(&TIMEZONE).date_naive();
         let mut ss = StandingsState {
             state: TableState::default(),
             standings: Division::create_divisions(),
             team_ids: vec![200, 201, 202, 203, 204, 205],
+            date,
+            selection_offset: 0,
         };
         ss.state.select(Some(0));
         ss
@@ -44,9 +52,30 @@ impl Default for StandingsState {
 }
 
 impl StandingsState {
+    /// Update the data from the API.
     pub fn update(&mut self, standings: &StandingsResponse) {
         self.standings = Division::create_table(standings);
         self.team_ids = self.generate_ids();
+    }
+    
+    /// Set the date from the input string from the date picker.
+    pub fn set_date_from_input(&mut self, date: String) -> Result<(), ParseError> {
+        self.date = match date.as_str() {
+            "today" => Utc::now().with_timezone(&TIMEZONE).date_naive(),
+            _ => NaiveDate::parse_from_str(date.as_str(), "%Y-%m-%d")?,
+        };
+        self.state.select(Some(0));
+        Ok(())
+    }
+    
+    /// Set the date using Left/Right arrow keys to move a single day at a time.
+    pub fn set_date_with_arrows(&mut self, forward: bool) -> NaiveDate {
+        match forward {
+            true => self.selection_offset += 1,
+            false => self.selection_offset -= 1,
+        }
+        Utc::now().with_timezone(&TIMEZONE).date_naive()
+            + chrono::Duration::days(self.selection_offset)
     }
 
     fn generate_ids(&mut self) -> Vec<u16> {

@@ -42,7 +42,7 @@ mod tests {
             .with_body_from_file("./tests/responses/standings.json")
             .create();
 
-        let resp = CLIENT.get_standings().await;
+        let resp = CLIENT.get_standings(None).await;
         println!("{:?}", resp);
     }
 

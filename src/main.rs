@@ -124,16 +124,25 @@ async fn network_thread(app: Arc<Mutex<App>>) {
                     }
                     // update schedule and linescore when a new date is picked
                     Ok(MenuItem::DatePicker) => {
-                        let schedule = app.client.get_schedule_date(app.state.schedule.date).await;
-                        app.update_schedule(&schedule);
-                        // run sequentially to get the correct selected game id
-                        let game_id = app.state.schedule.get_selected_game();
-                        let game = app.client.get_live_data(game_id).await;
-                        app.update_live_data(&game);
+                        match app.state.active_tab {
+                            MenuItem::Scoreboard => {
+                                let schedule = app.client.get_schedule_date(app.state.schedule.date).await;
+                                app.update_schedule(&schedule);
+                                // run sequentially to get the correct selected game id
+                                let game_id = app.state.schedule.get_selected_game();
+                                let game = app.client.get_live_data(game_id).await;
+                                app.update_live_data(&game);
+                            },
+                            MenuItem::Standings => {
+                                let standings = app.client.get_standings(Some(app.state.standings.date)).await;
+                                app.state.standings.update(&standings);
+                            }
+                            _ => ()
+                        }
                     }
                     // update standings only when tab is switched to
                     Ok(MenuItem::Standings) => {
-                        let standings = app.client.get_standings().await;
+                        let standings = app.client.get_standings(Some(app.state.standings.date)).await;
                         app.state.standings.update(&standings);
                     }
                     // update stats only when tab is switched to, team/player is changed, or

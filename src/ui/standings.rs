@@ -1,5 +1,6 @@
 use crate::components::standings::StandingsState;
 
+use tui::prelude::Span;
 use tui::{
     buffer::Buffer,
     layout::{Constraint, Rect},
@@ -48,7 +49,11 @@ impl StatefulWidget for StandingsWidget {
             .block(
                 Block::default()
                     .borders(Borders::ALL)
-                    .border_type(BorderType::Rounded),
+                    .border_type(BorderType::Rounded)
+                    .title(Span::styled(
+                        state.date.format(" %B %d, %Y ").to_string(),
+                        Style::default().fg(Color::Black).bg(Color::Blue),
+                    )),
             )
             .row_highlight_style(selected_style)
             .highlight_symbol(">> ");

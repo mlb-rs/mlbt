@@ -1067,7 +1067,7 @@ dependencies = [
 
 [[package]]
 name = "mlb-api"
-version = "0.0.12"
+version = "0.0.13-alpha.1"
 dependencies = [
  "chrono",
  "derive_builder",
@@ -1081,7 +1081,7 @@ dependencies = [
 
 [[package]]
 name = "mlbt"
-version = "0.0.14-alpha.2"
+version = "0.0.14-alpha.3"
 dependencies = [
  "anyhow",
  "better-panic",
