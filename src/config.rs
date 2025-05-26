@@ -4,9 +4,14 @@ use directories::ProjectDirs;
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+use chrono_tz::America::Los_Angeles;
+use chrono_tz::Tz;
 
 pub static CONFIG_LOCATION: Lazy<Option<PathBuf>> = Lazy::new(get_config_location);
 static CONFIG_FILE: &str = "mlbt.toml";
+
+// TODO configurable timezone
+pub const TIMEZONE: Tz = Los_Angeles;
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Config {

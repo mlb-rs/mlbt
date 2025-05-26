@@ -1,20 +1,20 @@
 use std::cmp::Ordering;
 
-use crate::app::{AppSettings, HomeOrAway, TIMEZONE};
+use crate::app::{AppSettings, HomeOrAway};
 use crate::components::constants::TEAM_NAMES;
+use crate::components::date_selector::DateSelector;
 use chrono::{DateTime, NaiveDate, ParseError, Utc};
-use chrono_tz::America::Los_Angeles;
+use chrono_tz::Tz;
 use core::option::Option::{None, Some};
 use mlb_api::schedule::{Game, ScheduleResponse};
 use tui::widgets::TableState;
 
 /// ScheduleState is used to render the schedule as a `tui-rs` table.
+#[derive(Default)]
 pub struct ScheduleState {
     pub state: TableState,
     pub schedule: Vec<ScheduleRow>,
-    pub date: NaiveDate,
-    /// Used for selecting the date with arrow keys.
-    pub selection_offset: i64,
+    pub date_selector: DateSelector,
 }
 
 /// The information needed to create a single row in a table.
@@ -29,25 +29,16 @@ pub struct ScheduleRow {
     pub game_status: String,
 }
 
-impl Default for ScheduleState {
-    fn default() -> Self {
-        let date = Utc::now().with_timezone(&TIMEZONE).date_naive();
-        ScheduleState {
-            state: TableState::default(),
-            schedule: vec![],
-            date,
-            selection_offset: 0,
-        }
-    }
-}
-
 impl ScheduleState {
     pub fn from_schedule(settings: &AppSettings, schedule: &ScheduleResponse) -> Self {
+        let date_selector = DateSelector::new(
+            ScheduleRow::get_date_from_schedule(schedule),
+            settings.timezone,
+        );
         let mut ss = ScheduleState {
             state: TableState::default(),
             schedule: ScheduleRow::create_table(settings, schedule),
-            date: ScheduleRow::get_date_from_schedule(schedule),
-            selection_offset: 0,
+            date_selector,
         };
         ss.state.select(Some(0));
         ss
@@ -61,22 +52,14 @@ impl ScheduleState {
 
     /// Set the date from the input string from the date picker.
     pub fn set_date_from_input(&mut self, date: String) -> Result<(), ParseError> {
-        self.date = match date.as_str() {
-            "today" => Utc::now().with_timezone(&TIMEZONE).date_naive(),
-            _ => NaiveDate::parse_from_str(date.as_str(), "%Y-%m-%d")?,
-        };
+        self.date_selector.set_date_from_input(date)?;
         self.state.select(Some(0));
         Ok(())
     }
 
     /// Set the date using Left/Right arrow keys to move a single day at a time.
     pub fn set_date_with_arrows(&mut self, forward: bool) -> NaiveDate {
-        match forward {
-            true => self.selection_offset += 1,
-            false => self.selection_offset -= 1,
-        }
-        Utc::now().with_timezone(&TIMEZONE).date_naive()
-            + chrono::Duration::days(self.selection_offset)
+        self.date_selector.set_date_with_arrows(forward)
     }
 
     /// Return the `game_id` of the row that is selected.
@@ -137,7 +120,7 @@ impl ScheduleRow {
     /// Create the matchup information to be displayed in the table. The current information that is
     /// extracted from the game data:
     /// away team name and score, home team name and score, start time, and game status
-    fn create_matchup(game: &Game) -> Self {
+    fn create_matchup(game: &Game, timezone: Tz) -> Self {
         let home_team = TEAM_NAMES
             .get(&*game.teams.home.team.name)
             .unwrap_or(&"unknown")
@@ -148,10 +131,9 @@ impl ScheduleRow {
             .unwrap_or(&"unknown")
             .to_string();
 
-        // TODO let timezone be configurable
         let datetime = DateTime::parse_from_rfc3339(&game.game_date)
             .unwrap()
-            .with_timezone(&Los_Angeles);
+            .with_timezone(&timezone);
         let start_time = datetime.format("%l:%M %P").to_string();
 
         let game_status = match &game.status.detailed_state {
@@ -180,10 +162,11 @@ impl ScheduleRow {
                 .unwrap_or_else(|| "na".to_string());
             if let Some(game) = &games.games {
                 for g in game {
+                    let row = ScheduleRow::create_matchup(g, settings.timezone);
                     if g.teams.home.team.name == favorite || g.teams.away.team.name == favorite {
-                        todays_games.insert(0, ScheduleRow::create_matchup(g));
+                        todays_games.insert(0, row);
                     } else {
-                        todays_games.push(ScheduleRow::create_matchup(g));
+                        todays_games.push(row);
                     }
                 }
             }

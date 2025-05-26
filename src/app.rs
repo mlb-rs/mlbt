@@ -2,16 +2,13 @@ use crate::components::live_game::GameState;
 use crate::components::schedule::ScheduleState;
 use crate::components::standings::StandingsState;
 use crate::components::stats::StatsState;
-use crate::config::{CONFIG_LOCATION, generate_config_file, load_config_file};
-use chrono_tz::America::Los_Angeles;
+use crate::config::{CONFIG_LOCATION, generate_config_file, load_config_file, TIMEZONE};
 use chrono_tz::Tz;
 use crossbeam_channel::{Receiver, Sender, bounded};
 use mlb_api::client::{MLBApi, MLBApiBuilder};
 use mlb_api::live::LiveResponse;
 use mlb_api::schedule::ScheduleResponse;
 
-// TODO configurable timezone
-pub const TIMEZONE: Tz = Los_Angeles;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub enum MenuItem {
@@ -71,6 +68,7 @@ pub struct AppState {
 pub struct AppSettings {
     pub favorite_team: Option<String>,
     pub full_screen: bool,
+    pub timezone: Tz,
 }
 
 pub struct App {
@@ -89,6 +87,7 @@ impl App {
             settings: AppSettings {
                 favorite_team: None,
                 full_screen: false,
+                timezone: TIMEZONE,
             },
             client: MLBApiBuilder::default().build().unwrap(),
             redraw_channel: bounded(1),
