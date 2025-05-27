@@ -1,6 +1,6 @@
 use crate::components::constants::DIVISIONS;
 use crate::components::date_selector::DateSelector;
-use chrono::{NaiveDate, ParseError};
+use chrono::NaiveDate;
 use core::option::Option::{None, Some};
 use mlb_api::standings::{StandingsResponse, TeamRecord};
 use tui::widgets::TableState;
@@ -54,11 +54,10 @@ impl StandingsState {
         self.team_ids = self.generate_ids();
     }
 
-    /// Set the date from the input string from the date picker.
-    pub fn set_date_from_input(&mut self, date: String) -> Result<(), ParseError> {
-        self.date_selector.set_date_from_input(date)?;
+    /// Set the date from the validated input string from the date picker.
+    pub fn set_date_from_valid_input(&mut self, date: NaiveDate) {
+        self.date_selector.set_date_from_valid_input(date);
         self.state.select(Some(0));
-        Ok(())
     }
 
     /// Set the date using Left/Right arrow keys to move a single day at a time.

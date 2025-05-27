@@ -2,13 +2,13 @@ use crate::components::live_game::GameState;
 use crate::components::schedule::ScheduleState;
 use crate::components::standings::StandingsState;
 use crate::components::stats::StatsState;
-use crate::config::{CONFIG_LOCATION, generate_config_file, load_config_file, TIMEZONE};
+use crate::config::{CONFIG_LOCATION, TIMEZONE, generate_config_file, load_config_file};
+use chrono::{NaiveDate, ParseError, Utc};
 use chrono_tz::Tz;
 use crossbeam_channel::{Receiver, Sender, bounded};
 use mlb_api::client::{MLBApi, MLBApiBuilder};
 use mlb_api::live::LiveResponse;
 use mlb_api::schedule::ScheduleResponse;
-
 
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub enum MenuItem {
@@ -129,6 +129,35 @@ impl App {
         }
     }
 
+    pub fn try_update_date_from_input(&mut self) -> Result<(), ParseError> {
+        let valid_date = self
+            .state
+            .date_input
+            .validate_input(self.settings.timezone)?;
+
+        // current tab is date picker, so use previous tab to update correct date
+        match self.state.previous_tab {
+            MenuItem::Scoreboard => self.state.schedule.set_date_from_valid_input(valid_date),
+            MenuItem::Standings => self.state.standings.set_date_from_valid_input(valid_date),
+            MenuItem::Stats => self.state.stats.set_date_from_valid_input(valid_date),
+            _ => (),
+        }
+        Ok(())
+    }
+
+    pub fn move_date_selector_by_arrow(&mut self, right_arrow: bool) {
+        let date = match self.state.previous_tab {
+            MenuItem::Scoreboard => Some(self.state.schedule.set_date_with_arrows(right_arrow)),
+            MenuItem::Standings => Some(self.state.standings.set_date_with_arrows(right_arrow)),
+            MenuItem::Stats => Some(self.state.stats.set_date_with_arrows(right_arrow)),
+            _ => None,
+        };
+        self.state.date_input.text.clear();
+        if let Some(date) = date {
+            self.state.date_input.text.push_str(&date.to_string());
+        }
+    }
+
     pub fn exit_help(&mut self) {
         if self.state.active_tab == MenuItem::Help {
             self.state.active_tab = self.state.previous_tab;
@@ -144,6 +173,18 @@ impl App {
 
     pub fn toggle_full_screen(&mut self) {
         self.settings.full_screen = !self.settings.full_screen;
+    }
+}
+
+impl DateInput {
+    pub fn validate_input(&mut self, tz: Tz) -> Result<NaiveDate, ParseError> {
+        let input: String = self.text.drain(..).collect();
+        let date = match input.as_str() {
+            "today" => Ok(Utc::now().with_timezone(&tz).date_naive()),
+            _ => NaiveDate::parse_from_str(input.as_str(), "%Y-%m-%d"),
+        };
+        self.is_valid = date.is_ok();
+        date
     }
 }
 

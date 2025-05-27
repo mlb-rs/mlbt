@@ -31,6 +31,7 @@ mod tests {
     #[tokio::test]
     async fn test_standings() {
         let mut server = mockito::Server::new_async().await;
+        let date: NaiveDate = NaiveDate::from_ymd_opt(2021, 6, 10).unwrap();
 
         let _m = server
             .mock(
@@ -42,7 +43,7 @@ mod tests {
             .with_body_from_file("./tests/responses/standings.json")
             .create();
 
-        let resp = CLIENT.get_standings(None).await;
+        let resp = CLIENT.get_standings(date).await;
         println!("{:?}", resp);
     }
 
@@ -84,6 +85,29 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_team_stats_on_date() {
+        let mut server = mockito::Server::new_async().await;
+
+        let date: NaiveDate = NaiveDate::from_ymd_opt(2025, 5, 20).unwrap();
+        for group in [StatGroup::Hitting, StatGroup::Pitching] {
+            let url = format!(
+                "v1/teams/stats?sportId=1&stats=byDateRange&season=2025&endDate=2025-05-20&group={}",
+                group
+            );
+
+            let _m = server
+                .mock("GET", Matcher::Exact(url))
+                .with_status(200)
+                .with_header("content-type", "application/json;charset=UTF-8")
+                .with_body_from_file(format!("./tests/responses/team-stats-{group}-date.json"))
+                .create();
+
+            let resp = CLIENT.get_team_stats_on_date(group, date).await;
+            println!("{:?}", resp);
+        }
+    }
+
+    #[tokio::test]
     async fn test_player_stats() {
         let mut server = mockito::Server::new_async().await;
 
@@ -98,6 +122,29 @@ mod tests {
                 .create();
 
             let resp = CLIENT.get_player_stats(group).await;
+            println!("{:?}", resp);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_player_stats_on_date() {
+        let mut server = mockito::Server::new_async().await;
+        let date: NaiveDate = NaiveDate::from_ymd_opt(2025, 5, 20).unwrap();
+
+        for group in [StatGroup::Hitting, StatGroup::Pitching] {
+            let url = format!(
+                "v1/stats?sportId=1&stats=byDateRange&season=2025&endDate=2025-05-20&group={}",
+                group
+            );
+
+            let _m = server
+                .mock("GET", Matcher::Exact(url))
+                .with_status(200)
+                .with_header("content-type", "application/json;charset=UTF-8")
+                .with_body_from_file(format!("./tests/responses/player-stats-{group}-date.json"))
+                .create();
+
+            let resp = CLIENT.get_player_stats_on_date(group, date).await;
             println!("{:?}", resp);
         }
     }

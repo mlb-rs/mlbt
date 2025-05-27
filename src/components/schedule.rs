@@ -1,12 +1,11 @@
-use std::cmp::Ordering;
-
 use crate::app::{AppSettings, HomeOrAway};
 use crate::components::constants::TEAM_NAMES;
 use crate::components::date_selector::DateSelector;
-use chrono::{DateTime, NaiveDate, ParseError, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
 use chrono_tz::Tz;
 use core::option::Option::{None, Some};
 use mlb_api::schedule::{Game, ScheduleResponse};
+use std::cmp::Ordering;
 use tui::widgets::TableState;
 
 /// ScheduleState is used to render the schedule as a `tui-rs` table.
@@ -31,10 +30,7 @@ pub struct ScheduleRow {
 
 impl ScheduleState {
     pub fn from_schedule(settings: &AppSettings, schedule: &ScheduleResponse) -> Self {
-        let date_selector = DateSelector::new(
-            ScheduleRow::get_date_from_schedule(schedule),
-            settings.timezone,
-        );
+        let date_selector = DateSelector::new(ScheduleRow::get_date_from_schedule(schedule));
         let mut ss = ScheduleState {
             state: TableState::default(),
             schedule: ScheduleRow::create_table(settings, schedule),
@@ -50,11 +46,10 @@ impl ScheduleState {
         self.schedule = ScheduleRow::create_table(settings, schedule);
     }
 
-    /// Set the date from the input string from the date picker.
-    pub fn set_date_from_input(&mut self, date: String) -> Result<(), ParseError> {
-        self.date_selector.set_date_from_input(date)?;
+    /// Set the date from the validated input string from the date picker.
+    pub fn set_date_from_valid_input(&mut self, date: NaiveDate) {
+        self.date_selector.set_date_from_valid_input(date);
         self.state.select(Some(0));
-        Ok(())
     }
 
     /// Set the date using Left/Right arrow keys to move a single day at a time.

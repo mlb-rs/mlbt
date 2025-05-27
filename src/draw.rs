@@ -45,6 +45,7 @@ where
                     match app.state.previous_tab {
                         MenuItem::Scoreboard => draw_scoreboard(f, main_layout.main, app),
                         MenuItem::Standings => draw_standings(f, main_layout.main, app),
+                        MenuItem::Stats => draw_stats(f, main_layout.main, app),
                         _ => (),
                     }
                     draw_date_picker(f, main_layout.main, app);
