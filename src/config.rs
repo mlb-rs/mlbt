@@ -1,11 +1,11 @@
 use crate::components::constants::TEAM_NAMES;
 use anyhow::Context;
+use chrono_tz::America::Los_Angeles;
+use chrono_tz::Tz;
 use directories::ProjectDirs;
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use chrono_tz::America::Los_Angeles;
-use chrono_tz::Tz;
 
 pub static CONFIG_LOCATION: Lazy<Option<PathBuf>> = Lazy::new(get_config_location);
 static CONFIG_FILE: &str = "mlbt.toml";

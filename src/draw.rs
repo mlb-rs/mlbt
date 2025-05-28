@@ -9,6 +9,7 @@ use crate::app::{App, DebugState, MenuItem};
 use crate::components::debug::DebugInfo;
 use crate::ui::at_bat::AtBatWidget;
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
+use crate::ui::date_selector::DateSelectorWidget;
 use crate::ui::help::{DOCS, HelpWidget};
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
@@ -147,41 +148,12 @@ fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App) {
 
 fn draw_date_picker(f: &mut Frame, rect: Rect, app: &mut App) {
     let chunk = LayoutAreas::create_date_picker(rect);
-    f.render_widget(Clear, chunk);
-
-    let lines = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints(
-            [
-                Constraint::Length(1), // top border
-                Constraint::Length(1), // directions
-                Constraint::Length(1), // input
-            ]
-            .as_ref(),
-        )
-        .split(chunk);
-
-    let directions = Paragraph::new(" Press Enter to submit or Esc to cancel");
-    f.render_widget(directions, lines[1]);
-
-    let input = Paragraph::new(format!(" {}", app.state.date_input.text));
-    f.render_widget(input, lines[2]);
-
-    let border = match app.state.date_input.is_valid {
-        true => Style::default().fg(Color::Blue),
-        false => Style::default().fg(Color::Red),
-    };
-    let block = Block::default()
-        .title("Enter a date (YYYY-MM-DD) or use arrow keys")
-        .borders(Borders::ALL)
-        .border_type(BorderType::Rounded)
-        .border_style(border);
-    f.render_widget(block, chunk);
+    f.render_stateful_widget(DateSelectorWidget {}, chunk, &mut app.state.date_input);
 
     // display cursor
     f.set_cursor_position((
-        lines[2].x + app.state.date_input.text.len() as u16 + 1,
-        lines[2].y,
+        chunk.x + app.state.date_input.text.len() as u16 + 1, // +1 for border
+        chunk.y + 2,                                          // +2 for border and instructions
     ))
 }
 
