@@ -119,7 +119,13 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
         .split(rect);
 
     // display scores on left side
-    f.render_stateful_widget(ScheduleWidget {}, chunks[0], &mut app.state.schedule);
+    f.render_stateful_widget(
+        ScheduleWidget {
+            tz_abbreviation: app.settings.timezone_abbreviation.clone(),
+        },
+        chunks[0],
+        &mut app.state.schedule,
+    );
 
     // display line score and box score on right
     draw_border(f, chunks[1], Color::White);

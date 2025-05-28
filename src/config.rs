@@ -10,18 +10,33 @@ use std::path::PathBuf;
 pub static CONFIG_LOCATION: Lazy<Option<PathBuf>> = Lazy::new(get_config_location);
 static CONFIG_FILE: &str = "mlbt.toml";
 
-// TODO configurable timezone
-pub const TIMEZONE: Tz = Los_Angeles;
-
-#[derive(Debug, Default, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Config {
     /// See the `TEAM_NAMES` map in `components/constants.rs` for options.
     pub favorite_team: Option<String>,
-    // TODO
-    // pub time_zone: Option<String>
+
+    /// Timezone to display game start times in. Common options are:
+    /// * "US/Pacific"
+    /// * "US/Mountain"
+    /// * "US/Central"
+    /// * "US/Eastern"
+    ///
+    /// For the full list see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones.
+    pub timezone: Option<Tz>,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            favorite_team: None,
+            timezone: Some(Config::DEFAULT_TIMEZONE),
+        }
+    }
 }
 
 impl Config {
+    const DEFAULT_TIMEZONE: Tz = Los_Angeles;
+
     pub fn validate_favorite_team(&self) -> Option<String> {
         if let Some(favorite) = &self.favorite_team {
             if TEAM_NAMES.contains_key(favorite.as_str()) {
@@ -29,6 +44,13 @@ impl Config {
             }
         }
         None
+    }
+
+    pub fn validate_timezone(&self) -> Tz {
+        if let Some(timezone) = &self.timezone {
+            return *timezone;
+        }
+        Self::DEFAULT_TIMEZONE
     }
 }
 

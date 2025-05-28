@@ -1,6 +1,6 @@
-use crate::config::TIMEZONE;
 use chrono::{NaiveDate, Utc};
 
+#[derive(Debug)]
 pub struct DateSelector {
     pub date: NaiveDate,
     /// Used for selecting the date with arrow keys.
@@ -9,9 +9,8 @@ pub struct DateSelector {
 
 impl Default for DateSelector {
     fn default() -> Self {
-        let date = Utc::now().with_timezone(&TIMEZONE).date_naive();
         Self {
-            date,
+            date: Utc::now().date_naive(),
             selection_offset: 0,
         }
     }

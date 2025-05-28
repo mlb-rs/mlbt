@@ -2,9 +2,9 @@ use crate::components::live_game::GameState;
 use crate::components::schedule::ScheduleState;
 use crate::components::standings::StandingsState;
 use crate::components::stats::StatsState;
-use crate::config::{CONFIG_LOCATION, TIMEZONE, generate_config_file, load_config_file};
-use chrono::{NaiveDate, ParseError, Utc};
-use chrono_tz::Tz;
+use crate::config::{CONFIG_LOCATION, generate_config_file, load_config_file};
+use chrono::{NaiveDate, ParseError, TimeZone, Utc};
+use chrono_tz::{OffsetName, Tz};
 use crossbeam_channel::{Receiver, Sender, bounded};
 use mlb_api::client::{MLBApi, MLBApiBuilder};
 use mlb_api::live::LiveResponse;
@@ -64,11 +64,12 @@ pub struct AppState {
     pub stats: StatsState,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct AppSettings {
     pub favorite_team: Option<String>,
     pub full_screen: bool,
     pub timezone: Tz,
+    pub timezone_abbreviation: String,
 }
 
 pub struct App {
@@ -84,11 +85,7 @@ impl App {
     pub fn new() -> Self {
         let mut app = Self {
             state: AppState::default(),
-            settings: AppSettings {
-                favorite_team: None,
-                full_screen: false,
-                timezone: TIMEZONE,
-            },
+            settings: AppSettings::default(),
             client: MLBApiBuilder::default().build().unwrap(),
             redraw_channel: bounded(1),
             update_channel: bounded(1),
@@ -107,10 +104,24 @@ impl App {
             }
             let config = load_config_file(&path)?;
             self.settings.favorite_team = config.validate_favorite_team();
+            self.settings.timezone = config.validate_timezone();
+            self.settings.timezone_abbreviation = self.get_timezone_abbreviation();
         } else {
             eprintln!("could not find config file");
         };
         Ok(())
+    }
+
+    /// Get the abbreviated name of the configured timezone, (e.g. "PST" or "PDT")
+    fn get_timezone_abbreviation(&self) -> String {
+        // Get the timezone offset for the given datetime
+        let now = Utc::now().with_timezone(&self.settings.timezone);
+        let offset = self
+            .settings
+            .timezone
+            .offset_from_utc_datetime(&now.naive_utc());
+
+        offset.abbreviation().unwrap_or("~~").to_string()
     }
 
     pub fn update_schedule(&mut self, schedule: &ScheduleResponse) {

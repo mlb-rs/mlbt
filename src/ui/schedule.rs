@@ -9,9 +9,11 @@ use tui::{
     widgets::{Block, BorderType, Borders, Cell, Row, StatefulWidget, Table},
 };
 
-const HEADER: &[&str; 6] = &["away", "", "home", "", "time [PST]", "status"];
+const HEADER: &[&str; 6] = &["away", "", "home", "", "time", "status"];
 
-pub struct ScheduleWidget {}
+pub struct ScheduleWidget {
+    pub tz_abbreviation: String,
+}
 
 impl ScheduleRow {
     fn format(&self) -> Vec<Span> {
@@ -50,7 +52,14 @@ impl StatefulWidget for ScheduleWidget {
     type State = ScheduleState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        let header_cells = HEADER.iter().map(|h| Cell::from(*h));
+        let header_cells = HEADER.iter().enumerate().map(|(i, h)| {
+            if i == 4 {
+                Cell::from(format!("{} [{}]", *h, self.tz_abbreviation))
+            } else {
+                Cell::from(*h)
+            }
+        });
+
         let header = Row::new(header_cells)
             .height(1)
             .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
