@@ -91,7 +91,11 @@ impl StatefulWidget for StatsWidget {
             .block(
                 Block::default()
                     .borders(Borders::ALL)
-                    .border_type(BorderType::Rounded),
+                    .border_type(BorderType::Rounded)
+                    .title(Span::styled(
+                        state.date_selector.format_date_border_title(),
+                        Style::default().fg(Color::Black).bg(Color::Blue),
+                    )),
             );
 
         StatefulWidget::render(t, chunks[0], buf, &mut state.state);

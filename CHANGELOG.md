@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add sorting to stats view! Use `s` to sort the stats by a column: [PR 52](https://github.com/mlb-rs/mlbt/pull/52)
+- Add the date picker option to Standings and Stats! [PR 53](https://github.com/mlb-rs/mlbt/pull/53)
+- Add `timezone` to the config file for changing which time zone is used to 
+  display the start time of games in the Schedule.
 
 ### Changed
 

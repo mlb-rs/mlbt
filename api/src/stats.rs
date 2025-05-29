@@ -25,7 +25,7 @@ pub struct DisplayName {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Split {
-    season: String,
+    season: Option<String>,
     pub stat: StatSplit,
     pub team: IdNameLink,
     pub player: Option<Player>,
@@ -96,7 +96,7 @@ pub struct PitchingStat {
     strike_percentage: String,
     balks: u16,
     wild_pitches: u16,
-    pickoffs: u16,
+    pickoffs: Option<u16>,
     total_bases: u16,
     ground_outs_to_airouts: String,
     win_percentage: String,
@@ -108,7 +108,7 @@ pub struct PitchingStat {
     hits_per9_inn: String,
     runs_scored_per9: String,
     home_runs_per9: String,
-    catchers_interference: u16,
+    catchers_interference: Option<u16>,
     sac_bunts: u16,
     sac_flies: u16,
 }

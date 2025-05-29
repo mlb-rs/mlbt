@@ -9,6 +9,7 @@ use crate::app::{App, DebugState, MenuItem};
 use crate::components::debug::DebugInfo;
 use crate::ui::at_bat::AtBatWidget;
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
+use crate::ui::date_selector::DateSelectorWidget;
 use crate::ui::help::{DOCS, HelpWidget};
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
@@ -42,18 +43,17 @@ where
             match app.state.active_tab {
                 MenuItem::Scoreboard => draw_scoreboard(f, main_layout.main, app),
                 MenuItem::DatePicker => {
-                    draw_scoreboard(f, main_layout.main, app);
+                    match app.state.previous_tab {
+                        MenuItem::Scoreboard => draw_scoreboard(f, main_layout.main, app),
+                        MenuItem::Standings => draw_standings(f, main_layout.main, app),
+                        MenuItem::Stats => draw_stats(f, main_layout.main, app),
+                        _ => (),
+                    }
                     draw_date_picker(f, main_layout.main, app);
                 }
                 MenuItem::Gameday => draw_gameday(f, main_layout.main, app),
                 MenuItem::Stats => draw_stats(f, main_layout.main, app),
-                MenuItem::Standings => {
-                    f.render_stateful_widget(
-                        StandingsWidget {},
-                        main_layout.main,
-                        &mut app.state.standings,
-                    );
-                }
+                MenuItem::Standings => draw_standings(f, main_layout.main, app),
                 MenuItem::Help => draw_help(f, f.area()),
             }
             if app.state.debug_state == DebugState::On {
@@ -119,7 +119,13 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
         .split(rect);
 
     // display scores on left side
-    f.render_stateful_widget(ScheduleWidget {}, chunks[0], &mut app.state.schedule);
+    f.render_stateful_widget(
+        ScheduleWidget {
+            tz_abbreviation: app.settings.timezone_abbreviation.clone(),
+        },
+        chunks[0],
+        &mut app.state.schedule,
+    );
 
     // display line score and box score on right
     draw_border(f, chunks[1], Color::White);
@@ -148,41 +154,12 @@ fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App) {
 
 fn draw_date_picker(f: &mut Frame, rect: Rect, app: &mut App) {
     let chunk = LayoutAreas::create_date_picker(rect);
-    f.render_widget(Clear, chunk);
-
-    let lines = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints(
-            [
-                Constraint::Length(1), // top border
-                Constraint::Length(1), // directions
-                Constraint::Length(1), // input
-            ]
-            .as_ref(),
-        )
-        .split(chunk);
-
-    let directions = Paragraph::new(" Press Enter to submit or Esc to cancel");
-    f.render_widget(directions, lines[1]);
-
-    let input = Paragraph::new(format!(" {}", app.state.date_input.text));
-    f.render_widget(input, lines[2]);
-
-    let border = match app.state.date_input.is_valid {
-        true => Style::default().fg(Color::Blue),
-        false => Style::default().fg(Color::Red),
-    };
-    let block = Block::default()
-        .title("Enter a date (YYYY-MM-DD) or use arrow keys")
-        .borders(Borders::ALL)
-        .border_type(BorderType::Rounded)
-        .border_style(border);
-    f.render_widget(block, chunk);
+    f.render_stateful_widget(DateSelectorWidget {}, chunk, &mut app.state.date_input);
 
     // display cursor
     f.set_cursor_position((
-        lines[2].x + app.state.date_input.text.len() as u16 + 1,
-        lines[2].y,
+        chunk.x + app.state.date_input.text.len() as u16 + 1, // +1 for border
+        chunk.y + 2,                                          // +2 for border and instructions
     ))
 }
 
@@ -226,6 +203,10 @@ fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
         rect,
         &mut app.state.stats,
     );
+}
+
+fn draw_standings(f: &mut Frame, rect: Rect, app: &mut App) {
+    f.render_stateful_widget(StandingsWidget {}, rect, &mut app.state.standings);
 }
 
 fn draw_help(f: &mut Frame, rect: Rect) {

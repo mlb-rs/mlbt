@@ -22,6 +22,7 @@ Check scores, standings, and stats. Even watch a live game using Gameday!
     - [Gameday](#gameday)
     - [Stats](#stats)
     - [Standings](#standings)
+    - [Date Picker](#date-picker)
     - [Help](#help)
 - [Config](#config)
 - [Shout out](#shout-out)
@@ -109,7 +110,7 @@ docker run -it --rm --name mlbt mlbt:latest
 
 - [ ] configuration:
     - [X] favorite team
-    - [ ] time zone
+    - [X] time zone
     - [ ] colors
     - [ ] keymap
 
@@ -128,7 +129,7 @@ There are four main tabs.
 - Stats
 - Standings
 
-Press `f` for full screen mode to hide them.
+Press `f` for full screen mode to hide the tab bar.
 
 ### Scoreboard
 
@@ -136,11 +137,7 @@ Press `1` to activate this tab.
 
 - `j`: move down
 - `k`: move up
-- `:`: activate date picker
-
-With the date picker active, input a date in the form of `YYYY-MM-DD`, or use
-the `left`/`right` arrow keys, and press `Enter`. This will display the schedule
-for that day. To view games for the current day, input `today`.
+- `:`: activate date picker (see [Date Picker](#date-picker))
 
 To switch the team displayed in the box score:
 
@@ -186,6 +183,7 @@ flip the sort order from ascending to descending or vice versa press `s` again.
 - `k`: move up
 - `Enter`: toggle stat column
 - `s`: sort by the currently selected column
+- `:`: activate date picker (see [Date Picker](#date-picker))
 - `o`: toggle stat selection pane
 
 > If your terminal is too small to display all columns, they will be turned off
@@ -197,7 +195,17 @@ Press `4` to activate this tab.
 
 - `j`: move down
 - `k`: move up
-- `Enter`: display a teams roster TODO
+- `:`: activate date picker (see [Date Picker](#date-picker))
+- `Enter`: display a teams roster (TODO)
+
+### Date Picker
+
+With the date picker active, input a date in the form of `YYYY-MM-DD`, or use
+the `left`/`right` arrow keys, and press `Enter`. To cancel, press `Esc`. To go
+back to the current day, enter `today`.
+
+> Note that each tab has its own date, i.e. if you're viewing older stats or 
+> standings, the schedule can be the current date.
 
 ### Help
 
@@ -212,9 +220,9 @@ Press `4` to activate this tab.
 You can configure the TUI with the toml file located at your users' home
 directory. For a user named `Alice` this would be:
 
-- Linux:   /home/alice/.config/mlbt/mlbt.toml
-- Windows: C:\Users\Alice\AppData\Roaming\mlbt\mlbt.toml
-- macOS:   /Users/Alice/Library/Application Support/mlbt/mlbt.toml
+- Linux:   `/home/alice/.config/mlbt/mlbt.toml`
+- Windows: `C:\Users\Alice\AppData\Roaming\mlbt\mlbt.toml`
+- macOS:   `/Users/Alice/Library/Application Support/mlbt/mlbt.toml`
 
 > You can see the path for your user in the `Help` page.
 
@@ -224,12 +232,21 @@ directory. For a user named `Alice` this would be:
   if they have a game that day.
   See [here](https://github.com/mlb-rs/mlbt/blob/main/src/components/constants.rs#L21)
   for options (note: use the full name and not the short name).
+- `timezone`: This will change the time zone of the start time for the games in
+  the schedule. The default is `US/Pacific`. Some common options are:
+    * `US/Pacific`
+    * `US/Mountain`
+    * `US/Central`
+    * `US/Eastern`
+    * For the full list
+      see [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
 
 ### Example config
 
 ```toml
 # See https://github.com/mlb-rs/mlbt#config for options
 favorite_team = "Chicago Cubs"
+timezone = "US/Pacific"
 ```
 
 ## Shout out

@@ -1,11 +1,11 @@
+use crate::components::date_selector::DateSelector;
+use chrono::NaiveDate;
+use indexmap::IndexMap;
 use mlb_api::client::StatGroup;
 use mlb_api::stats::{HittingStat, PitchingStat, StatResponse, StatSplit};
-
-use indexmap::IndexMap;
-use tui::widgets::TableState;
-
 use std::cmp::Ordering;
 use std::string::ToString;
+use tui::widgets::TableState;
 
 /// The width of the first column, which is a longer item like team name.
 pub const STATS_FIRST_COL_WIDTH: u16 = 25;
@@ -85,6 +85,8 @@ pub struct StatsState {
     pub sorting: Sort,
     /// Whether to display the side bar for toggling stats
     pub show_options: bool,
+    /// Date selector for viewing stats on a specific date.
+    pub date_selector: DateSelector,
 }
 
 /// The information for a stat, including all the data values.
@@ -108,6 +110,7 @@ impl Default for StatsState {
             stats: IndexMap::new(),
             sorting: Sort::default(),
             show_options: true,
+            date_selector: DateSelector::default(),
         };
         ss.state.select(Some(0));
         ss
@@ -118,6 +121,17 @@ impl StatsState {
     pub fn update(&mut self, stats: &StatResponse) {
         self.stats.clear();
         self.create_table(stats);
+    }
+
+    /// Set the date from the validated input string from the date picker.
+    pub fn set_date_from_valid_input(&mut self, date: NaiveDate) {
+        self.date_selector.set_date_from_valid_input(date);
+        self.state.select(Some(0));
+    }
+
+    /// Set the date using Left/Right arrow keys to move a single day at a time.
+    pub fn set_date_with_arrows(&mut self, forward: bool) -> NaiveDate {
+        self.date_selector.set_date_with_arrows(forward)
     }
 
     fn create_table(&mut self, stats: &StatResponse) {
