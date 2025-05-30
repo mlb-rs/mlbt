@@ -2,9 +2,9 @@ use crate::components::live_game::GameState;
 use crate::components::schedule::ScheduleState;
 use crate::components::standings::StandingsState;
 use crate::components::stats::StatsState;
-use crate::config::{CONFIG_LOCATION, generate_config_file, load_config_file};
-use chrono::{NaiveDate, ParseError, TimeZone, Utc};
-use chrono_tz::{OffsetName, Tz};
+use crate::config::ConfigFile;
+use chrono::{NaiveDate, ParseError, Utc};
+use chrono_tz::Tz;
 use crossbeam_channel::{Receiver, Sender, bounded};
 use mlb_api::client::{MLBApi, MLBApiBuilder};
 use mlb_api::live::LiveResponse;
@@ -72,6 +72,18 @@ pub struct AppSettings {
     pub timezone_abbreviation: String,
 }
 
+impl AppSettings {
+    /// If config file can't be loaded just print an error message but don't block starting app
+    pub fn load_from_file() -> Self {
+        ConfigFile::load_from_file()
+            .unwrap_or_else(|err| {
+                eprintln!("could not load config file: {:?}", err);
+                ConfigFile::default()
+            })
+            .into()
+    }
+}
+
 pub struct App {
     pub settings: AppSettings,
     pub state: AppState,
@@ -85,43 +97,28 @@ impl App {
     pub fn new() -> Self {
         let mut app = Self {
             state: AppState::default(),
-            settings: AppSettings::default(),
+            settings: AppSettings::load_from_file(),
             client: MLBApiBuilder::default().build().unwrap(),
             redraw_channel: bounded(1),
             update_channel: bounded(1),
         };
-        // if config file can't be loaded just print an error message but don't block starting app
-        if let Err(err) = app.load_config() {
-            eprintln!("could not load config file: {:?}", err);
-        }
+        app.configure();
         app
     }
 
-    fn load_config(&mut self) -> anyhow::Result<()> {
-        if let Some(path) = CONFIG_LOCATION.clone() {
-            if !path.exists() {
-                generate_config_file(&path)?;
-            }
-            let config = load_config_file(&path)?;
-            self.settings.favorite_team = config.validate_favorite_team();
-            self.settings.timezone = config.validate_timezone();
-            self.settings.timezone_abbreviation = self.get_timezone_abbreviation();
-        } else {
-            eprintln!("could not find config file");
-        };
-        Ok(())
+    /// Run any final configuration that might need to access multiple parts of state.
+    fn configure(&mut self) {
+        self.set_all_datepickers_to_today();
     }
 
-    /// Get the abbreviated name of the configured timezone, (e.g. "PST" or "PDT")
-    fn get_timezone_abbreviation(&self) -> String {
-        // Get the timezone offset for the given datetime
-        let now = Utc::now().with_timezone(&self.settings.timezone);
-        let offset = self
-            .settings
-            .timezone
-            .offset_from_utc_datetime(&now.naive_utc());
-
-        offset.abbreviation().unwrap_or("~~").to_string()
+    /// Sync date pickers using the correct timezone.
+    fn set_all_datepickers_to_today(&mut self) {
+        let today = Utc::now()
+            .with_timezone(&self.settings.timezone)
+            .date_naive();
+        self.state.schedule.date_selector.date = today;
+        self.state.stats.date_selector.date = today;
+        self.state.standings.date_selector.date = today;
     }
 
     pub fn update_schedule(&mut self, schedule: &ScheduleResponse) {
