@@ -2,6 +2,7 @@ pub mod at_bat;
 pub mod banner;
 pub mod boxscore;
 pub mod constants;
+pub mod date_selector;
 pub mod debug;
 pub mod linescore;
 pub mod live_game;

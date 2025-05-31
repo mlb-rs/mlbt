@@ -1,9 +1,9 @@
-use once_cell::sync::Lazy;
 use std::collections::HashMap;
+use std::sync::LazyLock;
 
 /// This maps the `teamId` to the `shortName` for each division and league.
 /// The team names are taken from the `divisions` endpoint.
-pub static DIVISIONS: Lazy<HashMap<u8, &'static str>> = Lazy::new(|| {
+pub static DIVISIONS: LazyLock<HashMap<u8, &'static str>> = LazyLock::new(|| {
     HashMap::from([
         (103, "American League"),
         (104, "National League"),
@@ -18,7 +18,7 @@ pub static DIVISIONS: Lazy<HashMap<u8, &'static str>> = Lazy::new(|| {
 
 /// This maps the full name of a team to its short name. The short name is used in the boxscore.
 /// The team names are taken from the `teams` endpoint.
-pub static TEAM_NAMES: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
+pub static TEAM_NAMES: LazyLock<HashMap<&'static str, &'static str>> = LazyLock::new(|| {
     HashMap::from([
         ("Oakland Athletics", "Athletics"),
         ("Athletics", "Athletics"),

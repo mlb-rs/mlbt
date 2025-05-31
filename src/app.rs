@@ -2,7 +2,9 @@ use crate::components::live_game::GameState;
 use crate::components::schedule::ScheduleState;
 use crate::components::standings::StandingsState;
 use crate::components::stats::StatsState;
-use crate::config::{CONFIG_LOCATION, generate_config_file, load_config_file};
+use crate::config::ConfigFile;
+use chrono::{NaiveDate, ParseError, Utc};
+use chrono_tz::Tz;
 use crossbeam_channel::{Receiver, Sender, bounded};
 use mlb_api::client::{MLBApi, MLBApiBuilder};
 use mlb_api::live::LiveResponse;
@@ -62,10 +64,24 @@ pub struct AppState {
     pub stats: StatsState,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct AppSettings {
     pub favorite_team: Option<String>,
     pub full_screen: bool,
+    pub timezone: Tz,
+    pub timezone_abbreviation: String,
+}
+
+impl AppSettings {
+    /// If config file can't be loaded just print an error message but don't block starting app
+    pub fn load_from_file() -> Self {
+        ConfigFile::load_from_file()
+            .unwrap_or_else(|err| {
+                eprintln!("could not load config file: {:?}", err);
+                ConfigFile::default()
+            })
+            .into()
+    }
 }
 
 pub struct App {
@@ -81,32 +97,28 @@ impl App {
     pub fn new() -> Self {
         let mut app = Self {
             state: AppState::default(),
-            settings: AppSettings {
-                favorite_team: None,
-                full_screen: false,
-            },
+            settings: AppSettings::load_from_file(),
             client: MLBApiBuilder::default().build().unwrap(),
             redraw_channel: bounded(1),
             update_channel: bounded(1),
         };
-        // if config file can't be loaded just print an error message but don't block starting app
-        if let Err(err) = app.load_config() {
-            eprintln!("could not load config file: {:?}", err);
-        }
+        app.configure();
         app
     }
 
-    fn load_config(&mut self) -> anyhow::Result<()> {
-        if let Some(path) = CONFIG_LOCATION.clone() {
-            if !path.exists() {
-                generate_config_file(&path)?;
-            }
-            let config = load_config_file(&path)?;
-            self.settings.favorite_team = config.validate_favorite_team();
-        } else {
-            eprintln!("could not find config file");
-        };
-        Ok(())
+    /// Run any final configuration that might need to access multiple parts of state.
+    fn configure(&mut self) {
+        self.set_all_datepickers_to_today();
+    }
+
+    /// Sync date pickers using the correct timezone.
+    fn set_all_datepickers_to_today(&mut self) {
+        let today = Utc::now()
+            .with_timezone(&self.settings.timezone)
+            .date_naive();
+        self.state.schedule.date_selector.date = today;
+        self.state.stats.date_selector.date = today;
+        self.state.standings.date_selector.date = today;
     }
 
     pub fn update_schedule(&mut self, schedule: &ScheduleResponse) {
@@ -125,6 +137,35 @@ impl App {
         }
     }
 
+    pub fn try_update_date_from_input(&mut self) -> Result<(), ParseError> {
+        let valid_date = self
+            .state
+            .date_input
+            .validate_input(self.settings.timezone)?;
+
+        // current tab is date picker, so use previous tab to update correct date
+        match self.state.previous_tab {
+            MenuItem::Scoreboard => self.state.schedule.set_date_from_valid_input(valid_date),
+            MenuItem::Standings => self.state.standings.set_date_from_valid_input(valid_date),
+            MenuItem::Stats => self.state.stats.set_date_from_valid_input(valid_date),
+            _ => (),
+        }
+        Ok(())
+    }
+
+    pub fn move_date_selector_by_arrow(&mut self, right_arrow: bool) {
+        let date = match self.state.previous_tab {
+            MenuItem::Scoreboard => Some(self.state.schedule.set_date_with_arrows(right_arrow)),
+            MenuItem::Standings => Some(self.state.standings.set_date_with_arrows(right_arrow)),
+            MenuItem::Stats => Some(self.state.stats.set_date_with_arrows(right_arrow)),
+            _ => None,
+        };
+        self.state.date_input.text.clear();
+        if let Some(date) = date {
+            self.state.date_input.text.push_str(&date.to_string());
+        }
+    }
+
     pub fn exit_help(&mut self) {
         if self.state.active_tab == MenuItem::Help {
             self.state.active_tab = self.state.previous_tab;
@@ -140,6 +181,18 @@ impl App {
 
     pub fn toggle_full_screen(&mut self) {
         self.settings.full_screen = !self.settings.full_screen;
+    }
+}
+
+impl DateInput {
+    pub fn validate_input(&mut self, tz: Tz) -> Result<NaiveDate, ParseError> {
+        let input: String = self.text.drain(..).collect();
+        let date = match input.as_str() {
+            "today" => Ok(Utc::now().with_timezone(&tz).date_naive()),
+            _ => NaiveDate::parse_from_str(input.as_str(), "%Y-%m-%d"),
+        };
+        self.is_valid = date.is_ok();
+        date
     }
 }
 

@@ -47,28 +47,20 @@ pub fn handle_key_bindings(
         (MenuItem::Scoreboard, Char(':')) => app.update_tab(MenuItem::DatePicker),
 
         (MenuItem::DatePicker, KeyCode::Enter) => {
-            let date: String = app.state.date_input.text.drain(..).collect();
-            if app.state.schedule.set_date_from_input(date).is_ok() {
-                app.state.date_input.is_valid = true;
-                app.update_tab(MenuItem::Scoreboard);
+            if app.try_update_date_from_input().is_ok() {
+                app.update_tab(app.state.previous_tab);
                 let _ = selective_update.try_send(MenuItem::DatePicker);
-            } else {
-                app.state.date_input.is_valid = false;
             }
         }
         (MenuItem::DatePicker, KeyCode::Right) => {
-            let date = app.state.schedule.set_date_with_arrows(true);
-            app.state.date_input.text.clear();
-            app.state.date_input.text.push_str(&date.to_string());
+            app.move_date_selector_by_arrow(true);
         }
         (MenuItem::DatePicker, KeyCode::Left) => {
-            let date = app.state.schedule.set_date_with_arrows(false);
-            app.state.date_input.text.clear();
-            app.state.date_input.text.push_str(&date.to_string());
+            app.move_date_selector_by_arrow(false);
         }
         (MenuItem::DatePicker, KeyCode::Esc) => {
             app.state.date_input.text.clear();
-            app.update_tab(MenuItem::Scoreboard)
+            app.update_tab(app.state.previous_tab);
         }
         (MenuItem::DatePicker, KeyCode::Backspace) => {
             app.state.date_input.text.pop();
@@ -97,6 +89,7 @@ pub fn handle_key_bindings(
         }
         (MenuItem::Stats, KeyCode::Enter) => app.state.stats.toggle_stat(),
         (MenuItem::Stats, Char('s')) => app.state.stats.store_sort_column(),
+        (MenuItem::Stats, Char(':')) => app.update_tab(MenuItem::DatePicker),
 
         (MenuItem::Standings, Char('j')) => app.state.standings.next(),
         (MenuItem::Standings, Char('k')) => app.state.standings.previous(),
@@ -105,6 +98,7 @@ pub fn handle_key_bindings(
             // println!("team id: {:?}", team_id);
             // TODO show team info panel
         }
+        (MenuItem::Standings, Char(':')) => app.update_tab(MenuItem::DatePicker),
 
         (MenuItem::Gameday, Char('i')) => app.state.gameday.info = !app.state.gameday.info,
         (MenuItem::Gameday, Char('p')) => app.state.gameday.at_bat = !app.state.gameday.at_bat,

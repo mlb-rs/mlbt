@@ -6,10 +6,10 @@ use tui::{
 };
 
 use crate::components::banner::BANNER;
-use crate::config::CONFIG_LOCATION;
+use crate::config::ConfigFile;
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
-pub const DOCS: &[&[&str; 2]; 25] = &[
+pub const DOCS: &[&[&str; 2]; 27] = &[
     &["Exit help", "Esc"],
     &["Quit", "q"],
     &["Full screen", "f"],
@@ -30,10 +30,12 @@ pub const DOCS: &[&[&str; 2]; 25] = &[
     &["Move up", "k"],
     &["Toggle stat", "Enter"],
     &["Sort by stat", "s"],
+    &["Select date", ":"],
     &["Toggle stat selection", "o"],
     &["Standings", "4"],
     &["Move down", "j"],
     &["Move up", "k"],
+    &["Select date", ":"],
     &["View team info", "Enter"],
 ];
 
@@ -81,7 +83,7 @@ impl Widget for HelpWidget {
             .style(help_menu_style)
             .render(chunks[0], buf);
 
-        let config_file = if let Some(path) = CONFIG_LOCATION.clone() {
+        let config_file = if let Some(path) = ConfigFile::get_config_location() {
             path.to_string_lossy().to_string()
         } else {
             "not found".to_string()

@@ -100,6 +100,7 @@ async fn network_thread(app: Arc<Mutex<App>>) {
         // initial data load
         let schedule = app.client.get_todays_schedule().await;
         app.state.schedule = ScheduleState::from_schedule(&app.settings, &schedule);
+        let _ = request_redraw.try_send(());
 
         let game = app
             .client
@@ -124,24 +125,41 @@ async fn network_thread(app: Arc<Mutex<App>>) {
                     }
                     // update schedule and linescore when a new date is picked
                     Ok(MenuItem::DatePicker) => {
-                        let schedule = app.client.get_schedule_date(app.state.schedule.date).await;
-                        app.update_schedule(&schedule);
-                        // run sequentially to get the correct selected game id
-                        let game_id = app.state.schedule.get_selected_game();
-                        let game = app.client.get_live_data(game_id).await;
-                        app.update_live_data(&game);
+                        match app.state.active_tab {
+                            MenuItem::Scoreboard => {
+                                let schedule = app.client.get_schedule_date(app.state.schedule.date_selector.date).await;
+                                app.update_schedule(&schedule);
+                                // run sequentially to get the correct selected game id
+                                let game_id = app.state.schedule.get_selected_game();
+                                let game = app.client.get_live_data(game_id).await;
+                                app.update_live_data(&game);
+                            },
+                            MenuItem::Standings => {
+                                let standings = app.client.get_standings(app.state.standings.date_selector.date).await;
+                                app.state.standings.update(&standings);
+                            }
+                            MenuItem::Stats => {
+                                let date = app.state.stats.date_selector.date;
+                                let response = match app.state.stats.stat_type.team_player {
+                                    TeamOrPlayer::Team => app.client.get_team_stats_on_date(app.state.stats.stat_type.group, date).await,
+                                    TeamOrPlayer::Player => app.client.get_player_stats_on_date(app.state.stats.stat_type.group, date).await,
+                                };
+                                app.state.stats.update(&response);
+                            }
+                            _ => ()
+                        }
                     }
                     // update standings only when tab is switched to
                     Ok(MenuItem::Standings) => {
-                        let standings = app.client.get_standings().await;
+                        let standings = app.client.get_standings(app.state.standings.date_selector.date).await;
                         app.state.standings.update(&standings);
                     }
                     // update stats only when tab is switched to, team/player is changed, or
                     // pitching/hitting is changed
                     Ok(MenuItem::Stats) => {
                         let response = match app.state.stats.stat_type.team_player {
-                            TeamOrPlayer::Team => app.client.get_team_stats(app.state.stats.stat_type.group.clone()).await,
-                            TeamOrPlayer::Player => app.client.get_player_stats(app.state.stats.stat_type.group.clone()).await,
+                            TeamOrPlayer::Team => app.client.get_team_stats(app.state.stats.stat_type.group).await,
+                            TeamOrPlayer::Player => app.client.get_player_stats_on_date(app.state.stats.stat_type.group, app.state.stats.date_selector.date).await,
                         };
                         app.state.stats.update(&response);
                     }
@@ -156,7 +174,7 @@ async fn network_thread(app: Arc<Mutex<App>>) {
                     MenuItem::Scoreboard => {
                         // run concurrently since game id is already correct
                         let (schedule, game) = tokio::join!(
-                            app.client.get_schedule_date(app.state.schedule.date),
+                            app.client.get_schedule_date(app.state.schedule.date_selector.date),
                             app.client.get_live_data(app.state.schedule.get_selected_game())
                         );
                         app.update_schedule(&schedule);

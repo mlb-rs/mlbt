@@ -1,4 +1,6 @@
 use crate::components::constants::DIVISIONS;
+use crate::components::date_selector::DateSelector;
+use chrono::NaiveDate;
 use core::option::Option::{None, Some};
 use mlb_api::standings::{StandingsResponse, TeamRecord};
 use tui::widgets::TableState;
@@ -9,6 +11,7 @@ pub struct StandingsState {
     pub state: TableState,
     pub standings: Vec<Division>,
     pub team_ids: Vec<u16>,
+    pub date_selector: DateSelector,
 }
 
 /// Groups teams into their divisions.
@@ -37,6 +40,7 @@ impl Default for StandingsState {
             state: TableState::default(),
             standings: Division::create_divisions(),
             team_ids: vec![200, 201, 202, 203, 204, 205],
+            date_selector: DateSelector::default(),
         };
         ss.state.select(Some(0));
         ss
@@ -44,9 +48,21 @@ impl Default for StandingsState {
 }
 
 impl StandingsState {
+    /// Update the data from the API.
     pub fn update(&mut self, standings: &StandingsResponse) {
         self.standings = Division::create_table(standings);
         self.team_ids = self.generate_ids();
+    }
+
+    /// Set the date from the validated input string from the date picker.
+    pub fn set_date_from_valid_input(&mut self, date: NaiveDate) {
+        self.date_selector.set_date_from_valid_input(date);
+        self.state.select(Some(0));
+    }
+
+    /// Set the date using Left/Right arrow keys to move a single day at a time.
+    pub fn set_date_with_arrows(&mut self, forward: bool) -> NaiveDate {
+        self.date_selector.set_date_with_arrows(forward)
     }
 
     fn generate_ids(&mut self) -> Vec<u16> {
