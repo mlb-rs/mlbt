@@ -1,20 +1,34 @@
 use chrono::NaiveDate;
+use mlb_api::client::MLBApi;
 use mlb_api::client::MLBApiBuilder;
 use mlb_api::client::StatGroup;
-use mockito::Matcher;
+use mockito::{Matcher, ServerGuard};
+
+async fn generate_mock_client() -> (MLBApi, ServerGuard) {
+    let server = mockito::Server::new_async().await;
+    let base_url = server.url();
+    let formatted_url = if base_url.ends_with('/') {
+        base_url
+    } else {
+        format!("{}/", base_url)
+    };
+
+    let client = MLBApiBuilder::default()
+        .base_url(&formatted_url)
+        .build()
+        .unwrap();
+
+    (client, server)
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use mlb_api::client::MLBApi;
-    use once_cell::sync::Lazy;
-
-    static CLIENT: Lazy<MLBApi> = Lazy::new(|| MLBApiBuilder::default().build().unwrap());
 
     /// Test the schedule for the All Star Game 2021
     #[tokio::test]
     async fn test_schedule_all_star_game() {
-        let mut server = mockito::Server::new_async().await;
+        let (client, mut server) = generate_mock_client().await;
 
         let _m = server
             .mock("GET", "v1/schedule?sportId=1&date=2021-07-13")
@@ -24,13 +38,13 @@ mod tests {
             .create();
 
         let date = NaiveDate::from_ymd_opt(2021, 7, 13).unwrap();
-        let resp = CLIENT.get_schedule_date(date).await;
+        let resp = client.get_schedule_date(date).await;
         println!("{:?}", resp);
     }
 
     #[tokio::test]
     async fn test_standings() {
-        let mut server = mockito::Server::new_async().await;
+        let (client, mut server) = generate_mock_client().await;
         let date: NaiveDate = NaiveDate::from_ymd_opt(2021, 6, 10).unwrap();
 
         let _m = server
@@ -43,13 +57,13 @@ mod tests {
             .with_body_from_file("./tests/responses/standings.json")
             .create();
 
-        let resp = CLIENT.get_standings(date).await;
+        let resp = client.get_standings(date).await;
         println!("{:?}", resp);
     }
 
     #[tokio::test]
     async fn test_live() {
-        let mut server = mockito::Server::new_async().await;
+        let (client, mut server) = generate_mock_client().await;
 
         let _m = server
             .mock("GET", "v1.1/game/632386/feed/live?language=en")
@@ -58,13 +72,13 @@ mod tests {
             .with_body_from_file("./tests/responses/live.json")
             .create();
 
-        let resp = CLIENT.get_live_data(632386).await;
+        let resp = client.get_live_data(632386).await;
         println!("{:?}", resp);
     }
 
     #[tokio::test]
     async fn test_team_stats() {
-        let mut server = mockito::Server::new_async().await;
+        let (client, mut server) = generate_mock_client().await;
 
         for group in [StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!(
@@ -79,14 +93,14 @@ mod tests {
                 .with_body_from_file("./tests/responses/team-stats.json")
                 .create();
 
-            let resp = CLIENT.get_team_stats(group).await;
+            let resp = client.get_team_stats(group).await;
             println!("{:?}", resp);
         }
     }
 
     #[tokio::test]
     async fn test_team_stats_on_date() {
-        let mut server = mockito::Server::new_async().await;
+        let (client, mut server) = generate_mock_client().await;
 
         let date: NaiveDate = NaiveDate::from_ymd_opt(2025, 5, 20).unwrap();
         for group in [StatGroup::Hitting, StatGroup::Pitching] {
@@ -102,14 +116,14 @@ mod tests {
                 .with_body_from_file(format!("./tests/responses/team-stats-{group}-date.json"))
                 .create();
 
-            let resp = CLIENT.get_team_stats_on_date(group, date).await;
+            let resp = client.get_team_stats_on_date(group, date).await;
             println!("{:?}", resp);
         }
     }
 
     #[tokio::test]
     async fn test_player_stats() {
-        let mut server = mockito::Server::new_async().await;
+        let (client, mut server) = generate_mock_client().await;
 
         for group in [StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!("v1/stats?stats=season&season=2021&group={}", group);
@@ -121,14 +135,14 @@ mod tests {
                 .with_body_from_file("./tests/responses/player-stats.json")
                 .create();
 
-            let resp = CLIENT.get_player_stats(group).await;
+            let resp = client.get_player_stats(group).await;
             println!("{:?}", resp);
         }
     }
 
     #[tokio::test]
     async fn test_player_stats_on_date() {
-        let mut server = mockito::Server::new_async().await;
+        let (client, mut server) = generate_mock_client().await;
         let date: NaiveDate = NaiveDate::from_ymd_opt(2025, 5, 20).unwrap();
 
         for group in [StatGroup::Hitting, StatGroup::Pitching] {
@@ -144,7 +158,7 @@ mod tests {
                 .with_body_from_file(format!("./tests/responses/player-stats-{group}-date.json"))
                 .create();
 
-            let resp = CLIENT.get_player_stats_on_date(group, date).await;
+            let resp = client.get_player_stats_on_date(group, date).await;
             println!("{:?}", resp);
         }
     }
