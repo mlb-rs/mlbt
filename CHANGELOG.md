@@ -5,13 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [0.0.14] - 2025-05-31
 
 ### Added
 
 - Add sorting to stats view! Use `s` to sort the stats by a column: [PR 52](https://github.com/mlb-rs/mlbt/pull/52)
-- Add the date picker option to Standings and Stats! [PR 53](https://github.com/mlb-rs/mlbt/pull/53)
-- Add `timezone` to the config file for changing which time zone is used to 
+- Add date picker to Standings and Stats! [PR 53](https://github.com/mlb-rs/mlbt/pull/53)
+- Add `timezone` to the config file. This changes which time zone is used to 
   display the start time of games in the Schedule.
 
 ### Changed
