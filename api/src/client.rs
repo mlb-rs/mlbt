@@ -7,10 +7,12 @@ use crate::stats::StatResponse;
 
 use chrono::{DateTime, Datelike, Local, NaiveDate};
 use derive_builder::Builder;
-use reqwest::Client;
+use reqwest::{Client, StatusCode};
 use serde::de::DeserializeOwned;
 
-pub const BASE_URL: &str = "http://statsapi.mlb.com/api/";
+type ApiResult<T> = Result<T, ApiError>;
+
+const BASE_URL: &str = "https://statsapi.mlb.com/api/";
 
 /// MLB API object
 #[derive(Builder, Debug, Clone)]
@@ -20,6 +22,21 @@ pub struct MLBApi {
     client: Client,
     #[builder(setter(into), default = "String::from(BASE_URL)")]
     base_url: String,
+}
+
+#[derive(Debug)]
+enum ApiError {
+    Network(reqwest::Error),
+    Parsing(reqwest::Error),
+}
+
+impl ApiError {
+    fn log(&self, url: &str) {
+        match self {
+            ApiError::Network(e) => eprintln!("Network error for {url}: {e:?}"),
+            ApiError::Parsing(e) => eprintln!("Parsing error for {url}: {e:?}"),
+        }
+    }
 }
 
 /// The available stat groups. These are taken from the "meta" endpoint:
@@ -40,7 +57,10 @@ pub enum StatGroup {
 /// Display the StatGroup in all lowercase.
 impl fmt::Display for StatGroup {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", format!("{:?}", self).to_lowercase())
+        match self {
+            StatGroup::Hitting => write!(f, "hitting"),
+            StatGroup::Pitching => write!(f, "pitching"),
+        }
     }
 }
 
@@ -105,7 +125,7 @@ impl MLBApi {
     pub async fn get_player_stats(&self, group: StatGroup) -> StatResponse {
         let local: DateTime<Local> = Local::now();
         let url = format!(
-            "{}v1/stats?stats=season&season={}&group={}",
+            "{}v1/stats?sportId=1&stats=season&season={}&group={}",
             self.base_url,
             local.year(),
             group
@@ -119,7 +139,7 @@ impl MLBApi {
         date: NaiveDate,
     ) -> StatResponse {
         let url = format!(
-            "{}v1/stats?stats=byDateRange&season={}&endDate={}&group={}",
+            "{}v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}",
             self.base_url,
             date.year(),
             date.format("%Y-%m-%d"),
@@ -129,11 +149,31 @@ impl MLBApi {
     }
 
     async fn get<T: Default + DeserializeOwned>(&self, url: String) -> T {
-        let response = self.client.get(url).send().await.expect("network error");
-        response.json::<T>().await.unwrap_or_else(|err| {
-            eprintln!("parsing error {:?}", err);
-            T::default()
-        })
+        match self.try_get(&url).await {
+            Ok(data) => data,
+            Err(error) => {
+                error.log(&url);
+                T::default()
+            }
+        }
+    }
+
+    // TODO return errors to caller
+
+    async fn try_get<T: Default + DeserializeOwned>(&self, url: &str) -> ApiResult<T> {
+        let response = self
+            .client
+            .get(url)
+            .send()
+            .await
+            .map_err(ApiError::Network)?;
+
+        if response.status() == StatusCode::OK {
+            response.json::<T>().await.map_err(ApiError::Parsing)
+        } else {
+            // just swallow non 200 responses
+            Ok(T::default())
+        }
     }
 }
 
