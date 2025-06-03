@@ -1,6 +1,6 @@
 [package]
 name = "mlbt"
-version = "0.0.14"
+version = "0.0.15"
 authors = ["Andrew Schneider <andjschneider@gmail.com>"]
 edition = "2024"
 
@@ -16,7 +16,7 @@ crossterm = "0.29.0"
 crossbeam-channel = "0.5.15"
 directories = "6.0.0"
 indexmap = "2.9.0"
-mlb-api = { path = "api", version = "0.0.13" }
+mlb-api = { path = "api", version = "0.0.14" }
 serde = { version = "1.0.219", features = ["derive"] }
 tokio = { version = "1.45.1", features = ["full"] }
 toml = "0.8.22"

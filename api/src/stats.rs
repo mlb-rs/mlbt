@@ -146,6 +146,6 @@ pub struct HittingStat {
     pub sac_flies: u16,
     pub babip: String,
     pub ground_outs_to_airouts: String,
-    pub catchers_interference: u16,
+    pub catchers_interference: Option<u16>,
     pub at_bats_per_home_run: String,
 }

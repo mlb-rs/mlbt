@@ -1,0 +1,3370 @@
+{
+  "copyright": "Copyright 2025 MLB Advanced Media, L.P.  Use of any content on this page acknowledges agreement to the terms posted here http://gdx.mlb.com/components/copyright.txt",
+  "stats": [
+    {
+      "type": {
+        "displayName": "season"
+      },
+      "group": {
+        "displayName": "hitting"
+      },
+      "totalSplits": 132,
+      "exemptions": [],
+      "splits": [
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 148,
+            "groundOuts": 141,
+            "airOuts": 153,
+            "runs": 107,
+            "doubles": 34,
+            "triples": 3,
+            "homeRuns": 28,
+            "strikeOuts": 110,
+            "baseOnBalls": 41,
+            "intentionalWalks": 2,
+            "hits": 195,
+            "hitByPitch": 6,
+            "avg": ".328",
+            "atBats": 595,
+            "obp": ".375",
+            "slg": ".536",
+            "ops": ".911",
+            "caughtStealing": 5,
+            "stolenBases": 32,
+            "stolenBasePercentage": ".865",
+            "groundIntoDoublePlay": 18,
+            "numberOfPitches": 2487,
+            "plateAppearances": 646,
+            "totalBases": 319,
+            "rbi": 77,
+            "leftOnBase": 172,
+            "sacBunts": 0,
+            "sacFlies": 4,
+            "babip": ".362",
+            "groundOutsToAirouts": "0.92",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "21.25"
+          },
+          "team": {
+            "id": 119,
+            "name": "Los Angeles Dodgers",
+            "link": "/api/v1/teams/119"
+          },
+          "player": {
+            "id": 607208,
+            "fullName": "Trea Turner",
+            "link": "/api/v1/people/607208",
+            "firstName": "Trea",
+            "lastName": "Turner"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 2,
+          "rank": 1,
+          "position": {
+            "code": "4",
+            "name": "Second Base",
+            "type": "Infielder",
+            "abbreviation": "2B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 143,
+            "groundOuts": 131,
+            "airOuts": 174,
+            "runs": 83,
+            "doubles": 31,
+            "triples": 0,
+            "homeRuns": 15,
+            "strikeOuts": 68,
+            "baseOnBalls": 59,
+            "intentionalWalks": 2,
+            "hits": 169,
+            "hitByPitch": 4,
+            "avg": ".319",
+            "atBats": 530,
+            "obp": ".383",
+            "slg": ".462",
+            "ops": ".845",
+            "caughtStealing": 1,
+            "stolenBases": 1,
+            "stolenBasePercentage": ".500",
+            "groundIntoDoublePlay": 16,
+            "numberOfPitches": 2292,
+            "plateAppearances": 605,
+            "totalBases": 245,
+            "rbi": 81,
+            "leftOnBase": 202,
+            "sacBunts": 0,
+            "sacFlies": 12,
+            "babip": ".336",
+            "groundOutsToAirouts": "0.75",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "35.33"
+          },
+          "team": {
+            "id": 117,
+            "name": "Houston Astros",
+            "link": "/api/v1/teams/117"
+          },
+          "player": {
+            "id": 493329,
+            "fullName": "Yuli Gurriel",
+            "link": "/api/v1/people/493329",
+            "firstName": "Yuli",
+            "lastName": "Gurriel"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 2,
+          "position": {
+            "code": "3",
+            "name": "First Base",
+            "type": "Infielder",
+            "abbreviation": "1B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 151,
+            "groundOuts": 160,
+            "airOuts": 97,
+            "runs": 111,
+            "doubles": 20,
+            "triples": 2,
+            "homeRuns": 29,
+            "strikeOuts": 93,
+            "baseOnBalls": 145,
+            "intentionalWalks": 23,
+            "hits": 157,
+            "hitByPitch": 2,
+            "avg": ".313",
+            "atBats": 502,
+            "obp": ".465",
+            "slg": ".534",
+            "ops": ".999",
+            "caughtStealing": 7,
+            "stolenBases": 9,
+            "stolenBasePercentage": ".563",
+            "groundIntoDoublePlay": 23,
+            "numberOfPitches": 2601,
+            "plateAppearances": 654,
+            "totalBases": 268,
+            "rbi": 95,
+            "leftOnBase": 197,
+            "sacBunts": 0,
+            "sacFlies": 5,
+            "babip": ".332",
+            "groundOutsToAirouts": "1.65",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "17.31"
+          },
+          "team": {
+            "id": 120,
+            "name": "Washington Nationals",
+            "link": "/api/v1/teams/120"
+          },
+          "player": {
+            "id": 665742,
+            "fullName": "Juan Soto",
+            "link": "/api/v1/people/665742",
+            "firstName": "Juan",
+            "lastName": "Soto"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 3,
+          "position": {
+            "code": "9",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "RF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 121,
+            "groundOuts": 141,
+            "airOuts": 130,
+            "runs": 68,
+            "doubles": 29,
+            "triples": 3,
+            "homeRuns": 8,
+            "strikeOuts": 53,
+            "baseOnBalls": 33,
+            "intentionalWalks": 1,
+            "hits": 146,
+            "hitByPitch": 5,
+            "avg": ".311",
+            "atBats": 469,
+            "obp": ".362",
+            "slg": ".437",
+            "ops": ".799",
+            "caughtStealing": 0,
+            "stolenBases": 1,
+            "stolenBasePercentage": "1.000",
+            "groundIntoDoublePlay": 11,
+            "numberOfPitches": 1868,
+            "plateAppearances": 508,
+            "totalBases": 205,
+            "rbi": 47,
+            "leftOnBase": 178,
+            "sacBunts": 0,
+            "sacFlies": 1,
+            "babip": ".337",
+            "groundOutsToAirouts": "1.08",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "58.62"
+          },
+          "team": {
+            "id": 117,
+            "name": "Houston Astros",
+            "link": "/api/v1/teams/117"
+          },
+          "player": {
+            "id": 488726,
+            "fullName": "Michael Brantley",
+            "link": "/api/v1/people/488726",
+            "firstName": "Michael",
+            "lastName": "Brantley"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 4,
+          "position": {
+            "code": "7",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "LF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 161,
+            "groundOuts": 161,
+            "airOuts": 147,
+            "runs": 123,
+            "doubles": 29,
+            "triples": 1,
+            "homeRuns": 48,
+            "strikeOuts": 110,
+            "baseOnBalls": 86,
+            "intentionalWalks": 7,
+            "hits": 188,
+            "hitByPitch": 6,
+            "avg": ".311",
+            "atBats": 604,
+            "obp": ".401",
+            "slg": ".601",
+            "ops": "1.002",
+            "caughtStealing": 1,
+            "stolenBases": 4,
+            "stolenBasePercentage": ".800",
+            "groundIntoDoublePlay": 20,
+            "numberOfPitches": 2509,
+            "plateAppearances": 698,
+            "totalBases": 363,
+            "rbi": 111,
+            "leftOnBase": 235,
+            "sacBunts": 0,
+            "sacFlies": 2,
+            "babip": ".313",
+            "groundOutsToAirouts": "1.10",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "12.58"
+          },
+          "team": {
+            "id": 141,
+            "name": "Toronto Blue Jays",
+            "link": "/api/v1/teams/141"
+          },
+          "player": {
+            "id": 665489,
+            "fullName": "Vladimir Guerrero Jr.",
+            "link": "/api/v1/people/665489",
+            "firstName": "Vladimir",
+            "lastName": "Guerrero"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 5,
+          "position": {
+            "code": "3",
+            "name": "First Base",
+            "type": "Infielder",
+            "abbreviation": "1B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 120,
+            "groundOuts": 140,
+            "airOuts": 86,
+            "runs": 89,
+            "doubles": 27,
+            "triples": 3,
+            "homeRuns": 12,
+            "strikeOuts": 99,
+            "baseOnBalls": 43,
+            "intentionalWalks": 2,
+            "hits": 145,
+            "hitByPitch": 13,
+            "avg": ".310",
+            "atBats": 467,
+            "obp": ".383",
+            "slg": ".458",
+            "ops": ".841",
+            "caughtStealing": 5,
+            "stolenBases": 47,
+            "stolenBasePercentage": ".904",
+            "groundIntoDoublePlay": 6,
+            "numberOfPitches": 1970,
+            "plateAppearances": 526,
+            "totalBases": 214,
+            "rbi": 55,
+            "leftOnBase": 166,
+            "sacBunts": 1,
+            "sacFlies": 2,
+            "babip": ".372",
+            "groundOutsToAirouts": "1.63",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "38.92"
+          },
+          "team": {
+            "id": 133,
+            "name": "Oakland Athletics",
+            "link": "/api/v1/teams/133"
+          },
+          "player": {
+            "id": 516782,
+            "fullName": "Starling Marte",
+            "link": "/api/v1/people/516782",
+            "firstName": "Starling",
+            "lastName": "Marte"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 2,
+          "rank": 6,
+          "position": {
+            "code": "8",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "CF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 141,
+            "groundOuts": 112,
+            "airOuts": 97,
+            "runs": 101,
+            "doubles": 42,
+            "triples": 1,
+            "homeRuns": 35,
+            "strikeOuts": 134,
+            "baseOnBalls": 100,
+            "intentionalWalks": 14,
+            "hits": 151,
+            "hitByPitch": 5,
+            "avg": ".309",
+            "atBats": 488,
+            "obp": ".429",
+            "slg": ".615",
+            "ops": "1.044",
+            "caughtStealing": 3,
+            "stolenBases": 13,
+            "stolenBasePercentage": ".813",
+            "groundIntoDoublePlay": 12,
+            "numberOfPitches": 2401,
+            "plateAppearances": 599,
+            "totalBases": 300,
+            "rbi": 84,
+            "leftOnBase": 158,
+            "sacBunts": 2,
+            "sacFlies": 4,
+            "babip": ".359",
+            "groundOutsToAirouts": "1.15",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "13.94"
+          },
+          "team": {
+            "id": 143,
+            "name": "Philadelphia Phillies",
+            "link": "/api/v1/teams/143"
+          },
+          "player": {
+            "id": 547180,
+            "fullName": "Bryce Harper",
+            "link": "/api/v1/people/547180",
+            "firstName": "Bryce",
+            "lastName": "Harper"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 7,
+          "position": {
+            "code": "9",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "RF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 123,
+            "groundOuts": 163,
+            "airOuts": 83,
+            "runs": 94,
+            "doubles": 29,
+            "triples": 2,
+            "homeRuns": 17,
+            "strikeOuts": 119,
+            "baseOnBalls": 22,
+            "intentionalWalks": 1,
+            "hits": 163,
+            "hitByPitch": 1,
+            "avg": ".309",
+            "atBats": 527,
+            "obp": ".338",
+            "slg": ".469",
+            "ops": ".807",
+            "caughtStealing": 7,
+            "stolenBases": 18,
+            "stolenBasePercentage": ".720",
+            "groundIntoDoublePlay": 5,
+            "numberOfPitches": 2010,
+            "plateAppearances": 551,
+            "totalBases": 247,
+            "rbi": 61,
+            "leftOnBase": 166,
+            "sacBunts": 0,
+            "sacFlies": 1,
+            "babip": ".372",
+            "groundOutsToAirouts": "1.96",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "31.00"
+          },
+          "team": {
+            "id": 145,
+            "name": "Chicago White Sox",
+            "link": "/api/v1/teams/145"
+          },
+          "player": {
+            "id": 641313,
+            "fullName": "Tim Anderson",
+            "link": "/api/v1/people/641313",
+            "firstName": "Tim",
+            "lastName": "Anderson"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 8,
+          "position": {
+            "code": "6",
+            "name": "Shortstop",
+            "type": "Infielder",
+            "abbreviation": "SS"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 138,
+            "groundOuts": 117,
+            "airOuts": 135,
+            "runs": 95,
+            "doubles": 38,
+            "triples": 1,
+            "homeRuns": 34,
+            "strikeOuts": 121,
+            "baseOnBalls": 41,
+            "intentionalWalks": 5,
+            "hits": 164,
+            "hitByPitch": 7,
+            "avg": ".309",
+            "atBats": 531,
+            "obp": ".362",
+            "slg": ".576",
+            "ops": ".938",
+            "caughtStealing": 1,
+            "stolenBases": 3,
+            "stolenBasePercentage": ".750",
+            "groundIntoDoublePlay": 16,
+            "numberOfPitches": 2143,
+            "plateAppearances": 585,
+            "totalBases": 306,
+            "rbi": 100,
+            "leftOnBase": 239,
+            "sacBunts": 0,
+            "sacFlies": 6,
+            "babip": ".340",
+            "groundOutsToAirouts": "0.87",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "15.62"
+          },
+          "team": {
+            "id": 113,
+            "name": "Cincinnati Reds",
+            "link": "/api/v1/teams/113"
+          },
+          "player": {
+            "id": 592206,
+            "fullName": "Nick Castellanos",
+            "link": "/api/v1/people/592206",
+            "firstName": "Nick",
+            "lastName": "Castellanos"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 9,
+          "position": {
+            "code": "9",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "RF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 155,
+            "groundOuts": 156,
+            "airOuts": 180,
+            "runs": 83,
+            "doubles": 36,
+            "triples": 5,
+            "homeRuns": 5,
+            "strikeOuts": 69,
+            "baseOnBalls": 48,
+            "intentionalWalks": 2,
+            "hits": 176,
+            "hitByPitch": 10,
+            "avg": ".305",
+            "atBats": 577,
+            "obp": ".368",
+            "slg": ".411",
+            "ops": ".779",
+            "caughtStealing": 5,
+            "stolenBases": 10,
+            "stolenBasePercentage": ".667",
+            "groundIntoDoublePlay": 10,
+            "numberOfPitches": 2352,
+            "plateAppearances": 639,
+            "totalBases": 237,
+            "rbi": 43,
+            "leftOnBase": 188,
+            "sacBunts": 3,
+            "sacFlies": 1,
+            "babip": ".339",
+            "groundOutsToAirouts": "0.87",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "115.40"
+          },
+          "team": {
+            "id": 135,
+            "name": "San Diego Padres",
+            "link": "/api/v1/teams/135"
+          },
+          "player": {
+            "id": 624428,
+            "fullName": "Adam Frazier",
+            "link": "/api/v1/people/624428",
+            "firstName": "Adam",
+            "lastName": "Frazier"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 2,
+          "rank": 10,
+          "position": {
+            "code": "4",
+            "name": "Second Base",
+            "type": "Infielder",
+            "abbreviation": "2B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 160,
+            "groundOuts": 109,
+            "airOuts": 142,
+            "runs": 91,
+            "doubles": 33,
+            "triples": 1,
+            "homeRuns": 33,
+            "strikeOuts": 168,
+            "baseOnBalls": 52,
+            "intentionalWalks": 2,
+            "hits": 179,
+            "hitByPitch": 12,
+            "avg": ".303",
+            "atBats": 590,
+            "obp": ".367",
+            "slg": ".531",
+            "ops": ".898",
+            "caughtStealing": 1,
+            "stolenBases": 0,
+            "stolenBasePercentage": ".000",
+            "groundIntoDoublePlay": 11,
+            "numberOfPitches": 2595,
+            "plateAppearances": 662,
+            "totalBases": 313,
+            "rbi": 107,
+            "leftOnBase": 254,
+            "sacBunts": 0,
+            "sacFlies": 8,
+            "babip": ".368",
+            "groundOutsToAirouts": "0.77",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "17.88"
+          },
+          "team": {
+            "id": 144,
+            "name": "Atlanta Braves",
+            "link": "/api/v1/teams/144"
+          },
+          "player": {
+            "id": 663586,
+            "fullName": "Austin Riley",
+            "link": "/api/v1/people/663586",
+            "firstName": "Austin",
+            "lastName": "Riley"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 11,
+          "position": {
+            "code": "5",
+            "name": "Third Base",
+            "type": "Infielder",
+            "abbreviation": "3B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 159,
+            "groundOuts": 130,
+            "airOuts": 145,
+            "runs": 93,
+            "doubles": 35,
+            "triples": 8,
+            "homeRuns": 24,
+            "strikeOuts": 119,
+            "baseOnBalls": 75,
+            "intentionalWalks": 9,
+            "hits": 169,
+            "hitByPitch": 8,
+            "avg": ".302",
+            "atBats": 559,
+            "obp": ".390",
+            "slg": ".522",
+            "ops": ".912",
+            "caughtStealing": 2,
+            "stolenBases": 5,
+            "stolenBasePercentage": ".714",
+            "groundIntoDoublePlay": 10,
+            "numberOfPitches": 2493,
+            "plateAppearances": 646,
+            "totalBases": 292,
+            "rbi": 90,
+            "leftOnBase": 234,
+            "sacBunts": 0,
+            "sacFlies": 4,
+            "babip": ".345",
+            "groundOutsToAirouts": "0.90",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "23.29"
+          },
+          "team": {
+            "id": 134,
+            "name": "Pittsburgh Pirates",
+            "link": "/api/v1/teams/134"
+          },
+          "player": {
+            "id": 668804,
+            "fullName": "Bryan Reynolds",
+            "link": "/api/v1/people/668804",
+            "firstName": "Bryan",
+            "lastName": "Reynolds"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 12,
+          "position": {
+            "code": "8",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "CF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 159,
+            "groundOuts": 163,
+            "airOuts": 152,
+            "runs": 120,
+            "doubles": 25,
+            "triples": 2,
+            "homeRuns": 31,
+            "strikeOuts": 107,
+            "baseOnBalls": 85,
+            "intentionalWalks": 15,
+            "hits": 180,
+            "hitByPitch": 8,
+            "avg": ".300",
+            "atBats": 600,
+            "obp": ".393",
+            "slg": ".503",
+            "ops": ".896",
+            "caughtStealing": 3,
+            "stolenBases": 8,
+            "stolenBasePercentage": ".727",
+            "groundIntoDoublePlay": 11,
+            "numberOfPitches": 2688,
+            "plateAppearances": 695,
+            "totalBases": 302,
+            "rbi": 83,
+            "leftOnBase": 202,
+            "sacBunts": 0,
+            "sacFlies": 2,
+            "babip": ".321",
+            "groundOutsToAirouts": "1.07",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "19.36"
+          },
+          "team": {
+            "id": 144,
+            "name": "Atlanta Braves",
+            "link": "/api/v1/teams/144"
+          },
+          "player": {
+            "id": 518692,
+            "fullName": "Freddie Freeman",
+            "link": "/api/v1/people/518692",
+            "firstName": "Freddie",
+            "lastName": "Freeman"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 13,
+          "position": {
+            "code": "3",
+            "name": "First Base",
+            "type": "Infielder",
+            "abbreviation": "1B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 151,
+            "groundOuts": 180,
+            "airOuts": 109,
+            "runs": 78,
+            "doubles": 21,
+            "triples": 6,
+            "homeRuns": 2,
+            "strikeOuts": 74,
+            "baseOnBalls": 49,
+            "intentionalWalks": 0,
+            "hits": 149,
+            "hitByPitch": 4,
+            "avg": ".300",
+            "atBats": 497,
+            "obp": ".365",
+            "slg": ".378",
+            "ops": ".743",
+            "caughtStealing": 1,
+            "stolenBases": 22,
+            "stolenBasePercentage": ".957",
+            "groundIntoDoublePlay": 9,
+            "numberOfPitches": 2126,
+            "plateAppearances": 565,
+            "totalBases": 188,
+            "rbi": 43,
+            "leftOnBase": 174,
+            "sacBunts": 12,
+            "sacFlies": 3,
+            "babip": ".347",
+            "groundOutsToAirouts": "1.65",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "248.50"
+          },
+          "team": {
+            "id": 118,
+            "name": "Kansas City Royals",
+            "link": "/api/v1/teams/118"
+          },
+          "player": {
+            "id": 670032,
+            "fullName": "Nicky Lopez",
+            "link": "/api/v1/people/670032",
+            "firstName": "Nicky",
+            "lastName": "Lopez"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 14,
+          "position": {
+            "code": "6",
+            "name": "Shortstop",
+            "type": "Infielder",
+            "abbreviation": "SS"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 159,
+            "groundOuts": 176,
+            "airOuts": 140,
+            "runs": 121,
+            "doubles": 30,
+            "triples": 1,
+            "homeRuns": 29,
+            "strikeOuts": 137,
+            "baseOnBalls": 40,
+            "intentionalWalks": 0,
+            "hits": 191,
+            "hitByPitch": 6,
+            "avg": ".298",
+            "atBats": 640,
+            "obp": ".343",
+            "slg": ".484",
+            "ops": ".827",
+            "caughtStealing": 1,
+            "stolenBases": 25,
+            "stolenBasePercentage": ".962",
+            "groundIntoDoublePlay": 10,
+            "numberOfPitches": 2609,
+            "plateAppearances": 690,
+            "totalBases": 310,
+            "rbi": 102,
+            "leftOnBase": 218,
+            "sacBunts": 0,
+            "sacFlies": 4,
+            "babip": ".339",
+            "groundOutsToAirouts": "1.26",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "22.07"
+          },
+          "team": {
+            "id": 141,
+            "name": "Toronto Blue Jays",
+            "link": "/api/v1/teams/141"
+          },
+          "player": {
+            "id": 666182,
+            "fullName": "Bo Bichette",
+            "link": "/api/v1/people/666182",
+            "firstName": "Bo",
+            "lastName": "Bichette"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 15,
+          "position": {
+            "code": "6",
+            "name": "Shortstop",
+            "type": "Infielder",
+            "abbreviation": "SS"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 138,
+            "groundOuts": 109,
+            "airOuts": 130,
+            "runs": 79,
+            "doubles": 30,
+            "triples": 3,
+            "homeRuns": 24,
+            "strikeOuts": 105,
+            "baseOnBalls": 56,
+            "intentionalWalks": 6,
+            "hits": 144,
+            "hitByPitch": 5,
+            "avg": ".298",
+            "atBats": 483,
+            "obp": ".373",
+            "slg": ".522",
+            "ops": ".895",
+            "caughtStealing": 3,
+            "stolenBases": 11,
+            "stolenBasePercentage": ".786",
+            "groundIntoDoublePlay": 8,
+            "numberOfPitches": 2136,
+            "plateAppearances": 549,
+            "totalBases": 252,
+            "rbi": 90,
+            "leftOnBase": 213,
+            "sacBunts": 0,
+            "sacFlies": 5,
+            "babip": ".334",
+            "groundOutsToAirouts": "0.84",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "20.12"
+          },
+          "team": {
+            "id": 137,
+            "name": "San Francisco Giants",
+            "link": "/api/v1/teams/137"
+          },
+          "player": {
+            "id": 543063,
+            "fullName": "Brandon Crawford",
+            "link": "/api/v1/people/543063",
+            "firstName": "Brandon",
+            "lastName": "Crawford"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 16,
+          "position": {
+            "code": "6",
+            "name": "Shortstop",
+            "type": "Infielder",
+            "abbreviation": "SS"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 143,
+            "groundOuts": 110,
+            "airOuts": 131,
+            "runs": 92,
+            "doubles": 29,
+            "triples": 0,
+            "homeRuns": 32,
+            "strikeOuts": 148,
+            "baseOnBalls": 36,
+            "intentionalWalks": 1,
+            "hits": 163,
+            "hitByPitch": 7,
+            "avg": ".296",
+            "atBats": 550,
+            "obp": ".346",
+            "slg": ".524",
+            "ops": ".870",
+            "caughtStealing": 4,
+            "stolenBases": 12,
+            "stolenBasePercentage": ".750",
+            "groundIntoDoublePlay": 5,
+            "numberOfPitches": 2290,
+            "plateAppearances": 595,
+            "totalBases": 288,
+            "rbi": 116,
+            "leftOnBase": 227,
+            "sacBunts": 0,
+            "sacFlies": 2,
+            "babip": ".352",
+            "groundOutsToAirouts": "0.84",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "17.19"
+          },
+          "team": {
+            "id": 141,
+            "name": "Toronto Blue Jays",
+            "link": "/api/v1/teams/141"
+          },
+          "player": {
+            "id": 606192,
+            "fullName": "Teoscar Hernández",
+            "link": "/api/v1/people/606192",
+            "firstName": "Teoscar",
+            "lastName": "Hernández"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 17,
+          "position": {
+            "code": "9",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "RF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 144,
+            "groundOuts": 131,
+            "airOuts": 136,
+            "runs": 90,
+            "doubles": 34,
+            "triples": 1,
+            "homeRuns": 23,
+            "strikeOuts": 113,
+            "baseOnBalls": 62,
+            "intentionalWalks": 2,
+            "hits": 156,
+            "hitByPitch": 5,
+            "avg": ".295",
+            "atBats": 529,
+            "obp": ".370",
+            "slg": ".493",
+            "ops": ".863",
+            "caughtStealing": 1,
+            "stolenBases": 5,
+            "stolenBasePercentage": ".833",
+            "groundIntoDoublePlay": 13,
+            "numberOfPitches": 2505,
+            "plateAppearances": 603,
+            "totalBases": 261,
+            "rbi": 79,
+            "leftOnBase": 236,
+            "sacBunts": 0,
+            "sacFlies": 7,
+            "babip": ".333",
+            "groundOutsToAirouts": "0.96",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "23.00"
+          },
+          "team": {
+            "id": 111,
+            "name": "Boston Red Sox",
+            "link": "/api/v1/teams/111"
+          },
+          "player": {
+            "id": 593428,
+            "fullName": "Xander Bogaerts",
+            "link": "/api/v1/people/593428",
+            "firstName": "Xander",
+            "lastName": "Bogaerts"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 18,
+          "position": {
+            "code": "6",
+            "name": "Shortstop",
+            "type": "Infielder",
+            "abbreviation": "SS"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 140,
+            "groundOuts": 109,
+            "airOuts": 163,
+            "runs": 83,
+            "doubles": 37,
+            "triples": 3,
+            "homeRuns": 30,
+            "strikeOuts": 90,
+            "baseOnBalls": 53,
+            "intentionalWalks": 5,
+            "hits": 149,
+            "hitByPitch": 1,
+            "avg": ".294",
+            "atBats": 506,
+            "obp": ".359",
+            "slg": ".557",
+            "ops": ".916",
+            "caughtStealing": 2,
+            "stolenBases": 14,
+            "stolenBasePercentage": ".875",
+            "groundIntoDoublePlay": 10,
+            "numberOfPitches": 2180,
+            "plateAppearances": 567,
+            "totalBases": 282,
+            "rbi": 92,
+            "leftOnBase": 235,
+            "sacBunts": 0,
+            "sacFlies": 5,
+            "babip": ".304",
+            "groundOutsToAirouts": "0.67",
+            "catchersInterference": 2,
+            "atBatsPerHomeRun": "16.87"
+          },
+          "team": {
+            "id": 117,
+            "name": "Houston Astros",
+            "link": "/api/v1/teams/117"
+          },
+          "player": {
+            "id": 663656,
+            "fullName": "Kyle Tucker",
+            "link": "/api/v1/people/663656",
+            "firstName": "Kyle",
+            "lastName": "Tucker"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 19,
+          "position": {
+            "code": "9",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "RF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 158,
+            "groundOuts": 120,
+            "airOuts": 175,
+            "runs": 102,
+            "doubles": 36,
+            "triples": 2,
+            "homeRuns": 31,
+            "strikeOuts": 136,
+            "baseOnBalls": 67,
+            "intentionalWalks": 2,
+            "hits": 177,
+            "hitByPitch": 4,
+            "avg": ".294",
+            "atBats": 603,
+            "obp": ".365",
+            "slg": ".514",
+            "ops": ".879",
+            "caughtStealing": 0,
+            "stolenBases": 12,
+            "stolenBasePercentage": "1.000",
+            "groundIntoDoublePlay": 13,
+            "numberOfPitches": 2751,
+            "plateAppearances": 679,
+            "totalBases": 310,
+            "rbi": 99,
+            "leftOnBase": 232,
+            "sacBunts": 0,
+            "sacFlies": 5,
+            "babip": ".331",
+            "groundOutsToAirouts": "0.69",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "19.45"
+          },
+          "team": {
+            "id": 138,
+            "name": "St. Louis Cardinals",
+            "link": "/api/v1/teams/138"
+          },
+          "player": {
+            "id": 502671,
+            "fullName": "Paul Goldschmidt",
+            "link": "/api/v1/people/502671",
+            "firstName": "Paul",
+            "lastName": "Goldschmidt"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 20,
+          "position": {
+            "code": "3",
+            "name": "First Base",
+            "type": "Infielder",
+            "abbreviation": "1B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 152,
+            "groundOuts": 149,
+            "airOuts": 156,
+            "runs": 85,
+            "doubles": 32,
+            "triples": 1,
+            "homeRuns": 18,
+            "strikeOuts": 106,
+            "baseOnBalls": 46,
+            "intentionalWalks": 1,
+            "hits": 166,
+            "hitByPitch": 27,
+            "avg": ".291",
+            "atBats": 571,
+            "obp": ".368",
+            "slg": ".445",
+            "ops": ".813",
+            "caughtStealing": 0,
+            "stolenBases": 0,
+            "stolenBasePercentage": ".---",
+            "groundIntoDoublePlay": 13,
+            "numberOfPitches": 2394,
+            "plateAppearances": 650,
+            "totalBases": 254,
+            "rbi": 73,
+            "leftOnBase": 232,
+            "sacBunts": 0,
+            "sacFlies": 6,
+            "babip": ".327",
+            "groundOutsToAirouts": "0.96",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "31.72"
+          },
+          "team": {
+            "id": 136,
+            "name": "Seattle Mariners",
+            "link": "/api/v1/teams/136"
+          },
+          "player": {
+            "id": 664034,
+            "fullName": "Ty France",
+            "link": "/api/v1/people/664034",
+            "firstName": "Ty",
+            "lastName": "France"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 21,
+          "position": {
+            "code": "3",
+            "name": "First Base",
+            "type": "Infielder",
+            "abbreviation": "1B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 159,
+            "groundOuts": 134,
+            "airOuts": 173,
+            "runs": 91,
+            "doubles": 37,
+            "triples": 5,
+            "homeRuns": 30,
+            "strikeOuts": 125,
+            "baseOnBalls": 59,
+            "intentionalWalks": 3,
+            "hits": 175,
+            "hitByPitch": 8,
+            "avg": ".291",
+            "atBats": 602,
+            "obp": ".360",
+            "slg": ".518",
+            "ops": ".878",
+            "caughtStealing": 8,
+            "stolenBases": 30,
+            "stolenBasePercentage": ".789",
+            "groundIntoDoublePlay": 2,
+            "numberOfPitches": 2588,
+            "plateAppearances": 675,
+            "totalBases": 312,
+            "rbi": 59,
+            "leftOnBase": 188,
+            "sacBunts": 1,
+            "sacFlies": 4,
+            "babip": ".322",
+            "groundOutsToAirouts": "0.77",
+            "catchersInterference": 1,
+            "atBatsPerHomeRun": "20.07"
+          },
+          "team": {
+            "id": 110,
+            "name": "Baltimore Orioles",
+            "link": "/api/v1/teams/110"
+          },
+          "player": {
+            "id": 656775,
+            "fullName": "Cedric Mullins",
+            "link": "/api/v1/people/656775",
+            "firstName": "Cedric",
+            "lastName": "Mullins"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 22,
+          "position": {
+            "code": "8",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "CF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 131,
+            "groundOuts": 172,
+            "airOuts": 120,
+            "runs": 76,
+            "doubles": 27,
+            "triples": 3,
+            "homeRuns": 14,
+            "strikeOuts": 78,
+            "baseOnBalls": 39,
+            "intentionalWalks": 3,
+            "hits": 149,
+            "hitByPitch": 9,
+            "avg": ".290",
+            "atBats": 514,
+            "obp": ".348",
+            "slg": ".436",
+            "ops": ".784",
+            "caughtStealing": 3,
+            "stolenBases": 9,
+            "stolenBasePercentage": ".750",
+            "groundIntoDoublePlay": 16,
+            "numberOfPitches": 2182,
+            "plateAppearances": 567,
+            "totalBases": 224,
+            "rbi": 58,
+            "leftOnBase": 200,
+            "sacBunts": 1,
+            "sacFlies": 4,
+            "babip": ".317",
+            "groundOutsToAirouts": "1.43",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "36.71"
+          },
+          "team": {
+            "id": 143,
+            "name": "Philadelphia Phillies",
+            "link": "/api/v1/teams/143"
+          },
+          "player": {
+            "id": 516416,
+            "fullName": "Jean Segura",
+            "link": "/api/v1/people/516416",
+            "firstName": "Jean",
+            "lastName": "Segura"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 23,
+          "position": {
+            "code": "4",
+            "name": "Second Base",
+            "type": "Infielder",
+            "abbreviation": "2B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 146,
+            "groundOuts": 173,
+            "airOuts": 123,
+            "runs": 88,
+            "doubles": 32,
+            "triples": 2,
+            "homeRuns": 13,
+            "strikeOuts": 96,
+            "baseOnBalls": 51,
+            "intentionalWalks": 6,
+            "hits": 157,
+            "hitByPitch": 4,
+            "avg": ".289",
+            "atBats": 544,
+            "obp": ".351",
+            "slg": ".426",
+            "ops": ".777",
+            "caughtStealing": 2,
+            "stolenBases": 6,
+            "stolenBasePercentage": ".750",
+            "groundIntoDoublePlay": 11,
+            "numberOfPitches": 2346,
+            "plateAppearances": 604,
+            "totalBases": 232,
+            "rbi": 63,
+            "leftOnBase": 212,
+            "sacBunts": 0,
+            "sacFlies": 5,
+            "babip": ".327",
+            "groundOutsToAirouts": "1.41",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "41.85"
+          },
+          "team": {
+            "id": 111,
+            "name": "Boston Red Sox",
+            "link": "/api/v1/teams/111"
+          },
+          "player": {
+            "id": 657077,
+            "fullName": "Alex Verdugo",
+            "link": "/api/v1/people/657077",
+            "firstName": "Alex",
+            "lastName": "Verdugo"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 24,
+          "position": {
+            "code": "7",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "LF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 148,
+            "groundOuts": 127,
+            "airOuts": 112,
+            "runs": 89,
+            "doubles": 24,
+            "triples": 0,
+            "homeRuns": 39,
+            "strikeOuts": 158,
+            "baseOnBalls": 75,
+            "intentionalWalks": 2,
+            "hits": 158,
+            "hitByPitch": 3,
+            "avg": ".287",
+            "atBats": 550,
+            "obp": ".373",
+            "slg": ".544",
+            "ops": ".917",
+            "caughtStealing": 1,
+            "stolenBases": 6,
+            "stolenBasePercentage": ".857",
+            "groundIntoDoublePlay": 16,
+            "numberOfPitches": 2654,
+            "plateAppearances": 633,
+            "totalBases": 299,
+            "rbi": 98,
+            "leftOnBase": 217,
+            "sacBunts": 0,
+            "sacFlies": 5,
+            "babip": ".332",
+            "groundOutsToAirouts": "1.13",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "14.10"
+          },
+          "team": {
+            "id": 147,
+            "name": "New York Yankees",
+            "link": "/api/v1/teams/147"
+          },
+          "player": {
+            "id": 592450,
+            "fullName": "Aaron Judge",
+            "link": "/api/v1/people/592450",
+            "firstName": "Aaron",
+            "lastName": "Judge"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 25,
+          "position": {
+            "code": "9",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "RF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 138,
+            "groundOuts": 74,
+            "airOuts": 106,
+            "runs": 89,
+            "doubles": 26,
+            "triples": 2,
+            "homeRuns": 34,
+            "strikeOuts": 168,
+            "baseOnBalls": 38,
+            "intentionalWalks": 0,
+            "hits": 138,
+            "hitByPitch": 13,
+            "avg": ".286",
+            "atBats": 482,
+            "obp": ".352",
+            "slg": ".560",
+            "ops": ".912",
+            "caughtStealing": 4,
+            "stolenBases": 15,
+            "stolenBasePercentage": ".789",
+            "groundIntoDoublePlay": 8,
+            "numberOfPitches": 2070,
+            "plateAppearances": 537,
+            "totalBases": 270,
+            "rbi": 80,
+            "leftOnBase": 216,
+            "sacBunts": 0,
+            "sacFlies": 4,
+            "babip": ".366",
+            "groundOutsToAirouts": "0.70",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "14.18"
+          },
+          "team": {
+            "id": 138,
+            "name": "St. Louis Cardinals",
+            "link": "/api/v1/teams/138"
+          },
+          "player": {
+            "id": 641933,
+            "fullName": "Tyler O'Neill",
+            "link": "/api/v1/people/641933",
+            "firstName": "Tyler",
+            "lastName": "O'Neill"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 26,
+          "position": {
+            "code": "7",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "LF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 148,
+            "groundOuts": 109,
+            "airOuts": 153,
+            "runs": 92,
+            "doubles": 42,
+            "triples": 3,
+            "homeRuns": 28,
+            "strikeOuts": 150,
+            "baseOnBalls": 55,
+            "intentionalWalks": 6,
+            "hits": 163,
+            "hitByPitch": 3,
+            "avg": ".286",
+            "atBats": 570,
+            "obp": ".349",
+            "slg": ".518",
+            "ops": ".867",
+            "caughtStealing": 0,
+            "stolenBases": 0,
+            "stolenBasePercentage": ".---",
+            "groundIntoDoublePlay": 18,
+            "numberOfPitches": 2410,
+            "plateAppearances": 634,
+            "totalBases": 295,
+            "rbi": 99,
+            "leftOnBase": 243,
+            "sacBunts": 0,
+            "sacFlies": 5,
+            "babip": ".340",
+            "groundOutsToAirouts": "0.71",
+            "catchersInterference": 1,
+            "atBatsPerHomeRun": "20.36"
+          },
+          "team": {
+            "id": 111,
+            "name": "Boston Red Sox",
+            "link": "/api/v1/teams/111"
+          },
+          "player": {
+            "id": 502110,
+            "fullName": "J.D. Martinez",
+            "link": "/api/v1/people/502110",
+            "firstName": "J.D.",
+            "lastName": "Martinez"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 27,
+          "position": {
+            "code": "10",
+            "name": "Designated Hitter",
+            "type": "Hitter",
+            "abbreviation": "DH"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 130,
+            "groundOuts": 88,
+            "airOuts": 106,
+            "runs": 99,
+            "doubles": 31,
+            "triples": 0,
+            "homeRuns": 42,
+            "strikeOuts": 153,
+            "baseOnBalls": 62,
+            "intentionalWalks": 6,
+            "hits": 135,
+            "hitByPitch": 2,
+            "avg": ".282",
+            "atBats": 478,
+            "obp": ".364",
+            "slg": ".611",
+            "ops": ".975",
+            "caughtStealing": 4,
+            "stolenBases": 25,
+            "stolenBasePercentage": ".862",
+            "groundIntoDoublePlay": 5,
+            "numberOfPitches": 2141,
+            "plateAppearances": 546,
+            "totalBases": 292,
+            "rbi": 97,
+            "leftOnBase": 151,
+            "sacBunts": 0,
+            "sacFlies": 4,
+            "babip": ".324",
+            "groundOutsToAirouts": "0.83",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "11.38"
+          },
+          "team": {
+            "id": 135,
+            "name": "San Diego Padres",
+            "link": "/api/v1/teams/135"
+          },
+          "player": {
+            "id": 665487,
+            "fullName": "Fernando Tatis Jr.",
+            "link": "/api/v1/people/665487",
+            "firstName": "Fernando",
+            "lastName": "Tatis"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 28,
+          "position": {
+            "code": "6",
+            "name": "Shortstop",
+            "type": "Infielder",
+            "abbreviation": "SS"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 141,
+            "groundOuts": 162,
+            "airOuts": 117,
+            "runs": 77,
+            "doubles": 25,
+            "triples": 6,
+            "homeRuns": 11,
+            "strikeOuts": 120,
+            "baseOnBalls": 31,
+            "intentionalWalks": 0,
+            "hits": 155,
+            "hitByPitch": 3,
+            "avg": ".282",
+            "atBats": 550,
+            "obp": ".321",
+            "slg": ".409",
+            "ops": ".730",
+            "caughtStealing": 0,
+            "stolenBases": 13,
+            "stolenBasePercentage": "1.000",
+            "groundIntoDoublePlay": 12,
+            "numberOfPitches": 2156,
+            "plateAppearances": 588,
+            "totalBases": 225,
+            "rbi": 57,
+            "leftOnBase": 210,
+            "sacBunts": 0,
+            "sacFlies": 4,
+            "babip": ".340",
+            "groundOutsToAirouts": "1.38",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "50.00"
+          },
+          "team": {
+            "id": 114,
+            "name": "Cleveland Indians",
+            "link": "/api/v1/teams/114"
+          },
+          "player": {
+            "id": 642708,
+            "fullName": "Amed Rosario",
+            "link": "/api/v1/people/642708",
+            "firstName": "Amed",
+            "lastName": "Rosario"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 29,
+          "position": {
+            "code": "6",
+            "name": "Shortstop",
+            "type": "Infielder",
+            "abbreviation": "SS"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 142,
+            "groundOuts": 101,
+            "airOuts": 124,
+            "runs": 70,
+            "doubles": 31,
+            "triples": 1,
+            "homeRuns": 28,
+            "strikeOuts": 117,
+            "baseOnBalls": 60,
+            "intentionalWalks": 3,
+            "hits": 132,
+            "hitByPitch": 13,
+            "avg": ".281",
+            "atBats": 470,
+            "obp": ".375",
+            "slg": ".530",
+            "ops": ".905",
+            "caughtStealing": 0,
+            "stolenBases": 1,
+            "stolenBasePercentage": "1.000",
+            "groundIntoDoublePlay": 11,
+            "numberOfPitches": 2191,
+            "plateAppearances": 547,
+            "totalBases": 249,
+            "rbi": 92,
+            "leftOnBase": 193,
+            "sacBunts": 0,
+            "sacFlies": 4,
+            "babip": ".316",
+            "groundOutsToAirouts": "0.81",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "16.79"
+          },
+          "team": {
+            "id": 115,
+            "name": "Colorado Rockies",
+            "link": "/api/v1/teams/115"
+          },
+          "player": {
+            "id": 543068,
+            "fullName": "C.J. Cron",
+            "link": "/api/v1/people/543068",
+            "firstName": "C.J.",
+            "lastName": "Cron"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 30,
+          "position": {
+            "code": "3",
+            "name": "First Base",
+            "type": "Infielder",
+            "abbreviation": "1B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 148,
+            "groundOuts": 142,
+            "airOuts": 148,
+            "runs": 104,
+            "doubles": 34,
+            "triples": 1,
+            "homeRuns": 26,
+            "strikeOuts": 116,
+            "baseOnBalls": 75,
+            "intentionalWalks": 2,
+            "hits": 155,
+            "hitByPitch": 4,
+            "avg": ".279",
+            "atBats": 555,
+            "obp": ".366",
+            "slg": ".485",
+            "ops": ".851",
+            "caughtStealing": 0,
+            "stolenBases": 0,
+            "stolenBasePercentage": ".---",
+            "groundIntoDoublePlay": 16,
+            "numberOfPitches": 2610,
+            "plateAppearances": 640,
+            "totalBases": 269,
+            "rbi": 92,
+            "leftOnBase": 256,
+            "sacBunts": 0,
+            "sacFlies": 6,
+            "babip": ".308",
+            "groundOutsToAirouts": "0.96",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "21.35"
+          },
+          "team": {
+            "id": 117,
+            "name": "Houston Astros",
+            "link": "/api/v1/teams/117"
+          },
+          "player": {
+            "id": 621043,
+            "fullName": "Carlos Correa",
+            "link": "/api/v1/people/621043",
+            "firstName": "Carlos",
+            "lastName": "Correa"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 31,
+          "position": {
+            "code": "6",
+            "name": "Shortstop",
+            "type": "Infielder",
+            "abbreviation": "SS"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 138,
+            "groundOuts": 130,
+            "airOuts": 162,
+            "runs": 58,
+            "doubles": 33,
+            "triples": 2,
+            "homeRuns": 8,
+            "strikeOuts": 75,
+            "baseOnBalls": 31,
+            "intentionalWalks": 0,
+            "hits": 141,
+            "hitByPitch": 18,
+            "avg": ".279",
+            "atBats": 505,
+            "obp": ".341",
+            "slg": ".400",
+            "ops": ".741",
+            "caughtStealing": 5,
+            "stolenBases": 9,
+            "stolenBasePercentage": ".643",
+            "groundIntoDoublePlay": 9,
+            "numberOfPitches": 1877,
+            "plateAppearances": 558,
+            "totalBases": 202,
+            "rbi": 60,
+            "leftOnBase": 215,
+            "sacBunts": 0,
+            "sacFlies": 3,
+            "babip": ".313",
+            "groundOutsToAirouts": "0.80",
+            "catchersInterference": 1,
+            "atBatsPerHomeRun": "63.12"
+          },
+          "team": {
+            "id": 133,
+            "name": "Oakland Athletics",
+            "link": "/api/v1/teams/133"
+          },
+          "player": {
+            "id": 543281,
+            "fullName": "Josh Harrison",
+            "link": "/api/v1/people/543281",
+            "firstName": "Josh",
+            "lastName": "Harrison"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 2,
+          "rank": 32,
+          "position": {
+            "code": "4",
+            "name": "Second Base",
+            "type": "Infielder",
+            "abbreviation": "2B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 156,
+            "groundOuts": 143,
+            "airOuts": 144,
+            "runs": 101,
+            "doubles": 37,
+            "triples": 1,
+            "homeRuns": 38,
+            "strikeOuts": 143,
+            "baseOnBalls": 62,
+            "intentionalWalks": 7,
+            "hits": 165,
+            "hitByPitch": 7,
+            "avg": ".279",
+            "atBats": 591,
+            "obp": ".352",
+            "slg": ".538",
+            "ops": ".890",
+            "caughtStealing": 5,
+            "stolenBases": 5,
+            "stolenBasePercentage": ".500",
+            "groundIntoDoublePlay": 13,
+            "numberOfPitches": 2502,
+            "plateAppearances": 664,
+            "totalBases": 318,
+            "rbi": 113,
+            "leftOnBase": 284,
+            "sacBunts": 0,
+            "sacFlies": 4,
+            "babip": ".307",
+            "groundOutsToAirouts": "0.99",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "15.55"
+          },
+          "team": {
+            "id": 111,
+            "name": "Boston Red Sox",
+            "link": "/api/v1/teams/111"
+          },
+          "player": {
+            "id": 646240,
+            "fullName": "Rafael Devers",
+            "link": "/api/v1/people/646240",
+            "firstName": "Rafael",
+            "lastName": "Devers"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 33,
+          "position": {
+            "code": "5",
+            "name": "Third Base",
+            "type": "Infielder",
+            "abbreviation": "3B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 153,
+            "groundOuts": 136,
+            "airOuts": 180,
+            "runs": 92,
+            "doubles": 31,
+            "triples": 2,
+            "homeRuns": 28,
+            "strikeOuts": 102,
+            "baseOnBalls": 63,
+            "intentionalWalks": 10,
+            "hits": 157,
+            "hitByPitch": 2,
+            "avg": ".278",
+            "atBats": 564,
+            "obp": ".347",
+            "slg": ".489",
+            "ops": ".836",
+            "caughtStealing": 3,
+            "stolenBases": 12,
+            "stolenBasePercentage": ".800",
+            "groundIntoDoublePlay": 10,
+            "numberOfPitches": 2238,
+            "plateAppearances": 640,
+            "totalBases": 276,
+            "rbi": 106,
+            "leftOnBase": 205,
+            "sacBunts": 0,
+            "sacFlies": 11,
+            "babip": ".290",
+            "groundOutsToAirouts": "0.76",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "20.14"
+          },
+          "team": {
+            "id": 135,
+            "name": "San Diego Padres",
+            "link": "/api/v1/teams/135"
+          },
+          "player": {
+            "id": 592518,
+            "fullName": "Manny Machado",
+            "link": "/api/v1/people/592518",
+            "firstName": "Manny",
+            "lastName": "Machado"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 34,
+          "position": {
+            "code": "5",
+            "name": "Third Base",
+            "type": "Infielder",
+            "abbreviation": "3B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 146,
+            "groundOuts": 158,
+            "airOuts": 192,
+            "runs": 117,
+            "doubles": 32,
+            "triples": 1,
+            "homeRuns": 31,
+            "strikeOuts": 91,
+            "baseOnBalls": 66,
+            "intentionalWalks": 3,
+            "hits": 167,
+            "hitByPitch": 4,
+            "avg": ".278",
+            "atBats": 601,
+            "obp": ".350",
+            "slg": ".489",
+            "ops": ".839",
+            "caughtStealing": 3,
+            "stolenBases": 5,
+            "stolenBasePercentage": ".625",
+            "groundIntoDoublePlay": 9,
+            "numberOfPitches": 2489,
+            "plateAppearances": 678,
+            "totalBases": 294,
+            "rbi": 83,
+            "leftOnBase": 193,
+            "sacBunts": 1,
+            "sacFlies": 6,
+            "babip": ".280",
+            "groundOutsToAirouts": "0.82",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "19.39"
+          },
+          "team": {
+            "id": 117,
+            "name": "Houston Astros",
+            "link": "/api/v1/teams/117"
+          },
+          "player": {
+            "id": 514888,
+            "fullName": "Jose Altuve",
+            "link": "/api/v1/people/514888",
+            "firstName": "Jose",
+            "lastName": "Altuve"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 35,
+          "position": {
+            "code": "4",
+            "name": "Second Base",
+            "type": "Infielder",
+            "abbreviation": "2B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 156,
+            "groundOuts": 174,
+            "airOuts": 151,
+            "runs": 85,
+            "doubles": 30,
+            "triples": 1,
+            "homeRuns": 22,
+            "strikeOuts": 133,
+            "baseOnBalls": 37,
+            "intentionalWalks": 0,
+            "hits": 173,
+            "hitByPitch": 6,
+            "avg": ".278",
+            "atBats": 623,
+            "obp": ".320",
+            "slg": ".435",
+            "ops": ".755",
+            "caughtStealing": 0,
+            "stolenBases": 2,
+            "stolenBasePercentage": "1.000",
+            "groundIntoDoublePlay": 15,
+            "numberOfPitches": 2588,
+            "plateAppearances": 674,
+            "totalBases": 271,
+            "rbi": 84,
+            "leftOnBase": 225,
+            "sacBunts": 0,
+            "sacFlies": 8,
+            "babip": ".317",
+            "groundOutsToAirouts": "1.15",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "28.32"
+          },
+          "team": {
+            "id": 116,
+            "name": "Detroit Tigers",
+            "link": "/api/v1/teams/116"
+          },
+          "player": {
+            "id": 570731,
+            "fullName": "Jonathan Schoop",
+            "link": "/api/v1/people/570731",
+            "firstName": "Jonathan",
+            "lastName": "Schoop"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 36,
+          "position": {
+            "code": "3",
+            "name": "First Base",
+            "type": "Infielder",
+            "abbreviation": "1B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 151,
+            "groundOuts": 109,
+            "airOuts": 184,
+            "runs": 87,
+            "doubles": 22,
+            "triples": 0,
+            "homeRuns": 27,
+            "strikeOuts": 98,
+            "baseOnBalls": 61,
+            "intentionalWalks": 0,
+            "hits": 148,
+            "hitByPitch": 12,
+            "avg": ".278",
+            "atBats": 533,
+            "obp": ".361",
+            "slg": ".471",
+            "ops": ".832",
+            "caughtStealing": 0,
+            "stolenBases": 3,
+            "stolenBasePercentage": "1.000",
+            "groundIntoDoublePlay": 12,
+            "numberOfPitches": 2465,
+            "plateAppearances": 612,
+            "totalBases": 251,
+            "rbi": 87,
+            "leftOnBase": 241,
+            "sacBunts": 0,
+            "sacFlies": 6,
+            "babip": ".292",
+            "groundOutsToAirouts": "0.59",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "19.74"
+          },
+          "team": {
+            "id": 119,
+            "name": "Los Angeles Dodgers",
+            "link": "/api/v1/teams/119"
+          },
+          "player": {
+            "id": 457759,
+            "fullName": "Justin Turner",
+            "link": "/api/v1/people/457759",
+            "firstName": "Justin",
+            "lastName": "Turner"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 37,
+          "position": {
+            "code": "5",
+            "name": "Third Base",
+            "type": "Infielder",
+            "abbreviation": "3B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 144,
+            "groundOuts": 118,
+            "airOuts": 128,
+            "runs": 92,
+            "doubles": 35,
+            "triples": 1,
+            "homeRuns": 33,
+            "strikeOuts": 145,
+            "baseOnBalls": 50,
+            "intentionalWalks": 3,
+            "hits": 149,
+            "hitByPitch": 8,
+            "avg": ".277",
+            "atBats": 537,
+            "obp": ".346",
+            "slg": ".531",
+            "ops": ".877",
+            "caughtStealing": 0,
+            "stolenBases": 1,
+            "stolenBasePercentage": "1.000",
+            "groundIntoDoublePlay": 16,
+            "numberOfPitches": 2396,
+            "plateAppearances": 598,
+            "totalBases": 285,
+            "rbi": 104,
+            "leftOnBase": 276,
+            "sacBunts": 0,
+            "sacFlies": 3,
+            "babip": ".320",
+            "groundOutsToAirouts": "0.92",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "16.27"
+          },
+          "team": {
+            "id": 117,
+            "name": "Houston Astros",
+            "link": "/api/v1/teams/117"
+          },
+          "player": {
+            "id": 670541,
+            "fullName": "Yordan Alvarez",
+            "link": "/api/v1/people/670541",
+            "firstName": "Yordan",
+            "lastName": "Alvarez"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 38,
+          "position": {
+            "code": "10",
+            "name": "Designated Hitter",
+            "type": "Hitter",
+            "abbreviation": "DH"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 144,
+            "groundOuts": 139,
+            "airOuts": 95,
+            "runs": 70,
+            "doubles": 34,
+            "triples": 1,
+            "homeRuns": 29,
+            "strikeOuts": 152,
+            "baseOnBalls": 48,
+            "intentionalWalks": 6,
+            "hits": 147,
+            "hitByPitch": 4,
+            "avg": ".277",
+            "atBats": 530,
+            "obp": ".340",
+            "slg": ".509",
+            "ops": ".849",
+            "caughtStealing": 1,
+            "stolenBases": 2,
+            "stolenBasePercentage": ".667",
+            "groundIntoDoublePlay": 7,
+            "numberOfPitches": 2256,
+            "plateAppearances": 585,
+            "totalBases": 270,
+            "rbi": 98,
+            "leftOnBase": 204,
+            "sacBunts": 0,
+            "sacFlies": 3,
+            "babip": ".335",
+            "groundOutsToAirouts": "1.46",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "18.28"
+          },
+          "team": {
+            "id": 108,
+            "name": "Los Angeles Angels",
+            "link": "/api/v1/teams/108"
+          },
+          "player": {
+            "id": 665120,
+            "fullName": "Jared Walsh",
+            "link": "/api/v1/people/665120",
+            "firstName": "Jared",
+            "lastName": "Walsh"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 39,
+          "position": {
+            "code": "3",
+            "name": "First Base",
+            "type": "Infielder",
+            "abbreviation": "1B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 162,
+            "groundOuts": 169,
+            "airOuts": 220,
+            "runs": 97,
+            "doubles": 42,
+            "triples": 3,
+            "homeRuns": 10,
+            "strikeOuts": 103,
+            "baseOnBalls": 40,
+            "intentionalWalks": 1,
+            "hits": 184,
+            "hitByPitch": 4,
+            "avg": ".277",
+            "atBats": 664,
+            "obp": ".317",
+            "slg": ".395",
+            "ops": ".712",
+            "caughtStealing": 4,
+            "stolenBases": 40,
+            "stolenBasePercentage": ".909",
+            "groundIntoDoublePlay": 12,
+            "numberOfPitches": 2608,
+            "plateAppearances": 720,
+            "totalBases": 262,
+            "rbi": 74,
+            "leftOnBase": 224,
+            "sacBunts": 0,
+            "sacFlies": 12,
+            "babip": ".309",
+            "groundOutsToAirouts": "0.77",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "66.40"
+          },
+          "team": {
+            "id": 118,
+            "name": "Kansas City Royals",
+            "link": "/api/v1/teams/118"
+          },
+          "player": {
+            "id": 593160,
+            "fullName": "Whit Merrifield",
+            "link": "/api/v1/people/593160",
+            "firstName": "Whit",
+            "lastName": "Merrifield"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 40,
+          "position": {
+            "code": "4",
+            "name": "Second Base",
+            "type": "Infielder",
+            "abbreviation": "2B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 141,
+            "groundOuts": 139,
+            "airOuts": 128,
+            "runs": 62,
+            "doubles": 28,
+            "triples": 2,
+            "homeRuns": 21,
+            "strikeOuts": 102,
+            "baseOnBalls": 32,
+            "intentionalWalks": 1,
+            "hits": 138,
+            "hitByPitch": 2,
+            "avg": ".276",
+            "atBats": 500,
+            "obp": ".319",
+            "slg": ".466",
+            "ops": ".785",
+            "caughtStealing": 3,
+            "stolenBases": 1,
+            "stolenBasePercentage": ".250",
+            "groundIntoDoublePlay": 8,
+            "numberOfPitches": 2072,
+            "plateAppearances": 541,
+            "totalBases": 233,
+            "rbi": 84,
+            "leftOnBase": 179,
+            "sacBunts": 1,
+            "sacFlies": 6,
+            "babip": ".305",
+            "groundOutsToAirouts": "1.09",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "23.81"
+          },
+          "team": {
+            "id": 141,
+            "name": "Toronto Blue Jays",
+            "link": "/api/v1/teams/141"
+          },
+          "player": {
+            "id": 666971,
+            "fullName": "Lourdes Gurriel Jr.",
+            "link": "/api/v1/people/666971",
+            "firstName": "Lourdes",
+            "lastName": "Gurriel"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 41,
+          "position": {
+            "code": "7",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "LF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 134,
+            "groundOuts": 114,
+            "airOuts": 153,
+            "runs": 63,
+            "doubles": 27,
+            "triples": 2,
+            "homeRuns": 17,
+            "strikeOuts": 97,
+            "baseOnBalls": 36,
+            "intentionalWalks": 0,
+            "hits": 136,
+            "hitByPitch": 2,
+            "avg": ".276",
+            "atBats": 493,
+            "obp": ".324",
+            "slg": ".442",
+            "ops": ".766",
+            "caughtStealing": 9,
+            "stolenBases": 8,
+            "stolenBasePercentage": ".471",
+            "groundIntoDoublePlay": 2,
+            "numberOfPitches": 2045,
+            "plateAppearances": 538,
+            "totalBases": 218,
+            "rbi": 73,
+            "leftOnBase": 187,
+            "sacBunts": 1,
+            "sacFlies": 6,
+            "babip": ".309",
+            "groundOutsToAirouts": "0.75",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "29.00"
+          },
+          "team": {
+            "id": 118,
+            "name": "Kansas City Royals",
+            "link": "/api/v1/teams/118"
+          },
+          "player": {
+            "id": 643217,
+            "fullName": "Andrew Benintendi",
+            "link": "/api/v1/people/643217",
+            "firstName": "Andrew",
+            "lastName": "Benintendi"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 42,
+          "position": {
+            "code": "7",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "LF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 141,
+            "groundOuts": 117,
+            "airOuts": 102,
+            "runs": 94,
+            "doubles": 32,
+            "triples": 3,
+            "homeRuns": 20,
+            "strikeOuts": 170,
+            "baseOnBalls": 56,
+            "intentionalWalks": 4,
+            "hits": 145,
+            "hitByPitch": 14,
+            "avg": ".274",
+            "atBats": 529,
+            "obp": ".356",
+            "slg": ".459",
+            "ops": ".815",
+            "caughtStealing": 10,
+            "stolenBases": 20,
+            "stolenBasePercentage": ".667",
+            "groundIntoDoublePlay": 9,
+            "numberOfPitches": 2479,
+            "plateAppearances": 604,
+            "totalBases": 243,
+            "rbi": 69,
+            "leftOnBase": 198,
+            "sacBunts": 0,
+            "sacFlies": 5,
+            "babip": ".363",
+            "groundOutsToAirouts": "1.15",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "26.45"
+          },
+          "team": {
+            "id": 139,
+            "name": "Tampa Bay Rays",
+            "link": "/api/v1/teams/139"
+          },
+          "player": {
+            "id": 668227,
+            "fullName": "Randy Arozarena",
+            "link": "/api/v1/people/668227",
+            "firstName": "Randy",
+            "lastName": "Arozarena"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 43,
+          "position": {
+            "code": "7",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "LF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 133,
+            "groundOuts": 216,
+            "airOuts": 73,
+            "runs": 69,
+            "doubles": 26,
+            "triples": 2,
+            "homeRuns": 6,
+            "strikeOuts": 70,
+            "baseOnBalls": 40,
+            "intentionalWalks": 2,
+            "hits": 133,
+            "hitByPitch": 1,
+            "avg": ".273",
+            "atBats": 487,
+            "obp": ".327",
+            "slg": ".372",
+            "ops": ".699",
+            "caughtStealing": 6,
+            "stolenBases": 20,
+            "stolenBasePercentage": ".769",
+            "groundIntoDoublePlay": 8,
+            "numberOfPitches": 1973,
+            "plateAppearances": 533,
+            "totalBases": 181,
+            "rbi": 50,
+            "leftOnBase": 161,
+            "sacBunts": 1,
+            "sacFlies": 4,
+            "babip": ".306",
+            "groundOutsToAirouts": "2.96",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "81.17"
+          },
+          "team": {
+            "id": 115,
+            "name": "Colorado Rockies",
+            "link": "/api/v1/teams/115"
+          },
+          "player": {
+            "id": 606132,
+            "fullName": "Raimel Tapia",
+            "link": "/api/v1/people/606132",
+            "firstName": "Raimel",
+            "lastName": "Tapia"
+          },
+          "league": {
+            "id": 104,
+            "name": "NL",
+            "link": "/api/v1/league/104"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 44,
+          "position": {
+            "code": "7",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "LF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 160,
+            "groundOuts": 177,
+            "airOuts": 164,
+            "runs": 89,
+            "doubles": 37,
+            "triples": 0,
+            "homeRuns": 9,
+            "strikeOuts": 114,
+            "baseOnBalls": 58,
+            "intentionalWalks": 1,
+            "hits": 169,
+            "hitByPitch": 5,
+            "avg": ".273",
+            "atBats": 619,
+            "obp": ".338",
+            "slg": ".376",
+            "ops": ".714",
+            "caughtStealing": 6,
+            "stolenBases": 3,
+            "stolenBasePercentage": ".333",
+            "groundIntoDoublePlay": 10,
+            "numberOfPitches": 2791,
+            "plateAppearances": 687,
+            "totalBases": 233,
+            "rbi": 54,
+            "leftOnBase": 200,
+            "sacBunts": 1,
+            "sacFlies": 4,
+            "babip": ".320",
+            "groundOutsToAirouts": "1.08",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "68.78"
+          },
+          "team": {
+            "id": 136,
+            "name": "Seattle Mariners",
+            "link": "/api/v1/teams/136"
+          },
+          "player": {
+            "id": 641487,
+            "fullName": "J.P. Crawford",
+            "link": "/api/v1/people/641487",
+            "firstName": "J.P.",
+            "lastName": "Crawford"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 45,
+          "position": {
+            "code": "6",
+            "name": "Shortstop",
+            "type": "Infielder",
+            "abbreviation": "SS"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 161,
+            "groundOuts": 132,
+            "airOuts": 153,
+            "runs": 88,
+            "doubles": 24,
+            "triples": 0,
+            "homeRuns": 48,
+            "strikeOuts": 170,
+            "baseOnBalls": 28,
+            "intentionalWalks": 4,
+            "hits": 169,
+            "hitByPitch": 13,
+            "avg": ".273",
+            "atBats": 620,
+            "obp": ".316",
+            "slg": ".544",
+            "ops": ".860",
+            "caughtStealing": 0,
+            "stolenBases": 1,
+            "stolenBasePercentage": "1.000",
+            "groundIntoDoublePlay": 14,
+            "numberOfPitches": 2392,
+            "plateAppearances": 665,
+            "totalBases": 337,
+            "rbi": 121,
+            "leftOnBase": 278,
+            "sacBunts": 0,
+            "sacFlies": 4,
+            "babip": ".298",
+            "groundOutsToAirouts": "0.86",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "12.92"
+          },
+          "team": {
+            "id": 118,
+            "name": "Kansas City Royals",
+            "link": "/api/v1/teams/118"
+          },
+          "player": {
+            "id": 521692,
+            "fullName": "Salvador Perez",
+            "link": "/api/v1/people/521692",
+            "firstName": "Salvador",
+            "lastName": "Perez"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 46,
+          "position": {
+            "code": "2",
+            "name": "Catcher",
+            "type": "Catcher",
+            "abbreviation": "C"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 139,
+            "groundOuts": 113,
+            "airOuts": 104,
+            "runs": 64,
+            "doubles": 19,
+            "triples": 0,
+            "homeRuns": 35,
+            "strikeOuts": 157,
+            "baseOnBalls": 63,
+            "intentionalWalks": 1,
+            "hits": 139,
+            "hitByPitch": 3,
+            "avg": ".273",
+            "atBats": 510,
+            "obp": ".354",
+            "slg": ".516",
+            "ops": ".870",
+            "caughtStealing": 0,
+            "stolenBases": 0,
+            "stolenBasePercentage": ".---",
+            "groundIntoDoublePlay": 22,
+            "numberOfPitches": 2426,
+            "plateAppearances": 579,
+            "totalBases": 263,
+            "rbi": 97,
+            "leftOnBase": 224,
+            "sacBunts": 0,
+            "sacFlies": 3,
+            "babip": ".324",
+            "groundOutsToAirouts": "1.09",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "14.57"
+          },
+          "team": {
+            "id": 147,
+            "name": "New York Yankees",
+            "link": "/api/v1/teams/147"
+          },
+          "player": {
+            "id": 519317,
+            "fullName": "Giancarlo Stanton",
+            "link": "/api/v1/people/519317",
+            "firstName": "Giancarlo",
+            "lastName": "Stanton"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 47,
+          "position": {
+            "code": "10",
+            "name": "Designated Hitter",
+            "type": "Hitter",
+            "abbreviation": "DH"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 158,
+            "groundOuts": 127,
+            "airOuts": 168,
+            "runs": 86,
+            "doubles": 29,
+            "triples": 1,
+            "homeRuns": 4,
+            "strikeOuts": 121,
+            "baseOnBalls": 67,
+            "intentionalWalks": 0,
+            "hits": 153,
+            "hitByPitch": 2,
+            "avg": ".271",
+            "atBats": 564,
+            "obp": ".349",
+            "slg": ".348",
+            "ops": ".697",
+            "caughtStealing": 6,
+            "stolenBases": 30,
+            "stolenBasePercentage": ".833",
+            "groundIntoDoublePlay": 13,
+            "numberOfPitches": 2653,
+            "plateAppearances": 638,
+            "totalBases": 196,
+            "rbi": 48,
+            "leftOnBase": 232,
+            "sacBunts": 1,
+            "sacFlies": 4,
+            "babip": ".336",
+            "groundOutsToAirouts": "0.76",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "141.00"
+          },
+          "team": {
+            "id": 114,
+            "name": "Cleveland Indians",
+            "link": "/api/v1/teams/114"
+          },
+          "player": {
+            "id": 664702,
+            "fullName": "Myles Straw",
+            "link": "/api/v1/people/664702",
+            "firstName": "Myles",
+            "lastName": "Straw"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 2,
+          "rank": 48,
+          "position": {
+            "code": "8",
+            "name": "Outfielder",
+            "type": "Outfielder",
+            "abbreviation": "CF"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 137,
+            "groundOuts": 134,
+            "airOuts": 144,
+            "runs": 65,
+            "doubles": 27,
+            "triples": 2,
+            "homeRuns": 9,
+            "strikeOuts": 75,
+            "baseOnBalls": 21,
+            "intentionalWalks": 0,
+            "hits": 131,
+            "hitByPitch": 6,
+            "avg": ".271",
+            "atBats": 483,
+            "obp": ".309",
+            "slg": ".391",
+            "ops": ".700",
+            "caughtStealing": 2,
+            "stolenBases": 5,
+            "stolenBasePercentage": ".714",
+            "groundIntoDoublePlay": 10,
+            "numberOfPitches": 1858,
+            "plateAppearances": 511,
+            "totalBases": 189,
+            "rbi": 48,
+            "leftOnBase": 195,
+            "sacBunts": 0,
+            "sacFlies": 1,
+            "babip": ".305",
+            "groundOutsToAirouts": "0.93",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "53.67"
+          },
+          "team": {
+            "id": 111,
+            "name": "Boston Red Sox",
+            "link": "/api/v1/teams/111"
+          },
+          "player": {
+            "id": 578428,
+            "fullName": "Jose Iglesias",
+            "link": "/api/v1/people/578428",
+            "firstName": "Jose",
+            "lastName": "Iglesias"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 2,
+          "rank": 49,
+          "position": {
+            "code": "4",
+            "name": "Second Base",
+            "type": "Infielder",
+            "abbreviation": "2B"
+          }
+        },
+        {
+          "season": "2021",
+          "stat": {
+            "gamesPlayed": 149,
+            "groundOuts": 135,
+            "airOuts": 136,
+            "runs": 75,
+            "doubles": 42,
+            "triples": 3,
+            "homeRuns": 16,
+            "strikeOuts": 135,
+            "baseOnBalls": 65,
+            "intentionalWalks": 1,
+            "hits": 151,
+            "hitByPitch": 4,
+            "avg": ".271",
+            "atBats": 557,
+            "obp": ".351",
+            "slg": ".443",
+            "ops": ".794",
+            "caughtStealing": 0,
+            "stolenBases": 0,
+            "stolenBasePercentage": ".---",
+            "groundIntoDoublePlay": 10,
+            "numberOfPitches": 2547,
+            "plateAppearances": 626,
+            "totalBases": 247,
+            "rbi": 67,
+            "leftOnBase": 227,
+            "sacBunts": 0,
+            "sacFlies": 0,
+            "babip": ".333",
+            "groundOutsToAirouts": "0.99",
+            "catchersInterference": 0,
+            "atBatsPerHomeRun": "34.81"
+          },
+          "team": {
+            "id": 116,
+            "name": "Detroit Tigers",
+            "link": "/api/v1/teams/116"
+          },
+          "player": {
+            "id": 600869,
+            "fullName": "Jeimer Candelario",
+            "link": "/api/v1/people/600869",
+            "firstName": "Jeimer",
+            "lastName": "Candelario"
+          },
+          "league": {
+            "id": 103,
+            "name": "AL",
+            "link": "/api/v1/league/103"
+          },
+          "sport": {
+            "id": 1,
+            "link": "/api/v1/sports/1",
+            "abbreviation": "MLB"
+          },
+          "numTeams": 1,
+          "rank": 50,
+          "position": {
+            "code": "5",
+            "name": "Third Base",
+            "type": "Infielder",
+            "abbreviation": "3B"
+          }
+        }
+      ],
+      "splitsTiedWithOffset": [],
+      "splitsTiedWithLimit": [],
+      "playerPool": "QUALIFIED"
+    }
+  ]
+}
