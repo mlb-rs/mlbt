@@ -17,13 +17,6 @@ impl Default for DateSelector {
 }
 
 impl DateSelector {
-    pub fn new(date: NaiveDate) -> Self {
-        Self {
-            date,
-            selection_offset: 0,
-        }
-    }
-
     /// Set the date from the validated input string from the date picker.
     pub fn set_date_from_valid_input(&mut self, date: NaiveDate) {
         self.date = date;

@@ -5,8 +5,6 @@ use crate::components::stats::StatsState;
 use crate::config::ConfigFile;
 use chrono::{NaiveDate, ParseError, Utc};
 use chrono_tz::Tz;
-use crossbeam_channel::{Receiver, Sender, bounded};
-use mlb_api::client::{MLBApi, MLBApiBuilder};
 use mlb_api::live::LiveResponse;
 use mlb_api::schedule::ScheduleResponse;
 
@@ -87,10 +85,6 @@ impl AppSettings {
 pub struct App {
     pub settings: AppSettings,
     pub state: AppState,
-
-    pub client: MLBApi,
-    pub redraw_channel: (Sender<()>, Receiver<()>),
-    pub update_channel: (Sender<MenuItem>, Receiver<MenuItem>),
 }
 
 impl App {
@@ -98,9 +92,6 @@ impl App {
         let mut app = Self {
             state: AppState::default(),
             settings: AppSettings::load_from_file(),
-            client: MLBApiBuilder::default().build().unwrap(),
-            redraw_channel: bounded(1),
-            update_channel: bounded(1),
         };
         app.configure();
         app
@@ -121,8 +112,17 @@ impl App {
         self.state.standings.date_selector.date = today;
     }
 
-    pub fn update_schedule(&mut self, schedule: &ScheduleResponse) {
+    /// Update the schedule and return the selected game.
+    /// If the schedule is empty, return None.
+    pub fn update_schedule(&mut self, schedule: &ScheduleResponse) -> Option<u64> {
         self.state.schedule.update(&self.settings, schedule);
+
+        if self.state.schedule.is_empty() {
+            self.state.live_game.clear();
+            None
+        } else {
+            self.state.schedule.get_selected_game_opt()
+        }
     }
 
     pub fn update_live_data(&mut self, live_data: &LiveResponse) {

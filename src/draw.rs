@@ -7,6 +7,7 @@ use tui::{Frame, Terminal};
 
 use crate::app::{App, DebugState, MenuItem};
 use crate::components::debug::DebugInfo;
+use crate::network::LoadingState;
 use crate::ui::at_bat::AtBatWidget;
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
 use crate::ui::date_selector::DateSelectorWidget;
@@ -21,7 +22,7 @@ use crate::ui::stats::{STATS_OPTIONS_WIDTH, StatsWidget};
 
 static TABS: &[&str; 4] = &["Scoreboard", "Gameday", "Stats", "Standings"];
 
-pub fn draw<B>(terminal: &mut Terminal<B>, app: &mut App)
+pub fn draw<B>(terminal: &mut Terminal<B>, app: &mut App, is_loading: LoadingState)
 where
     B: Backend,
 {
@@ -37,7 +38,7 @@ where
             main_layout.update(f.area(), app.settings.full_screen);
 
             if !app.settings.full_screen {
-                draw_tabs(f, &main_layout.top_bar, app);
+                draw_tabs(f, &main_layout.top_bar, app, is_loading);
             }
 
             match app.state.active_tab {
@@ -73,7 +74,7 @@ fn draw_border(f: &mut Frame, rect: Rect, color: Color) {
     f.render_widget(block, rect);
 }
 
-fn draw_tabs(f: &mut Frame, top_bar: &[Rect], app: &App) {
+fn draw_tabs(f: &mut Frame, top_bar: &[Rect], app: &App, loading: LoadingState) {
     let style = Style::default().fg(Color::White);
     let border_style = Style::default();
     let border_type = BorderType::Rounded;
@@ -95,7 +96,9 @@ fn draw_tabs(f: &mut Frame, top_bar: &[Rect], app: &App) {
         .style(style);
     f.render_widget(tabs, top_bar[0]);
 
-    let help = Paragraph::new("Help: ? ")
+    // display animated spinner if there are API requests in progress
+    let text = format!("{} Help: ? ", loading.spinner_char);
+    let help = Paragraph::new(text)
         .alignment(Alignment::Right)
         .block(
             Block::default()
