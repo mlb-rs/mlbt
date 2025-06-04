@@ -1,6 +1,7 @@
-use crate::app::{AppSettings, HomeOrAway};
+use crate::app::HomeOrAway;
 use crate::components::constants::TEAM_NAMES;
 use crate::components::date_selector::DateSelector;
+use crate::state::app_settings::AppSettings;
 use chrono::{DateTime, NaiveDate};
 use chrono_tz::Tz;
 use core::option::Option::{None, Some};

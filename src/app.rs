@@ -1,10 +1,6 @@
-use crate::components::live_game::GameState;
-use crate::components::schedule::ScheduleState;
-use crate::components::standings::{StandingsState, Team};
-use crate::components::stats::StatsState;
-use crate::config::ConfigFile;
-use chrono::{NaiveDate, ParseError, Utc};
-use chrono_tz::Tz;
+use crate::state::app_settings::AppSettings;
+use crate::state::app_state::AppState;
+use chrono::{ParseError, Utc};
 use mlb_api::live::LiveResponse;
 use mlb_api::schedule::ScheduleResponse;
 
@@ -32,54 +28,6 @@ pub enum HomeOrAway {
     #[default]
     Home = 0,
     Away = 1,
-}
-
-/// Get user input for the date and store whether it's valid.
-pub struct DateInput {
-    pub is_valid: bool,
-    pub text: String,
-}
-
-/// Store which panels should be rendered in the Gameday tab.
-#[derive(Debug, Copy, Clone)]
-pub struct GamedayPanels {
-    pub info: bool,
-    pub at_bat: bool,
-    pub boxscore: bool,
-}
-
-#[derive(Default)]
-pub struct AppState {
-    pub active_tab: MenuItem,
-    pub previous_tab: MenuItem,
-    pub debug_state: DebugState,
-    pub schedule: ScheduleState,
-    pub date_input: DateInput,
-    pub live_game: GameState,
-    pub gameday: GamedayPanels,
-    pub boxscore_tab: HomeOrAway,
-    pub standings: StandingsState,
-    pub stats: StatsState,
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct AppSettings {
-    pub favorite_team: Option<Team>,
-    pub full_screen: bool,
-    pub timezone: Tz,
-    pub timezone_abbreviation: String,
-}
-
-impl AppSettings {
-    /// If config file can't be loaded just print an error message but don't block starting app
-    pub fn load_from_file() -> Self {
-        ConfigFile::load_from_file()
-            .unwrap_or_else(|err| {
-                eprintln!("could not load config file: {:?}", err);
-                ConfigFile::default()
-            })
-            .into()
-    }
 }
 
 pub struct App {
@@ -186,43 +134,5 @@ impl App {
 
     pub fn toggle_full_screen(&mut self) {
         self.settings.full_screen = !self.settings.full_screen;
-    }
-}
-
-impl DateInput {
-    pub fn validate_input(&mut self, tz: Tz) -> Result<NaiveDate, ParseError> {
-        let input: String = self.text.drain(..).collect();
-        let date = match input.as_str() {
-            "today" => Ok(Utc::now().with_timezone(&tz).date_naive()),
-            _ => NaiveDate::parse_from_str(input.as_str(), "%Y-%m-%d"),
-        };
-        self.is_valid = date.is_ok();
-        date
-    }
-}
-
-impl Default for DateInput {
-    fn default() -> Self {
-        DateInput {
-            is_valid: true,
-            text: String::new(),
-        }
-    }
-}
-
-impl GamedayPanels {
-    /// Return the number of panels that are active.
-    pub fn count(&self) -> usize {
-        self.info as usize + self.at_bat as usize + self.boxscore as usize
-    }
-}
-
-impl Default for GamedayPanels {
-    fn default() -> Self {
-        GamedayPanels {
-            info: true,
-            at_bat: true,
-            boxscore: false,
-        }
     }
 }

@@ -1,4 +1,4 @@
-use crate::app::DateInput;
+use crate::state::date_input::DateInput;
 use tui::{
     buffer::Buffer,
     layout::{Constraint, Direction, Layout, Rect},

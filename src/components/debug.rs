@@ -1,4 +1,5 @@
-use crate::app::{App, GamedayPanels};
+use crate::app::App;
+use crate::state::gameday::GamedayPanels;
 use std::fmt;
 use tui::Frame;
 

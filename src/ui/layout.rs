@@ -1,4 +1,4 @@
-use crate::app::GamedayPanels;
+use crate::state::gameday::GamedayPanels;
 use tui::layout::{Constraint, Direction, Layout, Rect, Size};
 
 pub struct LayoutAreas {

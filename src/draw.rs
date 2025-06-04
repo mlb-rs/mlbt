@@ -7,7 +7,7 @@ use tui::{Frame, Terminal};
 
 use crate::app::{App, DebugState, MenuItem};
 use crate::components::debug::DebugInfo;
-use crate::network::LoadingState;
+use crate::state::network::LoadingState;
 use crate::ui::at_bat::AtBatWidget;
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
 use crate::ui::date_selector::DateSelectorWidget;

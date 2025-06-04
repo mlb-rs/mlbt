@@ -1,6 +1,6 @@
 use crate::app::{App, HomeOrAway, MenuItem};
 use crate::components::stats::TeamOrPlayer;
-use crate::{cleanup_terminal, messages::NetworkRequest};
+use crate::{NetworkRequest, cleanup_terminal};
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent};
 use mlb_api::client::StatGroup;

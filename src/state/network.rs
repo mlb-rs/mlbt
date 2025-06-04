@@ -1,5 +1,5 @@
 use crate::components::stats::{StatType, TeamOrPlayer};
-use crate::messages::{NetworkRequest, NetworkResponse};
+use crate::{NetworkRequest, NetworkResponse};
 use chrono::NaiveDate;
 use mlb_api::client::{MLBApi, MLBApiBuilder};
 use std::sync::Arc;
