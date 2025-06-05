@@ -1,5 +1,4 @@
 use crate::components::live_game::GameStateV2;
-use mlb_api::live::LiveResponse;
 use mlb_api::plays::{Count, Play};
 
 #[derive(Default)]
@@ -58,44 +57,8 @@ impl InningPlays {
             play_results,
         }
     }
-
-    pub fn from_live_data(live_game: &LiveResponse) -> InningPlays {
-        // get current inning, including top/bot
-        let current_inning = live_game.live_data.linescore.current_inning.unwrap_or(0);
-        let is_top = live_game.live_data.linescore.is_top_inning.unwrap_or(true);
-        if current_inning == 0 {
-            return InningPlays::default();
-        }
-        // get plays indices for inning
-        let plays_per_inning = match live_game.live_data.plays.plays_by_inning.as_ref() {
-            Some(plays) => plays,
-            None => return InningPlays::default(),
-        };
-        let inning_info = &plays_per_inning[current_inning as usize - 1];
-        let play_indices = match is_top {
-            true => &inning_info.top,
-            false => &inning_info.bottom,
-        };
-        // use indices to slice all plays
-        let plays: Vec<&Play> = match live_game.live_data.plays.all_plays.as_ref() {
-            Some(plays) => play_indices
-                .iter()
-                .filter_map(|idx| plays.get(*idx as usize))
-                .collect(),
-            None => return InningPlays::default(),
-        };
-        // construct play results from inning plays
-        let results = plays
-            .iter()
-            .map(|play| PlayResult::from_play(play))
-            .collect();
-
-        InningPlays {
-            inning: current_inning,
-            play_results: results,
-        }
-    }
 }
+
 impl PlayResult {
     pub fn from_play(play: &Play) -> Self {
         Self {

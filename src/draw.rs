@@ -138,11 +138,10 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
 fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &App) {
     let chunks = LayoutAreas::for_boxscore(rect);
 
-    // app.state.live_game.linescore.mini = true; TODO ?
     f.render_widget(
         LineScoreWidget {
             active: app.state.boxscore_tab,
-            linescore: &app.state.live_game.linescore,
+            linescore: &app.state.gameday.game.linescore,
         },
         chunks[0],
     );

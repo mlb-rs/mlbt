@@ -179,41 +179,6 @@ impl Matchup {
         }
     }
 
-    pub fn from_live_data(live_game: &LiveResponse) -> Matchup {
-        // Extract the current play from the API data. Not sure yet why the current play isn't
-        // present. Maybe when the game isn't being played yet?
-        let current = match live_game.live_data.plays.current_play.as_ref() {
-            Some(c) => c,
-            None => return Matchup::default(),
-        };
-
-        // get the on deck and in the hole batters
-        let od = match live_game.live_data.linescore.offense.on_deck.as_ref() {
-            Some(od) => od.full_name.clone(),
-            None => DEFAULT_NAME.to_string(),
-        };
-        let ih = match live_game.live_data.linescore.offense.in_hole.as_ref() {
-            Some(ih) => ih.full_name.clone(),
-            None => DEFAULT_NAME.to_string(),
-        };
-
-        Matchup {
-            home_name: live_game.game_data.teams.home.team_name.clone(),
-            home_score: current.result.home_score.unwrap_or(0),
-            away_name: live_game.game_data.teams.away.team_name.clone(),
-            away_score: current.result.away_score.unwrap_or(0),
-            inning: format!("{} {}", current.about.half_inning, current.about.inning),
-            pitcher_name: current.matchup.pitcher.full_name.clone(),
-            pitcher_side: format!("{}HP", current.matchup.pitch_hand.code.clone()),
-            batter_name: current.matchup.batter.full_name.clone(),
-            batter_side: current.matchup.bat_side.code.clone(),
-            count: current.count.clone(),
-            runners: Runners::from_matchup(&current.matchup),
-            on_deck: od,
-            in_hole: ih,
-        }
-    }
-
     pub fn to_table(&self) -> Vec<Vec<String>> {
         vec![
             vec![self.away_name.clone(), self.away_score.to_string()],

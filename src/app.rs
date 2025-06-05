@@ -66,8 +66,9 @@ impl App {
     pub fn update_schedule(&mut self, schedule: &ScheduleResponse) -> Option<u64> {
         self.state.schedule.update(&self.settings, schedule);
 
+        // reset game when the schedule is empty
         if self.state.schedule.is_empty() {
-            self.state.live_game.clear();
+            self.state.gameday.game.reset();
             None
         } else {
             self.state.schedule.get_selected_game_opt()
@@ -75,7 +76,6 @@ impl App {
     }
 
     pub fn update_live_data(&mut self, live_data: &LiveResponse) {
-        // self.state.live_game.update(live_data);
         self.state.gameday.game.update(live_data);
     }
 

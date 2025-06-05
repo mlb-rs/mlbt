@@ -1,7 +1,6 @@
 use crate::components::pitch_event::PitchEvent;
 use crate::components::strikezone::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP};
 use crate::components::util::convert_color;
-use mlb_api::live::LiveResponse;
 use mlb_api::plays::{Play, PlayEvent};
 use tui::{
     style::{Color, Style},
@@ -136,13 +135,6 @@ impl Pitch {
 }
 
 impl Pitches {
-    pub fn from_live_data(live_game: &LiveResponse) -> Self {
-        match live_game.live_data.plays.current_play.as_ref() {
-            Some(p) => Pitches::from_play(p),
-            None => Pitches::default(),
-        }
-    }
-
     pub fn from_play(play: &Play) -> Self {
         Pitches {
             pitch_events: Pitches::transform_pitch_events(&play.play_events),

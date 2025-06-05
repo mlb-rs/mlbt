@@ -15,8 +15,8 @@ use crossterm::{cursor, execute, terminal};
 use std::io::Stdout;
 use std::sync::Arc;
 use std::{io, panic};
-use tokio::sync::{Mutex, mpsc};
-use tui::{Terminal, backend::CrosstermBackend};
+use tokio::sync::{mpsc, Mutex};
+use tui::{backend::CrosstermBackend, Terminal};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -129,7 +129,7 @@ async fn handle_network_response(
                 let mut guard = app.lock().await;
                 let selected_game_id = guard.update_schedule(&schedule);
                 if let Some(game_id) = selected_game_id {
-                    guard.state.live_game.set_game_id(game_id);
+                    guard.state.gameday.set_current_game_id(game_id);
                 }
                 selected_game_id
             };

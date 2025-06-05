@@ -11,6 +11,14 @@ impl GamedayState {
     pub fn selected_at_bat(&self) -> Option<u8> {
         self.selected_at_bat.map(|i| i as u8)
     }
+
+    pub fn current_game_id(&self) -> u64 {
+        self.game.game_id
+    }
+
+    pub fn set_current_game_id(&mut self, game_id: u64) {
+        self.game.game_id = game_id;
+    }
 }
 
 /// Store which panels should be rendered in the Gameday tab.
