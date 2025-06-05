@@ -3,7 +3,7 @@ use std::fmt;
 use crate::live::LiveResponse;
 use crate::schedule::ScheduleResponse;
 use crate::standings::StandingsResponse;
-use crate::stats::StatResponse;
+use crate::stats::StatsResponse;
 
 use chrono::{DateTime, Datelike, Local, NaiveDate};
 use derive_builder::Builder;
@@ -100,7 +100,7 @@ impl MLBApi {
         self.get(url).await
     }
 
-    pub async fn get_team_stats(&self, group: StatGroup) -> StatResponse {
+    pub async fn get_team_stats(&self, group: StatGroup) -> StatsResponse {
         let local: DateTime<Local> = Local::now();
         let url = format!(
             "{}v1/teams/stats?sportId=1&stats=season&season={}&group={}",
@@ -111,7 +111,7 @@ impl MLBApi {
         self.get(url).await
     }
 
-    pub async fn get_team_stats_on_date(&self, group: StatGroup, date: NaiveDate) -> StatResponse {
+    pub async fn get_team_stats_on_date(&self, group: StatGroup, date: NaiveDate) -> StatsResponse {
         let url = format!(
             "{}v1/teams/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}",
             self.base_url,
@@ -122,7 +122,7 @@ impl MLBApi {
         self.get(url).await
     }
 
-    pub async fn get_player_stats(&self, group: StatGroup) -> StatResponse {
+    pub async fn get_player_stats(&self, group: StatGroup) -> StatsResponse {
         let local: DateTime<Local> = Local::now();
         let url = format!(
             "{}v1/stats?sportId=1&stats=season&season={}&group={}",
@@ -137,7 +137,7 @@ impl MLBApi {
         &self,
         group: StatGroup,
         date: NaiveDate,
-    ) -> StatResponse {
+    ) -> StatsResponse {
         let url = format!(
             "{}v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}",
             self.base_url,

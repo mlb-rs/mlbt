@@ -2,7 +2,7 @@ use crate::schedule::IdNameLink;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Serialize, Deserialize)]
-pub struct StatResponse {
+pub struct StatsResponse {
     pub stats: Vec<Stat>,
 }
 

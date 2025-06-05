@@ -1,7 +1,7 @@
 use crate::app::{AppSettings, HomeOrAway};
 use crate::components::constants::TEAM_NAMES;
 use crate::components::date_selector::DateSelector;
-use chrono::{DateTime, NaiveDate, Utc};
+use chrono::{DateTime, NaiveDate};
 use chrono_tz::Tz;
 use core::option::Option::{None, Some};
 use mlb_api::schedule::{Game, ScheduleResponse};
@@ -29,21 +29,32 @@ pub struct ScheduleRow {
 }
 
 impl ScheduleState {
-    pub fn from_schedule(settings: &AppSettings, schedule: &ScheduleResponse) -> Self {
-        let date_selector = DateSelector::new(ScheduleRow::get_date_from_schedule(schedule));
-        let mut ss = ScheduleState {
-            state: TableState::default(),
-            schedule: ScheduleRow::create_table(settings, schedule),
-            date_selector,
-        };
-        ss.state.select(Some(0));
-        ss
-    }
-
     /// Update the data from the API. It is assumed that the date is already updated, aka don't use
     /// a random date without first setting the `date` field. Use `set_date_from_input` for this.
     pub fn update(&mut self, settings: &AppSettings, schedule: &ScheduleResponse) {
         self.schedule = ScheduleRow::create_table(settings, schedule);
+
+        // If schedule is empty, clear selection
+        if self.is_empty() {
+            self.state.select(None);
+            return;
+        }
+
+        // Auto-select first game if available and nothing is currently selected
+        if self.state.selected().is_none() {
+            self.state.select(Some(0));
+        }
+
+        // If there was a selection but the new schedule is shorter, reset to first game
+        if let Some(selected) = self.state.selected() {
+            if selected >= self.schedule.len() {
+                self.state.select(Some(0));
+            }
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.schedule.is_empty()
     }
 
     /// Set the date from the validated input string from the date picker.
@@ -57,16 +68,10 @@ impl ScheduleState {
         self.date_selector.set_date_with_arrows(forward)
     }
 
-    /// Return the `game_id` of the row that is selected.
-    pub fn get_selected_game(&self) -> u64 {
-        let idx = match self.state.selected() {
-            Some(s) => s,
-            None => return 0,
-        };
-        match self.schedule.get(idx) {
-            Some(s) => s.game_id,
-            _ => 0,
-        }
+    /// Return the `game_id` of the row that is selected, or None if no row is selected.
+    pub fn get_selected_game_opt(&self) -> Option<u64> {
+        let idx = self.state.selected()?;
+        self.schedule.get(idx).map(|s| s.game_id)
     }
 
     pub fn next(&mut self) {
@@ -167,24 +172,5 @@ impl ScheduleRow {
             }
         }
         todays_games
-    }
-
-    /// The date is stored in schedule -> dates -> date.
-    fn get_date_from_schedule(schedule: &ScheduleResponse) -> NaiveDate {
-        let now = Utc::now().naive_local().date();
-        if let Some(games) = &schedule.dates.first() {
-            match &games.date {
-                None => now,
-                Some(d) => {
-                    if let Ok(p) = NaiveDate::parse_from_str(d, "%Y-%m-%d") {
-                        p
-                    } else {
-                        now
-                    }
-                }
-            }
-        } else {
-            now
-        }
     }
 }

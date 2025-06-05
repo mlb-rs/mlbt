@@ -3,7 +3,7 @@ use std::fmt;
 use tui::Frame;
 
 pub struct DebugInfo {
-    pub game_id: u64,
+    pub game_id: Option<u64>,
     pub gameday_url: String,
     pub terminal_width: u16,
     pub terminal_height: u16,
@@ -14,8 +14,8 @@ impl fmt::Display for DebugInfo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "game id: {}\ngameday: {}\nterminal height: {} width: {}\n{:?}",
-            self.game_id,
+            "game id: {}, gameday: {}\nterminal height: {} width: {}\n{:?}",
+            self.game_id.unwrap_or_default(),
             self.gameday_url,
             self.terminal_height,
             self.terminal_width,
@@ -27,7 +27,7 @@ impl fmt::Display for DebugInfo {
 impl DebugInfo {
     pub fn new() -> Self {
         DebugInfo {
-            game_id: 0,
+            game_id: None,
             gameday_url: "https://www.mlb.com/scores".to_string(),
             terminal_width: 0,
             terminal_height: 0,
@@ -38,8 +38,11 @@ impl DebugInfo {
     // - last api call time
     // - other things?
     pub fn gather_info(&mut self, f: &Frame, app: &App) {
-        self.game_id = app.state.schedule.get_selected_game();
-        self.gameday_url = format!("https://www.mlb.com/gameday/{}", self.game_id);
+        self.game_id = app.state.schedule.get_selected_game_opt();
+        self.gameday_url = format!(
+            "https://www.mlb.com/gameday/{}",
+            self.game_id.unwrap_or_default()
+        );
         self.terminal_width = f.area().width;
         self.terminal_height = f.area().height;
         self.gameday_active_views = app.state.gameday;

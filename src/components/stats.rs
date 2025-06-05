@@ -2,7 +2,7 @@ use crate::components::date_selector::DateSelector;
 use chrono::NaiveDate;
 use indexmap::IndexMap;
 use mlb_api::client::StatGroup;
-use mlb_api::stats::{HittingStat, PitchingStat, StatResponse, StatSplit};
+use mlb_api::stats::{HittingStat, PitchingStat, StatSplit, StatsResponse};
 use std::cmp::Ordering;
 use std::string::ToString;
 use tui::widgets::TableState;
@@ -15,13 +15,13 @@ const PLAYER_COLUMN_NAME: &str = "Player";
 const TEAM_COLUMN_NAME: &str = "Team";
 
 /// Stores whether a team/player and pitching/hitting stat should be viewed.
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct StatType {
     pub group: StatGroup,
     pub team_player: TeamOrPlayer,
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default)]
 pub enum TeamOrPlayer {
     #[default]
     Team,
@@ -118,7 +118,7 @@ impl Default for StatsState {
 }
 
 impl StatsState {
-    pub fn update(&mut self, stats: &StatResponse) {
+    pub fn update(&mut self, stats: &StatsResponse) {
         self.stats.clear();
         self.create_table(stats);
     }
@@ -134,7 +134,7 @@ impl StatsState {
         self.date_selector.set_date_with_arrows(forward)
     }
 
-    fn create_table(&mut self, stats: &StatResponse) {
+    fn create_table(&mut self, stats: &StatsResponse) {
         for stat in &stats.stats {
             for split in &stat.splits {
                 // if the `player` field exists, then its a Player stat

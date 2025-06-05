@@ -3,195 +3,180 @@ mod components;
 mod config;
 mod draw;
 mod event;
+mod messages;
+mod network;
+mod refresher;
 mod ui;
 
+use crate::app::App;
+use crate::messages::{NetworkRequest, NetworkResponse, UiEvent};
+use crate::network::{LoadingState, NetworkWorker};
+use crate::refresher::PeriodicRefresher;
+use crossterm::event::{self as crossterm_event, Event};
+use crossterm::{cursor, execute, terminal};
 use std::io::Stdout;
 use std::sync::Arc;
-use std::time::Duration;
 use std::{io, panic};
-
-use crate::app::{App, MenuItem};
-use crate::components::schedule::ScheduleState;
-use crate::components::stats::TeamOrPlayer;
-use crossbeam_channel::{Receiver, bounded, select};
-use crossterm::event::Event;
-use crossterm::{cursor, execute, terminal};
-use tokio::sync::Mutex;
+use tokio::sync::{Mutex, mpsc};
 use tui::{Terminal, backend::CrosstermBackend};
-
-const UPDATE_INTERVAL_SECONDS: u64 = 10;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     better_panic::install();
 
     let backend = CrosstermBackend::new(io::stdout());
-    let mut terminal = Terminal::new(backend).unwrap();
-
-    let app = App::new();
-    let app = Arc::new(Mutex::new(app));
+    let terminal = Terminal::new(backend)?;
 
     setup_panic_hook();
     setup_terminal();
 
-    // network thread
-    tokio::spawn({
-        let app = app.clone();
-        async move {
-            network_thread(app).await;
-        }
-    });
+    let app = Arc::new(Mutex::new(App::new()));
 
-    let ui_events = setup_ui_events();
-    ui_thread(&mut terminal, ui_events, app.clone()).await;
+    let (ui_event_tx, ui_event_rx) = mpsc::channel::<UiEvent>(100);
+    let (network_req_tx, network_req_rx) = mpsc::channel::<NetworkRequest>(100);
+    let (network_resp_tx, network_resp_rx) = mpsc::channel::<NetworkResponse>(100);
+
+    // input handler thread
+    let input_handler = tokio::spawn(input_handler_task(ui_event_tx.clone()));
+
+    // network thread
+    let network_worker = NetworkWorker::new(network_req_rx, network_resp_tx);
+    let network_task = tokio::spawn(network_worker.run());
+
+    // periodic update thread
+    let periodic_updater = PeriodicRefresher::new(network_req_tx.clone());
+    let periodic_task = tokio::spawn(periodic_updater.run(app.clone()));
+
+    // send initial app started event
+    let _ = ui_event_tx.send(UiEvent::AppStarted).await;
+
+    // run the main UI loop
+    main_ui_loop(terminal, app, ui_event_rx, network_req_tx, network_resp_rx).await;
+
+    input_handler.abort();
+    network_task.abort();
+    periodic_task.abort();
 
     Ok(())
 }
 
-async fn ui_thread(
-    terminal: &mut Terminal<CrosstermBackend<Stdout>>,
-    ui_events: Receiver<Event>,
+async fn main_ui_loop(
+    mut terminal: Terminal<CrosstermBackend<Stdout>>,
     app: Arc<Mutex<App>>,
+    mut ui_events: mpsc::Receiver<UiEvent>,
+    network_requests: mpsc::Sender<NetworkRequest>,
+    mut network_responses: mpsc::Receiver<NetworkResponse>,
 ) {
-    let (schedule_update, request_redraw, redraw_requested) = {
-        let app = app.lock().await;
-        let schedule_update = app.update_channel.0.clone();
-        let request_redraw = app.redraw_channel.0.clone();
-        let redraw_requested = app.redraw_channel.1.clone();
-
-        (schedule_update, request_redraw, redraw_requested)
-    };
+    let mut loading = LoadingState::default();
 
     loop {
-        select! {
-            recv(redraw_requested) -> _ => {
-                let mut app = app.lock().await;
-                draw::draw(terminal, &mut app);
-            }
-
-            recv(ui_events) -> message => {
-                let mut app = app.lock().await;
-                match message {
-                    Ok(Event::Key(key_event)) => {
-                        event::handle_key_bindings(key_event, &mut app, &request_redraw, &schedule_update);
-                    }
-                    Ok(Event::Resize(..)) => {
-                        let _ = request_redraw.try_send(());
-                    }
-                    _ => {}
+        tokio::select! {
+            Some(ui_event) = ui_events.recv() => {
+                let should_redraw = handle_ui_event(ui_event, &app, &network_requests).await;
+                if should_redraw && !loading.is_loading {
+                    let mut app_guard = app.lock().await;
+                    draw::draw(&mut terminal, &mut app_guard, loading);
                 }
             }
 
-            // Default redraw on every duration
-            default(Duration::from_millis(500)) => {
-                let mut app = app.lock().await;
-                draw::draw(terminal, &mut app);
+            Some(response) = network_responses.recv() => {
+                let should_redraw = handle_network_response(response, &app, &network_requests, &mut loading).await;
+                if should_redraw {
+                    let mut app_guard = app.lock().await;
+                    draw::draw(&mut terminal, &mut app_guard, loading);
+                }
             }
         }
     }
 }
 
-async fn network_thread(app: Arc<Mutex<App>>) {
-    let (request_redraw, update_received) = {
-        let mut app = app.lock().await;
-        let request_redraw = app.redraw_channel.0.clone();
-        let update_received = app.update_channel.1.clone();
+async fn handle_ui_event(
+    ui_event: UiEvent,
+    app: &Arc<Mutex<App>>,
+    network_requests: &mpsc::Sender<NetworkRequest>,
+) -> bool {
+    match ui_event {
+        UiEvent::AppStarted => {
+            let date = {
+                let guard = app.lock().await;
+                guard.state.schedule.date_selector.date
+            };
+            let _ = network_requests
+                .send(NetworkRequest::Schedule { date })
+                .await;
+            true // Redraw immediately to show laoding state
+        }
+        UiEvent::KeyPressed(key_event) => {
+            event::handle_key_bindings(key_event, app, network_requests).await;
+            true // Redraw after key handling
+        }
+        UiEvent::Resize => true, // Redraw on resize
+    }
+}
 
-        // initial data load
-        let schedule = app.client.get_todays_schedule().await;
-        app.state.schedule = ScheduleState::from_schedule(&app.settings, &schedule);
-        let _ = request_redraw.try_send(());
-
-        let game = app
-            .client
-            .get_live_data(app.state.schedule.get_selected_game())
-            .await;
-        app.update_live_data(&game);
-        let _ = request_redraw.try_send(());
-
-        (request_redraw, update_received)
-    };
-
-    loop {
-        select! {
-            recv(update_received) -> message => {
-                let mut app = app.lock().await;
-                match message {
-                    // update linescore only when a different game is selected
-                    Ok(MenuItem::Scoreboard) => {
-                        // TODO replace live_data with linescore endpoint for speed
-                        let game = app.client.get_live_data(app.state.schedule.get_selected_game()).await;
-                        app.update_live_data(&game);
-                    }
-                    // update schedule and linescore when a new date is picked
-                    Ok(MenuItem::DatePicker) => {
-                        match app.state.active_tab {
-                            MenuItem::Scoreboard => {
-                                let schedule = app.client.get_schedule_date(app.state.schedule.date_selector.date).await;
-                                app.update_schedule(&schedule);
-                                // run sequentially to get the correct selected game id
-                                let game_id = app.state.schedule.get_selected_game();
-                                let game = app.client.get_live_data(game_id).await;
-                                app.update_live_data(&game);
-                            },
-                            MenuItem::Standings => {
-                                let standings = app.client.get_standings(app.state.standings.date_selector.date).await;
-                                app.state.standings.update(&standings);
-                            }
-                            MenuItem::Stats => {
-                                let date = app.state.stats.date_selector.date;
-                                let response = match app.state.stats.stat_type.team_player {
-                                    TeamOrPlayer::Team => app.client.get_team_stats_on_date(app.state.stats.stat_type.group, date).await,
-                                    TeamOrPlayer::Player => app.client.get_player_stats_on_date(app.state.stats.stat_type.group, date).await,
-                                };
-                                app.state.stats.update(&response);
-                            }
-                            _ => ()
-                        }
-                    }
-                    // update standings only when tab is switched to
-                    Ok(MenuItem::Standings) => {
-                        let standings = app.client.get_standings(app.state.standings.date_selector.date).await;
-                        app.state.standings.update(&standings);
-                    }
-                    // update stats only when tab is switched to, team/player is changed, or
-                    // pitching/hitting is changed
-                    Ok(MenuItem::Stats) => {
-                        let response = match app.state.stats.stat_type.team_player {
-                            TeamOrPlayer::Team => app.client.get_team_stats(app.state.stats.stat_type.group).await,
-                            TeamOrPlayer::Player => app.client.get_player_stats_on_date(app.state.stats.stat_type.group, app.state.stats.date_selector.date).await,
-                        };
-                        app.state.stats.update(&response);
-                    }
-                    _ => {}
+async fn handle_network_response(
+    response: NetworkResponse,
+    app: &Arc<Mutex<App>>,
+    network_requests: &mpsc::Sender<NetworkRequest>,
+    loading: &mut LoadingState,
+) -> bool {
+    match response {
+        NetworkResponse::LoadingStateChanged { loading_state } => {
+            *loading = loading_state;
+            // Always redraw for loading changes
+            return true;
+        }
+        NetworkResponse::ScheduleLoaded { schedule } => {
+            let game_id = {
+                let mut guard = app.lock().await;
+                let selected_game_id = guard.update_schedule(&schedule);
+                if let Some(game_id) = selected_game_id {
+                    guard.state.live_game.set_game_id(game_id);
                 }
-                let _ = request_redraw.try_send(());
+                selected_game_id
+            };
+
+            // When the schedule is loaded, reload the live game data if there's a selected game
+            if let Some(game_id) = game_id {
+                let _ = network_requests
+                    .send(NetworkRequest::GameData { game_id })
+                    .await;
             }
-            // do full update
-            default(Duration::from_secs(UPDATE_INTERVAL_SECONDS)) => {
-                let mut app = app.lock().await;
-                match app.state.active_tab {
-                    MenuItem::Scoreboard => {
-                        // run concurrently since game id is already correct
-                        let (schedule, game) = tokio::join!(
-                            app.client.get_schedule_date(app.state.schedule.date_selector.date),
-                            app.client.get_live_data(app.state.schedule.get_selected_game())
-                        );
-                        app.update_schedule(&schedule);
-                        app.update_live_data(&game);
-                    },
-                    MenuItem::Gameday => {
-                        let game = app.client.get_live_data(app.state.schedule.get_selected_game()).await;
-                        app.update_live_data(&game);
-                    },
-                    MenuItem::Standings => {
-                        // Don't update the standings every 10 seconds, only on tab switch
-                    },
-                    MenuItem::Stats => {},
-                    MenuItem::DatePicker => {},
-                    MenuItem::Help => {},
+        }
+        NetworkResponse::GameDataLoaded { game } => {
+            let mut guard = app.lock().await;
+            guard.update_live_data(&game);
+        }
+        NetworkResponse::StandingsLoaded { standings } => {
+            let mut guard = app.lock().await;
+            guard.state.standings.update(&standings);
+        }
+        NetworkResponse::StatsLoaded { stats } => {
+            let mut guard = app.lock().await;
+            guard.state.stats.update(&stats);
+        }
+        NetworkResponse::Error { message } => {
+            eprintln!("Network error: {}", message);
+        }
+    }
+    // Only redraw if not loading
+    !loading.is_loading
+}
+
+async fn input_handler_task(ui_events: mpsc::Sender<UiEvent>) {
+    loop {
+        if let Ok(event) = crossterm_event::read() {
+            let ui_event = match event {
+                Event::Key(key_event) => Some(UiEvent::KeyPressed(key_event)),
+                Event::Resize(_, _) => Some(UiEvent::Resize),
+                Event::Mouse(_) => None, // Ignore mouse events for now
+                _ => None,
+            };
+
+            if let Some(ui_event) = ui_event {
+                if ui_events.send(ui_event).await.is_err() {
+                    break; // Channel closed, exit task
                 }
-                let _ = request_redraw.try_send(());
             }
         }
     }
@@ -216,16 +201,6 @@ fn cleanup_terminal() {
     execute!(stdout, cursor::Show).unwrap();
 
     terminal::disable_raw_mode().unwrap();
-}
-
-fn setup_ui_events() -> Receiver<Event> {
-    let (sender, receiver) = bounded(100);
-    std::thread::spawn(move || {
-        loop {
-            sender.send(crossterm::event::read().unwrap()).unwrap();
-        }
-    });
-    receiver
 }
 
 fn setup_panic_hook() {

@@ -1,18 +1,22 @@
-use crate::app::{HomeOrAway, MenuItem};
+use crate::app::{App, HomeOrAway, MenuItem};
 use crate::components::stats::TeamOrPlayer;
-use crate::{app, cleanup_terminal};
-use crossbeam_channel::Sender;
+use crate::{cleanup_terminal, messages::NetworkRequest};
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent};
 use mlb_api::client::StatGroup;
+use std::sync::Arc;
+use tokio::sync::{Mutex, MutexGuard, mpsc};
 
-pub fn handle_key_bindings(
+type AppGuard<'a> = MutexGuard<'a, App>;
+
+pub async fn handle_key_bindings(
     key_event: KeyEvent,
-    app: &mut app::App,
-    request_redraw: &Sender<()>,
-    selective_update: &Sender<MenuItem>,
+    app: &Arc<Mutex<App>>,
+    network_requests: &mpsc::Sender<NetworkRequest>,
 ) {
-    match (app.state.active_tab, key_event.code) {
+    let mut guard = app.lock().await;
+
+    match (guard.state.active_tab, key_event.code) {
         (_, Char('q')) => {
             cleanup_terminal();
             std::process::exit(0);
@@ -20,101 +24,157 @@ pub fn handle_key_bindings(
 
         // needs to be before the tab switches to capture number inputs
         (MenuItem::DatePicker, Char(c)) => {
-            app.state.date_input.is_valid = true; // reset status
-            app.state.date_input.text.push(c);
+            guard.state.date_input.is_valid = true; // reset status
+            guard.state.date_input.text.push(c);
         }
 
-        (_, Char('f')) => app.toggle_full_screen(),
-        (_, Char('1')) => app.update_tab(MenuItem::Scoreboard),
-        (_, Char('2')) => app.update_tab(MenuItem::Gameday),
+        (_, Char('f')) => guard.toggle_full_screen(),
+        (_, Char('1')) => {
+            guard.update_tab(MenuItem::Scoreboard);
+            load_scoreboard(guard, network_requests).await;
+        }
+        (_, Char('2')) => {
+            guard.update_tab(MenuItem::Gameday);
+            load_game_data(guard, network_requests).await;
+        }
         (_, Char('3')) => {
-            app.update_tab(MenuItem::Stats);
-            let _ = selective_update.try_send(MenuItem::Stats);
+            guard.update_tab(MenuItem::Stats);
+            load_stats(guard, network_requests).await;
         }
         (_, Char('4')) => {
-            app.update_tab(MenuItem::Standings);
-            let _ = selective_update.try_send(MenuItem::Standings);
+            guard.update_tab(MenuItem::Standings);
+            load_standings(guard, network_requests).await;
         }
 
         (MenuItem::Scoreboard, Char('j')) => {
-            app.state.schedule.next();
-            let _ = selective_update.try_send(MenuItem::Scoreboard);
+            guard.state.schedule.next();
+            load_game_data(guard, network_requests).await;
         }
         (MenuItem::Scoreboard, Char('k')) => {
-            app.state.schedule.previous();
-            let _ = selective_update.try_send(MenuItem::Scoreboard);
+            guard.state.schedule.previous();
+            load_game_data(guard, network_requests).await;
         }
-        (MenuItem::Scoreboard, Char(':')) => app.update_tab(MenuItem::DatePicker),
+        (MenuItem::Scoreboard, Char(':')) => guard.update_tab(MenuItem::DatePicker),
 
         (MenuItem::DatePicker, KeyCode::Enter) => {
-            if app.try_update_date_from_input().is_ok() {
-                app.update_tab(app.state.previous_tab);
-                let _ = selective_update.try_send(MenuItem::DatePicker);
+            if guard.try_update_date_from_input().is_ok() {
+                let previous_tab = guard.state.previous_tab;
+                guard.update_tab(previous_tab);
+                handle_date_change(guard, network_requests).await;
             }
         }
         (MenuItem::DatePicker, KeyCode::Right) => {
-            app.move_date_selector_by_arrow(true);
+            guard.move_date_selector_by_arrow(true);
         }
         (MenuItem::DatePicker, KeyCode::Left) => {
-            app.move_date_selector_by_arrow(false);
+            guard.move_date_selector_by_arrow(false);
         }
         (MenuItem::DatePicker, KeyCode::Esc) => {
-            app.state.date_input.text.clear();
-            app.update_tab(app.state.previous_tab);
+            guard.state.date_input.text.clear();
+            let previous_tab = guard.state.previous_tab;
+            guard.update_tab(previous_tab);
         }
         (MenuItem::DatePicker, KeyCode::Backspace) => {
-            app.state.date_input.text.pop();
+            guard.state.date_input.text.pop();
         }
 
-        (MenuItem::Stats, Char('j')) => app.state.stats.next(),
-        (MenuItem::Stats, Char('k')) => app.state.stats.previous(),
+        (MenuItem::Stats, Char('j')) => guard.state.stats.next(),
+        (MenuItem::Stats, Char('k')) => guard.state.stats.previous(),
         (MenuItem::Stats, Char('o')) => {
-            app.state.stats.show_options = !app.state.stats.show_options
+            guard.state.stats.show_options = !guard.state.stats.show_options
         }
         (MenuItem::Stats, Char('p')) => {
-            app.state.stats.stat_type.group = StatGroup::Pitching;
-            let _ = selective_update.try_send(MenuItem::Stats);
+            guard.state.stats.stat_type.group = StatGroup::Pitching;
+            load_stats(guard, network_requests).await;
         }
         (MenuItem::Stats, Char('h')) => {
-            app.state.stats.stat_type.group = StatGroup::Hitting;
-            let _ = selective_update.try_send(MenuItem::Stats);
+            guard.state.stats.stat_type.group = StatGroup::Hitting;
+            load_stats(guard, network_requests).await;
         }
         (MenuItem::Stats, Char('l')) => {
-            app.state.stats.stat_type.team_player = TeamOrPlayer::Player;
-            let _ = selective_update.try_send(MenuItem::Stats);
+            guard.state.stats.stat_type.team_player = TeamOrPlayer::Player;
+            load_stats(guard, network_requests).await;
         }
         (MenuItem::Stats, Char('t')) => {
-            app.state.stats.stat_type.team_player = TeamOrPlayer::Team;
-            let _ = selective_update.try_send(MenuItem::Stats);
+            guard.state.stats.stat_type.team_player = TeamOrPlayer::Team;
+            load_stats(guard, network_requests).await;
         }
-        (MenuItem::Stats, KeyCode::Enter) => app.state.stats.toggle_stat(),
-        (MenuItem::Stats, Char('s')) => app.state.stats.store_sort_column(),
-        (MenuItem::Stats, Char(':')) => app.update_tab(MenuItem::DatePicker),
+        (MenuItem::Stats, KeyCode::Enter) => guard.state.stats.toggle_stat(),
+        (MenuItem::Stats, Char('s')) => guard.state.stats.store_sort_column(),
+        (MenuItem::Stats, Char(':')) => guard.update_tab(MenuItem::DatePicker),
 
-        (MenuItem::Standings, Char('j')) => app.state.standings.next(),
-        (MenuItem::Standings, Char('k')) => app.state.standings.previous(),
+        (MenuItem::Standings, Char('j')) => guard.state.standings.next(),
+        (MenuItem::Standings, Char('k')) => guard.state.standings.previous(),
         (MenuItem::Standings, KeyCode::Enter) => {
-            let _team_id = app.state.standings.get_selected();
+            let _team_id = guard.state.standings.get_selected();
             // println!("team id: {:?}", team_id);
             // TODO show team info panel
         }
-        (MenuItem::Standings, Char(':')) => app.update_tab(MenuItem::DatePicker),
+        (MenuItem::Standings, Char(':')) => guard.update_tab(MenuItem::DatePicker),
 
-        (MenuItem::Gameday, Char('i')) => app.state.gameday.info = !app.state.gameday.info,
-        (MenuItem::Gameday, Char('p')) => app.state.gameday.at_bat = !app.state.gameday.at_bat,
-        (MenuItem::Gameday, Char('b')) => app.state.gameday.boxscore = !app.state.gameday.boxscore,
+        (MenuItem::Gameday, Char('i')) => guard.state.gameday.info = !guard.state.gameday.info,
+        (MenuItem::Gameday, Char('p')) => guard.state.gameday.at_bat = !guard.state.gameday.at_bat,
+        (MenuItem::Gameday, Char('b')) => {
+            guard.state.gameday.boxscore = !guard.state.gameday.boxscore
+        }
 
-        // TODO use bitflags to enable (MenuItem::Gameday | MenuItem::Scoreboard)?
-        (MenuItem::Gameday, Char('h')) => app.state.boxscore_tab = HomeOrAway::Home,
-        (MenuItem::Gameday, Char('a')) => app.state.boxscore_tab = HomeOrAway::Away,
-        (MenuItem::Scoreboard, Char('h')) => app.state.boxscore_tab = HomeOrAway::Home,
-        (MenuItem::Scoreboard, Char('a')) => app.state.boxscore_tab = HomeOrAway::Away,
+        (MenuItem::Gameday, Char('h')) => guard.state.boxscore_tab = HomeOrAway::Home,
+        (MenuItem::Gameday, Char('a')) => guard.state.boxscore_tab = HomeOrAway::Away,
+        (MenuItem::Scoreboard, Char('h')) => guard.state.boxscore_tab = HomeOrAway::Home,
+        (MenuItem::Scoreboard, Char('a')) => guard.state.boxscore_tab = HomeOrAway::Away,
 
-        (_, Char('?')) => app.update_tab(MenuItem::Help),
-        (MenuItem::Help, KeyCode::Esc) => app.exit_help(),
-        (_, Char('d')) => app.toggle_debug(),
+        (_, Char('?')) => guard.update_tab(MenuItem::Help),
+        (MenuItem::Help, KeyCode::Esc) => guard.exit_help(),
+        (_, Char('d')) => guard.toggle_debug(),
 
         _ => {}
     }
-    let _ = request_redraw.try_send(());
+}
+
+async fn load_game_data(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
+    let game_id = guard.state.schedule.get_selected_game_opt();
+    drop(guard);
+
+    if let Some(game_id) = game_id {
+        let _ = network_requests
+            .send(NetworkRequest::GameData { game_id })
+            .await;
+    }
+}
+
+async fn load_stats(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
+    let date = guard.state.stats.date_selector.date;
+    let stat_type = guard.state.stats.stat_type;
+    drop(guard);
+
+    let _ = network_requests
+        .send(NetworkRequest::Stats { date, stat_type })
+        .await;
+}
+
+async fn load_standings(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
+    let date = guard.state.standings.date_selector.date;
+    drop(guard);
+
+    let _ = network_requests
+        .send(NetworkRequest::Standings { date })
+        .await;
+}
+
+async fn load_scoreboard(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
+    let date = guard.state.schedule.date_selector.date;
+    drop(guard);
+
+    let _ = network_requests
+        .send(NetworkRequest::Schedule { date })
+        .await;
+}
+
+async fn handle_date_change(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
+    match guard.state.active_tab {
+        MenuItem::Scoreboard => load_scoreboard(guard, network_requests).await,
+        MenuItem::Standings => load_standings(guard, network_requests).await,
+        MenuItem::Stats => load_stats(guard, network_requests).await,
+        _ => {}
+    }
 }
