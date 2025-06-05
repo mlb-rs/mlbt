@@ -1,5 +1,5 @@
 use crate::components::pitches::Pitch;
-use crate::ui::plays::{BLUE, SCORING_SYMBOL};
+use crate::ui::gameday::plays::{BLUE, SCORING_SYMBOL};
 use tui::prelude::{Line, Span, Style};
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]

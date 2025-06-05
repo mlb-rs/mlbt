@@ -4,7 +4,7 @@ use crate::components::schedule::ScheduleState;
 use crate::components::standings::StandingsState;
 use crate::components::stats::StatsState;
 use crate::state::date_input::DateInput;
-use crate::state::gameday::GamedayPanels;
+use crate::state::gameday::GamedayState;
 
 #[derive(Default)]
 pub struct AppState {
@@ -14,7 +14,7 @@ pub struct AppState {
     pub date_input: DateInput,
     pub schedule: ScheduleState,
     pub live_game: GameState,
-    pub gameday: GamedayPanels,
+    pub gameday: GamedayState,
     pub boxscore_tab: HomeOrAway,
     pub standings: StandingsState,
     pub stats: StatsState,

@@ -1,3 +1,18 @@
+use crate::components::live_game::GameStateV2;
+
+#[derive(Default)]
+pub struct GamedayState {
+    pub panels: GamedayPanels,
+    selected_at_bat: Option<usize>,
+    pub game: GameStateV2,
+}
+
+impl GamedayState {
+    pub fn selected_at_bat(&self) -> Option<u8> {
+        self.selected_at_bat.map(|i| i as u8)
+    }
+}
+
 /// Store which panels should be rendered in the Gameday tab.
 #[derive(Debug, Copy, Clone)]
 pub struct GamedayPanels {

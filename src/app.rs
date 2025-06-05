@@ -75,7 +75,8 @@ impl App {
     }
 
     pub fn update_live_data(&mut self, live_data: &LiveResponse) {
-        self.state.live_game.update(live_data);
+        // self.state.live_game.update(live_data);
+        self.state.gameday.game.update(live_data);
     }
 
     pub fn update_tab(&mut self, next: MenuItem) {

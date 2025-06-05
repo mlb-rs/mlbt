@@ -1,11 +1,11 @@
 use crate::app::{App, HomeOrAway, MenuItem};
 use crate::components::stats::TeamOrPlayer;
-use crate::{NetworkRequest, cleanup_terminal};
+use crate::{cleanup_terminal, NetworkRequest};
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent};
 use mlb_api::client::StatGroup;
 use std::sync::Arc;
-use tokio::sync::{Mutex, MutexGuard, mpsc};
+use tokio::sync::{mpsc, Mutex, MutexGuard};
 
 type AppGuard<'a> = MutexGuard<'a, App>;
 
@@ -112,10 +112,14 @@ pub async fn handle_key_bindings(
         }
         (MenuItem::Standings, Char(':')) => guard.update_tab(MenuItem::DatePicker),
 
-        (MenuItem::Gameday, Char('i')) => guard.state.gameday.info = !guard.state.gameday.info,
-        (MenuItem::Gameday, Char('p')) => guard.state.gameday.at_bat = !guard.state.gameday.at_bat,
+        (MenuItem::Gameday, Char('i')) => {
+            guard.state.gameday.panels.info = !guard.state.gameday.panels.info
+        }
+        (MenuItem::Gameday, Char('p')) => {
+            guard.state.gameday.panels.at_bat = !guard.state.gameday.panels.at_bat
+        }
         (MenuItem::Gameday, Char('b')) => {
-            guard.state.gameday.boxscore = !guard.state.gameday.boxscore
+            guard.state.gameday.panels.boxscore = !guard.state.gameday.panels.boxscore
         }
 
         (MenuItem::Gameday, Char('h')) => guard.state.boxscore_tab = HomeOrAway::Home,

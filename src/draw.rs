@@ -8,17 +8,17 @@ use tui::{Frame, Terminal};
 use crate::app::{App, DebugState, MenuItem};
 use crate::components::debug::DebugInfo;
 use crate::state::network::LoadingState;
-use crate::ui::at_bat::AtBatWidget;
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
 use crate::ui::date_selector::DateSelectorWidget;
-use crate::ui::help::{DOCS, HelpWidget};
+use crate::ui::gameday::at_bat::AtBatWidget;
+use crate::ui::gameday::matchup::MatchupWidget;
+use crate::ui::gameday::plays::InningPlaysWidget;
+use crate::ui::help::{HelpWidget, DOCS};
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
-use crate::ui::matchup::MatchupWidget;
-use crate::ui::plays::InningPlaysWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::standings::StandingsWidget;
-use crate::ui::stats::{STATS_OPTIONS_WIDTH, StatsWidget};
+use crate::ui::stats::{StatsWidget, STATS_OPTIONS_WIDTH};
 
 static TABS: &[&str; 4] = &["Scoreboard", "Gameday", "Stats", "Standings"];
 
@@ -135,23 +135,23 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
     draw_linescore_boxscore(f, chunks[1], app);
 }
 
-fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App) {
+fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &App) {
     let chunks = LayoutAreas::for_boxscore(rect);
 
-    app.state.live_game.linescore.mini = true;
-    f.render_stateful_widget(
+    // app.state.live_game.linescore.mini = true; TODO ?
+    f.render_widget(
         LineScoreWidget {
             active: app.state.boxscore_tab,
+            linescore: &app.state.live_game.linescore,
         },
         chunks[0],
-        &mut app.state.live_game.linescore,
     );
-    f.render_stateful_widget(
+    f.render_widget(
         TeamBatterBoxscoreWidget {
             active: app.state.boxscore_tab,
+            boxscore: &app.state.gameday.game.boxscore,
         },
         chunks[1],
-        &mut app.state.live_game.boxscore,
     );
 }
 
@@ -166,27 +166,44 @@ fn draw_date_picker(f: &mut Frame, rect: Rect, app: &mut App) {
     ))
 }
 
-fn draw_gameday(f: &mut Frame, rect: Rect, app: &mut App) {
-    let mut panels = LayoutAreas::generate_gameday_panels(&app.state.gameday, rect);
+fn draw_gameday(f: &mut Frame, rect: Rect, app: &App) {
+    let mut panels = LayoutAreas::generate_gameday_panels(&app.state.gameday.panels, rect);
 
     // I want the panels to be displayed [Info, Heat, Box] from left to right. So pop off
     // available panels starting with Box. Since `generate_layouts` takes into account how many
     // panels are active, all the pops are guaranteed to unwrap.
-    if app.state.gameday.boxscore {
+    let settings = app.state.gameday.panels;
+    if settings.boxscore {
         let p = panels.pop().unwrap();
         draw_border(f, p, Color::White);
         draw_linescore_boxscore(f, p, app);
     }
-    if app.state.gameday.at_bat {
+    if settings.at_bat {
         let p = panels.pop().unwrap();
         draw_border(f, p, Color::White);
-        f.render_stateful_widget(AtBatWidget {}, p, &mut app.state.live_game.at_bat);
+        f.render_widget(
+            AtBatWidget {
+                game: &app.state.gameday.game,
+            },
+            p,
+        );
     }
-    if app.state.gameday.info {
+    if settings.info {
         let p = panels.pop().unwrap();
         draw_border(f, p, Color::White);
-        f.render_stateful_widget(MatchupWidget {}, p, &mut app.state.live_game.matchup);
-        f.render_stateful_widget(InningPlaysWidget {}, p, &mut app.state.live_game.plays);
+        f.render_widget(
+            MatchupWidget {
+                game: &app.state.gameday.game,
+                selected_at_bat: app.state.gameday.selected_at_bat(),
+            },
+            p,
+        );
+        f.render_widget(
+            InningPlaysWidget {
+                game: &app.state.gameday.game,
+            },
+            p,
+        );
     }
 }
 

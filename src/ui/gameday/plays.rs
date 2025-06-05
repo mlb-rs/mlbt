@@ -1,12 +1,13 @@
 use crate::components::plays::{InningPlays, PlayResult};
 use crate::ui::layout::LayoutAreas;
 
+use crate::components::live_game::GameStateV2;
 use tui::{
     buffer::Buffer,
     layout::Rect,
     style::{Color, Style},
     text::{Line, Span, Text},
-    widgets::{Paragraph, StatefulWidget, Widget, Wrap},
+    widgets::{Paragraph, Widget, Wrap},
 };
 
 // This matches the blue used in the pitch data from the API. It's used for contact (hit, out, run
@@ -66,15 +67,17 @@ impl InningPlays {
     }
 }
 
-pub struct InningPlaysWidget {}
+pub struct InningPlaysWidget<'a> {
+    pub game: &'a GameStateV2,
+}
 
-impl StatefulWidget for InningPlaysWidget {
-    type State = InningPlays;
-
-    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+impl Widget for InningPlaysWidget<'_> {
+    fn render(self, area: Rect, buf: &mut Buffer) {
         let chunks = LayoutAreas::for_info(area);
 
-        let text = Text::from(state.as_lines());
+        let inning_plays = InningPlays::from_gameday_v2(self.game);
+
+        let text = Text::from(inning_plays.as_lines());
         let paragraph = Paragraph::new(text).wrap(Wrap { trim: false });
 
         Widget::render(paragraph, chunks[1], buf);

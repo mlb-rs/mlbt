@@ -5,19 +5,18 @@ use tui::{
     buffer::Buffer,
     layout::{Constraint, Rect},
     style::{Color, Modifier, Style},
-    widgets::{Block, Borders, Cell, Row, StatefulWidget, Table, Widget},
+    widgets::{Block, Borders, Cell, Row, Table, Widget},
 };
 
 const HEADER: [&str; 9] = ["player", "ab", "r", "h", "rbi", "bb", "so", "lob", "avg"];
 
-pub struct TeamBatterBoxscoreWidget {
+pub struct TeamBatterBoxscoreWidget<'a> {
     pub active: HomeOrAway,
+    pub boxscore: &'a TeamBatterBoxscore,
 }
 
-impl StatefulWidget for TeamBatterBoxscoreWidget {
-    type State = TeamBatterBoxscore;
-
-    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+impl Widget for TeamBatterBoxscoreWidget<'_> {
+    fn render(self, area: Rect, buf: &mut Buffer) {
         let width = 4;
         let mut widths = vec![Constraint::Length(width); HEADER.len()];
         // the first width needs to be wider to display the player name
@@ -31,7 +30,7 @@ impl StatefulWidget for TeamBatterBoxscoreWidget {
 
         Widget::render(
             Table::new(
-                state
+                self.boxscore
                     .to_table_row(self.active)
                     .iter()
                     .map(|row| Row::new(row.clone())),

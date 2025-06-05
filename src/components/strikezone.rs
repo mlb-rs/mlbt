@@ -1,7 +1,7 @@
 use tui::style::Color;
 
 use mlb_api::live::LiveResponse;
-use mlb_api::plays::Zone;
+use mlb_api::plays::{Play, Zone};
 
 use crate::components::util::convert_color;
 
@@ -53,11 +53,15 @@ impl StrikeZone {
     /// To get to the heat map zones, the API response is traversed like so:
     /// liveData > plays > currentPlay > matchup > batterHotColdZones > zones
     pub fn from_live_data(live_game: &LiveResponse) -> Self {
-        let colors = match live_game.live_data.plays.current_play.as_ref() {
-            Some(c) => match c.matchup.batter_hot_cold_zones.as_ref() {
-                Some(z) => StrikeZone::transform_zones(z),
-                None => return StrikeZone::default(),
-            },
+        match live_game.live_data.plays.current_play.as_ref() {
+            Some(play) => Self::from_play(play),
+            None => StrikeZone::default(),
+        }
+    }
+
+    pub fn from_play(play: &Play) -> Self {
+        let colors = match play.matchup.batter_hot_cold_zones.as_ref() {
+            Some(z) => StrikeZone::transform_zones(z),
             None => return StrikeZone::default(),
         };
         // TODO set strike zone top/bottom here

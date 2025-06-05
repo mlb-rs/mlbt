@@ -1,9 +1,61 @@
 use mlb_api::live::LiveResponse;
-use mlb_api::plays::Count;
+use mlb_api::plays::{Count, Play};
 
 use std::fmt;
 
 const DEFAULT_NAME: &str = "-";
+
+pub struct Summary {
+    pub home_name: String,
+    pub away_name: String,
+    pub on_deck: String,
+    pub in_hole: String,
+}
+
+impl Default for Summary {
+    fn default() -> Self {
+        Self {
+            home_name: DEFAULT_NAME.to_owned(),
+            away_name: DEFAULT_NAME.to_owned(),
+            on_deck: DEFAULT_NAME.to_owned(),
+            in_hole: DEFAULT_NAME.to_owned(),
+        }
+    }
+}
+
+impl From<&LiveResponse> for Summary {
+    fn from(live_game: &LiveResponse) -> Self {
+        // get the on deck and in the hole batters
+        let on_deck = match live_game.live_data.linescore.offense.on_deck.as_ref() {
+            Some(od) => od.full_name.clone(),
+            None => DEFAULT_NAME.to_owned(),
+        };
+        let in_hole = match live_game.live_data.linescore.offense.in_hole.as_ref() {
+            Some(ih) => ih.full_name.clone(),
+            None => DEFAULT_NAME.to_owned(),
+        };
+
+        Self {
+            home_name: live_game.game_data.teams.home.team_name.clone(),
+            away_name: live_game.game_data.teams.away.team_name.clone(),
+            on_deck,
+            in_hole,
+        }
+    }
+}
+
+pub struct MatchupV2 {
+    pub at_bat_index: u8,
+    pub home_score: u8,
+    pub away_score: u8,
+    pub inning: String,
+    pub pitcher_name: String,
+    pub pitcher_side: String,
+    pub batter_name: String,
+    pub batter_side: String,
+    pub count: Count,
+    pub runners: Runners,
+}
 
 pub struct Matchup {
     pub home_name: String,
@@ -21,7 +73,7 @@ pub struct Matchup {
     pub in_hole: String,
 }
 
-#[derive(Debug, Default)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct Runners {
     pub first: bool,
     pub second: bool,
@@ -57,28 +109,76 @@ impl Runners {
 impl Default for Matchup {
     fn default() -> Self {
         Matchup {
-            home_name: DEFAULT_NAME.to_string(),
+            home_name: DEFAULT_NAME.to_owned(),
             home_score: 0,
-            away_name: DEFAULT_NAME.to_string(),
+            away_name: DEFAULT_NAME.to_owned(),
             away_score: 0,
-            inning: DEFAULT_NAME.to_string(),
-            pitcher_name: DEFAULT_NAME.to_string(),
-            pitcher_side: DEFAULT_NAME.to_string(),
-            batter_name: DEFAULT_NAME.to_string(),
-            batter_side: DEFAULT_NAME.to_string(),
-            count: Count {
-                strikes: 0,
-                balls: 0,
-                outs: 0,
-            },
+            inning: DEFAULT_NAME.to_owned(),
+            pitcher_name: DEFAULT_NAME.to_owned(),
+            pitcher_side: DEFAULT_NAME.to_owned(),
+            batter_name: DEFAULT_NAME.to_owned(),
+            batter_side: DEFAULT_NAME.to_owned(),
+            count: Count::default(),
             runners: Runners::default(),
-            on_deck: DEFAULT_NAME.to_string(),
-            in_hole: DEFAULT_NAME.to_string(),
+            on_deck: DEFAULT_NAME.to_owned(),
+            in_hole: DEFAULT_NAME.to_owned(),
+        }
+    }
+}
+
+impl Default for MatchupV2 {
+    fn default() -> Self {
+        Self {
+            at_bat_index: 0,
+            home_score: 0,
+            away_score: 0,
+            inning: DEFAULT_NAME.to_owned(),
+            pitcher_name: DEFAULT_NAME.to_owned(),
+            pitcher_side: DEFAULT_NAME.to_owned(),
+            batter_name: DEFAULT_NAME.to_owned(),
+            batter_side: DEFAULT_NAME.to_owned(),
+            count: Count::default(),
+            runners: Runners::default(),
+        }
+    }
+}
+
+impl MatchupV2 {
+    pub fn from_play(play: &Play) -> Self {
+        Self {
+            at_bat_index: play.about.at_bat_index,
+            home_score: play.result.home_score.unwrap_or(0),
+            away_score: play.result.away_score.unwrap_or(0),
+            inning: format!("{} {}", play.about.half_inning, play.about.inning),
+            pitcher_name: play.matchup.pitcher.full_name.clone(),
+            pitcher_side: format!("{}HP", play.matchup.pitch_hand.code.clone()),
+            batter_name: play.matchup.batter.full_name.clone(),
+            batter_side: play.matchup.bat_side.code.clone(),
+            count: play.count.clone(),
+            runners: Runners::from_matchup(&play.matchup),
         }
     }
 }
 
 impl Matchup {
+    pub fn from_v2(matchup: &MatchupV2, summary: &Summary) -> Self {
+        Self {
+            home_name: summary.home_name.clone(),
+            home_score: matchup.home_score,
+            away_name: summary.away_name.clone(),
+            away_score: matchup.away_score,
+            inning: matchup.inning.clone(),
+            pitcher_name: matchup.pitcher_name.clone(),
+            pitcher_side: matchup.pitcher_side.clone(),
+            batter_name: matchup.batter_name.clone(),
+            batter_side: matchup.batter_side.clone(),
+            count: matchup.count.clone(),
+            runners: matchup.runners,
+            on_deck: summary.on_deck.clone(),
+            in_hole: summary.in_hole.clone(),
+        }
+    }
+
     pub fn from_live_data(live_game: &LiveResponse) -> Matchup {
         // Extract the current play from the API data. Not sure yet why the current play isn't
         // present. Maybe when the game isn't being played yet?
@@ -113,6 +213,7 @@ impl Matchup {
             in_hole: ih,
         }
     }
+
     pub fn to_table(&self) -> Vec<Vec<String>> {
         vec![
             vec![self.away_name.clone(), self.away_score.to_string()],
