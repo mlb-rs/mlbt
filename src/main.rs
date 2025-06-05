@@ -15,8 +15,8 @@ use crossterm::{cursor, execute, terminal};
 use std::io::Stdout;
 use std::sync::Arc;
 use std::{io, panic};
-use tokio::sync::{mpsc, Mutex};
-use tui::{backend::CrosstermBackend, Terminal};
+use tokio::sync::{Mutex, mpsc};
+use tui::{Terminal, backend::CrosstermBackend};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

@@ -1,5 +1,5 @@
-use crate::app::{App, MenuItem};
 use crate::NetworkRequest;
+use crate::app::{App, MenuItem};
 use std::time::Duration;
 use tokio::sync::mpsc;
 use tokio::time::interval;

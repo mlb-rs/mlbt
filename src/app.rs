@@ -22,14 +22,6 @@ pub enum DebugState {
     Off,
 }
 
-/// A team must be either Home or Away.
-#[derive(Copy, Clone, Debug, Default, PartialEq)]
-pub enum HomeOrAway {
-    #[default]
-    Home = 0,
-    Away = 1,
-}
-
 pub struct App {
     pub settings: AppSettings,
     pub state: AppState,
@@ -68,7 +60,7 @@ impl App {
 
         // reset game when the schedule is empty
         if self.state.schedule.is_empty() {
-            self.state.gameday.game.reset();
+            self.state.gameday.reset();
             None
         } else {
             self.state.schedule.get_selected_game_opt()

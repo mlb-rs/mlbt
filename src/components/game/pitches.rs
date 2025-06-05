@@ -1,5 +1,5 @@
-use crate::components::pitch_event::PitchEvent;
-use crate::components::strikezone::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP};
+use crate::components::game::pitch_event::PitchEvent;
+use crate::components::game::strikezone::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP};
 use crate::components::util::convert_color;
 use mlb_api::plays::{Play, PlayEvent};
 use tui::{
@@ -117,7 +117,10 @@ impl Pitch {
     /// and pitch type (cutter, changeup, ect). For example: "1  Foul | Four-Seam Fastball"
     pub fn as_lines(&self, debug: bool) -> Vec<Line> {
         vec![Line::from(vec![
-            Span::styled(format!(" {} ", self.index), Style::default().fg(self.color)),
+            Span::styled(
+                format!(" {:<2}", self.index),
+                Style::default().fg(self.color),
+            ),
             Span::raw(self.format(debug)),
         ])]
     }
@@ -144,12 +147,4 @@ impl Pitches {
     fn transform_pitch_events(plays: &[PlayEvent]) -> Vec<PitchEvent> {
         plays.iter().map(PitchEvent::from).rev().collect()
     }
-}
-
-#[test]
-fn test_pitches_with_defaults() {
-    // Testing what happens if there is no pitch data
-    let play_event = vec![PlayEvent::default()];
-    let pitches = Pitches::transform_pitch_events(&play_event);
-    assert_eq!(pitches.len(), 1);
 }

@@ -1,4 +1,4 @@
-use crate::components::live_game::GameStateV2;
+use crate::components::game::live_game::GameStateV2;
 
 #[derive(Default)]
 pub struct GamedayState {
@@ -18,6 +18,60 @@ impl GamedayState {
 
     pub fn set_current_game_id(&mut self, game_id: u64) {
         self.game.game_id = game_id;
+    }
+
+    pub fn reset(&mut self) {
+        self.selected_at_bat = None;
+        self.game.reset();
+    }
+
+    pub fn next_at_bat(&mut self) {
+        let count = self.game.count_events();
+        if count == 0 {
+            return;
+        }
+        let i = match self.selected_at_bat {
+            Some(i) if i >= count - 1 => 0,
+            Some(i) => i + 1,
+            None => 0,
+        };
+
+        self.selected_at_bat = Some(i);
+    }
+
+    pub fn previous_at_bat(&mut self) {
+        let count = self.game.count_events();
+        if count == 0 {
+            return;
+        }
+        let i = match self.selected_at_bat {
+            None => count - 1,
+            Some(0) => count - 1,
+            Some(i) => i - 1,
+        };
+        self.selected_at_bat = Some(i);
+    }
+
+    /// Go to "live" at bat by deselecting the current at bat.
+    pub fn live(&mut self) {
+        self.selected_at_bat = None;
+    }
+
+    /// Go to the start of the game.
+    pub fn start(&mut self) {
+        self.selected_at_bat = Some(0);
+    }
+
+    pub fn toggle_info(&mut self) {
+        self.panels.info = !self.panels.info;
+    }
+
+    pub fn toggle_at_bat(&mut self) {
+        self.panels.at_bat = !self.panels.at_bat;
+    }
+
+    pub fn toggle_boxscore(&mut self) {
+        self.panels.boxscore = !self.panels.boxscore;
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::components::live_game::GameStateV2;
+use crate::components::game::live_game::GameStateV2;
 use mlb_api::plays::{Count, Play};
 
 #[derive(Default)]
@@ -9,6 +9,7 @@ pub struct InningPlays {
 }
 
 #[derive(Clone, Default)] // TODO remove clone
+#[allow(dead_code)]
 pub struct PlayEvent {
     pub code: String,
     // TODO
@@ -28,21 +29,21 @@ pub struct PlayResult {
 }
 
 impl InningPlays {
-    pub fn from_gameday_v2(data: &GameStateV2) -> Self {
-        let current_play = data.get_latest_at_bat();
-        let inning = current_play.inning;
-        let is_top_inning = current_play.is_top_inning;
+    pub fn from_gameday_v2(game: &GameStateV2, selected_at_bat: Option<u8>) -> Self {
+        let (at_bat, _is_current) = game.get_at_bat_by_index_or_current(selected_at_bat);
+        let inning = at_bat.inning;
+        let is_top_inning = at_bat.is_top_inning;
 
         if inning == 0 {
             return InningPlays::default();
         }
 
-        let mut play_results: Vec<PlayResult> = data
+        let mut play_results: Vec<PlayResult> = game
             .at_bats
             .values()
             .filter_map(|play| {
                 if play.inning == inning && play.is_top_inning == is_top_inning {
-                    Some(play.play_result.clone())
+                    Some(play.play_result.clone()) // TODO remove clone
                 } else {
                     None
                 }

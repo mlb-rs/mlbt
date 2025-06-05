@@ -1,11 +1,12 @@
-use crate::app::{App, HomeOrAway, MenuItem};
+use crate::app::{App, MenuItem};
 use crate::components::stats::TeamOrPlayer;
-use crate::{cleanup_terminal, NetworkRequest};
+use crate::state::app_state::HomeOrAway;
+use crate::{NetworkRequest, cleanup_terminal};
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent};
 use mlb_api::client::StatGroup;
 use std::sync::Arc;
-use tokio::sync::{mpsc, Mutex, MutexGuard};
+use tokio::sync::{Mutex, MutexGuard, mpsc};
 
 type AppGuard<'a> = MutexGuard<'a, App>;
 
@@ -31,6 +32,7 @@ pub async fn handle_key_bindings(
         (_, Char('f')) => guard.toggle_full_screen(),
         (_, Char('1')) => {
             guard.update_tab(MenuItem::Scoreboard);
+            guard.state.gameday.live(); // reset at bat selection
             load_scoreboard(guard, network_requests).await;
         }
         (_, Char('2')) => {
@@ -112,15 +114,13 @@ pub async fn handle_key_bindings(
         }
         (MenuItem::Standings, Char(':')) => guard.update_tab(MenuItem::DatePicker),
 
-        (MenuItem::Gameday, Char('i')) => {
-            guard.state.gameday.panels.info = !guard.state.gameday.panels.info
-        }
-        (MenuItem::Gameday, Char('p')) => {
-            guard.state.gameday.panels.at_bat = !guard.state.gameday.panels.at_bat
-        }
-        (MenuItem::Gameday, Char('b')) => {
-            guard.state.gameday.panels.boxscore = !guard.state.gameday.panels.boxscore
-        }
+        (MenuItem::Gameday, Char('i')) => guard.state.gameday.toggle_info(),
+        (MenuItem::Gameday, Char('p')) => guard.state.gameday.toggle_at_bat(),
+        (MenuItem::Gameday, Char('b')) => guard.state.gameday.toggle_boxscore(),
+        (MenuItem::Gameday, Char('j')) => guard.state.gameday.previous_at_bat(),
+        (MenuItem::Gameday, Char('k')) => guard.state.gameday.next_at_bat(),
+        (MenuItem::Gameday, Char('l')) => guard.state.gameday.live(),
+        (MenuItem::Gameday, Char('s')) => guard.state.gameday.start(),
 
         (MenuItem::Gameday, Char('h')) => guard.state.boxscore_tab = HomeOrAway::Home,
         (MenuItem::Gameday, Char('a')) => guard.state.boxscore_tab = HomeOrAway::Away,

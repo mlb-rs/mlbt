@@ -1,6 +1,6 @@
-use crate::app::HomeOrAway;
 use mlb_api::live::LiveResponse;
 
+use crate::state::app_state::HomeOrAway;
 use tui::style::{Color, Modifier, Style};
 use tui::text::Span;
 use tui::widgets::Cell;

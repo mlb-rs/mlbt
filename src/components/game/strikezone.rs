@@ -30,7 +30,7 @@ pub struct StrikeZone {
 impl Default for StrikeZone {
     fn default() -> Self {
         StrikeZone {
-            colors: StrikeZone::all_black(),
+            colors: StrikeZone::all_white(),
             strike_zone_bot: DEFAULT_SZ_BOT,
             strike_zone_top: DEFAULT_SZ_TOP,
         }
@@ -47,7 +47,7 @@ impl StrikeZone {
     }
 
     /// Generate the strike zone from the current at bat. If there is no data the strike zone will
-    /// be all black.
+    /// be all white.
     ///
     /// To get to the heat map zones, the API response is traversed like so:
     /// liveData > plays > currentPlay > matchup > batterHotColdZones > zones
@@ -91,24 +91,24 @@ impl StrikeZone {
             .collect()
     }
 
-    fn all_black() -> Vec<Color> {
-        (0..9).map(|_| Color::Rgb(0, 0, 0)).collect()
+    fn all_white() -> Vec<Color> {
+        (0..9).map(|_| Color::Rgb(255, 255, 255)).collect()
     }
 }
 
 #[test]
-fn test_all_black() {
+fn test_all_white() {
     let hm = StrikeZone::default();
     let good = vec![
-        Color::Rgb(0, 0, 0),
-        Color::Rgb(0, 0, 0),
-        Color::Rgb(0, 0, 0),
-        Color::Rgb(0, 0, 0),
-        Color::Rgb(0, 0, 0),
-        Color::Rgb(0, 0, 0),
-        Color::Rgb(0, 0, 0),
-        Color::Rgb(0, 0, 0),
-        Color::Rgb(0, 0, 0),
+        Color::Rgb(255, 255, 255),
+        Color::Rgb(255, 255, 255),
+        Color::Rgb(255, 255, 255),
+        Color::Rgb(255, 255, 255),
+        Color::Rgb(255, 255, 255),
+        Color::Rgb(255, 255, 255),
+        Color::Rgb(255, 255, 255),
+        Color::Rgb(255, 255, 255),
+        Color::Rgb(255, 255, 255),
     ];
     assert_eq!(hm.colors, good);
 }

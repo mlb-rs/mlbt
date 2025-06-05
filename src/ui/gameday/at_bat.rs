@@ -1,5 +1,7 @@
-use crate::components::live_game::GameStateV2;
-use crate::components::strikezone::{StrikeZone, DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH};
+use crate::components::game::live_game::GameStateV2;
+use crate::components::game::strikezone::{
+    DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH, StrikeZone,
+};
 use tui::{
     buffer::Buffer,
     layout::{Constraint, Direction, Layout, Rect},
@@ -11,11 +13,15 @@ use tui::{
 
 pub struct AtBatWidget<'a> {
     pub game: &'a GameStateV2,
+    pub selected_at_bat: Option<u8>,
 }
 
 impl Widget for AtBatWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let pitches = &self.game.get_latest_at_bat().pitches;
+        let (game, _is_current) = self
+            .game
+            .get_at_bat_by_index_or_current(self.selected_at_bat);
+        let pitches = &game.pitches;
 
         let chunks = Layout::default()
             .direction(Direction::Vertical)

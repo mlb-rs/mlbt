@@ -45,6 +45,7 @@ impl From<&LiveResponse> for Summary {
 }
 
 pub struct MatchupV2 {
+    #[allow(dead_code)]
     pub at_bat_index: u8,
     pub home_score: u8,
     pub away_score: u8,
@@ -161,7 +162,14 @@ impl MatchupV2 {
 }
 
 impl Matchup {
-    pub fn from_v2(matchup: &MatchupV2, summary: &Summary) -> Self {
+    pub fn from_v2(matchup: &MatchupV2, summary: &Summary, is_current: bool) -> Self {
+        // hide on deck and in hole if not the current at bat since that info is only available for
+        // the current at bat
+        let (on_deck, in_hole) = if is_current {
+            (summary.on_deck.clone(), summary.in_hole.clone())
+        } else {
+            ("".to_string(), "".to_string())
+        };
         Self {
             home_name: summary.home_name.clone(),
             home_score: matchup.home_score,
@@ -174,8 +182,8 @@ impl Matchup {
             batter_side: matchup.batter_side.clone(),
             count: matchup.count.clone(),
             runners: matchup.runners,
-            on_deck: summary.on_deck.clone(),
-            in_hole: summary.in_hole.clone(),
+            on_deck,
+            in_hole,
         }
     }
 

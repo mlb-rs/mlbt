@@ -1,5 +1,5 @@
-use crate::app::HomeOrAway;
 use crate::components::schedule::{ScheduleRow, ScheduleState};
+use crate::state::app_state::HomeOrAway;
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
