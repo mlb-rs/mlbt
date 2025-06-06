@@ -5,11 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+- Standings are now sorted by the configured favorite team, so the division with
+  the team is always shown first. Additionally, the favorite team is 
+  automatically selected and highlighted. [PR 58](https://github.com/mlb-rs/mlbt/pull/58)
+
+### Added
+
+- Add a spinning loader when API calls are in flight: [PR 56](https://github.com/mlb-rs/mlbt/pull/56)
+
 ## [0.0.15] - 2025-06-03
 
-## Fixed
+### Fixed
 
-- Error in team stats API response parsing introduced by the date selection update.
+- Error in team stats API response parsing introduced by the date selection update
 
 ## [0.0.14] - 2025-05-31
 
