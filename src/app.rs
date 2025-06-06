@@ -1,6 +1,6 @@
 use crate::components::live_game::GameState;
 use crate::components::schedule::ScheduleState;
-use crate::components::standings::StandingsState;
+use crate::components::standings::{StandingsState, Team};
 use crate::components::stats::StatsState;
 use crate::config::ConfigFile;
 use chrono::{NaiveDate, ParseError, Utc};
@@ -64,7 +64,7 @@ pub struct AppState {
 
 #[derive(Debug, Default, Clone)]
 pub struct AppSettings {
-    pub favorite_team: Option<String>,
+    pub favorite_team: Option<Team>,
     pub full_screen: bool,
     pub timezone: Tz,
     pub timezone_abbreviation: String,
@@ -100,6 +100,7 @@ impl App {
     /// Run any final configuration that might need to access multiple parts of state.
     fn configure(&mut self) {
         self.set_all_datepickers_to_today();
+        self.state.standings.favorite_team = self.settings.favorite_team;
     }
 
     /// Sync date pickers using the correct timezone.
@@ -134,6 +135,10 @@ impl App {
             self.state.previous_tab = self.state.active_tab;
             self.state.active_tab = next;
             self.state.debug_state = DebugState::Off;
+        }
+        // reset selection when switching tabs but not when date picker is opened
+        if next != MenuItem::DatePicker && self.state.previous_tab == MenuItem::Standings {
+            self.state.standings.reset_selection();
         }
     }
 

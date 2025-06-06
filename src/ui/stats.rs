@@ -1,18 +1,9 @@
-use mlb_api::client::StatGroup;
-
 use crate::components::stats::{
     STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH, StatsState, TeamOrPlayer,
 };
-
-use tui::{
-    buffer::Buffer,
-    layout::{Alignment, Constraint, Direction, Layout, Rect},
-    style::{Color, Modifier, Style},
-    text::{Line, Span},
-    widgets::{
-        Block, BorderType, Borders, Cell, Paragraph, Row, StatefulWidget, Table, Widget, Wrap,
-    },
-};
+use mlb_api::client::StatGroup;
+use tui::prelude::*;
+use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Table, Wrap};
 
 pub const STATS_OPTIONS_WIDTH: u16 = 36;
 
@@ -92,6 +83,7 @@ impl StatefulWidget for StatsWidget {
                 Block::default()
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded)
+                    .padding(Padding::new(1, 1, 0, 0))
                     .title(Span::styled(
                         state.date_selector.format_date_border_title(),
                         Style::default().fg(Color::Black).bg(Color::Blue),
@@ -149,6 +141,7 @@ impl StatefulWidget for StatsWidget {
                 .column_spacing(0)
                 .block(
                     Block::default()
+                        .padding(Padding::new(1, 1, 0, 0))
                         .borders(Borders::ALL)
                         .border_type(BorderType::Rounded),
                 )
