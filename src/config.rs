@@ -1,5 +1,6 @@
 use crate::app::AppSettings;
-use crate::components::constants::TEAM_NAMES;
+use crate::components::constants::TEAM_IDS;
+use crate::components::standings::Team;
 use anyhow::Context;
 use chrono::{TimeZone, Utc};
 use chrono_tz::America::Los_Angeles;
@@ -62,10 +63,10 @@ impl ConfigFile {
         }
     }
 
-    fn validate_favorite_team(&self) -> Option<String> {
+    fn validate_favorite_team(&self) -> Option<Team> {
         if let Some(favorite) = &self.favorite_team {
-            if TEAM_NAMES.contains_key(favorite.as_str()) {
-                return Some(favorite.to_string());
+            if let Some(team) = TEAM_IDS.get(favorite.as_str()) {
+                return Some(*team);
             }
         }
         None

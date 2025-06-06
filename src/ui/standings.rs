@@ -1,12 +1,6 @@
 use crate::components::standings::StandingsState;
-
-use tui::prelude::Span;
-use tui::{
-    buffer::Buffer,
-    layout::{Constraint, Rect},
-    style::{Color, Modifier, Style},
-    widgets::{Block, BorderType, Borders, Cell, Row, StatefulWidget, Table},
-};
+use tui::prelude::*;
+use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
 const HEADER: &[&str; 7] = &["Team", "W", "L", "PCT", "GB", "WCGB", "STRK"];
 
@@ -21,7 +15,7 @@ impl StatefulWidget for StandingsWidget {
             .height(1)
             .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
 
-        let mut rows = Vec::new();
+        let mut rows = Vec::with_capacity(36); // 30 teams + 6 divisions
         for d in &state.standings {
             // create a row for the division name
             let division = Row::new(vec![d.name.clone()])
@@ -36,7 +30,7 @@ impl StatefulWidget for StandingsWidget {
 
         let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
         let widths = [
-            Constraint::Length(20),
+            Constraint::Length(25),
             Constraint::Length(5),
             Constraint::Length(5),
             Constraint::Length(5),
@@ -50,13 +44,13 @@ impl StatefulWidget for StandingsWidget {
                 Block::default()
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded)
+                    .padding(Padding::new(1, 1, 0, 0))
                     .title(Span::styled(
                         state.date_selector.format_date_border_title(),
                         Style::default().fg(Color::Black).bg(Color::Blue),
                     )),
             )
-            .row_highlight_style(selected_style)
-            .highlight_symbol(">> ");
+            .row_highlight_style(selected_style);
 
         StatefulWidget::render(t, area, buf, &mut state.state);
     }

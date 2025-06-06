@@ -1,13 +1,7 @@
 use crate::app::HomeOrAway;
 use crate::components::schedule::{ScheduleRow, ScheduleState};
-
-use tui::{
-    buffer::Buffer,
-    layout::{Constraint, Rect},
-    style::{Color, Modifier, Style},
-    text::Span,
-    widgets::{Block, BorderType, Borders, Cell, Row, StatefulWidget, Table},
-};
+use tui::prelude::*;
+use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
 const HEADER: &[&str; 6] = &["away", "", "home", "", "time", "status"];
 
@@ -81,13 +75,13 @@ impl StatefulWidget for ScheduleWidget {
                 Block::default()
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded)
+                    .padding(Padding::new(1, 1, 0, 0))
                     .title(Span::styled(
                         state.date_selector.format_date_border_title(),
                         Style::default().fg(Color::Black).bg(Color::Blue),
                     )),
             )
-            .row_highlight_style(selected_style)
-            .highlight_symbol(">> ");
+            .row_highlight_style(selected_style);
 
         StatefulWidget::render(t, area, buf, &mut state.state);
     }

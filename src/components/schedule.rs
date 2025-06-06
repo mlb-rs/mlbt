@@ -158,8 +158,8 @@ impl ScheduleRow {
         if let Some(games) = &schedule.dates.first() {
             let favorite = settings
                 .favorite_team
-                .clone()
-                .unwrap_or_else(|| "na".to_string());
+                .map(|f| f.name)
+                .unwrap_or_else(|| "na");
             if let Some(game) = &games.games {
                 for g in game {
                     let row = ScheduleRow::create_matchup(g, settings.timezone);
