@@ -45,7 +45,7 @@ impl Default for Pitch {
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct Count {
     pub balls: u8,
     pub strikes: u8,
@@ -137,14 +137,14 @@ impl Pitch {
     }
 }
 
-impl Pitches {
-    pub fn from_play(play: &Play) -> Self {
-        Pitches {
-            pitch_events: Pitches::transform_pitch_events(&play.play_events),
-        }
-    }
-
-    fn transform_pitch_events(plays: &[PlayEvent]) -> Vec<PitchEvent> {
-        plays.iter().map(PitchEvent::from).rev().collect()
+impl From<&Play> for Pitches {
+    fn from(play: &Play) -> Self {
+        let pitch_events = play
+            .play_events
+            .iter()
+            .map(PitchEvent::from)
+            .rev()
+            .collect();
+        Pitches { pitch_events }
     }
 }

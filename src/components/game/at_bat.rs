@@ -29,9 +29,9 @@ impl From<&Play> for AtBatV2 {
             index: play.about.at_bat_index,
             inning: play.about.inning,
             is_top_inning: play.about.is_top_inning,
-            pitches: AtBatPitches::from(play),
-            matchup: MatchupV2::from_play(play),
-            play_result: PlayResult::from_play(play),
+            pitches: play.into(),
+            matchup: play.into(),
+            play_result: play.into(),
         }
     }
 }
@@ -39,8 +39,8 @@ impl From<&Play> for AtBatV2 {
 impl From<&Play> for AtBatPitches {
     fn from(play: &Play) -> Self {
         AtBatPitches {
-            pitches: Pitches::from_play(play),
-            strike_zone: StrikeZone::from_play(play),
+            pitches: play.into(),
+            strike_zone: play.into(),
         }
     }
 }

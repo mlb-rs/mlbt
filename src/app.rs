@@ -57,14 +57,10 @@ impl App {
     /// If the schedule is empty, return None.
     pub fn update_schedule(&mut self, schedule: &ScheduleResponse) -> Option<u64> {
         self.state.schedule.update(&self.settings, schedule);
-
-        // reset game when the schedule is empty
-        if self.state.schedule.is_empty() {
-            self.state.gameday.reset();
-            None
-        } else {
-            self.state.schedule.get_selected_game_opt()
-        }
+        let selected = self.state.schedule.get_selected_game_opt();
+        // reset boxscore to selected game if it exists
+        self.state.gameday.reset(selected);
+        selected
     }
 
     pub fn update_live_data(&mut self, live_data: &LiveResponse) {
@@ -72,11 +68,15 @@ impl App {
     }
 
     pub fn update_tab(&mut self, next: MenuItem) {
-        if self.state.active_tab != next {
-            self.state.previous_tab = self.state.active_tab;
-            self.state.active_tab = next;
-            self.state.debug_state = DebugState::Off;
+        // don't switch tabs if already on the correct tab
+        if self.state.active_tab == next {
+            return;
         }
+
+        self.state.previous_tab = self.state.active_tab;
+        self.state.active_tab = next;
+        self.state.debug_state = DebugState::Off;
+
         // reset selection when switching tabs but not when date picker is opened
         if next != MenuItem::DatePicker && self.state.previous_tab == MenuItem::Standings {
             self.state.standings.reset_selection();

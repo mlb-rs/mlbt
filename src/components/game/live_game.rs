@@ -2,9 +2,9 @@ use crate::components::boxscore::TeamBatterBoxscore;
 use crate::components::game::at_bat::AtBatV2;
 use crate::components::game::matchup::Summary;
 use crate::components::linescore::LineScore;
+use indexmap::IndexMap;
 use mlb_api::live::LiveResponse;
 use mlb_api::plays::Play;
-use std::collections::HashMap;
 use std::sync::LazyLock;
 
 type AtBatIndex = u8;
@@ -18,16 +18,32 @@ pub struct GameStateV2 {
     pub linescore: LineScore,
     pub boxscore: TeamBatterBoxscore,
     pub current_at_bat: AtBatIndex,
-    pub at_bats: HashMap<AtBatIndex, AtBatV2>,
+    pub at_bats: IndexMap<AtBatIndex, AtBatV2>,
     // pub players: HashMap<u64, PlayerStats>, // TODO
 }
 
 // pub struct PlayerStats {
-// TODO gameday api only returns the current at bat zones, cache the zone per player
-//     pub hot_cold_zones
+// TODO display current ab info, e.g. "1-3, 2B, RBI"
+//     pub summary: String,
+//     pub note: Option<String>
 // }
 
 impl GameStateV2 {
+    /// Update with latest data from the API.
+    pub fn update(&mut self, live_data: &LiveResponse) {
+        if self.game_id != live_data.game_pk {
+            self.reset();
+        }
+        self.game_id = live_data.game_pk;
+        self.current_at_bat = Self::get_current_play_ab_index(live_data);
+        self.summary = Summary::from(live_data);
+        self.boxscore = TeamBatterBoxscore::from_live_data(live_data);
+        self.linescore = LineScore::from_live_data(live_data);
+        if let Some(plays) = &live_data.live_data.plays.all_plays {
+            plays.iter().for_each(|p| Self::update_single_play(self, p));
+        }
+    }
+
     pub fn get_summary(&self) -> &Summary {
         &self.summary
     }
@@ -62,20 +78,6 @@ impl GameStateV2 {
             + self.at_bats.len()
     }
 
-    pub fn update(&mut self, live_data: &LiveResponse) {
-        if self.game_id != live_data.game_pk {
-            self.reset();
-        }
-        self.game_id = live_data.game_pk;
-        self.current_at_bat = Self::get_current_play_ab_index(live_data);
-        self.summary = Summary::from(live_data);
-        self.boxscore = TeamBatterBoxscore::from_live_data(live_data);
-        self.linescore = LineScore::from_live_data(live_data);
-        if let Some(plays) = &live_data.live_data.plays.all_plays {
-            plays.iter().for_each(|p| Self::update_single_play(self, p));
-        }
-    }
-
     fn get_current_play_ab_index(live_data: &LiveResponse) -> AtBatIndex {
         live_data
             .live_data
@@ -93,11 +95,6 @@ impl GameStateV2 {
     }
 
     pub fn reset(&mut self) {
-        self.at_bats.clear();
-        self.summary = Summary::default();
-        self.current_at_bat = 0;
-        self.game_id = 0;
-        self.linescore = LineScore::default();
-        self.boxscore = TeamBatterBoxscore::default();
+        *self = Self::default()
     }
 }

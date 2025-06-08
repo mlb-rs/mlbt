@@ -1,21 +1,13 @@
-use crate::components::game::live_game::GameStateV2;
 use mlb_api::plays::{Count, Play};
 
 #[derive(Default)]
-pub struct InningPlays {
-    #[allow(dead_code)]
-    pub inning: u8, // do i need this?
-    pub play_results: Vec<PlayResult>,
-}
-
-#[derive(Clone, Default)] // TODO remove clone
 #[allow(dead_code)]
 pub struct PlayEvent {
     pub code: String,
     // TODO
 }
 
-#[derive(Clone, Default)] // TODO remove clone
+#[derive(Default)]
 pub struct PlayResult {
     pub at_bat_index: u8,
     pub description: String,
@@ -28,40 +20,8 @@ pub struct PlayResult {
     pub events: Vec<PlayEvent>,
 }
 
-impl InningPlays {
-    pub fn from_gameday_v2(game: &GameStateV2, selected_at_bat: Option<u8>) -> Self {
-        let (at_bat, _is_current) = game.get_at_bat_by_index_or_current(selected_at_bat);
-        let inning = at_bat.inning;
-        let is_top_inning = at_bat.is_top_inning;
-
-        if inning == 0 {
-            return InningPlays::default();
-        }
-
-        let mut play_results: Vec<PlayResult> = game
-            .at_bats
-            .values()
-            .filter_map(|play| {
-                if play.inning == inning && play.is_top_inning == is_top_inning {
-                    Some(play.play_result.clone()) // TODO remove clone
-                } else {
-                    None
-                }
-            })
-            .collect();
-
-        // ensure the events are sorted by index, smallest first since it gets reversed later
-        play_results.sort_by_key(|p| p.at_bat_index);
-
-        Self {
-            inning,
-            play_results,
-        }
-    }
-}
-
-impl PlayResult {
-    pub fn from_play(play: &Play) -> Self {
+impl From<&Play> for PlayResult {
+    fn from(play: &Play) -> Self {
         Self {
             at_bat_index: play.about.at_bat_index,
             description: play

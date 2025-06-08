@@ -3,8 +3,8 @@ use crate::components::game::live_game::GameStateV2;
 #[derive(Default)]
 pub struct GamedayState {
     pub panels: GamedayPanels,
-    selected_at_bat: Option<usize>,
     pub game: GameStateV2,
+    selected_at_bat: Option<usize>,
 }
 
 impl GamedayState {
@@ -20,9 +20,14 @@ impl GamedayState {
         self.game.game_id = game_id;
     }
 
-    pub fn reset(&mut self) {
-        self.selected_at_bat = None;
-        self.game.reset();
+    pub fn reset(&mut self, game_id: Option<u64>) {
+        let new_id = game_id.unwrap_or(0);
+
+        if self.game.game_id != new_id {
+            self.selected_at_bat = None;
+            self.game.reset();
+            self.game.game_id = new_id;
+        }
     }
 
     pub fn next_at_bat(&mut self) {

@@ -11,7 +11,7 @@ impl DateInput {
     pub fn validate_input(&mut self, tz: Tz) -> Result<NaiveDate, ParseError> {
         let input: String = self.text.drain(..).collect();
         let date = match input.as_str() {
-            "today" => Ok(Utc::now().with_timezone(&tz).date_naive()),
+            "t" | "today" => Ok(Utc::now().with_timezone(&tz).date_naive()),
             _ => NaiveDate::parse_from_str(input.as_str(), "%Y-%m-%d"),
         };
         self.is_valid = date.is_ok();

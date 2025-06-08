@@ -144,8 +144,8 @@ impl Default for MatchupV2 {
     }
 }
 
-impl MatchupV2 {
-    pub fn from_play(play: &Play) -> Self {
+impl From<&Play> for MatchupV2 {
+    fn from(play: &Play) -> Self {
         Self {
             at_bat_index: play.about.at_bat_index,
             home_score: play.result.home_score.unwrap_or(0),

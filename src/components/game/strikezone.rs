@@ -37,21 +37,13 @@ impl Default for StrikeZone {
     }
 }
 
-impl StrikeZone {
-    pub fn new(colors: Vec<Color>) -> Self {
-        StrikeZone {
-            colors,
-            strike_zone_bot: DEFAULT_SZ_BOT,
-            strike_zone_top: DEFAULT_SZ_TOP,
-        }
-    }
-
+impl From<&Play> for StrikeZone {
     /// Generate the strike zone from the current at bat. If there is no data the strike zone will
     /// be all white.
     ///
     /// To get to the heat map zones, the API response is traversed like so:
     /// liveData > plays > currentPlay > matchup > batterHotColdZones > zones
-    pub fn from_play(play: &Play) -> Self {
+    fn from(play: &Play) -> Self {
         let colors = match play.matchup.batter_hot_cold_zones.as_ref() {
             Some(z) => StrikeZone::transform_zones(z),
             None => return StrikeZone::default(),
@@ -61,6 +53,16 @@ impl StrikeZone {
             return StrikeZone::default();
         }
         StrikeZone::new(colors)
+    }
+}
+
+impl StrikeZone {
+    pub fn new(colors: Vec<Color>) -> Self {
+        StrikeZone {
+            colors,
+            strike_zone_bot: DEFAULT_SZ_BOT,
+            strike_zone_top: DEFAULT_SZ_TOP,
+        }
     }
 
     /// Go through the zones and pull out the batting average colors. There are usually 13 zones
