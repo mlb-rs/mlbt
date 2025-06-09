@@ -11,6 +11,7 @@ use crate::state::network::LoadingState;
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
 use crate::ui::date_selector::DateSelectorWidget;
 use crate::ui::gameday::gameday_widget::GamedayWidget;
+use crate::ui::gameday::win_probability::WinProbabilityWidget;
 use crate::ui::help::{DOCS, HelpWidget};
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
@@ -128,9 +129,17 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
         ScheduleWidget {
             tz_abbreviation: app.settings.timezone_abbreviation.clone(),
         },
+        // don't use win_prob[0] so the border is full height
         chunks[0],
         &mut app.state.schedule,
     );
+    if app.state.schedule.show_win_probability {
+        let win_prob = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
+            .split(chunks[0]);
+        draw_win_probability(f, win_prob[1], app);
+    }
 
     // display line score and box score on right
     draw_border(f, chunks[1], Color::White);
@@ -197,6 +206,16 @@ fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
 
 fn draw_standings(f: &mut Frame, rect: Rect, app: &mut App) {
     f.render_stateful_widget(StandingsWidget {}, rect, &mut app.state.standings);
+}
+
+fn draw_win_probability(f: &mut Frame, rect: Rect, app: &mut App) {
+    f.render_widget(
+        WinProbabilityWidget {
+            game: &app.state.gameday.game,
+            selected_at_bat: app.state.gameday.selected_at_bat(),
+        },
+        rect,
+    );
 }
 
 fn draw_help(f: &mut Frame, rect: Rect) {

@@ -9,7 +9,7 @@ use crate::components::banner::BANNER;
 use crate::config::ConfigFile;
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
-pub const DOCS: &[&[&str; 2]; 31] = &[
+pub const DOCS: &[&[&str; 2]; 33] = &[
     &["Exit help", "Esc"],
     &["Quit", "q"],
     &["Full screen", "f"],
@@ -18,11 +18,13 @@ pub const DOCS: &[&[&str; 2]; 31] = &[
     &["Move up", "k"],
     &["Select date", ":"],
     &["Switch boxscore team", "h/a"],
+    &["Toggle win probability", "w"],
     &["Gameday", "2"],
     &["Toggle game info", "i"],
     &["Toggle pitches", "p"],
     &["Toggle boxscore", "b"],
     &["Switch boxscore team", "h/a"],
+    &["Toggle win probability", "w"],
     &["Move down at bat", "j"],
     &["Move up at bat", "k"],
     &["Go to live at bat", "l"],

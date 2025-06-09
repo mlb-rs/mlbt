@@ -9,7 +9,7 @@ pub struct WinProbabilityResponse {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct About {
-    pub at_bat_index: u16,
+    pub at_bat_index: u8,
     pub is_top_inning: bool,
     pub inning: u8,
     pub captivating_index: u8,
@@ -23,5 +23,5 @@ pub struct WinProbabilityPerAtBat {
     pub away_team_win_probability: f32,
     pub home_team_win_probability_added: f32,
     pub leverage_index: Option<f32>,
-    pub at_bat_index: u16,
+    pub at_bat_index: u8,
 }

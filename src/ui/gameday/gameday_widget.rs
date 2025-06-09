@@ -5,9 +5,10 @@ use crate::ui::boxscore::TeamBatterBoxscoreWidget;
 use crate::ui::gameday::at_bat::AtBatWidget;
 use crate::ui::gameday::matchup::MatchupWidget;
 use crate::ui::gameday::plays::InningPlaysWidget;
+use crate::ui::gameday::win_probability::WinProbabilityWidget;
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
-use tui::prelude::{Buffer, Color, Rect, Widget};
+use tui::prelude::{Buffer, Color, Constraint, Direction, Layout, Rect, Widget};
 
 pub struct GamedayWidget<'a> {
     pub state: &'a GamedayState,
@@ -62,7 +63,25 @@ impl Widget for GamedayWidget<'_> {
                 game: &self.state.game,
                 selected_at_bat: self.state.selected_at_bat(),
             };
-            Widget::render(innings_widget, p, buf);
+
+            if self.state.panels.win_probability {
+                let chunks = Layout::default()
+                    .direction(Direction::Vertical)
+                    .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
+                    .split(p);
+                Widget::render(innings_widget, chunks[0], buf);
+
+                Widget::render(
+                    WinProbabilityWidget {
+                        game: &self.state.game,
+                        selected_at_bat: self.state.selected_at_bat(),
+                    },
+                    chunks[1],
+                    buf,
+                );
+            } else {
+                Widget::render(innings_widget, p, buf);
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ use mlb_api::live::LiveResponse;
 use mlb_api::schedule::ScheduleResponse;
 use mlb_api::standings::StandingsResponse;
 use mlb_api::stats::StatsResponse;
+use mlb_api::win_probability::WinProbabilityResponse;
 
 #[derive(Debug, Clone)]
 pub enum NetworkRequest {
@@ -34,6 +35,7 @@ pub enum NetworkResponse {
     },
     GameDataLoaded {
         game: Box<LiveResponse>,
+        win_probability: WinProbabilityResponse,
     },
     StandingsLoaded {
         standings: StandingsResponse,

@@ -15,6 +15,7 @@ pub struct ScheduleState {
     pub state: TableState,
     pub schedule: Vec<ScheduleRow>,
     pub date_selector: DateSelector,
+    pub show_win_probability: bool,
 }
 
 /// The information needed to create a single row in a table.
@@ -73,6 +74,10 @@ impl ScheduleState {
     pub fn get_selected_game_opt(&self) -> Option<u64> {
         let idx = self.state.selected()?;
         self.schedule.get(idx).map(|s| s.game_id)
+    }
+
+    pub fn toggle_win_probability(&mut self) {
+        self.show_win_probability = !self.show_win_probability;
     }
 
     pub fn next(&mut self) {

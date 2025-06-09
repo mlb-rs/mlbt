@@ -57,6 +57,7 @@ pub async fn handle_key_bindings(
             load_game_data(guard, network_requests).await;
         }
         (MenuItem::Scoreboard, Char(':')) => guard.update_tab(MenuItem::DatePicker),
+        (MenuItem::Scoreboard, Char('w')) => guard.state.schedule.toggle_win_probability(),
         (MenuItem::Scoreboard, KeyCode::Enter) => {
             guard.update_tab(MenuItem::Gameday);
             load_game_data(guard, network_requests).await;
@@ -121,6 +122,7 @@ pub async fn handle_key_bindings(
         (MenuItem::Gameday, Char('i')) => guard.state.gameday.toggle_info(),
         (MenuItem::Gameday, Char('p')) => guard.state.gameday.toggle_at_bat(),
         (MenuItem::Gameday, Char('b')) => guard.state.gameday.toggle_boxscore(),
+        (MenuItem::Gameday, Char('w')) => guard.state.gameday.toggle_win_probability(),
         (MenuItem::Gameday, Char('j')) => guard.state.gameday.previous_at_bat(),
         (MenuItem::Gameday, Char('k')) => guard.state.gameday.next_at_bat(),
         (MenuItem::Gameday, Char('l')) => guard.state.gameday.live(),

@@ -5,11 +5,30 @@ use std::vec;
 use tui::prelude::*;
 use tui::widgets::{Paragraph, Wrap};
 
+// These colors match the red, green, and blue used in the pitch data from the API.
+pub const RED: Color = Color::Rgb(170, 21, 11);
+pub const GREEN: Color = Color::Rgb(39, 161, 39);
 // This matches the blue used in the pitch data from the API. It's used for contact (hit, out, run
 // scoring).
 pub const BLUE: Color = Color::Rgb(26, 86, 190);
 pub const SCORING_SYMBOL: char = '!';
 pub const SELECTION_SYMBOL: char = '>';
+
+pub struct InningPlaysWidget<'a> {
+    pub game: &'a GameStateV2,
+    pub selected_at_bat: Option<u8>,
+}
+
+impl Widget for InningPlaysWidget<'_> {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+        let chunks = LayoutAreas::for_info(area);
+
+        let inning_plays = format_plays(self.game, self.selected_at_bat);
+        let paragraph = Paragraph::new(inning_plays).wrap(Wrap { trim: false });
+
+        Widget::render(paragraph, chunks[1], buf);
+    }
+}
 
 /// Format the plays for the current half inning as TUI Lines.
 fn format_plays(game: &GameStateV2, selected_at_bat: Option<u8>) -> Vec<Line> {
@@ -90,21 +109,5 @@ fn format_outs(play: &PlayResult) -> Span {
         Span::raw(format!(" {} {}", &play.count.outs, out))
     } else {
         Span::raw("")
-    }
-}
-
-pub struct InningPlaysWidget<'a> {
-    pub game: &'a GameStateV2,
-    pub selected_at_bat: Option<u8>,
-}
-
-impl Widget for InningPlaysWidget<'_> {
-    fn render(self, area: Rect, buf: &mut Buffer) {
-        let chunks = LayoutAreas::for_info(area);
-
-        let inning_plays = format_plays(self.game, self.selected_at_bat);
-        let paragraph = Paragraph::new(inning_plays).wrap(Wrap { trim: false });
-
-        Widget::render(paragraph, chunks[1], buf);
     }
 }

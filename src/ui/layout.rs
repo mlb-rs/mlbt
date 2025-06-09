@@ -81,7 +81,7 @@ impl LayoutAreas {
             .vertical_margin(1)
             .constraints(
                 [
-                    Constraint::Length(13),      // game info
+                    Constraint::Length(14),      // game info
                     Constraint::Percentage(100), // inning plays
                 ]
                 .as_ref(),

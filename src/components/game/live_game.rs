@@ -1,13 +1,15 @@
 use crate::components::boxscore::TeamBatterBoxscore;
 use crate::components::game::at_bat::AtBatV2;
 use crate::components::game::matchup::Summary;
+use crate::components::game::win_probability::WinProbability;
 use crate::components::linescore::LineScore;
 use indexmap::IndexMap;
 use mlb_api::live::LiveResponse;
 use mlb_api::plays::Play;
+use mlb_api::win_probability::WinProbabilityResponse;
 use std::sync::LazyLock;
 
-type AtBatIndex = u8;
+pub type AtBatIndex = u8;
 
 static DEFAULT_AT_BAT: LazyLock<AtBatV2> = LazyLock::new(AtBatV2::default);
 
@@ -19,6 +21,7 @@ pub struct GameStateV2 {
     pub boxscore: TeamBatterBoxscore,
     pub current_at_bat: AtBatIndex,
     pub at_bats: IndexMap<AtBatIndex, AtBatV2>,
+    pub win_probability: WinProbability,
     // pub players: HashMap<u64, PlayerStats>, // TODO
 }
 
@@ -30,7 +33,7 @@ pub struct GameStateV2 {
 
 impl GameStateV2 {
     /// Update with latest data from the API.
-    pub fn update(&mut self, live_data: &LiveResponse) {
+    pub fn update(&mut self, live_data: &LiveResponse, win_probability: &WinProbabilityResponse) {
         if self.game_id != live_data.game_pk {
             self.reset();
         }
@@ -42,6 +45,7 @@ impl GameStateV2 {
         if let Some(plays) = &live_data.live_data.plays.all_plays {
             plays.iter().for_each(|p| Self::update_single_play(self, p));
         }
+        self.win_probability = WinProbability::from(win_probability);
     }
 
     pub fn get_summary(&self) -> &Summary {

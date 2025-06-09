@@ -192,6 +192,7 @@ impl Matchup {
             vec![self.away_name.clone(), self.away_score.to_string()],
             vec![self.home_name.clone(), self.home_score.to_string()],
             vec!["inning".to_string(), self.inning.clone()],
+            // vec!["ab #".to_string(), self.ab_index.to_string()],
             vec!["outs".to_string(), self.count.outs.to_string()],
             vec!["balls".to_string(), self.count.balls.to_string()],
             vec!["strikes".to_string(), self.count.strikes.to_string()],

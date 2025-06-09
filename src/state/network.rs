@@ -72,9 +72,13 @@ impl NetworkWorker {
     }
 
     async fn handle_load_game_data(&self, game_id: u64) -> Option<NetworkResponse> {
-        let game = self.client.get_live_data(game_id).await;
+        let (game, wp) = tokio::join!(
+            self.client.get_live_data(game_id),
+            self.client.get_win_probability(game_id),
+        );
         Some(NetworkResponse::GameDataLoaded {
             game: Box::new(game),
+            win_probability: wp,
         })
     }
 
