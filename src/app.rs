@@ -56,15 +56,26 @@ impl App {
     /// Update the schedule and return the selected game.
     /// If the schedule is empty, return None.
     pub fn update_schedule(&mut self, schedule: &ScheduleResponse) -> Option<u64> {
+        let old_game_id = self.state.gameday.current_game_id();
         self.state.schedule.update(&self.settings, schedule);
         let selected = self.state.schedule.get_selected_game_opt();
+
         // reset boxscore to selected game if it exists
         self.state.gameday.reset(selected);
-        selected
+
+        // return the game id only if it changed
+        match selected {
+            Some(new_id) if new_id != old_game_id && new_id > 0 => Some(new_id),
+            _ => None,
+        }
     }
 
     pub fn update_live_data(&mut self, live_data: &LiveResponse) {
-        self.state.gameday.game.update(live_data);
+        // only update gameday if the selected game is the same as the game being updated
+        // this prevents gameday from showing incorrect data if the user scrolls through games quickly
+        if Some(live_data.game_pk) == self.state.schedule.get_selected_game_opt() {
+            self.state.gameday.game.update(live_data);
+        }
     }
 
     pub fn update_tab(&mut self, next: MenuItem) {

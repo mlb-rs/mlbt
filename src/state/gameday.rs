@@ -16,10 +16,6 @@ impl GamedayState {
         self.game.game_id
     }
 
-    pub fn set_current_game_id(&mut self, game_id: u64) {
-        self.game.game_id = game_id;
-    }
-
     pub fn reset(&mut self, game_id: Option<u64>) {
         let new_id = game_id.unwrap_or(0);
 

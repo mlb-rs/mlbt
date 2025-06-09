@@ -125,17 +125,12 @@ async fn handle_network_response(
             return true;
         }
         NetworkResponse::ScheduleLoaded { schedule } => {
-            let game_id = {
+            let game_id_to_load = {
                 let mut guard = app.lock().await;
-                let selected_game_id = guard.update_schedule(&schedule);
-                if let Some(game_id) = selected_game_id {
-                    guard.state.gameday.set_current_game_id(game_id);
-                }
-                selected_game_id
+                guard.update_schedule(&schedule)
             };
 
-            // When the schedule is loaded, reload the live game data if there's a selected game
-            if let Some(game_id) = game_id {
+            if let Some(game_id) = game_id_to_load {
                 let _ = network_requests
                     .send(NetworkRequest::GameData { game_id })
                     .await;

@@ -64,10 +64,10 @@ impl GameStateV2 {
     /// latest at bat. It will also return `true` if the at bat is the current at bat.
     pub fn get_at_bat_by_index_or_current(&self, index: Option<u8>) -> (&AtBatV2, bool) {
         let idx = index.unwrap_or(self.current_at_bat);
-        let game = self
-            .get_at_bat_by_index(idx)
-            .unwrap_or_else(|| self.get_latest_at_bat());
-        (game, idx == self.current_at_bat)
+        match self.get_at_bat_by_index(idx) {
+            Some(at_bat) => (at_bat, idx == self.current_at_bat),
+            None => (self.get_latest_at_bat(), true),
+        }
     }
 
     pub fn count_events(&self) -> usize {

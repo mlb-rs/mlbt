@@ -57,6 +57,10 @@ pub async fn handle_key_bindings(
             load_game_data(guard, network_requests).await;
         }
         (MenuItem::Scoreboard, Char(':')) => guard.update_tab(MenuItem::DatePicker),
+        (MenuItem::Scoreboard, KeyCode::Enter) => {
+            guard.update_tab(MenuItem::Gameday);
+            load_game_data(guard, network_requests).await;
+        }
 
         (MenuItem::DatePicker, KeyCode::Enter) => {
             if guard.try_update_date_from_input().is_ok() {
