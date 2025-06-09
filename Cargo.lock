@@ -1069,7 +1069,7 @@ dependencies = [
 
 [[package]]
 name = "mlb-api"
-version = "0.0.14"
+version = "0.0.14-alpha.1"
 dependencies = [
  "chrono",
  "derive_builder",

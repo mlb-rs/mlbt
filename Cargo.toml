@@ -27,7 +27,7 @@ chrono-tz = { version = "0.10.3", features = ["serde"] }
 crossterm = "0.29.0"
 directories = "6.0.0"
 indexmap = "2.9.0"
-mlb-api = { path = "api", version = "0.0.14" }
+mlb-api = { path = "api", version = "0.0.14-alpha.1" }
 serde = { version = "1.0.219", features = ["derive"] }
 tokio = { version = "1.45.1", features = ["full"] }
 toml = "0.8.22"
