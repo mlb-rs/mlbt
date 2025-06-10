@@ -42,10 +42,10 @@ impl BatterBoxscore {
         // let header = vec!["player", "ab", "r", "h", "rbi", "bb", "so", "lob", "avg"];
         vec![
             format!(
-                "{} {} {}",
+                "{} {: <2} {}",
                 self.order,
+                self.position, // pad an extra space so 'C' is aligned with '1B'
                 self.name.split_whitespace().last().unwrap_or("-"),
-                self.position
             ),
             self.at_bats.to_string(),
             self.runs.to_string(),

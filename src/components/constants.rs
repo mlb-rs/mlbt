@@ -2,7 +2,7 @@ use crate::components::standings::Team;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
-/// This maps the `teamId` to the `shortName` for each division and league.
+/// This maps the `divisionId` to the `shortName` for each division and league.
 /// The team names are taken from the `divisions` endpoint.
 pub static DIVISIONS: LazyLock<HashMap<u16, &'static str>> = LazyLock::new(|| {
     HashMap::from([
@@ -30,50 +30,10 @@ pub static DIVISION_ORDERS: LazyLock<HashMap<u16, Vec<u16>>> = LazyLock::new(|| 
     ])
 });
 
-/// This maps the full name of a team to its short name. The short name is used in the boxscore.
-/// The team names are taken from the `teams` endpoint.
-pub static TEAM_NAMES: LazyLock<HashMap<&'static str, &'static str>> = LazyLock::new(|| {
-    HashMap::from([
-        ("Oakland Athletics", "Athletics"),
-        ("Athletics", "Athletics"),
-        ("Pittsburgh Pirates", "Pirates"),
-        ("San Diego Padres", "Padres"),
-        ("Seattle Mariners", "Mariners"),
-        ("San Francisco Giants", "Giants"),
-        ("St. Louis Cardinals", "Cardinals"),
-        ("Tampa Bay Rays", "Rays"),
-        ("Texas Rangers", "Rangers"),
-        ("Toronto Blue Jays", "Blue Jays"),
-        ("Minnesota Twins", "Twins"),
-        ("Philadelphia Phillies", "Phillies"),
-        ("Atlanta Braves", "Braves"),
-        ("Chicago White Sox", "White Sox"),
-        ("Miami Marlins", "Marlins"),
-        ("Florida Marlins", "Marlins"),
-        ("New York Yankees", "Yankees"),
-        ("Milwaukee Brewers", "Brewers"),
-        ("Los Angeles Angels", "Angels"),
-        ("Arizona Diamondbacks", "D-backs"),
-        ("Baltimore Orioles", "Orioles"),
-        ("Boston Red Sox", "Red Sox"),
-        ("Chicago Cubs", "Cubs"),
-        ("Cincinnati Reds", "Reds"),
-        ("Cleveland Indians", "Indians"),
-        ("Cleveland Guardians", "Guardians"),
-        ("Colorado Rockies", "Rockies"),
-        ("Detroit Tigers", "Tigers"),
-        ("Houston Astros", "Astros"),
-        ("Kansas City Royals", "Royals"),
-        ("Los Angeles Dodgers", "Dodgers"),
-        ("Washington Nationals", "Nationals"),
-        ("New York Mets", "Mets"),
-        ("American League All-Stars", "AL All-Stars"),
-        ("National League All-Stars", "NL All-Stars"),
-    ])
-});
-
-#[rustfmt::skip]
+/// This maps the full name of a team to its full `Team` struct.
+/// The data is from the `teams` endpoint.
 // TODO generate from json?
+#[rustfmt::skip]
 pub static TEAM_IDS: LazyLock<HashMap<&'static str, Team>> = LazyLock::new(|| {
     let mut m = HashMap::new();
     m.insert("Oakland Athletics", Team { id: 133, division_id: 200, name: "Athletics", team_name: "Athletics", abbreviation: "ATH" });
@@ -109,5 +69,7 @@ pub static TEAM_IDS: LazyLock<HashMap<&'static str, Team>> = LazyLock::new(|| {
     m.insert("Los Angeles Dodgers", Team { id: 119, division_id: 203, name: "Los Angeles Dodgers", team_name: "Dodgers", abbreviation: "LAD" });
     m.insert("Washington Nationals", Team { id: 120, division_id: 204, name: "Washington Nationals", team_name: "Nationals", abbreviation: "WSH" });
     m.insert("New York Mets", Team { id: 121, division_id: 204, name: "New York Mets", team_name: "Mets", abbreviation: "NYM" });
+    m.insert("American League All-Stars", Team { id: 159, division_id: 103, name: "American League All-Stars", team_name: "AL All-Stars", abbreviation: "AL" });
+    m.insert("National League All-Stars", Team { id: 160, division_id: 104, name: "National League All-Stars", team_name: "NL All-Stars", abbreviation: "NL" });
     m
 });
