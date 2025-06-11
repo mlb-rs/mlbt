@@ -1,3 +1,4 @@
+use crate::app::MenuItem;
 use crate::draw;
 use crate::state::app_state::HomeOrAway;
 use crate::state::gameday::GamedayState;
@@ -75,6 +76,7 @@ impl Widget for GamedayWidget<'_> {
                     WinProbabilityWidget {
                         game: &self.state.game,
                         selected_at_bat: self.state.selected_at_bat(),
+                        active_tab: MenuItem::Gameday,
                     },
                     chunks[1],
                     buf,

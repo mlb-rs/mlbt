@@ -10,12 +10,22 @@ use std::cmp::Ordering;
 use tui::widgets::TableState;
 
 /// ScheduleState is used to render the schedule as a `tui-rs` table.
-#[derive(Default)]
 pub struct ScheduleState {
     pub state: TableState,
     pub schedule: Vec<ScheduleRow>,
     pub date_selector: DateSelector,
     pub show_win_probability: bool,
+}
+
+impl Default for ScheduleState {
+    fn default() -> Self {
+        ScheduleState {
+            state: TableState::default(),
+            schedule: Vec::new(),
+            date_selector: DateSelector::default(),
+            show_win_probability: true,
+        }
+    }
 }
 
 /// The information needed to create a single row in a table.

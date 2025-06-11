@@ -134,11 +134,7 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
         &mut app.state.schedule,
     );
     if app.state.schedule.show_win_probability {
-        let win_prob = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
-            .split(chunks[0]);
-        draw_win_probability(f, win_prob[1], app);
+        draw_win_probability(f, chunks[0], app);
     }
 
     // display line score and box score on right
@@ -213,6 +209,7 @@ fn draw_win_probability(f: &mut Frame, rect: Rect, app: &mut App) {
         WinProbabilityWidget {
             game: &app.state.gameday.game,
             selected_at_bat: app.state.gameday.selected_at_bat(),
+            active_tab: MenuItem::Scoreboard,
         },
         rect,
     );

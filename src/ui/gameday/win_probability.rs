@@ -1,16 +1,24 @@
+use crate::app::MenuItem;
 use crate::components::game::live_game::GameStateV2;
+use crate::components::game::matchup::Summary;
 use crate::components::game::win_probability::WinProbabilityAtBat;
 use crate::ui::gameday::plays::{BLUE, GREEN, RED};
 use indexmap::IndexMap;
 use tui::prelude::*;
-use tui::widgets::{Bar, BarChart, BarGroup, Cell, Row, Table};
+use tui::widgets::{
+    Axis, Bar, BarChart, BarGroup, Block, Borders, Cell, Chart, Dataset, GraphType, Row, Table,
+};
+
+type ChartPoint = (f64, f64);
 
 pub struct WinProbabilityWidget<'a> {
     pub game: &'a GameStateV2,
     pub selected_at_bat: Option<u8>,
+    pub active_tab: MenuItem,
 }
 
 struct WinProbabilityData<'a> {
+    summary: &'a Summary,
     at_bats: &'a IndexMap<u8, WinProbabilityAtBat>,
     selected_at_bat_index: Option<u8>,
     table_height: u16,
@@ -18,24 +26,42 @@ struct WinProbabilityData<'a> {
 
 impl Widget for WinProbabilityWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Length(26), Constraint::Fill(1)].as_ref())
-            .horizontal_margin(2)
-            .vertical_margin(1)
-            .split(area);
-
-        let data = WinProbabilityData::new(self.game, self.selected_at_bat, chunks[0].height);
-
-        data.render_table(chunks[0], buf);
-        data.render_chart(chunks[1], buf);
+        match self.active_tab {
+            MenuItem::Scoreboard => {
+                let chunks = Layout::default()
+                    .direction(Direction::Vertical)
+                    .constraints([Constraint::Percentage(65), Constraint::Percentage(35)].as_ref())
+                    .horizontal_margin(2)
+                    .vertical_margin(1)
+                    .split(area);
+                let data =
+                    WinProbabilityData::new(self.game, self.selected_at_bat, chunks[1].height);
+                data.render_line_chart(chunks[1], buf);
+            }
+            MenuItem::Gameday => {
+                let chunks = Layout::default()
+                    .direction(Direction::Horizontal)
+                    .constraints([Constraint::Length(26), Constraint::Fill(1)].as_ref())
+                    .horizontal_margin(2)
+                    .vertical_margin(1)
+                    .split(area);
+                let data =
+                    WinProbabilityData::new(self.game, self.selected_at_bat, chunks[0].height);
+                data.render_table(chunks[0], buf);
+                data.render_chart(chunks[1], buf);
+            }
+            _ => (),
+        }
     }
 }
 
 impl<'a> WinProbabilityData<'a> {
+    const INTERPOLATION_TARGET_COUNT: usize = 50;
+
     fn new(game: &'a GameStateV2, selected_at_bat_index: Option<u8>, table_height: u16) -> Self {
         Self {
             at_bats: &game.win_probability.at_bats,
+            summary: &game.summary,
             selected_at_bat_index,
             table_height,
         }
@@ -69,6 +95,8 @@ impl<'a> WinProbabilityData<'a> {
         };
         let leverage_color = if leverage > 2.0 { RED } else { Color::White };
 
+        // -10.0 is the longest wpa possible because the smallest wpa possible is -99.9.
+        // so align everything with 4 characters and ignore the minus sign
         let wpa = if at_bat.home_team_wp_added <= -10.0 {
             format!("{:4.1}", at_bat.home_team_wp_added)
         } else {
@@ -210,5 +238,182 @@ impl<'a> WinProbabilityData<'a> {
             let end_idx = visible_count.min(total_rows);
             (0, end_idx, None)
         }
+    }
+
+    fn render_line_chart(&self, area: Rect, buf: &mut Buffer) {
+        let (points, x_axis_bounds) = self.prepare_chart_data();
+
+        // split points into home and away teams so they can be different colors
+        let (away_points, home_points): (Vec<ChartPoint>, Vec<ChartPoint>) =
+            points.iter().copied().partition(|p| p.1 > 0.0);
+
+        let inning_lines = self.generate_inning_lines();
+        let datasets = self.create_datasets(&home_points, &away_points, &inning_lines);
+        let chart = self.create_chart(datasets, x_axis_bounds);
+
+        Widget::render(chart, area, buf);
+    }
+
+    fn create_chart<'c>(&self, datasets: Vec<Dataset<'c>>, x_axis_bounds: f64) -> Chart<'c> {
+        Chart::new(datasets)
+            .block(
+                Block::default()
+                    .title(Line::from(" Game Win Probability ").centered())
+                    .borders(Borders::TOP),
+            )
+            .x_axis(
+                Axis::default()
+                    .style(Style::default().fg(Color::Gray))
+                    .bounds([0.0, x_axis_bounds]),
+            )
+            .y_axis(
+                Axis::default()
+                    .style(Style::default().fg(Color::Gray))
+                    .labels([
+                        self.summary.home_team.abbreviation.to_string(),
+                        "50%".into(),
+                        self.summary.away_team.abbreviation.to_string(),
+                    ])
+                    .bounds([-50.0, 50.0]),
+            )
+    }
+
+    fn prepare_chart_data(&self) -> (Vec<ChartPoint>, f64) {
+        let mut points: Vec<ChartPoint> = self
+            .at_bats
+            .values()
+            .map(|at_bat| {
+                (
+                    at_bat.at_bat_index as f64,
+                    // - 50% should be at 0.0
+                    // - 100% for the home team should be at -50.0
+                    // - 100% for the away team should be at 50.0
+                    50.0 - at_bat.home_team_wp as f64,
+                )
+            })
+            .collect();
+
+        // The bounds should be based on the number of at-bats, not interpolated points.
+        // Add 1.0 to the max index for better padding on the chart.
+        let x_axis_bounds = self
+            .at_bats
+            .values()
+            .last()
+            .map_or(0.0, |ab| ab.at_bat_index as f64 + 1.0);
+
+        if points.len() > 1 && points.len() < Self::INTERPOLATION_TARGET_COUNT {
+            points = Self::interpolate_points(points, Self::INTERPOLATION_TARGET_COUNT);
+        }
+
+        (points, x_axis_bounds)
+    }
+
+    fn create_datasets<'d>(
+        &self,
+        home_points: &'d [ChartPoint],
+        away_points: &'d [ChartPoint],
+        inning_lines: &'d [[ChartPoint; 2]],
+    ) -> Vec<Dataset<'d>> {
+        let mut datasets = Vec::with_capacity(inning_lines.len() + 2);
+
+        // add lines indicating inning changes
+        for line in inning_lines {
+            datasets.push(
+                Dataset::default()
+                    .marker(symbols::Marker::Braille)
+                    .style(Style::default().fg(Color::Gray))
+                    .graph_type(GraphType::Line)
+                    .data(line),
+            );
+        }
+
+        // add the team data
+        datasets.push(Self::create_team_dataset(home_points, Color::Blue));
+        datasets.push(Self::create_team_dataset(away_points, Color::Green));
+
+        datasets
+    }
+
+    fn create_team_dataset(points: &[ChartPoint], color: Color) -> Dataset {
+        Dataset::default()
+            .marker(symbols::Marker::Braille)
+            .style(Style::default().fg(color))
+            .graph_type(GraphType::Bar)
+            .data(points)
+    }
+
+    fn generate_inning_lines(&self) -> Vec<[ChartPoint; 2]> {
+        let mut inning_lines = Vec::new();
+        let mut prev_state = None;
+
+        for at_bat in self.at_bats.values() {
+            let current_state = (at_bat.inning, at_bat.is_top_inning);
+
+            if let Some(prev) = prev_state {
+                if prev != current_state {
+                    let x = at_bat.at_bat_index as f64;
+                    // full inning lines are longer than half inning lines
+                    let line = if at_bat.is_top_inning {
+                        [(x, -25.0), (x, 25.0)]
+                    } else {
+                        [(x, -15.0), (x, 15.0)]
+                    };
+                    inning_lines.push(line);
+                }
+            }
+
+            prev_state = Some(current_state);
+        }
+
+        inning_lines
+    }
+
+    /// Interpolate points when there aren't that many at bats in a game yet. This fills in the
+    /// chart and makes it a lot easier to read in the first few innings of a game.
+    fn interpolate_points(points: Vec<ChartPoint>, target_count: usize) -> Vec<ChartPoint> {
+        let current_count = points.len();
+        if current_count <= 1 {
+            return points;
+        }
+
+        let points_to_add = target_count.saturating_sub(current_count);
+        let segments = current_count - 1;
+        let points_per_segment = points_to_add / segments;
+        let extra_points = points_to_add % segments;
+
+        let mut new_points = Vec::with_capacity(target_count);
+
+        for i in 0..segments {
+            new_points.push(points[i]);
+
+            let mut insert_count = points_per_segment;
+            if i < extra_points {
+                insert_count += 1;
+            }
+
+            if insert_count > 0 {
+                new_points.extend(Self::create_interpolated_points(
+                    points[i],
+                    points[i + 1],
+                    insert_count,
+                ));
+            }
+        }
+
+        new_points.push(points[current_count - 1]);
+        new_points
+    }
+
+    fn create_interpolated_points(
+        start: ChartPoint,
+        end: ChartPoint,
+        count: usize,
+    ) -> impl Iterator<Item = ChartPoint> {
+        (1..=count).map(move |p| {
+            let ratio = p as f64 / (count + 1) as f64;
+            let x = start.0 + ratio * (end.0 - start.0);
+            let y = start.1 + ratio * (end.1 - start.1);
+            (x, y)
+        })
     }
 }

@@ -173,11 +173,18 @@ async fn load_standings(guard: AppGuard<'_>, network_requests: &mpsc::Sender<Net
 
 async fn load_scoreboard(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
     let date = guard.state.schedule.date_selector.date;
+    let game_id = guard.state.schedule.get_selected_game_opt();
     drop(guard);
 
     let _ = network_requests
         .send(NetworkRequest::Schedule { date })
         .await;
+
+    if let Some(game_id) = game_id {
+        let _ = network_requests
+            .send(NetworkRequest::GameData { game_id })
+            .await;
+    }
 }
 
 async fn handle_date_change(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
