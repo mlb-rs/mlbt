@@ -2,16 +2,14 @@ mod app;
 mod components;
 mod config;
 mod draw;
-mod event;
-mod messages;
-mod network;
-mod refresher;
+mod keys;
+mod state;
 mod ui;
 
 use crate::app::App;
-use crate::messages::{NetworkRequest, NetworkResponse, UiEvent};
-use crate::network::{LoadingState, NetworkWorker};
-use crate::refresher::PeriodicRefresher;
+use crate::state::messages::{NetworkRequest, NetworkResponse, UiEvent};
+use crate::state::network::{LoadingState, NetworkWorker};
+use crate::state::refresher::PeriodicRefresher;
 use crossterm::event::{self as crossterm_event, Event};
 use crossterm::{cursor, execute, terminal};
 use std::io::Stdout;
@@ -104,10 +102,10 @@ async fn handle_ui_event(
             let _ = network_requests
                 .send(NetworkRequest::Schedule { date })
                 .await;
-            true // Redraw immediately to show laoding state
+            true // Redraw immediately to show loading state
         }
         UiEvent::KeyPressed(key_event) => {
-            event::handle_key_bindings(key_event, app, network_requests).await;
+            keys::handle_key_bindings(key_event, app, network_requests).await;
             true // Redraw after key handling
         }
         UiEvent::Resize => true, // Redraw on resize
@@ -127,17 +125,12 @@ async fn handle_network_response(
             return true;
         }
         NetworkResponse::ScheduleLoaded { schedule } => {
-            let game_id = {
+            let game_id_to_load = {
                 let mut guard = app.lock().await;
-                let selected_game_id = guard.update_schedule(&schedule);
-                if let Some(game_id) = selected_game_id {
-                    guard.state.live_game.set_game_id(game_id);
-                }
-                selected_game_id
+                guard.update_schedule(&schedule)
             };
 
-            // When the schedule is loaded, reload the live game data if there's a selected game
-            if let Some(game_id) = game_id {
+            if let Some(game_id) = game_id_to_load {
                 let _ = network_requests
                     .send(NetworkRequest::GameData { game_id })
                     .await;

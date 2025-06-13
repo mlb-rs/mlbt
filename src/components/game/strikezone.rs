@@ -1,7 +1,6 @@
 use tui::style::Color;
 
-use mlb_api::live::LiveResponse;
-use mlb_api::plays::Zone;
+use mlb_api::plays::{Play, Zone};
 
 use crate::components::util::convert_color;
 
@@ -31,10 +30,29 @@ pub struct StrikeZone {
 impl Default for StrikeZone {
     fn default() -> Self {
         StrikeZone {
-            colors: StrikeZone::all_black(),
+            colors: StrikeZone::all_white(),
             strike_zone_bot: DEFAULT_SZ_BOT,
             strike_zone_top: DEFAULT_SZ_TOP,
         }
+    }
+}
+
+impl From<&Play> for StrikeZone {
+    /// Generate the strike zone from the current at bat. If there is no data the strike zone will
+    /// be all white.
+    ///
+    /// To get to the heat map zones, the API response is traversed like so:
+    /// liveData > plays > currentPlay > matchup > batterHotColdZones > zones
+    fn from(play: &Play) -> Self {
+        let colors = match play.matchup.batter_hot_cold_zones.as_ref() {
+            Some(z) => StrikeZone::transform_zones(z),
+            None => return StrikeZone::default(),
+        };
+        // TODO set strike zone top/bottom here
+        if colors.len() < 9 {
+            return StrikeZone::default();
+        }
+        StrikeZone::new(colors)
     }
 }
 
@@ -45,26 +63,6 @@ impl StrikeZone {
             strike_zone_bot: DEFAULT_SZ_BOT,
             strike_zone_top: DEFAULT_SZ_TOP,
         }
-    }
-
-    /// Generate the strike zone from the current at bat. If there is no data the strike zone will
-    /// be all black.
-    ///
-    /// To get to the heat map zones, the API response is traversed like so:
-    /// liveData > plays > currentPlay > matchup > batterHotColdZones > zones
-    pub fn from_live_data(live_game: &LiveResponse) -> Self {
-        let colors = match live_game.live_data.plays.current_play.as_ref() {
-            Some(c) => match c.matchup.batter_hot_cold_zones.as_ref() {
-                Some(z) => StrikeZone::transform_zones(z),
-                None => return StrikeZone::default(),
-            },
-            None => return StrikeZone::default(),
-        };
-        // TODO set strike zone top/bottom here
-        if colors.len() < 9 {
-            return StrikeZone::default();
-        }
-        StrikeZone::new(colors)
     }
 
     /// Go through the zones and pull out the batting average colors. There are usually 13 zones
@@ -95,24 +93,24 @@ impl StrikeZone {
             .collect()
     }
 
-    fn all_black() -> Vec<Color> {
-        (0..9).map(|_| Color::Rgb(0, 0, 0)).collect()
+    fn all_white() -> Vec<Color> {
+        (0..9).map(|_| Color::Rgb(255, 255, 255)).collect()
     }
 }
 
 #[test]
-fn test_all_black() {
+fn test_all_white() {
     let hm = StrikeZone::default();
     let good = vec![
-        Color::Rgb(0, 0, 0),
-        Color::Rgb(0, 0, 0),
-        Color::Rgb(0, 0, 0),
-        Color::Rgb(0, 0, 0),
-        Color::Rgb(0, 0, 0),
-        Color::Rgb(0, 0, 0),
-        Color::Rgb(0, 0, 0),
-        Color::Rgb(0, 0, 0),
-        Color::Rgb(0, 0, 0),
+        Color::Rgb(255, 255, 255),
+        Color::Rgb(255, 255, 255),
+        Color::Rgb(255, 255, 255),
+        Color::Rgb(255, 255, 255),
+        Color::Rgb(255, 255, 255),
+        Color::Rgb(255, 255, 255),
+        Color::Rgb(255, 255, 255),
+        Color::Rgb(255, 255, 255),
+        Color::Rgb(255, 255, 255),
     ];
     assert_eq!(hm.colors, good);
 }

@@ -155,6 +155,13 @@ toggled on and off using:
 - `p`: pitches pane
 - `b`: box score pane
 
+To view earlier at bats in the game, use:
+
+- `j`: move to previous play
+- `k`: move to next play
+- `l`: move to the "live" play, or the latest available
+- `s`: move to first play of the game
+
 To switch the team displayed in the box score:
 
 - `h`: home team

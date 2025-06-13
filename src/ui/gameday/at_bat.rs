@@ -1,21 +1,28 @@
-use crate::components::at_bat::AtBat;
-use crate::components::strikezone::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH, StrikeZone};
-
+use crate::components::game::live_game::GameStateV2;
+use crate::components::game::strikezone::{
+    DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH, StrikeZone,
+};
 use tui::{
     buffer::Buffer,
     layout::{Constraint, Direction, Layout, Rect},
     style::Style,
     text::{Line, Span, Text},
     widgets::canvas::{Canvas, Rectangle},
-    widgets::{Block, Borders, Paragraph, StatefulWidget, Widget, Wrap},
+    widgets::{Block, Borders, Paragraph, Widget, Wrap},
 };
 
-pub struct AtBatWidget {}
+pub struct AtBatWidget<'a> {
+    pub game: &'a GameStateV2,
+    pub selected_at_bat: Option<u8>,
+}
 
-impl StatefulWidget for AtBatWidget {
-    type State = AtBat;
+impl Widget for AtBatWidget<'_> {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+        let (game, _is_current) = self
+            .game
+            .get_at_bat_by_index_or_current(self.selected_at_bat);
+        let pitches = &game.pitches;
 
-    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .margin(2)
@@ -48,7 +55,7 @@ impl StatefulWidget for AtBatWidget {
         // grab the strike zone from the first pitch since it doesn't change during the at bat.
         let mut strike_zone_bot = DEFAULT_SZ_BOT * 12.0;
         let mut strike_zone_top = DEFAULT_SZ_TOP * 12.0;
-        for pe in &state.pitches.pitch_events {
+        for pe in &pitches.pitches.pitch_events {
             if let Some(pitch) = pe.pitch.as_ref() {
                 strike_zone_bot = pitch.strike_zone_bot * 12.0;
                 strike_zone_top = pitch.strike_zone_top * 12.0;
@@ -68,11 +75,11 @@ impl StatefulWidget for AtBatWidget {
                         y: coord.1,
                         width: (HOME_PLATE_WIDTH / 3.0),
                         height: (height / 3.0),
-                        color: state.strike_zone.colors[i],
+                        color: pitches.strike_zone.colors[i],
                     };
                     ctx.draw(&r);
                 }
-                for pe in &state.pitches.pitch_events {
+                for pe in &pitches.pitches.pitch_events {
                     if let Some(pitch) = &pe.pitch {
                         let ball = pitch.as_rectangle();
                         let pitch_count = pitch.index.to_string();
@@ -90,7 +97,7 @@ impl StatefulWidget for AtBatWidget {
             .render(strikezone[1], buf);
 
         // display the event information
-        let events: Vec<Line> = state
+        let events: Vec<Line> = pitches
             .pitches
             .pitch_events
             .iter()

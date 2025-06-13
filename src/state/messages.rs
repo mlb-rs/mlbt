@@ -1,5 +1,5 @@
 use crate::components::stats::StatType;
-use crate::network::LoadingState;
+use crate::state::network::LoadingState;
 use chrono::NaiveDate;
 use crossterm::event::KeyEvent;
 use mlb_api::live::LiveResponse;

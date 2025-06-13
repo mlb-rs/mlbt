@@ -1,5 +1,5 @@
+use crate::NetworkRequest;
 use crate::app::{App, MenuItem};
-use crate::messages::NetworkRequest;
 use std::time::Duration;
 use tokio::sync::mpsc;
 use tokio::time::interval;
@@ -24,10 +24,10 @@ impl PeriodicRefresher {
                 _ = live_interval.tick() => {
                     let (active_tab, game_id) = {
                         let app = app.lock().await;
-                        (app.state.active_tab, app.state.live_game.get_current_game_id())
+                        (app.state.active_tab, app.state.gameday.current_game_id())
                     };
 
-                    if active_tab == MenuItem::Gameday {
+                    if active_tab == MenuItem::Gameday && game_id > 0 {
                         let _ = self.network_requests.send(NetworkRequest::GameData { game_id }).await;
                     }
                 }

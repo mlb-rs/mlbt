@@ -1,6 +1,6 @@
-use crate::app::AppSettings;
 use crate::components::constants::TEAM_IDS;
 use crate::components::standings::Team;
+use crate::state::app_settings::AppSettings;
 use anyhow::Context;
 use chrono::{TimeZone, Utc};
 use chrono_tz::America::Los_Angeles;

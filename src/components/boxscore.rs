@@ -1,4 +1,4 @@
-use crate::app::HomeOrAway;
+use crate::state::app_state::HomeOrAway;
 use mlb_api::boxscore::{Player, Team};
 use mlb_api::live::LiveResponse;
 

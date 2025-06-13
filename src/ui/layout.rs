@@ -1,4 +1,4 @@
-use crate::app::GamedayPanels;
+use crate::state::gameday::GamedayPanels;
 use tui::layout::{Constraint, Direction, Layout, Rect, Size};
 
 pub struct LayoutAreas {
@@ -77,7 +77,8 @@ impl LayoutAreas {
     pub fn for_info(rect: Rect) -> Vec<Rect> {
         Layout::default()
             .direction(Direction::Vertical)
-            .margin(2)
+            .horizontal_margin(2)
+            .vertical_margin(1)
             .constraints(
                 [
                     Constraint::Length(13),      // game info
@@ -93,14 +94,11 @@ impl LayoutAreas {
     pub fn generate_gameday_panels(active: &GamedayPanels, area: Rect) -> Vec<Rect> {
         let constraints = match active.count() {
             0 | 1 => vec![Constraint::Percentage(100)],
-            2 => vec![Constraint::Percentage(50), Constraint::Percentage(50)],
+            2 => vec![Constraint::Ratio(1, 2), Constraint::Ratio(1, 2)],
             3 => vec![
                 Constraint::Ratio(1, 3),
                 Constraint::Ratio(1, 3),
                 Constraint::Ratio(1, 3),
-                // Constraint::Percentage(33),
-                // Constraint::Percentage(34),
-                // Constraint::Percentage(33),
             ],
             _ => vec![],
         };
