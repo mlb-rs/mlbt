@@ -68,10 +68,10 @@ impl Widget for GamedayWidget<'_> {
             if self.state.panels.win_probability {
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
-                    .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
+                    .constraints([Constraint::Fill(1), Constraint::Percentage(20)].as_ref())
                     .split(p);
-                Widget::render(innings_widget, chunks[0], buf);
 
+                Widget::render(innings_widget, chunks[0], buf);
                 Widget::render(
                     WinProbabilityWidget {
                         game: &self.state.game,

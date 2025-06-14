@@ -129,7 +129,6 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
         ScheduleWidget {
             tz_abbreviation: app.settings.timezone_abbreviation.clone(),
         },
-        // don't use win_prob[0] so the border is full height
         chunks[0],
         &mut app.state.schedule,
     );
@@ -205,14 +204,19 @@ fn draw_standings(f: &mut Frame, rect: Rect, app: &mut App) {
 }
 
 fn draw_win_probability(f: &mut Frame, rect: Rect, app: &mut App) {
-    f.render_widget(
-        WinProbabilityWidget {
-            game: &app.state.gameday.game,
-            selected_at_bat: app.state.gameday.selected_at_bat(),
-            active_tab: MenuItem::Scoreboard,
-        },
-        rect,
-    );
+    // only render if it doesn't overlap the schedule
+    let minimum_size =
+        WinProbabilityWidget::get_min_table_height() + app.state.schedule.schedule.len() + 2; // +2 for borders 
+    if rect.height > minimum_size as u16 {
+        f.render_widget(
+            WinProbabilityWidget {
+                game: &app.state.gameday.game,
+                selected_at_bat: app.state.gameday.selected_at_bat(),
+                active_tab: MenuItem::Scoreboard,
+            },
+            rect,
+        );
+    }
 }
 
 fn draw_help(f: &mut Frame, rect: Rect) {

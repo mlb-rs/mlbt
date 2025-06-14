@@ -24,13 +24,22 @@ struct WinProbabilityData<'a> {
     table_height: u16,
 }
 
+impl WinProbabilityWidget<'_> {
+    pub fn get_min_table_height() -> usize {
+        WinProbabilityData::MINIMUM_TABLE_HEIGHT
+    }
+}
+
 impl Widget for WinProbabilityWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         match self.active_tab {
             MenuItem::Scoreboard => {
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
-                    .constraints([Constraint::Percentage(65), Constraint::Percentage(35)].as_ref())
+                    .constraints([
+                        Constraint::Fill(1),
+                        Constraint::Length(WinProbabilityData::MINIMUM_TABLE_HEIGHT as u16),
+                    ])
                     .horizontal_margin(2)
                     .vertical_margin(1)
                     .split(area);
@@ -41,7 +50,7 @@ impl Widget for WinProbabilityWidget<'_> {
             MenuItem::Gameday => {
                 let chunks = Layout::default()
                     .direction(Direction::Horizontal)
-                    .constraints([Constraint::Length(26), Constraint::Fill(1)].as_ref())
+                    .constraints([Constraint::Length(30), Constraint::Fill(1)].as_ref())
                     .horizontal_margin(2)
                     .vertical_margin(1)
                     .split(area);
@@ -57,6 +66,7 @@ impl Widget for WinProbabilityWidget<'_> {
 
 impl<'a> WinProbabilityData<'a> {
     const INTERPOLATION_TARGET_COUNT: usize = 50;
+    const MINIMUM_TABLE_HEIGHT: usize = 10;
 
     fn new(game: &'a GameStateV2, selected_at_bat_index: Option<u8>, table_height: u16) -> Self {
         Self {
