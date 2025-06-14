@@ -38,6 +38,18 @@ pub struct Team {
     pub abbreviation: &'static str,
 }
 
+impl Default for Team {
+    fn default() -> Self {
+        Self {
+            id: 0,
+            division_id: 0,
+            name: "unknown",
+            team_name: "unknown",
+            abbreviation: "UNK",
+        }
+    }
+}
+
 /// Standing information per team.
 #[derive(Debug, Default)]
 pub struct Standing {

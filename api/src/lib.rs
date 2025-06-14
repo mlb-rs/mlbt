@@ -5,3 +5,4 @@ pub mod plays;
 pub mod schedule;
 pub mod standings;
 pub mod stats;
+pub mod win_probability;

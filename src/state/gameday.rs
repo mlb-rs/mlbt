@@ -74,6 +74,10 @@ impl GamedayState {
     pub fn toggle_boxscore(&mut self) {
         self.panels.boxscore = !self.panels.boxscore;
     }
+
+    pub fn toggle_win_probability(&mut self) {
+        self.panels.win_probability = !self.panels.win_probability;
+    }
 }
 
 /// Store which panels should be rendered in the Gameday tab.
@@ -82,6 +86,7 @@ pub struct GamedayPanels {
     pub info: bool,
     pub at_bat: bool,
     pub boxscore: bool,
+    pub win_probability: bool,
 }
 
 impl GamedayPanels {
@@ -97,6 +102,7 @@ impl Default for GamedayPanels {
             info: true,
             at_bat: true,
             boxscore: false,
+            win_probability: true,
         }
     }
 }
