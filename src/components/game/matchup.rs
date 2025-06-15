@@ -1,22 +1,33 @@
 use mlb_api::live::LiveResponse;
 use mlb_api::plays::{Count, Play};
 
+use crate::components::constants::TEAM_IDS;
+use crate::components::standings::Team;
 use std::fmt;
 
 const DEFAULT_NAME: &str = "-";
 
 pub struct Summary {
-    pub home_name: String,
-    pub away_name: String,
+    pub home_team: Team,
+    pub away_team: Team,
     pub on_deck: String,
     pub in_hole: String,
 }
 
 impl Default for Summary {
     fn default() -> Self {
+        let home_team = Team {
+            abbreviation: "H",
+            ..Team::default()
+        };
+        let away_team = Team {
+            abbreviation: "A",
+            ..Team::default()
+        };
+
         Self {
-            home_name: DEFAULT_NAME.to_owned(),
-            away_name: DEFAULT_NAME.to_owned(),
+            home_team,
+            away_team,
             on_deck: DEFAULT_NAME.to_owned(),
             in_hole: DEFAULT_NAME.to_owned(),
         }
@@ -36,8 +47,14 @@ impl From<&LiveResponse> for Summary {
         };
 
         Self {
-            home_name: live_game.game_data.teams.home.team_name.clone(),
-            away_name: live_game.game_data.teams.away.team_name.clone(),
+            home_team: TEAM_IDS
+                .get(live_game.game_data.teams.home.name.as_str())
+                .cloned()
+                .unwrap_or_default(),
+            away_team: TEAM_IDS
+                .get(live_game.game_data.teams.away.name.as_str())
+                .cloned()
+                .unwrap_or_default(),
             on_deck,
             in_hole,
         }
@@ -171,9 +188,9 @@ impl Matchup {
             ("".to_string(), "".to_string())
         };
         Self {
-            home_name: summary.home_name.clone(),
+            home_name: summary.home_team.team_name.to_string(),
             home_score: matchup.home_score,
-            away_name: summary.away_name.clone(),
+            away_name: summary.away_team.team_name.to_string(),
             away_score: matchup.away_score,
             inning: matchup.inning.clone(),
             pitcher_name: matchup.pitcher_name.clone(),

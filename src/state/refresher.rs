@@ -15,7 +15,7 @@ impl PeriodicRefresher {
 
     pub async fn run(self, app: std::sync::Arc<tokio::sync::Mutex<App>>) {
         let mut live_interval = interval(Duration::from_secs(10)); // Live data every 10s
-        let mut schedule_interval = interval(Duration::from_secs(300)); // Schedule every 5 minutes
+        let mut schedule_interval = interval(Duration::from_secs(60)); // Schedule every minute
         let mut standings_interval = interval(Duration::from_secs(1800)); // Standings every 30 minutes
 
         loop {
@@ -34,13 +34,16 @@ impl PeriodicRefresher {
 
                 // Schedule updates (moderate frequency)
                 _ = schedule_interval.tick() => {
-                    let (active_tab, date) = {
+                    let (active_tab, date, game_id) = {
                         let app = app.lock().await;
-                        (app.state.active_tab, app.state.schedule.date_selector.date)
+                        (app.state.active_tab, app.state.schedule.date_selector.date, app.state.schedule.get_selected_game_opt().unwrap_or(0))
                     };
 
                     if active_tab == MenuItem::Scoreboard {
                         let _ = self.network_requests.send(NetworkRequest::Schedule { date }).await;
+                        if game_id > 0 {
+                            let _ = self.network_requests.send(NetworkRequest::GameData { game_id }).await;
+                        }
                     }
                 }
 

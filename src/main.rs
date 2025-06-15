@@ -136,9 +136,12 @@ async fn handle_network_response(
                     .await;
             }
         }
-        NetworkResponse::GameDataLoaded { game } => {
+        NetworkResponse::GameDataLoaded {
+            game,
+            win_probability,
+        } => {
             let mut guard = app.lock().await;
-            guard.update_live_data(&game);
+            guard.update_live_data(&game, &win_probability);
         }
         NetworkResponse::StandingsLoaded { standings } => {
             let mut guard = app.lock().await;

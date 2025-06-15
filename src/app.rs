@@ -3,6 +3,7 @@ use crate::state::app_state::AppState;
 use chrono::{ParseError, Utc};
 use mlb_api::live::LiveResponse;
 use mlb_api::schedule::ScheduleResponse;
+use mlb_api::win_probability::WinProbabilityResponse;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub enum MenuItem {
@@ -70,11 +71,15 @@ impl App {
         }
     }
 
-    pub fn update_live_data(&mut self, live_data: &LiveResponse) {
+    pub fn update_live_data(
+        &mut self,
+        live_data: &LiveResponse,
+        win_probability: &WinProbabilityResponse,
+    ) {
         // only update gameday if the selected game is the same as the game being updated
         // this prevents gameday from showing incorrect data if the user scrolls through games quickly
         if Some(live_data.game_pk) == self.state.schedule.get_selected_game_opt() {
-            self.state.gameday.game.update(live_data);
+            self.state.gameday.game.update(live_data, win_probability);
         }
     }
 

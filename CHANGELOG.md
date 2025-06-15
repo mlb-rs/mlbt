@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add win probability API and graphs. Get an overview of the win probability of
+  a game in the Schedule view and a more detailed breakdown in Gameday view. [PR 61](https://github.com/mlb-rs/mlbt/pull/61)
+- Add selection for at bats in Gameday view. Use `j` and `k` to scroll through
+  at bats and see all the pitches and events for that at bat. [PR 59](https://github.com/mlb-rs/mlbt/pull/59)
 - Add a spinning loader when API calls are in flight: [PR 56](https://github.com/mlb-rs/mlbt/pull/56)
 
 ## [0.0.15] - 2025-06-03

@@ -4,6 +4,7 @@ use crate::live::LiveResponse;
 use crate::schedule::ScheduleResponse;
 use crate::standings::StandingsResponse;
 use crate::stats::StatsResponse;
+use crate::win_probability::WinProbabilityResponse;
 
 use chrono::{DateTime, Datelike, Local, NaiveDate};
 use derive_builder::Builder;
@@ -85,6 +86,17 @@ impl MLBApi {
         }
         let url = format!(
             "{}v1.1/game/{}/feed/live?language=en",
+            self.base_url, game_id
+        );
+        self.get(url).await
+    }
+
+    pub async fn get_win_probability(&self, game_id: u64) -> WinProbabilityResponse {
+        if game_id == 0 {
+            return WinProbabilityResponse::default();
+        }
+        let url = format!(
+            "{}v1/game/{}/winProbability?fields=homeTeamWinProbability&fields=awayTeamWinProbability&fields=homeTeamWinProbabilityAdded&fields=atBatIndex&fields=about&fields=inning&fields=isTopInning&fields=captivatingIndex&fields=leverageIndex",
             self.base_url, game_id
         );
         self.get(url).await
