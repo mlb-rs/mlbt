@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- The schedule view now displays the team record and the losing team is 
+- The Schedule view now displays the team record and the losing team is 
   completely greyed out. [PR 62](https://github.com/mlb-rs/mlbt/pull/62)
 - Standings are now sorted by the configured favorite team, so the division with
   the team is always shown first. Additionally, the favorite team is 
@@ -18,7 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add win probability API and graphs. Get an overview of the win probability of
-  a game in the Schedule view and a more detailed breakdown in Gameday view. [PR 61](https://github.com/mlb-rs/mlbt/pull/61)
+  a game in the Schedule view and a more detailed breakdown in Gameday view.
+  Press `w` to toggle the win probability graphs on or off. [PR 61](https://github.com/mlb-rs/mlbt/pull/61)
 - Add selection for at bats in Gameday view. Use `j` and `k` to scroll through
   at bats and see all the pitches and events for that at bat. [PR 59](https://github.com/mlb-rs/mlbt/pull/59)
 - Add a spinning loader when API calls are in flight: [PR 56](https://github.com/mlb-rs/mlbt/pull/56)
