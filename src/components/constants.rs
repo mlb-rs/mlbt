@@ -32,7 +32,7 @@ pub static DIVISION_ORDERS: LazyLock<HashMap<u16, Vec<u16>>> = LazyLock::new(|| 
 
 /// This maps the full name of a team to its full `Team` struct.
 /// The data is from the `teams` endpoint.
-// TODO generate from json?
+// TODO generate from API?
 #[rustfmt::skip]
 pub static TEAM_IDS: LazyLock<HashMap<&'static str, Team>> = LazyLock::new(|| {
     let mut m = HashMap::new();
@@ -44,6 +44,7 @@ pub static TEAM_IDS: LazyLock<HashMap<&'static str, Team>> = LazyLock::new(|| {
     m.insert("San Francisco Giants", Team { id: 137, division_id: 203, name: "San Francisco Giants", team_name: "Giants", abbreviation: "SF" });
     m.insert("St. Louis Cardinals", Team { id: 138, division_id: 205, name: "St. Louis Cardinals", team_name: "Cardinals", abbreviation: "STL" });
     m.insert("Tampa Bay Rays", Team { id: 139, division_id: 201, name: "Tampa Bay Rays", team_name: "Rays", abbreviation: "TB" });
+    m.insert("Tampa Bay Devil Rays", Team { id: 139, division_id: 201, name: "Tampa Bay Devil Rays", team_name: "Devil Rays", abbreviation: "TB" });
     m.insert("Texas Rangers", Team { id: 140, division_id: 200, name: "Texas Rangers", team_name: "Rangers", abbreviation: "TEX" });
     m.insert("Toronto Blue Jays", Team { id: 141, division_id: 201, name: "Toronto Blue Jays", team_name: "Blue Jays", abbreviation: "TOR" });
     m.insert("Minnesota Twins", Team { id: 142, division_id: 202, name: "Minnesota Twins", team_name: "Twins", abbreviation: "MIN" });
@@ -54,7 +55,10 @@ pub static TEAM_IDS: LazyLock<HashMap<&'static str, Team>> = LazyLock::new(|| {
     m.insert("Miami Marlins", Team { id: 146, division_id: 204, name: "Miami Marlins", team_name: "Marlins", abbreviation: "MIA" });
     m.insert("New York Yankees", Team { id: 147, division_id: 201, name: "New York Yankees", team_name: "Yankees", abbreviation: "NYY" });
     m.insert("Milwaukee Brewers", Team { id: 158, division_id: 205, name: "Milwaukee Brewers", team_name: "Brewers", abbreviation: "MIL" });
+    m.insert("Seattle Pilots", Team { id: 158, division_id: 200, name: "Seattle Pilots", team_name: "Pilots", abbreviation: "SEA" });
     m.insert("Los Angeles Angels", Team { id: 108, division_id: 200, name: "Los Angeles Angels", team_name: "Angels", abbreviation: "LAA" });
+    m.insert("Anaheim Angels", Team { id: 108, division_id: 200, name: "Anaheim Angels", team_name: "Angels", abbreviation: "ANA" });
+    m.insert("California Angels", Team { id: 108, division_id: 200, name: "California Angels", team_name: "Angels", abbreviation: "CAL" });
     m.insert("Arizona Diamondbacks", Team { id: 109, division_id: 203, name: "Arizona Diamondbacks", team_name: "D-backs", abbreviation: "AZ" });
     m.insert("Baltimore Orioles", Team { id: 110, division_id: 201, name: "Baltimore Orioles", team_name: "Orioles", abbreviation: "BAL" });
     m.insert("Boston Red Sox", Team { id: 111, division_id: 201, name: "Boston Red Sox", team_name: "Red Sox", abbreviation: "BOS" });
@@ -68,8 +72,19 @@ pub static TEAM_IDS: LazyLock<HashMap<&'static str, Team>> = LazyLock::new(|| {
     m.insert("Kansas City Royals", Team { id: 118, division_id: 202, name: "Kansas City Royals", team_name: "Royals", abbreviation: "KC" });
     m.insert("Los Angeles Dodgers", Team { id: 119, division_id: 203, name: "Los Angeles Dodgers", team_name: "Dodgers", abbreviation: "LAD" });
     m.insert("Washington Nationals", Team { id: 120, division_id: 204, name: "Washington Nationals", team_name: "Nationals", abbreviation: "WSH" });
+    m.insert("Montreal Expos", Team { id: 120, division_id: 204, name: "Montreal Expos", team_name: "Expos", abbreviation: "MON" });
     m.insert("New York Mets", Team { id: 121, division_id: 204, name: "New York Mets", team_name: "Mets", abbreviation: "NYM" });
     m.insert("American League All-Stars", Team { id: 159, division_id: 103, name: "American League All-Stars", team_name: "AL All-Stars", abbreviation: "AL" });
     m.insert("National League All-Stars", Team { id: 160, division_id: 104, name: "National League All-Stars", team_name: "NL All-Stars", abbreviation: "NL" });
+    // pre 1969 teams didn't have divisions so just setting it to `0`
+    m.insert("Houston Colt 45's", Team { id: 117, division_id: 0, name: "Houston Colt 45's", team_name: "Colt 45's", abbreviation: "HOU" });
+    m.insert("Kansas City Athletics", Team { id: 133, division_id: 0, name: "Kansas City Athletics", team_name: "Athletics", abbreviation: "KCA" });
+    m.insert("Washington Senators", Team { id: 140, division_id: 0, name: "Washington Senators", team_name: "Senators", abbreviation: "WAS" });
+    m.insert("Milwaukee Braves", Team { id: 144, division_id: 0, name: "Milwaukee Braves", team_name: "Braves", abbreviation: "MIL" });
+    m.insert("Cincinnati Redlegs", Team { id: 113, division_id: 0, name: "Cincinnati Redlegs", team_name: "Redlegs", abbreviation: "CIN" });
+    m.insert("Philadelphia Athletics", Team { id: 133, division_id: 0, name: "Philadelphia Athletics", team_name: "Athletics", abbreviation: "PHA" });
+    m.insert("Brooklyn Dodgers", Team { id: 119, division_id: 0, name: "Brooklyn Dodgers", team_name: "Dodgers", abbreviation: "BRO" });
+    m.insert("New York Giants", Team { id: 137, division_id: 0, name: "New York Giants", team_name: "Giants", abbreviation: "NYG" });
+    m.insert("Boston Braves", Team { id: 144, division_id: 0, name: "Boston Braves", team_name: "Braves", abbreviation: "BSN" });
     m
 });
