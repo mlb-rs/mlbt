@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The schedule view now displays the team record and the losing team is 
+  completely greyed out. [PR 62](https://github.com/mlb-rs/mlbt/pull/62)
 - Standings are now sorted by the configured favorite team, so the division with
   the team is always shown first. Additionally, the favorite team is 
   automatically selected and highlighted. [PR 58](https://github.com/mlb-rs/mlbt/pull/58)
