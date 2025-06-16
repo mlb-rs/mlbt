@@ -104,7 +104,6 @@ docker run -it --rm --name mlbt mlbt:latest
 - [X] stats
     - [X] player stats
     - [X] team stats
-    - [ ] stat search (store in sqlite or an embedded db?)
 
 - [ ] CLI
 
@@ -137,7 +136,9 @@ Press `1` to activate this tab.
 
 - `j`: move down
 - `k`: move up
+- `Enter`: view current game in Gameday
 - `:`: activate date picker (see [Date Picker](#date-picker))
+- `w`: toggle win probability graph
 
 To switch the team displayed in the box score:
 
@@ -155,12 +156,13 @@ toggled on and off using:
 - `p`: pitches pane
 - `b`: box score pane
 
-To view earlier at bats in the game, use:
+To view different at bats in the game, use:
 
 - `j`: move to previous play
 - `k`: move to next play
 - `l`: move to the "live" play, or the latest available
 - `s`: move to first play of the game
+- `w`: toggle win probability graph
 
 To switch the team displayed in the box score:
 
@@ -209,7 +211,7 @@ Press `4` to activate this tab.
 
 With the date picker active, input a date in the form of `YYYY-MM-DD`, or use
 the `left`/`right` arrow keys, and press `Enter`. To cancel, press `Esc`. To go
-back to the current day, enter `today`.
+back to the current day, enter `today` or `t`.
 
 > Note that each tab has its own date, i.e. if you're viewing older stats or 
 > standings, the schedule can be the current date.

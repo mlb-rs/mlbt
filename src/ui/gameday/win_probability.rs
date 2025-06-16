@@ -2,7 +2,7 @@ use crate::app::MenuItem;
 use crate::components::game::live_game::GameStateV2;
 use crate::components::game::matchup::Summary;
 use crate::components::game::win_probability::WinProbabilityAtBat;
-use crate::ui::gameday::plays::{BLUE, GREEN, RED};
+use crate::ui::gameday::plays::{BLUE, GREEN};
 use indexmap::IndexMap;
 use tui::prelude::*;
 use tui::widgets::{
@@ -91,7 +91,7 @@ impl<'a> WinProbabilityData<'a> {
         };
 
         let wp_color = match home_wp {
-            99.0..=100.0 => BLUE,
+            99.0..=100.0 => Color::Blue,
             45.0..=55.0 => GREEN,
             0.0..=0.99 => Color::Red,
             _ => Color::White,
@@ -103,7 +103,11 @@ impl<'a> WinProbabilityData<'a> {
         } else {
             format!("{:.2}", leverage)
         };
-        let leverage_color = if leverage > 2.0 { RED } else { Color::White };
+        let leverage_color = if leverage > 2.0 {
+            Color::Red
+        } else {
+            Color::White
+        };
 
         // -10.0 is the longest wpa possible because the smallest wpa possible is -99.9.
         // so align everything with 4 characters and ignore the minus sign

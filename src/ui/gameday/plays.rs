@@ -5,11 +5,10 @@ use std::vec;
 use tui::prelude::*;
 use tui::widgets::{Paragraph, Wrap};
 
-// These colors match the red, green, and blue used in the pitch data from the API.
-pub const RED: Color = Color::Rgb(170, 21, 11);
+// These colors match the green and blue used in the pitch data from the API.
+// The green is used for pitches called as balls.
+// The blue is used for contact (hit, out, run scoring).
 pub const GREEN: Color = Color::Rgb(39, 161, 39);
-// This matches the blue used in the pitch data from the API. It's used for contact (hit, out, run
-// scoring).
 pub const BLUE: Color = Color::Rgb(26, 86, 190);
 pub const SCORING_SYMBOL: char = '!';
 pub const SELECTION_SYMBOL: char = '>';
