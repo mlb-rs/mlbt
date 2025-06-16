@@ -1,11 +1,12 @@
-use crate::components::constants::TEAM_NAMES;
+use crate::components::constants::TEAM_IDS;
 use crate::components::date_selector::DateSelector;
+use crate::components::standings::Team;
 use crate::state::app_settings::AppSettings;
 use crate::state::app_state::HomeOrAway;
 use chrono::{DateTime, NaiveDate};
 use chrono_tz::Tz;
 use core::option::Option::{None, Some};
-use mlb_api::schedule::{Game, ScheduleResponse};
+use mlb_api::schedule::{Game, LeagueRecord, ScheduleResponse};
 use std::cmp::Ordering;
 use tui::widgets::TableState;
 
@@ -32,12 +33,20 @@ impl Default for ScheduleState {
 #[derive(Default)]
 pub struct ScheduleRow {
     pub game_id: u64,
-    pub home_team: String,
+    pub home_team: Team,
     pub home_score: Option<u8>,
-    pub away_team: String,
+    pub home_record: Option<Record>,
+    pub away_team: Team,
     pub away_score: Option<u8>,
+    pub away_record: Option<Record>,
     pub start_time: String,
     pub game_status: String,
+}
+
+#[derive(Default, Copy, Clone)]
+pub struct Record {
+    pub wins: u8,
+    pub losses: u8,
 }
 
 impl ScheduleState {
@@ -119,6 +128,23 @@ impl ScheduleState {
     }
 }
 
+impl Record {
+    pub fn from_league_record(record: Option<&LeagueRecord>) -> Option<Self> {
+        record.map(|r| Self {
+            wins: r.wins,
+            losses: r.losses,
+        })
+    }
+
+    pub fn to_display_string(self) -> String {
+        format!("{}-{}", self.wins, self.losses)
+    }
+
+    pub fn default_display_string() -> String {
+        "--".to_string()
+    }
+}
+
 impl ScheduleRow {
     /// Determine which team, if either, is winning the game. A team may not have a score, e.g. if
     /// the game hasn't started yet, or the game may be tied, so return None in these cases.
@@ -137,15 +163,19 @@ impl ScheduleRow {
     /// extracted from the game data:
     /// away team name and score, home team name and score, start time, and game status
     fn create_matchup(game: &Game, timezone: Tz) -> Self {
-        let home_team = TEAM_NAMES
-            .get(&*game.teams.home.team.name)
-            .unwrap_or(&"unknown")
-            .to_string();
+        let home_team = &game.teams.home;
+        let home_name = TEAM_IDS
+            .get(&*home_team.team.name)
+            .cloned()
+            .unwrap_or_default();
+        let home_record = Record::from_league_record(home_team.league_record.as_ref());
 
-        let away_team = TEAM_NAMES
-            .get(&*game.teams.away.team.name)
-            .unwrap_or(&"unknown")
-            .to_string();
+        let away_team = &game.teams.away;
+        let away_name = TEAM_IDS
+            .get(&*away_team.team.name)
+            .cloned()
+            .unwrap_or_default();
+        let away_record = Record::from_league_record(away_team.league_record.as_ref());
 
         let datetime = DateTime::parse_from_rfc3339(&game.game_date)
             .unwrap()
@@ -159,9 +189,11 @@ impl ScheduleRow {
 
         ScheduleRow {
             game_id: game.game_pk,
-            home_team,
+            home_team: home_name,
+            home_record,
             home_score: game.teams.home.score,
-            away_team,
+            away_record,
+            away_team: away_name,
             away_score: game.teams.away.score,
             game_status,
             start_time,
