@@ -93,7 +93,7 @@ impl StatefulWidget for ScheduleWidget {
             Constraint::Length(6),  // home team record
             Constraint::Length(3),  // home score
             Constraint::Length(12), // game time
-            Constraint::Length(10), // game status
+            Constraint::Fill(1),    // game status
         ];
         let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
 

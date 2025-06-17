@@ -37,7 +37,7 @@ where
             main_layout.update(f.area(), app.settings.full_screen);
 
             if !app.settings.full_screen {
-                draw_tabs(f, &main_layout.top_bar, app, is_loading);
+                draw_tabs(f, &main_layout.top_bar, app);
             }
 
             match app.state.active_tab {
@@ -61,6 +61,8 @@ where
                 dbi.gather_info(f, app);
                 dbi.render(f, main_layout.main)
             }
+
+            draw_loading_spinner(f, f.area(), app, is_loading);
         })
         .unwrap();
 }
@@ -77,7 +79,28 @@ fn draw_border(f: &mut Frame, rect: Rect, color: Color) {
     f.render_widget(block, rect);
 }
 
-fn draw_tabs(f: &mut Frame, top_bar: &[Rect], app: &App, loading: LoadingState) {
+fn draw_loading_spinner(f: &mut Frame, area: Rect, app: &App, loading: LoadingState) {
+    if !loading.is_loading {
+        return;
+    }
+
+    let spinner = Paragraph::new(loading.spinner_char.to_string()).alignment(Alignment::Right);
+    let area = if app.settings.full_screen {
+        // render in the bottom right
+        Rect::new(
+            area.width.saturating_sub(3),
+            area.height.saturating_sub(2),
+            1,
+            1,
+        )
+    } else {
+        // render in the top right
+        Rect::new(area.width.saturating_sub(11), 1, 1, 1)
+    };
+    f.render_widget(spinner, area);
+}
+
+fn draw_tabs(f: &mut Frame, top_bar: &[Rect], app: &App) {
     let style = Style::default().fg(Color::White);
     let border_style = Style::default();
     let border_type = BorderType::Rounded;
@@ -99,9 +122,7 @@ fn draw_tabs(f: &mut Frame, top_bar: &[Rect], app: &App, loading: LoadingState) 
         .style(style);
     f.render_widget(tabs, top_bar[0]);
 
-    // display animated spinner if there are API requests in progress
-    let text = format!("{} Help: ? ", loading.spinner_char);
-    let help = Paragraph::new(text)
+    let help = Paragraph::new("Help: ? ")
         .alignment(Alignment::Right)
         .block(
             Block::default()
