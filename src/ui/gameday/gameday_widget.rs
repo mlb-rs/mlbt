@@ -43,22 +43,23 @@ impl Widget for GamedayWidget<'_> {
         if self.state.panels.at_bat {
             let p = panels.pop().unwrap();
             Self::draw_border(p, buf);
-
-            let at_bat_widget = AtBatWidget {
-                game: &self.state.game,
-                selected_at_bat: self.state.selected_at_bat(),
-            };
-            Widget::render(at_bat_widget, p, buf);
-        }
-        if self.state.panels.info {
-            let p = panels.pop().unwrap();
-            Self::draw_border(p, buf);
+            let chunks = LayoutAreas::for_at_bat(p);
 
             let matchup_widget = MatchupWidget {
                 game: &self.state.game,
                 selected_at_bat: self.state.selected_at_bat(),
             };
-            Widget::render(matchup_widget, p, buf);
+            Widget::render(matchup_widget, chunks[0], buf);
+
+            let at_bat_widget = AtBatWidget {
+                game: &self.state.game,
+                selected_at_bat: self.state.selected_at_bat(),
+            };
+            Widget::render(at_bat_widget, chunks[1], buf);
+        }
+        if self.state.panels.info {
+            let p = panels.pop().unwrap();
+            Self::draw_border(p, buf);
 
             let innings_widget = InningPlaysWidget {
                 game: &self.state.game,

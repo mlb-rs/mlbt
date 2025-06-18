@@ -1,6 +1,6 @@
 use crate::components::game::live_game::GameStateV2;
 use crate::components::game::strikezone::{
-    DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH, StrikeZone,
+    StrikeZone, DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH,
 };
 use tui::{
     buffer::Buffer,
@@ -25,11 +25,14 @@ impl Widget for AtBatWidget<'_> {
 
         let chunks = Layout::default()
             .direction(Direction::Vertical)
-            .margin(2)
+            // .margin(2)
+            .horizontal_margin(2)
+            .vertical_margin(1)
             .constraints(
                 [
-                    Constraint::Percentage(50), // heatmap/pitches
-                    Constraint::Percentage(50), // pitch info
+                    // Constraint::Length(6),  // matchup
+                    Constraint::Fill(1), // heatmap/pitches
+                    Constraint::Min(12), // pitch info
                 ]
                 .as_ref(),
             )

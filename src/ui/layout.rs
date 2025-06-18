@@ -63,8 +63,23 @@ impl LayoutAreas {
             .vertical_margin(1)
             .constraints(
                 [
-                    Constraint::Length(4),       // line score
-                    Constraint::Percentage(100), // box score
+                    Constraint::Length(4), // line score
+                    Constraint::Fill(1),   // box score
+                ]
+                .as_ref(),
+            )
+            .split(rect)
+            .to_vec()
+    }
+
+    /// Create two splits for displaying the current matchup and the pitches for the at bat.
+    pub fn for_at_bat(rect: Rect) -> Vec<Rect> {
+        Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Length(7), // matchup
+                    Constraint::Fill(1),   // pitches
                 ]
                 .as_ref(),
             )
@@ -81,8 +96,9 @@ impl LayoutAreas {
             .vertical_margin(1)
             .constraints(
                 [
-                    Constraint::Length(14),      // game info
-                    Constraint::Percentage(100), // inning plays
+                    // TODO use for plays and win probability
+                    Constraint::Fill(1), // inning plays
+                                         // Constraint::Length(14),      // game info
                 ]
                 .as_ref(),
             )

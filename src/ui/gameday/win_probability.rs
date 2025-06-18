@@ -1,7 +1,7 @@
 use crate::app::MenuItem;
 use crate::components::game::live_game::GameStateV2;
-use crate::components::game::matchup::Summary;
 use crate::components::game::win_probability::WinProbabilityAtBat;
+use crate::components::standings::Team;
 use crate::ui::gameday::plays::{BLUE, GREEN};
 use indexmap::IndexMap;
 use tui::prelude::*;
@@ -18,8 +18,10 @@ pub struct WinProbabilityWidget<'a> {
 }
 
 struct WinProbabilityData<'a> {
-    summary: &'a Summary,
+    // summary: &'a Summary,
     at_bats: &'a IndexMap<u8, WinProbabilityAtBat>,
+    home_team: Team,
+    away_team: Team,
     selected_at_bat_index: Option<u8>,
     table_height: u16,
 }
@@ -71,8 +73,10 @@ impl<'a> WinProbabilityData<'a> {
     fn new(game: &'a GameStateV2, selected_at_bat_index: Option<u8>, table_height: u16) -> Self {
         Self {
             at_bats: &game.win_probability.at_bats,
-            summary: &game.summary,
+            // summary: &game.summary,
             selected_at_bat_index,
+            home_team: game.home_team,
+            away_team: game.away_team,
             table_height,
         }
     }
@@ -284,9 +288,9 @@ impl<'a> WinProbabilityData<'a> {
                 Axis::default()
                     .style(Style::default().fg(Color::Gray))
                     .labels([
-                        self.summary.home_team.abbreviation.to_string(),
+                        self.home_team.abbreviation.to_string(),
                         "50%".into(),
-                        self.summary.away_team.abbreviation.to_string(),
+                        self.away_team.abbreviation.to_string(),
                     ])
                     .bounds([-50.0, 50.0]),
             )

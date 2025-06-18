@@ -22,10 +22,12 @@ impl Widget for InningPlaysWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let chunks = LayoutAreas::for_info(area);
 
-        let inning_plays = format_plays(self.game, self.selected_at_bat);
+        // TODO this doesn't scroll properly. needs to be a list for that
+        let inning_plays = as_lines(self.game, self.selected_at_bat);
+        // let inning_plays = format_plays(self.game, self.selected_at_bat);
         let paragraph = Paragraph::new(inning_plays).wrap(Wrap { trim: false });
 
-        Widget::render(paragraph, chunks[1], buf);
+        Widget::render(paragraph, chunks[0], buf);
     }
 }
 
@@ -43,7 +45,8 @@ fn format_plays(game: &GameStateV2, selected_at_bat: Option<u8>) -> Vec<Line> {
     game.at_bats
         .values()
         .filter_map(|play| {
-            if play.inning == inning && play.is_top_inning == is_top_inning {
+            // if play.inning == inning && play.is_top_inning == is_top_inning {
+            if play.inning == inning {
                 build_line(&play.play_result, selected_at_bat)
             } else {
                 None
@@ -51,6 +54,45 @@ fn format_plays(game: &GameStateV2, selected_at_bat: Option<u8>) -> Vec<Line> {
         })
         .rev()
         .collect()
+}
+
+pub fn as_lines(game: &GameStateV2, selected_at_bat: Option<u8>) -> Vec<Line> {
+    let (at_bat, _is_current) = game.get_at_bat_by_index_or_current(selected_at_bat);
+    let inning = at_bat.inning;
+    let is_top_inning = at_bat.is_top_inning;
+
+    if inning == 0 {
+        return vec![];
+    }
+
+    let mut lines = Vec::new();
+
+    // Track last inning and top/bottom half
+    let mut last_inning: Option<(bool, u8)> = None;
+
+    for play in game.at_bats.values().rev() {
+        let current_inning = (play.is_top_inning, play.inning);
+        if play.inning != inning {
+            continue;
+        }
+
+        if last_inning != Some(current_inning) {
+            // Insert blank line before each new inning section except possibly at start
+            if !lines.is_empty() {
+                lines.push(Line::from(vec![]));
+            }
+            let half_str = if play.is_top_inning { "top" } else { "bottom" };
+            let header_text = format!("## {} {}", half_str, play.inning);
+            lines.push(Line::from(vec![Span::raw(header_text)]));
+            last_inning = Some(current_inning);
+        }
+
+        if let Some(line) = build_line(&play.play_result, selected_at_bat) {
+            lines.push(line);
+        }
+    }
+
+    lines
 }
 
 fn build_line(play: &PlayResult, selected_at_bat: Option<u8>) -> Option<Line> {
@@ -85,6 +127,19 @@ fn format_runs(play: &PlayResult, selected_at_bat: Option<u8>) -> Span {
         };
         Span::styled(text.to_string(), Style::default().fg(BLUE))
     } else {
+        // TODO?
+        // let mut color = Color::White;
+        // if play.is_out {
+        //     color = Color::Red;
+        // }
+        // if play.code.as_str() == "D" {
+        //     color = BLUE;
+        // }
+        // if play.count.balls == 4 {
+        //     color = Color::Green;
+        // } else if play.count.strikes == 3 {
+        //     color = Color::Red;
+        // }
         match selected {
             true => Span::raw(SELECTION_SYMBOL.to_string()).fg(BLUE).bold(),
             false => Span::raw("-"),

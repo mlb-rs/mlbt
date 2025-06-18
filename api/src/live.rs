@@ -1,5 +1,6 @@
 use crate::boxscore::Boxscore;
 use crate::plays::Plays;
+use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
@@ -27,6 +28,7 @@ pub struct MetaData {
 pub struct GameData {
     pub game: Game,
     pub teams: Teams,
+    pub players: HashMap<String, FullPlayer>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -129,4 +131,62 @@ pub struct Person {
     #[serde(rename = "fullName")]
     pub full_name: String,
     pub link: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Struct {
+    pub code: String,
+    pub description: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PrimaryPosition {
+    pub code: String,
+    pub name: String,
+    #[serde(rename = "type")]
+    pub r#type: String,
+    pub abbreviation: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FullPlayer {
+    pub id: u64,
+    pub full_name: String,
+    pub link: Option<String>,
+    pub first_name: String,
+    pub last_name: String,
+    pub primary_number: Option<String>,
+    pub birth_date: Option<String>,
+    pub current_age: Option<i64>,
+    pub birth_city: Option<String>,
+    pub birth_state_province: Option<String>,
+    pub birth_country: Option<String>,
+    pub height: Option<String>,
+    pub weight: Option<u16>,
+    pub active: Option<bool>,
+    pub primary_position: PrimaryPosition,
+    pub use_name: String,
+    pub use_last_name: String,
+    pub middle_name: Option<String>,
+    pub boxscore_name: String,
+    pub gender: String,
+    pub is_player: bool,
+    pub is_verified: bool,
+    pub draft_year: Option<i64>,
+    pub mlb_debut_date: String,
+    pub bat_side: Struct,
+    pub pitch_hand: Struct,
+    pub name_first_last: String,
+    pub name_slug: String,
+    pub first_last_name: String,
+    pub last_first_name: String,
+    pub last_init_name: String,
+    pub init_last_name: String,
+    #[serde(rename = "fullFMLName")]
+    pub full_fmlname: String,
+    #[serde(rename = "fullLFMName")]
+    pub full_lfmname: String,
+    pub strike_zone_top: f64,
+    pub strike_zone_bottom: f64,
 }

@@ -1,6 +1,8 @@
+use crate::components::game::matchup::Player;
 use crate::state::app_state::HomeOrAway;
-use mlb_api::boxscore::{Player, Team};
+use mlb_api::boxscore::{Player as ApiPlayer, Team};
 use mlb_api::live::LiveResponse;
+use std::collections::HashMap;
 
 #[derive(Default)]
 pub struct BatterBoxscore {
@@ -18,10 +20,10 @@ pub struct BatterBoxscore {
 }
 
 impl BatterBoxscore {
-    pub fn from_data(player: &Player, order: u8) -> Self {
+    pub fn from_data(player: &ApiPlayer, player_name: &Player, order: u8) -> Self {
         BatterBoxscore {
             order,
-            name: player.person.full_name.to_string(),
+            name: player_name.boxscore_name.clone(),
             position: player.position.abbreviation.to_string(),
             at_bats: player.stats.batting.at_bats.unwrap_or(0),
             runs: player.stats.batting.runs.unwrap_or(0),
@@ -45,7 +47,7 @@ impl BatterBoxscore {
                 "{} {: <2} {}",
                 self.order,
                 self.position, // pad an extra space so 'C' is aligned with '1B'
-                self.name.split_whitespace().last().unwrap_or("-"),
+                self.name
             ),
             self.at_bats.to_string(),
             self.runs.to_string(),
@@ -66,24 +68,29 @@ pub struct TeamBatterBoxscore {
 }
 
 impl TeamBatterBoxscore {
-    pub fn from_live_data(live_game: &LiveResponse) -> Self {
+    pub fn from_live_data(live_game: &LiveResponse, players: &HashMap<u64, Player>) -> Self {
         let (home, away) = match &live_game.live_data.boxscore.teams {
             Some(t) => (&t.home, &t.away),
             None => return TeamBatterBoxscore::default(),
         };
         TeamBatterBoxscore {
-            home_batting: TeamBatterBoxscore::transform(home),
-            away_batting: TeamBatterBoxscore::transform(away),
+            home_batting: TeamBatterBoxscore::transform(home, players),
+            away_batting: TeamBatterBoxscore::transform(away, players),
         }
     }
 
-    fn transform(team: &Team) -> Vec<BatterBoxscore> {
+    fn transform(team: &Team, players: &HashMap<u64, Player>) -> Vec<BatterBoxscore> {
         team.batting_order
             .iter()
             .enumerate()
             .filter_map(|(idx, player_id)| {
                 let player = team.players.get(&*format!("ID{}", player_id))?;
-                Some(BatterBoxscore::from_data(player, idx as u8 + 1))
+                let player_name = players.get(player_id)?;
+                Some(BatterBoxscore::from_data(
+                    player,
+                    player_name,
+                    idx as u8 + 1,
+                ))
             })
             .collect()
     }

@@ -20,7 +20,7 @@ impl Widget for TeamBatterBoxscoreWidget<'_> {
         let width = 4;
         let mut widths = vec![Constraint::Length(width); HEADER.len()];
         // the first width needs to be wider to display the player name
-        widths[0] = Constraint::Length(15);
+        widths[0] = Constraint::Length(20);
         // the last width needs to be wider to display batting average
         widths[HEADER.len() - 1] = Constraint::Length(5);
 
