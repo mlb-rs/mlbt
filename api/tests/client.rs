@@ -142,7 +142,7 @@ mod tests {
         let local: DateTime<Local> = Local::now();
         for group in [StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!(
-                "/v1/stats?sportId=1&stats=season&season={}&group={}",
+                "/v1/stats?sportId=1&stats=season&season={}&group={}&limit=300",
                 local.year(),
                 group
             );
@@ -168,7 +168,7 @@ mod tests {
 
         for group in [StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!(
-                "/v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}",
+                "/v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=300",
                 date.year(),
                 date.format("%Y-%m-%d"),
                 group

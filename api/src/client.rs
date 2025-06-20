@@ -137,7 +137,7 @@ impl MLBApi {
     pub async fn get_player_stats(&self, group: StatGroup) -> StatsResponse {
         let local: DateTime<Local> = Local::now();
         let url = format!(
-            "{}v1/stats?sportId=1&stats=season&season={}&group={}",
+            "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=300",
             self.base_url,
             local.year(),
             group
@@ -151,7 +151,7 @@ impl MLBApi {
         date: NaiveDate,
     ) -> StatsResponse {
         let url = format!(
-            "{}v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}",
+            "{}v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=300",
             self.base_url,
             date.year(),
             date.format("%Y-%m-%d"),
