@@ -1,4 +1,5 @@
 use crate::components::boxscore::TeamBatterBoxscore;
+use crate::components::constants::TEAM_IDS;
 use crate::components::game::at_bat::AtBatV2;
 use crate::components::game::matchup::Player;
 use crate::components::game::win_probability::WinProbability;
@@ -13,6 +14,8 @@ use std::collections::HashMap;
 use std::sync::LazyLock;
 
 pub type AtBatIndex = u8;
+pub type PlayerId = u64;
+pub type PlayerMap = HashMap<PlayerId, Player>;
 
 static DEFAULT_AT_BAT: LazyLock<AtBatV2> = LazyLock::new(AtBatV2::default);
 
@@ -21,13 +24,14 @@ pub struct GameStateV2 {
     pub game_id: u64,
     pub home_team: Team,
     pub away_team: Team,
-    // pub summary: Summary,
     pub linescore: LineScore,
     pub boxscore: TeamBatterBoxscore,
     pub current_at_bat: AtBatIndex,
     pub at_bats: IndexMap<AtBatIndex, AtBatV2>,
+    pub on_deck: Option<PlayerId>,
+    pub in_hole: Option<PlayerId>,
     pub win_probability: WinProbability,
-    pub players: HashMap<u64, Player>,
+    pub players: PlayerMap,
 }
 
 #[derive(Default, Debug)]
@@ -70,8 +74,9 @@ impl GameStateV2 {
             self.reset();
         }
         self.game_id = live_data.game_pk;
-        self.players = Self::create_players(live_data);
-        self.generate_summary(live_data);
+        self.players = Self::create_players(live_data); // do this first
+        self.set_teams(live_data);
+        self.set_on_deck(live_data);
         self.current_at_bat = Self::get_current_play_ab_index(live_data);
         self.boxscore = TeamBatterBoxscore::from_live_data(live_data, &self.players);
         self.linescore = LineScore::from_live_data(live_data);
@@ -81,24 +86,42 @@ impl GameStateV2 {
         self.win_probability = WinProbability::from(win_probability);
     }
 
-    fn generate_summary(&mut self, live_data: &LiveResponse) {
-        // self.summary = Summary::from(live_data);
-        self.home_team = crate::components::constants::TEAM_IDS
+    fn set_teams(&mut self, live_data: &LiveResponse) {
+        self.home_team = TEAM_IDS
             .get(live_data.game_data.teams.home.name.as_str())
             .cloned()
             .unwrap_or_default();
-        self.away_team = crate::components::constants::TEAM_IDS
+        self.away_team = TEAM_IDS
             .get(live_data.game_data.teams.away.name.as_str())
             .cloned()
             .unwrap_or_default();
     }
 
-    fn create_players(live_data: &LiveResponse) -> HashMap<u64, Player> {
+    fn set_on_deck(&mut self, live_data: &LiveResponse) {
+        self.on_deck = live_data
+            .live_data
+            .linescore
+            .offense
+            .on_deck
+            .as_ref()
+            .map(|od| od.id);
+        self.in_hole = live_data
+            .live_data
+            .linescore
+            .offense
+            .in_hole
+            .as_ref()
+            .map(|ih| ih.id);
+    }
+
+    fn create_players(live_data: &LiveResponse) -> PlayerMap {
+        // get the player names from the game data
         let mut map = HashMap::new();
         for player in live_data.game_data.players.values() {
             map.insert(player.id, Player::from(player));
         }
 
+        // get the player stats from the boxscore
         if let Some(teams) = &live_data.live_data.boxscore.teams {
             for player in teams.home.players.values() {
                 if let Some(p) = map.get_mut(&player.person.id) {
@@ -158,5 +181,17 @@ impl GameStateV2 {
 
     pub fn reset(&mut self) {
         *self = Self::default()
+    }
+
+    pub fn format_on_deck(&self) -> Option<String> {
+        self.on_deck
+            .and_then(|id| self.players.get(&id))
+            .map(|player| format!("on deck: {}", player.last_name))
+    }
+
+    pub fn format_in_hole(&self) -> Option<String> {
+        self.in_hole
+            .and_then(|id| self.players.get(&id))
+            .map(|player| format!("in hole: {}", player.last_name))
     }
 }

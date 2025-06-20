@@ -1,7 +1,6 @@
-use crate::components::game::live_game::PlayerStats;
+use crate::components::game::live_game::{PlayerMap, PlayerStats};
 use mlb_api::live::FullPlayer;
 use mlb_api::plays::{Count, Play};
-use std::collections::HashMap;
 use tui::prelude::Stylize;
 use tui::text::Line;
 
@@ -75,8 +74,6 @@ pub struct Matchup {
     pub batter_id: u64,
     pub count: Count,
     pub runners: Runners,
-    pub on_deck: Option<String>,
-    pub in_hole: Option<String>,
 }
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -127,8 +124,6 @@ impl Default for Matchup {
             batter_id: 0,
             count: Count::default(),
             runners: Runners::default(),
-            on_deck: None,
-            in_hole: None,
         }
     }
 }
@@ -145,8 +140,6 @@ impl From<&Play> for Matchup {
             batter_id: play.matchup.batter.id,
             count: play.count.clone(),
             runners: Runners::from_matchup(&play.matchup),
-            on_deck: None, //TODO
-            in_hole: None,
         }
     }
 }
@@ -156,7 +149,7 @@ impl Matchup {
         &self,
         home_name: &str,
         current_play: bool,
-        players: &HashMap<u64, Player>,
+        players: &PlayerMap,
     ) -> Vec<Line> {
         let mut lines = vec![Line::from(home_name.to_string()).bold()];
         if self.is_top {
@@ -171,7 +164,7 @@ impl Matchup {
         &self,
         away_name: &str,
         current_play: bool,
-        players: &HashMap<u64, Player>,
+        players: &PlayerMap,
     ) -> Vec<Line> {
         let mut lines = vec![Line::from(away_name.to_string()).bold()];
         if self.is_top {
@@ -182,11 +175,7 @@ impl Matchup {
         lines
     }
 
-    fn get_pitcher_display_lines(
-        &self,
-        current_play: bool,
-        players: &HashMap<u64, Player>,
-    ) -> Vec<Line> {
+    fn get_pitcher_display_lines(&self, current_play: bool, players: &PlayerMap) -> Vec<Line> {
         let pitcher = match players.get(&self.pitcher_id) {
             Some(p) => p,
             None => return vec![],
@@ -215,11 +204,7 @@ impl Matchup {
         lines
     }
 
-    fn get_batter_display_lines(
-        &self,
-        current_play: bool,
-        players: &HashMap<u64, Player>,
-    ) -> Vec<Line> {
+    fn get_batter_display_lines(&self, current_play: bool, players: &PlayerMap) -> Vec<Line> {
         let batter = match players.get(&self.batter_id) {
             Some(p) => p,
             None => return vec![],
@@ -257,7 +242,7 @@ impl Matchup {
         let arrow = if self.is_top { "▲" } else { "▼" };
         let (second_base, first_third) = self.runners.generate_lines();
 
-        let info = vec![
+        vec![
             Line::from(format!(
                 "{}    {} {}    {}",
                 self.away_score, arrow, self.inning, self.home_score
@@ -265,15 +250,7 @@ impl Matchup {
             second_base,
             first_third,
             Line::from(outs),
-        ];
-        // if !self.on_deck.is_empty() {
-        //     info.push(Line::from(format!("on deck: {}", self.on_deck)));
-        // }
-        // if !self.in_hole.is_empty() {
-        //     info.push(Line::from(format!("in hole: {}", self.in_hole)));
-        // }
-
-        info
+        ]
     }
 }
 
