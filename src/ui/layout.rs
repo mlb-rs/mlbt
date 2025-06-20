@@ -78,7 +78,7 @@ impl LayoutAreas {
             .direction(Direction::Vertical)
             .constraints(
                 [
-                    Constraint::Length(7), // matchup
+                    Constraint::Length(6), // matchup
                     Constraint::Fill(1),   // pitches
                 ]
                 .as_ref(),

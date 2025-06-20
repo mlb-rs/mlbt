@@ -87,6 +87,7 @@ pub struct PlayEvent {
     pub details: Details,
     pub count: Count,
     pub pitch_data: Option<PitchData>,
+    pub hit_data: Option<HitData>,
     pub is_pitch: bool,
     pub is_base_running_play: Option<bool>,
     pub pitch_number: Option<u8>,
@@ -133,6 +134,16 @@ pub struct PitchData {
     pub breaks: Option<Breaks>,
     pub zone: Option<u8>,
     pub plate_time: Option<f64>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HitData {
+    pub launch_speed: Option<f64>,
+    pub launch_angle: Option<f64>,
+    pub total_distance: Option<f64>,
+    pub trajectory: Option<String>,
+    pub hardness: Option<String>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]

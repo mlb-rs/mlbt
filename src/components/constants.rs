@@ -86,5 +86,6 @@ pub static TEAM_IDS: LazyLock<HashMap<&'static str, Team>> = LazyLock::new(|| {
     m.insert("Brooklyn Dodgers", Team { id: 119, division_id: 0, name: "Brooklyn Dodgers", team_name: "Dodgers", abbreviation: "BRO" });
     m.insert("New York Giants", Team { id: 137, division_id: 0, name: "New York Giants", team_name: "Giants", abbreviation: "NYG" });
     m.insert("Boston Braves", Team { id: 144, division_id: 0, name: "Boston Braves", team_name: "Braves", abbreviation: "BSN" });
+    m.insert("St. Louis Browns", Team { id: 110, division_id: 0, name: "St. Louis Browns", team_name: "Browns", abbreviation: "SLB" });
     m
 });

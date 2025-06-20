@@ -1,15 +1,10 @@
 use crate::components::game::live_game::GameStateV2;
 use crate::components::game::strikezone::{
-    DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH, StrikeZone,
+    StrikeZone, DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH,
 };
-use tui::{
-    buffer::Buffer,
-    layout::{Constraint, Direction, Layout, Rect},
-    style::Style,
-    text::{Line, Span, Text},
-    widgets::canvas::{Canvas, Rectangle},
-    widgets::{Block, Borders, Paragraph, Widget, Wrap},
-};
+use tui::prelude::*;
+use tui::widgets::canvas::{Canvas, Rectangle};
+use tui::widgets::{Block, Borders, Paragraph, Wrap};
 
 pub struct AtBatWidget<'a> {
     pub game: &'a GameStateV2,
@@ -18,10 +13,10 @@ pub struct AtBatWidget<'a> {
 
 impl Widget for AtBatWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let (game, _is_current) = self
+        let (at_bat, _is_current) = self
             .game
             .get_at_bat_by_index_or_current(self.selected_at_bat);
-        let pitches = &game.pitches;
+        let pitches = &at_bat.pitches;
 
         let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -29,7 +24,9 @@ impl Widget for AtBatWidget<'_> {
             .vertical_margin(1)
             .constraints(
                 [
+                    Constraint::Length(1),      // on deck
                     Constraint::Percentage(65), // heatmap/pitches
+                    Constraint::Length(1),      // hit stats
                     Constraint::Percentage(35), // pitch info
                 ]
                 .as_ref(),
@@ -48,7 +45,7 @@ impl Widget for AtBatWidget<'_> {
         }
         let height = strike_zone_top - strike_zone_bot;
         let coords = StrikeZone::build_coords(strike_zone_bot, strike_zone_top);
-        let strike_zone_area = generate_strike_zone_area(chunks[0]);
+        let strike_zone_area = generate_strike_zone_area(chunks[1]);
 
         // strike zone and pitch display
         Canvas::default()
@@ -81,11 +78,14 @@ impl Widget for AtBatWidget<'_> {
             .y_bounds([0.0, 55.0])
             .render(strike_zone_area, buf);
 
+        // display the on deck information if available
+
         // display the event information
         let events: Vec<Line> = pitches
             .pitches
             .pitch_events
             .iter()
+            .rev() // reverse so that the last event is at the top
             .filter_map(|event| event.as_lines(false))
             .flatten()
             .collect();
@@ -94,33 +94,43 @@ impl Widget for AtBatWidget<'_> {
         let paragraph = Paragraph::new(text)
             .wrap(Wrap { trim: false })
             .block(Block::default().borders(Borders::TOP));
-        Widget::render(paragraph, chunks[1], buf);
+        Widget::render(paragraph, chunks[3], buf);
+
+        // display the hit information if available
+        if let Some(data) = pitches.pitches.pitch_events.last() {
+            if let Some(text) = data.format_hit_data() {
+                let text = Text::from(text);
+                let paragraph = Paragraph::new(text)
+                    .alignment(Alignment::Center)
+                    .wrap(Wrap { trim: false });
+                Widget::render(paragraph.clone(), chunks[2], buf);
+            }
+        };
     }
 }
 
 fn generate_strike_zone_area(area: Rect) -> Rect {
+    // kind of arbitrary values to make the zone look good
     const STRIKE_ZONE_WIDTH: u16 = 35;
     const STRIKE_ZONE_HEIGHT: u16 = 19;
+    let desired_aspect_ratio = STRIKE_ZONE_WIDTH as f64 / STRIKE_ZONE_HEIGHT as f64;
 
     let available_width = area.width;
     let available_height = area.height;
 
-    // Calculate the aspect ratio of your desired strike zone
-    let desired_aspect_ratio = STRIKE_ZONE_WIDTH as f64 / STRIKE_ZONE_HEIGHT as f64;
-
-    // Calculate what dimensions would fit while maintaining aspect ratio
+    // calculate what dimensions would fit while maintaining aspect ratio
     let width_constrained_height = (available_width as f64 / desired_aspect_ratio) as u16;
     let height_constrained_width = (available_height as f64 * desired_aspect_ratio) as u16;
 
     let (final_width, final_height) = if width_constrained_height <= available_height {
-        // Width is the limiting factor
+        // width is the limiting factor
         (available_width, width_constrained_height)
     } else {
-        // Height is the limiting factor
+        // height is the limiting factor
         (height_constrained_width, available_height)
     };
 
-    // Center the calculated dimensions
+    // center the calculated dimensions
     let x_offset = (available_width - final_width) / 2;
     let y_offset = (available_height - final_height) / 2;
 

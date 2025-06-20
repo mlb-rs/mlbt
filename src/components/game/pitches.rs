@@ -143,7 +143,7 @@ impl From<&Play> for Pitches {
             .play_events
             .iter()
             .map(PitchEvent::from)
-            .rev()
+            // .rev()
             .collect();
         Pitches { pitch_events }
     }

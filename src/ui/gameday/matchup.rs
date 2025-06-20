@@ -1,6 +1,6 @@
 use crate::components::game::live_game::GameStateV2;
 use tui::prelude::*;
-use tui::widgets::{Block, Borders, Paragraph};
+use tui::widgets::{Block, Borders, Padding, Paragraph};
 
 pub struct MatchupWidget<'a> {
     pub game: &'a GameStateV2,
@@ -13,10 +13,9 @@ impl Widget for MatchupWidget<'_> {
             .game
             .get_at_bat_by_index_or_current(self.selected_at_bat);
 
-        let chunks = Layout::default()
+        let matchup_chunks = Layout::default()
             .direction(Direction::Horizontal)
             .horizontal_margin(2)
-            .vertical_margin(1)
             .constraints(
                 [
                     Constraint::Ratio(1, 3),
@@ -28,6 +27,12 @@ impl Widget for MatchupWidget<'_> {
             .split(area)
             .to_vec();
 
+        // let on_deck_chunks = Layout::default()
+        //     .direction(Direction::Vertical)
+        //     .constraints([Constraint::Fill(1), Constraint::Length(1)].as_ref())
+        //     .split(area)
+        //     .to_vec();
+
         Widget::render(
             Paragraph::new(game.matchup.format_away_lines(
                 self.game.away_team.team_name,
@@ -35,15 +40,23 @@ impl Widget for MatchupWidget<'_> {
                 &self.game.players,
             ))
             .alignment(Alignment::Left)
-            .block(Block::default().borders(Borders::BOTTOM)),
-            chunks[0],
+            .block(
+                Block::default()
+                    .borders(Borders::BOTTOM)
+                    .padding(Padding::new(0, 0, 1, 0)),
+            ),
+            matchup_chunks[0],
             buf,
         );
         Widget::render(
             Paragraph::new(game.matchup.format_scoreboard_lines())
                 .alignment(Alignment::Center)
-                .block(Block::default().borders(Borders::BOTTOM)),
-            chunks[1],
+                .block(
+                    Block::default()
+                        .borders(Borders::BOTTOM)
+                        .padding(Padding::new(0, 0, 1, 0)),
+                ),
+            matchup_chunks[1],
             buf,
         );
         Widget::render(
@@ -53,8 +66,12 @@ impl Widget for MatchupWidget<'_> {
                 &self.game.players,
             ))
             .alignment(Alignment::Right)
-            .block(Block::default().borders(Borders::BOTTOM)),
-            chunks[2],
+            .block(
+                Block::default()
+                    .borders(Borders::BOTTOM)
+                    .padding(Padding::new(0, 0, 1, 0)),
+            ),
+            matchup_chunks[2],
             buf,
         );
     }

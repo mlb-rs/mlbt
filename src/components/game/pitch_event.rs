@@ -11,10 +11,20 @@ pub enum PitchEventType {
 }
 
 #[derive(Debug)]
+pub struct HitData {
+    pub exit_velocity: Option<f64>,
+    pub launch_angle: Option<f64>,
+    pub distance: Option<f64>,
+    #[allow(dead_code)]
+    pub hardness: Option<String>,
+}
+
+#[derive(Debug)]
 pub struct PitchEvent {
     pub event_type: PitchEventType,
     pub description: String,
     pub pitch: Option<Pitch>,
+    pub hit_data: Option<HitData>,
     pub is_scoring: Option<bool>,
     pub away_score: Option<u8>,
     pub home_score: Option<u8>,
@@ -26,6 +36,12 @@ impl From<&mlb_api::plays::PlayEvent> for PitchEvent {
             true => Some(Pitch::from(play)),
             false => None,
         };
+        let hit_data = play.hit_data.as_ref().map(|d| HitData {
+            exit_velocity: d.launch_speed,
+            launch_angle: d.launch_angle,
+            distance: d.total_distance,
+            hardness: d.hardness.clone(),
+        });
         let event_type = match (play.is_pitch, play.is_base_running_play) {
             (true, _) => PitchEventType::Pitch,
             (false, Some(true)) => PitchEventType::Running,
@@ -35,6 +51,7 @@ impl From<&mlb_api::plays::PlayEvent> for PitchEvent {
             event_type,
             description: play.details.description.clone().unwrap_or_default(),
             pitch,
+            hit_data,
             is_scoring: play.details.is_scoring_play,
             away_score: play.details.away_score,
             home_score: play.details.home_score,
@@ -76,5 +93,31 @@ impl PitchEvent {
         spans.push(Span::raw(" "));
 
         vec![Line::from(spans)]
+    }
+
+    pub fn format_hit_data(&self) -> Option<String> {
+        let mut text = String::new();
+        if let Some(hit) = &self.hit_data {
+            if let Some(exit_velocity) = hit.exit_velocity {
+                text.push_str(&format!("exit velo: {}", exit_velocity));
+            }
+
+            if let Some(launch_angle) = hit.launch_angle {
+                if !text.is_empty() {
+                    text.push_str(" | ");
+                }
+                text.push_str(&format!("LA: {}°", launch_angle));
+            }
+
+            if let Some(distance) = hit.distance {
+                if !text.is_empty() {
+                    text.push_str(" | ");
+                }
+                text.push_str(&format!("distance: {}'", distance));
+            }
+            Some(text)
+        } else {
+            None
+        }
     }
 }

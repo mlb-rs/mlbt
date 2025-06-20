@@ -75,6 +75,8 @@ pub struct Matchup {
     pub batter_id: u64,
     pub count: Count,
     pub runners: Runners,
+    pub on_deck: Option<String>,
+    pub in_hole: Option<String>,
 }
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -125,6 +127,8 @@ impl Default for Matchup {
             batter_id: 0,
             count: Count::default(),
             runners: Runners::default(),
+            on_deck: None,
+            in_hole: None,
         }
     }
 }
@@ -141,6 +145,8 @@ impl From<&Play> for Matchup {
             batter_id: play.matchup.batter.id,
             count: play.count.clone(),
             runners: Runners::from_matchup(&play.matchup),
+            on_deck: None, //TODO
+            in_hole: None,
         }
     }
 }
@@ -237,9 +243,6 @@ impl Matchup {
                 lines.push(Line::from("-"));
             }
         }
-        // if let Some(note) = &batter.stats.note {
-        //     lines.push(Line::from(note.clone()));
-        // }
         lines
     }
 
