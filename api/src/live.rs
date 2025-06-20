@@ -134,7 +134,7 @@ pub struct Person {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Struct {
+pub struct Side {
     pub code: String,
     pub description: String,
 }
@@ -165,28 +165,28 @@ pub struct FullPlayer {
     pub height: Option<String>,
     pub weight: Option<u16>,
     pub active: Option<bool>,
-    pub primary_position: PrimaryPosition,
-    pub use_name: String,
-    pub use_last_name: String,
+    pub primary_position: Option<PrimaryPosition>,
+    pub use_name: Option<String>,
+    pub use_last_name: Option<String>,
     pub middle_name: Option<String>,
-    pub boxscore_name: String,
-    pub gender: String,
-    pub is_player: bool,
-    pub is_verified: bool,
+    pub boxscore_name: Option<String>,
+    pub gender: Option<String>,
+    pub is_player: Option<bool>,
+    pub is_verified: Option<bool>,
     pub draft_year: Option<i64>,
-    pub mlb_debut_date: String,
-    pub bat_side: Struct,
-    pub pitch_hand: Struct,
-    pub name_first_last: String,
-    pub name_slug: String,
-    pub first_last_name: String,
-    pub last_first_name: String,
-    pub last_init_name: String,
+    pub mlb_debut_date: Option<String>,
+    pub bat_side: Option<Side>,
+    pub pitch_hand: Option<Side>,
+    pub name_first_last: Option<String>,
+    pub name_slug: Option<String>,
+    pub first_last_name: Option<String>,
+    pub last_first_name: Option<String>,
+    pub last_init_name: Option<String>,
     pub init_last_name: String,
     #[serde(rename = "fullFMLName")]
-    pub full_fmlname: String,
+    pub full_fmlname: Option<String>,
     #[serde(rename = "fullLFMName")]
-    pub full_lfmname: String,
-    pub strike_zone_top: f64,
-    pub strike_zone_bottom: f64,
+    pub full_lfmname: Option<String>,
+    pub strike_zone_top: Option<f64>,
+    pub strike_zone_bottom: Option<f64>,
 }

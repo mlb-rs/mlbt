@@ -85,36 +85,11 @@ pub struct Batting {
     pub left_on_base: Option<u16>,
 }
 
-// #[derive(Debug, Serialize, Deserialize)]
-// #[serde(rename_all = "camelCase")]
-// pub struct TeamStatsPitching {
-//     runs: u8,
-//     doubles: u8,
-//     triples: u8,
-//     home_runs: u8,
-//     strike_outs: u8,
-//     base_on_balls: u8,
-//     intentional_walks: u8,
-//     hits: u8,
-//     hit_by_pitch: u8,
-//     at_bats: u8,
-//     obp: String,
-//     era: String,
-//     innings_pitched: String,
-//     save_opportunities: u8,
-//     earned_runs: u8,
-//     whip: String,
-//     batters_faced: u8,
-//     outs: u8,
-//     shutouts: u8,
-//     hit_batsmen: u8,
-//     rbi: u8,
-// }
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PitchingStats {
     pub summary: Option<String>,
+    pub note: Option<String>,
     pub games_played: Option<i64>,
     pub games_started: Option<i64>,
     pub fly_outs: Option<i64>,

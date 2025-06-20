@@ -1,9 +1,8 @@
 use mlb_api::plays::{Count, Play};
 
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct PlayEvent {
-    pub code: String,
+    pub code: Option<String>,
     // TODO
 }
 
@@ -36,7 +35,13 @@ impl From<&Play> for PlayResult {
             count: play.count.clone(),
             is_out: play.result.is_out.unwrap_or(false),
             is_scoring_play: play.about.is_scoring_play.unwrap_or(false),
-            events: vec![],
+            events: play
+                .play_events
+                .iter()
+                .map(|e| PlayEvent {
+                    code: e.details.call.as_ref().map(|d| d.code.clone()),
+                })
+                .collect(),
         }
     }
 }

@@ -1,5 +1,4 @@
 use crate::components::game::live_game::GameStateV2;
-use crate::components::game::matchup::Matchup;
 use tui::prelude::*;
 use tui::widgets::{Block, Borders, Paragraph};
 
@@ -13,14 +12,6 @@ impl Widget for MatchupWidget<'_> {
         let (game, is_current) = self
             .game
             .get_at_bat_by_index_or_current(self.selected_at_bat);
-        let matchup_v2 = &game.matchup;
-        // TODO get rid of this
-        let v1_matchup = Matchup::from_v2(
-            matchup_v2,
-            self.game.home_team,
-            self.game.away_team,
-            is_current,
-        );
 
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -36,25 +27,33 @@ impl Widget for MatchupWidget<'_> {
             )
             .split(area)
             .to_vec();
-        // let chunks = LayoutAreas::for_info(area);
+
         Widget::render(
-            Paragraph::new(v1_matchup.to_table_away())
-                .alignment(Alignment::Left)
-                .block(Block::default().borders(Borders::BOTTOM)),
+            Paragraph::new(game.matchup.format_away_lines(
+                self.game.away_team.team_name,
+                is_current,
+                &self.game.players,
+            ))
+            .alignment(Alignment::Left)
+            .block(Block::default().borders(Borders::BOTTOM)),
             chunks[0],
             buf,
         );
         Widget::render(
-            Paragraph::new(v1_matchup.to_at_bat())
+            Paragraph::new(game.matchup.format_scoreboard_lines())
                 .alignment(Alignment::Center)
                 .block(Block::default().borders(Borders::BOTTOM)),
             chunks[1],
             buf,
         );
         Widget::render(
-            Paragraph::new(v1_matchup.to_table_home())
-                .alignment(Alignment::Right)
-                .block(Block::default().borders(Borders::BOTTOM)),
+            Paragraph::new(game.matchup.format_home_lines(
+                self.game.home_team.team_name,
+                is_current,
+                &self.game.players,
+            ))
+            .alignment(Alignment::Right)
+            .block(Block::default().borders(Borders::BOTTOM)),
             chunks[2],
             buf,
         );

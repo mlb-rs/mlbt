@@ -1,6 +1,6 @@
 use crate::components::game::live_game::GameStateV2;
 use crate::components::game::strikezone::{
-    StrikeZone, DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH,
+    DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH, StrikeZone,
 };
 use tui::{
     buffer::Buffer,
@@ -25,35 +25,16 @@ impl Widget for AtBatWidget<'_> {
 
         let chunks = Layout::default()
             .direction(Direction::Vertical)
-            // .margin(2)
             .horizontal_margin(2)
             .vertical_margin(1)
             .constraints(
                 [
-                    // Constraint::Length(6),  // matchup
-                    Constraint::Fill(1), // heatmap/pitches
-                    Constraint::Min(12), // pitch info
+                    Constraint::Percentage(65), // heatmap/pitches
+                    Constraint::Percentage(35), // pitch info
                 ]
                 .as_ref(),
             )
             .split(area);
-
-        let total_width = 4.0 * 12.0; // 4 feet (arbitrary)
-
-        // Constrain and center the strikezone and pitch display. Without this they get stretched
-        // on wider terminals. This does, unfortunately, over compress when the terminal is small.
-        // TODO when terminal width is too small, don't apply these constraints
-        let strikezone = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints(
-                [
-                    Constraint::Percentage((100 - total_width as u16) / 2),
-                    Constraint::Percentage(total_width as u16),
-                    Constraint::Percentage((100 - total_width as u16) / 2),
-                ]
-                .as_ref(),
-            )
-            .split(chunks[0]);
 
         // grab the strike zone from the first pitch since it doesn't change during the at bat.
         let mut strike_zone_bot = DEFAULT_SZ_BOT * 12.0;
@@ -67,6 +48,7 @@ impl Widget for AtBatWidget<'_> {
         }
         let height = strike_zone_top - strike_zone_bot;
         let coords = StrikeZone::build_coords(strike_zone_bot, strike_zone_top);
+        let strike_zone_area = generate_strike_zone_area(chunks[0]);
 
         // strike zone and pitch display
         Canvas::default()
@@ -95,9 +77,9 @@ impl Widget for AtBatWidget<'_> {
                     }
                 }
             })
-            .x_bounds([-0.5 * total_width, 0.5 * total_width])
-            .y_bounds([0.0, 60.0])
-            .render(strikezone[1], buf);
+            .x_bounds([-25.0, 25.0])
+            .y_bounds([0.0, 55.0])
+            .render(strike_zone_area, buf);
 
         // display the event information
         let events: Vec<Line> = pitches
@@ -109,7 +91,43 @@ impl Widget for AtBatWidget<'_> {
             .collect();
 
         let text = Text::from(events);
-        let paragraph = Paragraph::new(text).wrap(Wrap { trim: false });
+        let paragraph = Paragraph::new(text)
+            .wrap(Wrap { trim: false })
+            .block(Block::default().borders(Borders::TOP));
         Widget::render(paragraph, chunks[1], buf);
     }
+}
+
+fn generate_strike_zone_area(area: Rect) -> Rect {
+    const STRIKE_ZONE_WIDTH: u16 = 35;
+    const STRIKE_ZONE_HEIGHT: u16 = 19;
+
+    let available_width = area.width;
+    let available_height = area.height;
+
+    // Calculate the aspect ratio of your desired strike zone
+    let desired_aspect_ratio = STRIKE_ZONE_WIDTH as f64 / STRIKE_ZONE_HEIGHT as f64;
+
+    // Calculate what dimensions would fit while maintaining aspect ratio
+    let width_constrained_height = (available_width as f64 / desired_aspect_ratio) as u16;
+    let height_constrained_width = (available_height as f64 * desired_aspect_ratio) as u16;
+
+    let (final_width, final_height) = if width_constrained_height <= available_height {
+        // Width is the limiting factor
+        (available_width, width_constrained_height)
+    } else {
+        // Height is the limiting factor
+        (height_constrained_width, available_height)
+    };
+
+    // Center the calculated dimensions
+    let x_offset = (available_width - final_width) / 2;
+    let y_offset = (available_height - final_height) / 2;
+
+    Rect::new(
+        area.x + x_offset,
+        area.y + y_offset,
+        final_width,
+        final_height,
+    )
 }

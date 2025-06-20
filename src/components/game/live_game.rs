@@ -30,32 +30,35 @@ pub struct GameStateV2 {
     pub players: HashMap<u64, Player>,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct PlayerStats {
-    // TODO display current ab info, e.g. "1-3, 2B, RBI"
     pub summary: Option<String>,
     pub note: Option<String>,
+    pub pitches_thrown: Option<u8>,
+    pub strikes: Option<u8>,
+    #[allow(dead_code)]
+    pub balls: Option<u8>,
 }
 
 impl From<&ApiPlayer> for PlayerStats {
     fn from(person: &ApiPlayer) -> Self {
         let is_pitcher = person.position.position_type == "Pitcher";
         if is_pitcher {
-            if let Some(summary) = &person.stats.pitching.summary {
-                Self {
-                    summary: Some(summary.clone()),
-                    note: None,
-                }
-            } else {
-                Self::default()
-            }
-        } else if let Some(summary) = &person.stats.batting.summary {
             Self {
-                summary: Some(summary.clone()),
-                note: None,
+                summary: person.stats.pitching.summary.clone(),
+                note: person.stats.pitching.note.clone(),
+                pitches_thrown: person.stats.pitching.pitches_thrown.map(|p| p as u8),
+                strikes: person.stats.pitching.strikes.map(|p| p as u8),
+                balls: person.stats.pitching.balls.map(|p| p as u8),
             }
         } else {
-            Self::default()
+            Self {
+                summary: person.stats.batting.summary.clone(),
+                note: person.stats.batting.note.clone(),
+                pitches_thrown: None,
+                strikes: None,
+                balls: None,
+            }
         }
     }
 }
@@ -88,11 +91,6 @@ impl GameStateV2 {
             .get(live_data.game_data.teams.away.name.as_str())
             .cloned()
             .unwrap_or_default();
-        // let current_play = live_data.live_data.plays.current_play.as_ref();
-        // if let Some(play) = current_play {
-        // self.summary.pitcher = self.players.get(&play.matchup.pitcher.id).cloned();
-        // self.summary.batter = self.players.get(&play.matchup.batter.id).cloned();
-        // }
     }
 
     fn create_players(live_data: &LiveResponse) -> HashMap<u64, Player> {
@@ -103,26 +101,18 @@ impl GameStateV2 {
 
         if let Some(teams) = &live_data.live_data.boxscore.teams {
             for player in teams.home.players.values() {
-                let stats = PlayerStats::from(player);
-                if let Some(player) = map.get_mut(&player.person.id) {
-                    player.summary = stats.summary;
-                    player.note = stats.note;
+                if let Some(p) = map.get_mut(&player.person.id) {
+                    p.stats = PlayerStats::from(player);
                 }
             }
             for player in teams.away.players.values() {
-                let stats = PlayerStats::from(player);
-                if let Some(player) = map.get_mut(&player.person.id) {
-                    player.summary = stats.summary;
-                    player.note = stats.note;
+                if let Some(p) = map.get_mut(&player.person.id) {
+                    p.stats = PlayerStats::from(player);
                 }
             }
         }
         map
     }
-
-    // pub fn get_summary(&self) -> &Summary {
-    //     &self.summary
-    // }
 
     /// Will always return an at bat. If there isn't one, it will return the default.
     pub fn get_latest_at_bat(&self) -> &AtBatV2 {
@@ -147,11 +137,7 @@ impl GameStateV2 {
     }
 
     pub fn count_events(&self) -> usize {
-        self.at_bats
-            .values()
-            .map(|ab| ab.play_result.events.len())
-            .sum::<usize>()
-            + self.at_bats.len()
+        self.at_bats.len()
     }
 
     fn get_current_play_ab_index(live_data: &LiveResponse) -> AtBatIndex {
@@ -166,7 +152,7 @@ impl GameStateV2 {
 
     /// Useful for updating current play.
     pub fn update_single_play(&mut self, play: &Play) {
-        let at_bat = AtBatV2::from(play, &self.players);
+        let at_bat = AtBatV2::from(play);
         self.at_bats.insert(at_bat.index, at_bat);
     }
 
