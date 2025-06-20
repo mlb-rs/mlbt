@@ -1,9 +1,9 @@
-use crate::components::game::live_game::GameStateV2;
+use crate::components::game::live_game::GameState;
 use tui::prelude::*;
 use tui::widgets::{Block, Borders, Padding, Paragraph};
 
 pub struct MatchupWidget<'a> {
-    pub game: &'a GameStateV2,
+    pub game: &'a GameState,
     pub selected_at_bat: Option<u8>,
 }
 

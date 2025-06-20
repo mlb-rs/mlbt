@@ -1,4 +1,4 @@
-use crate::components::game::live_game::GameStateV2;
+use crate::components::game::live_game::GameState;
 use crate::components::game::strikezone::{
     DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH, StrikeZone,
 };
@@ -7,7 +7,7 @@ use tui::widgets::canvas::{Canvas, Rectangle};
 use tui::widgets::{Block, Borders, Paragraph, Wrap};
 
 pub struct AtBatWidget<'a> {
-    pub game: &'a GameStateV2,
+    pub game: &'a GameState,
     pub selected_at_bat: Option<u8>,
 }
 

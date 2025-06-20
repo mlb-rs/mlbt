@@ -1,4 +1,4 @@
-use crate::components::game::matchup::Player;
+use crate::components::game::player::Player;
 use crate::state::app_state::HomeOrAway;
 use mlb_api::boxscore::{Player as ApiPlayer, Team};
 use mlb_api::live::LiveResponse;

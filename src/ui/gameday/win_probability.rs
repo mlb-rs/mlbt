@@ -1,5 +1,5 @@
 use crate::app::MenuItem;
-use crate::components::game::live_game::GameStateV2;
+use crate::components::game::live_game::GameState;
 use crate::components::game::win_probability::WinProbabilityAtBat;
 use crate::components::standings::Team;
 use crate::ui::gameday::plays::{BLUE, GREEN};
@@ -12,7 +12,7 @@ use tui::widgets::{
 type ChartPoint = (f64, f64);
 
 pub struct WinProbabilityWidget<'a> {
-    pub game: &'a GameStateV2,
+    pub game: &'a GameState,
     pub selected_at_bat: Option<u8>,
     pub active_tab: MenuItem,
 }
@@ -53,8 +53,6 @@ impl Widget for WinProbabilityWidget<'_> {
                 let chunks = Layout::default()
                     .direction(Direction::Horizontal)
                     .constraints([Constraint::Length(30), Constraint::Fill(1)].as_ref())
-                    .horizontal_margin(2)
-                    .vertical_margin(1)
                     .split(area);
                 let data =
                     WinProbabilityData::new(self.game, self.selected_at_bat, chunks[0].height);
@@ -70,7 +68,7 @@ impl<'a> WinProbabilityData<'a> {
     const INTERPOLATION_TARGET_COUNT: usize = 50;
     const MINIMUM_TABLE_HEIGHT: usize = 10;
 
-    fn new(game: &'a GameStateV2, selected_at_bat_index: Option<u8>, table_height: u16) -> Self {
+    fn new(game: &'a GameState, selected_at_bat_index: Option<u8>, table_height: u16) -> Self {
         Self {
             at_bats: &game.win_probability.at_bats,
             // summary: &game.summary,

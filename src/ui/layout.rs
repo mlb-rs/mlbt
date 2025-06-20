@@ -87,21 +87,18 @@ impl LayoutAreas {
             .to_vec()
     }
 
-    /// Create two splits for displaying game info and the plays that have happened in the current
-    /// inning. This is used in the `gameday` tab.
-    pub fn for_info(rect: Rect) -> Vec<Rect> {
+    /// Create two splits for displaying game info for the current inning and the recent win
+    /// probability. This is used in the `gameday` tab.
+    pub fn for_info(rect: Rect, show_win_probability: bool) -> Vec<Rect> {
+        let constraints = match show_win_probability {
+            true => vec![Constraint::Fill(1), Constraint::Percentage(25)],
+            false => vec![Constraint::Fill(1)],
+        };
         Layout::default()
             .direction(Direction::Vertical)
             .horizontal_margin(2)
             .vertical_margin(1)
-            .constraints(
-                [
-                    // TODO use for plays and win probability
-                    Constraint::Fill(1), // inning plays
-                                         // Constraint::Length(14),      // game info
-                ]
-                .as_ref(),
-            )
+            .constraints(constraints)
             .split(rect)
             .to_vec()
     }

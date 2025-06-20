@@ -1,67 +1,7 @@
-use crate::components::game::live_game::{PlayerMap, PlayerStats};
-use mlb_api::live::FullPlayer;
+use crate::components::game::live_game::PlayerMap;
 use mlb_api::plays::{Count, Play};
 use tui::prelude::Stylize;
 use tui::text::Line;
-
-const DEFAULT_NAME: &str = "-";
-
-#[derive(Debug)]
-pub struct Player {
-    #[allow(dead_code)]
-    pub id: u64,
-    pub first_name: String,
-    pub last_name: String,
-    pub boxscore_name: String,
-    pub batter_side: String,
-    pub pitch_hand: String,
-    pub stats: PlayerStats,
-}
-
-impl From<&FullPlayer> for Player {
-    fn from(player: &FullPlayer) -> Self {
-        Self {
-            id: player.id,
-            first_name: player
-                .use_name
-                .clone()
-                .unwrap_or_else(|| DEFAULT_NAME.to_owned()),
-            last_name: player
-                .use_last_name
-                .clone()
-                .unwrap_or_else(|| DEFAULT_NAME.to_owned()),
-            boxscore_name: player
-                .boxscore_name
-                .clone()
-                .unwrap_or_else(|| DEFAULT_NAME.to_owned()),
-            batter_side: player
-                .bat_side
-                .as_ref()
-                .map(|b| b.code.clone())
-                .unwrap_or_default(),
-            pitch_hand: player
-                .pitch_hand
-                .as_ref()
-                .map(|b| format!("{}HP", b.code))
-                .unwrap_or_default(),
-            stats: PlayerStats::default(), // gets set later
-        }
-    }
-}
-
-impl Default for Player {
-    fn default() -> Self {
-        Self {
-            id: 0,
-            first_name: DEFAULT_NAME.to_owned(),
-            last_name: DEFAULT_NAME.to_owned(),
-            boxscore_name: DEFAULT_NAME.to_owned(),
-            batter_side: DEFAULT_NAME.to_owned(),
-            pitch_hand: DEFAULT_NAME.to_owned(),
-            stats: PlayerStats::default(),
-        }
-    }
-}
 
 pub struct Matchup {
     #[allow(dead_code)]
@@ -84,8 +24,8 @@ pub struct Runners {
 }
 
 impl Runners {
-    const ON_BASE_CHAR: char = '■'; // ⬥
-    const EMPTY_BASE_CHAR: char = '□'; // ⬦ 
+    const ON_BASE_CHAR: char = '■';
+    const EMPTY_BASE_CHAR: char = '□';
 
     pub fn from_matchup(matchup: &mlb_api::plays::Matchup) -> Self {
         Runners {

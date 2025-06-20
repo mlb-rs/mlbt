@@ -1,6 +1,5 @@
-use crate::components::game::live_game::GameStateV2;
+use crate::components::game::live_game::GameState;
 use crate::components::game::plays::PlayResult;
-use crate::ui::layout::LayoutAreas;
 use std::vec;
 use tui::prelude::*;
 use tui::widgets::{Paragraph, Wrap};
@@ -16,24 +15,22 @@ pub const SCORING_SYMBOL: char = '!';
 pub const SELECTION_SYMBOL: char = '>';
 
 pub struct InningPlaysWidget<'a> {
-    pub game: &'a GameStateV2,
+    pub game: &'a GameState,
     pub selected_at_bat: Option<u8>,
 }
 
 impl Widget for InningPlaysWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let chunks = LayoutAreas::for_info(area);
-
         // TODO this doesn't scroll properly. needs to be a list for that
         let inning_plays = format_plays(self.game, self.selected_at_bat);
         let paragraph = Paragraph::new(inning_plays).wrap(Wrap { trim: false });
 
-        Widget::render(paragraph, chunks[0], buf);
+        Widget::render(paragraph, area, buf);
     }
 }
 
 /// Format the plays for the current inning as TUI Lines.
-fn format_plays(game: &GameStateV2, selected_at_bat: Option<u8>) -> Vec<Line> {
+fn format_plays(game: &GameState, selected_at_bat: Option<u8>) -> Vec<Line> {
     let (at_bat, _is_current) = game.get_at_bat_by_index_or_current(selected_at_bat);
     let inning = at_bat.inning;
 
