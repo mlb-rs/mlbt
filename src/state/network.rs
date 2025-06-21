@@ -1,13 +1,15 @@
 use crate::components::stats::{StatType, TeamOrPlayer};
 use crate::{NetworkRequest, NetworkResponse};
 use chrono::NaiveDate;
-use mlb_api::client::{MLBApi, MLBApiBuilder};
+use log::{debug, error};
+use mlb_api::client::{ApiResult, MLBApi, MLBApiBuilder};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 use tokio::sync::mpsc;
 
 const SPINNER_CHARS: [char; 10] = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+pub const ERROR_CHAR: char = '!';
 
 #[derive(Debug, Copy, Clone)]
 pub struct LoadingState {
@@ -47,7 +49,7 @@ impl NetworkWorker {
     pub async fn run(mut self) {
         while let Some(request) = self.requests.recv().await {
             self.start_loading_animation().await;
-            let response = match request {
+            let result = match request {
                 NetworkRequest::Schedule { date } => self.handle_load_schedule(date).await,
                 NetworkRequest::GameData { game_id } => self.handle_load_game_data(game_id).await,
                 NetworkRequest::Standings { date } => self.handle_load_standings(date).await,
@@ -55,49 +57,54 @@ impl NetworkWorker {
                     self.handle_load_stats(date, stat_type).await
                 }
             };
-            self.stop_loading_animation().await;
+            debug!("request complete");
+            self.stop_loading_animation(result.is_ok()).await;
 
-            if let Some(response) = response {
-                if let Err(e) = self.responses.send(response).await {
-                    eprintln!("Failed to send network response: {}", e);
-                    break;
-                }
+            let response =
+                result.unwrap_or_else(|err| NetworkResponse::Error { message: err.log() });
+            if let Err(e) = self.responses.send(response).await {
+                error!("Failed to send network response: {e}");
+                break;
             }
         }
     }
 
-    async fn handle_load_schedule(&self, date: NaiveDate) -> Option<NetworkResponse> {
-        let schedule = self.client.get_schedule_date(date).await;
-        Some(NetworkResponse::ScheduleLoaded { schedule })
+    async fn handle_load_schedule(&self, date: NaiveDate) -> ApiResult<NetworkResponse> {
+        debug!("loading schedule for {date}");
+        let schedule = self.client.get_schedule_date(date).await?;
+        Ok(NetworkResponse::ScheduleLoaded { schedule })
     }
 
-    async fn handle_load_game_data(&self, game_id: u64) -> Option<NetworkResponse> {
+    async fn handle_load_game_data(&self, game_id: u64) -> ApiResult<NetworkResponse> {
+        debug!("loading game data for {game_id}");
         let (game, wp) = tokio::join!(
             self.client.get_live_data(game_id),
             self.client.get_win_probability(game_id),
         );
-        Some(NetworkResponse::GameDataLoaded {
-            game: Box::new(game),
-            win_probability: wp,
+        Ok(NetworkResponse::GameDataLoaded {
+            game: Box::new(game?),
+            win_probability: wp?,
         })
     }
 
-    async fn handle_load_standings(&self, date: NaiveDate) -> Option<NetworkResponse> {
-        let standings = self.client.get_standings(date).await;
-        Some(NetworkResponse::StandingsLoaded { standings })
+    async fn handle_load_standings(&self, date: NaiveDate) -> ApiResult<NetworkResponse> {
+        debug!("loading standings for {date}");
+        let standings = self.client.get_standings(date).await?;
+        Ok(NetworkResponse::StandingsLoaded { standings })
     }
 
     async fn handle_load_stats(
         &self,
         date: NaiveDate,
         stat_type: StatType,
-    ) -> Option<NetworkResponse> {
+    ) -> ApiResult<NetworkResponse> {
+        debug!("loading {stat_type:?} stats for {date}");
         let StatType { team_player, group } = stat_type;
         let stats = match team_player {
             TeamOrPlayer::Team => self.client.get_team_stats_on_date(group, date).await,
             TeamOrPlayer::Player => self.client.get_player_stats_on_date(group, date).await,
-        };
-        Some(NetworkResponse::StatsLoaded { stats })
+        }?;
+        Ok(NetworkResponse::StatsLoaded { stats })
     }
 
     async fn start_loading_animation(&self) {
@@ -142,17 +149,26 @@ impl NetworkWorker {
         });
     }
 
-    async fn stop_loading_animation(&self) {
+    async fn stop_loading_animation(&self, is_ok: bool) {
         self.is_loading.store(false, Ordering::Relaxed);
 
         // Add a small delay to ensure the animation task stops
         tokio::time::sleep(Duration::from_millis(15)).await;
 
+        let loading_state = match is_ok {
+            true => LoadingState {
+                is_loading: false,
+                spinner_char: ' ',
+            },
+            false => LoadingState {
+                is_loading: false,
+                spinner_char: ERROR_CHAR,
+            },
+        };
+
         let _ = self
             .responses
-            .send(NetworkResponse::LoadingStateChanged {
-                loading_state: LoadingState::default(),
-            })
+            .send(NetworkResponse::LoadingStateChanged { loading_state })
             .await;
     }
 }

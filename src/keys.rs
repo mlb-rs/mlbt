@@ -1,4 +1,4 @@
-use crate::app::{App, MenuItem};
+use crate::app::{App, DebugState, MenuItem};
 use crate::components::stats::TeamOrPlayer;
 use crate::state::app_state::HomeOrAway;
 use crate::{NetworkRequest, cleanup_terminal};
@@ -136,6 +136,12 @@ pub async fn handle_key_bindings(
         (_, Char('?')) => guard.update_tab(MenuItem::Help),
         (MenuItem::Help, KeyCode::Esc) => guard.exit_help(),
         (_, Char('d')) => guard.toggle_debug(),
+        (MenuItem::Help, Char('"')) => guard.toggle_show_logs(),
+        (_, Char('"')) => {
+            if guard.state.debug_state == DebugState::On {
+                guard.toggle_show_logs();
+            }
+        }
 
         _ => {}
     }

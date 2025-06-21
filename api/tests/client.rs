@@ -3,6 +3,7 @@ use mlb_api::client::MLBApi;
 use mlb_api::client::MLBApiBuilder;
 use mlb_api::client::StatGroup;
 use mockito::{Matcher, ServerGuard};
+use std::time::Duration;
 
 async fn generate_mock_client() -> (MLBApi, ServerGuard) {
     let server = mockito::Server::new_async().await;
@@ -15,6 +16,7 @@ async fn generate_mock_client() -> (MLBApi, ServerGuard) {
 
     let client = MLBApiBuilder::default()
         .base_url(&formatted_url)
+        .timeout(Duration::from_secs(10))
         .build()
         .unwrap();
 
@@ -39,7 +41,7 @@ mod tests {
             .create();
 
         let date = NaiveDate::from_ymd_opt(2021, 7, 13).unwrap();
-        let resp = client.get_schedule_date(date).await;
+        let resp = client.get_schedule_date(date).await.unwrap();
         m.assert(); // assert mock was called
         assert_eq!(resp.total_games, 1);
     }
@@ -59,7 +61,7 @@ mod tests {
             .with_body_from_file("./tests/responses/standings.json")
             .create();
 
-        let resp = client.get_standings(date).await;
+        let resp = client.get_standings(date).await.unwrap();
         m.assert(); // assert mock was called
         assert_ne!(resp.records.len(), 0);
     }
@@ -77,7 +79,7 @@ mod tests {
             .with_body_from_file("./tests/responses/live.json")
             .create();
 
-        let resp = client.get_live_data(game_id).await;
+        let resp = client.get_live_data(game_id).await.unwrap();
         m.assert(); // assert mock was called
         assert_eq!(resp.game_pk, game_id);
     }
@@ -101,7 +103,7 @@ mod tests {
                 .with_body_from_file(format!("./tests/responses/team-stats-{group}.json"))
                 .create();
 
-            let resp = client.get_team_stats(group).await;
+            let resp = client.get_team_stats(group).await.unwrap();
             m.assert(); // assert mock was called
             assert_ne!(resp.stats.len(), 0);
             assert_eq!(resp.stats[0].group.display_name, group.to_string());
@@ -128,7 +130,7 @@ mod tests {
                 .with_body_from_file(format!("./tests/responses/team-stats-{group}-date.json"))
                 .create();
 
-            let resp = client.get_team_stats_on_date(group, date).await;
+            let resp = client.get_team_stats_on_date(group, date).await.unwrap();
             m.assert(); // assert mock was called
             assert_ne!(resp.stats.len(), 0);
             assert_eq!(resp.stats[0].group.display_name, group.to_string());
@@ -154,7 +156,7 @@ mod tests {
                 .with_body_from_file(format!("./tests/responses/player-stats-{group}.json"))
                 .create();
 
-            let resp = client.get_player_stats(group).await;
+            let resp = client.get_player_stats(group).await.unwrap();
             m.assert(); // assert mock was called
             assert_ne!(resp.stats.len(), 0);
             assert_eq!(resp.stats[0].group.display_name, group.to_string());
@@ -181,7 +183,7 @@ mod tests {
                 .with_body_from_file(format!("./tests/responses/player-stats-{group}-date.json"))
                 .create();
 
-            let resp = client.get_player_stats_on_date(group, date).await;
+            let resp = client.get_player_stats_on_date(group, date).await.unwrap();
             m.assert(); // assert mock was called
             assert_ne!(resp.stats.len(), 0);
             assert_eq!(resp.stats[0].group.display_name, group.to_string());

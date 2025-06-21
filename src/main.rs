@@ -12,6 +12,7 @@ use crate::state::network::{LoadingState, NetworkWorker};
 use crate::state::refresher::PeriodicRefresher;
 use crossterm::event::{self as crossterm_event, Event};
 use crossterm::{cursor, execute, terminal};
+use log::error;
 use std::io::Stdout;
 use std::sync::Arc;
 use std::{io, panic};
@@ -27,6 +28,10 @@ async fn main() -> anyhow::Result<()> {
 
     setup_panic_hook();
     setup_terminal();
+
+    // initialize logging
+    tui_logger::init_logger(log::LevelFilter::Error)?;
+    tui_logger::set_default_level(log::LevelFilter::Error);
 
     let app = Arc::new(Mutex::new(App::new()));
 
@@ -152,7 +157,7 @@ async fn handle_network_response(
             guard.state.stats.update(&stats);
         }
         NetworkResponse::Error { message } => {
-            eprintln!("Network error: {}", message);
+            error!("Network error: {message}");
         }
     }
     // Only redraw if not loading

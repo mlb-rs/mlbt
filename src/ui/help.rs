@@ -1,12 +1,8 @@
-use tui::{
-    buffer::Buffer,
-    layout::{Alignment, Constraint, Flex, Layout, Rect},
-    style::{Modifier, Style},
-    widgets::{Paragraph, Row, Table, Widget},
-};
-
 use crate::components::banner::BANNER;
 use crate::config::ConfigFile;
+use tui::layout::{Alignment, Constraint, Flex, Layout};
+use tui::prelude::{Buffer, Modifier, Rect, Style};
+use tui::widgets::{Paragraph, Row, Table, Widget};
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
 pub const DOCS: &[&[&str; 2]; 33] = &[

@@ -6,9 +6,21 @@ use chrono::{TimeZone, Utc};
 use chrono_tz::America::Los_Angeles;
 use chrono_tz::{OffsetName, Tz};
 use directories::ProjectDirs;
+use log::{LevelFilter, error};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::sync::OnceLock;
+
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum LogLevel {
+    Off,
+    Trace,
+    Debug,
+    Info,
+    Warn,
+    Error,
+}
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ConfigFile {
@@ -23,6 +35,10 @@ pub struct ConfigFile {
     ///
     /// For the full list see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones.
     pub timezone: Option<Tz>,
+
+    /// Optional log level to use. If not present, the default is `Error`.
+    /// Set the level using a lowercase string, e.g. "error".
+    pub log_level: Option<LogLevel>,
 }
 
 impl Default for ConfigFile {
@@ -30,6 +46,7 @@ impl Default for ConfigFile {
         Self {
             favorite_team: None,
             timezone: Some(ConfigFile::DEFAULT_TIMEZONE),
+            log_level: None,
         }
     }
 }
@@ -42,6 +59,7 @@ impl Into<AppSettings> for ConfigFile {
             full_screen: false,
             timezone: self.validate_timezone(),
             timezone_abbreviation: self.get_timezone_abbreviation(),
+            log_level: self.validate_log_level(),
         }
     }
 }
@@ -76,6 +94,17 @@ impl ConfigFile {
         self.timezone.unwrap_or(Self::DEFAULT_TIMEZONE)
     }
 
+    fn validate_log_level(&self) -> Option<LevelFilter> {
+        self.log_level.map(|level| match level {
+            LogLevel::Off => LevelFilter::Off,
+            LogLevel::Trace => LevelFilter::Trace,
+            LogLevel::Debug => LevelFilter::Debug,
+            LogLevel::Info => LevelFilter::Info,
+            LogLevel::Warn => LevelFilter::Warn,
+            LogLevel::Error => LevelFilter::Error,
+        })
+    }
+
     /// Get the abbreviated name of the configured timezone, (e.g. "PST" or "PDT")
     fn get_timezone_abbreviation(&self) -> String {
         let tz = self.timezone.unwrap_or(Self::DEFAULT_TIMEZONE);
@@ -95,13 +124,13 @@ impl ConfigFile {
                     let dir = proj_dirs.config_dir();
                     if !dir.exists() {
                         if let Err(err) = std::fs::create_dir_all(dir) {
-                            eprintln!("could not create config dir: {err:?}");
+                            error!("could not create config dir: {err:?}");
                         }
                     }
                     let config_file = dir.join(Self::CONFIG_FILE_NAME);
                     Some(config_file)
                 } else {
-                    eprintln!("could not get valid home directory for config file");
+                    error!("could not get valid home directory for config file");
                     None
                 }
             })

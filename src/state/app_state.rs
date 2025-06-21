@@ -18,6 +18,7 @@ pub struct AppState {
     pub active_tab: MenuItem,
     pub previous_tab: MenuItem,
     pub debug_state: DebugState,
+    pub show_logs: bool,
     pub date_input: DateInput,
     pub schedule: ScheduleState,
     pub gameday: GamedayState,

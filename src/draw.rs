@@ -7,7 +7,7 @@ use tui::{Frame, Terminal};
 
 use crate::app::{App, DebugState, MenuItem};
 use crate::components::debug::DebugInfo;
-use crate::state::network::LoadingState;
+use crate::state::network::{ERROR_CHAR, LoadingState};
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
 use crate::ui::date_selector::DateSelectorWidget;
 use crate::ui::gameday::gameday_widget::GamedayWidget;
@@ -15,6 +15,7 @@ use crate::ui::gameday::win_probability::WinProbabilityWidget;
 use crate::ui::help::{DOCS, HelpWidget};
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
+use crate::ui::logs::LogWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::standings::StandingsWidget;
 use crate::ui::stats::{STATS_OPTIONS_WIDTH, StatsWidget};
@@ -54,12 +55,12 @@ where
                 MenuItem::Gameday => draw_gameday(f, main_layout.main, app),
                 MenuItem::Stats => draw_stats(f, main_layout.main, app),
                 MenuItem::Standings => draw_standings(f, main_layout.main, app),
-                MenuItem::Help => draw_help(f, f.area()),
+                MenuItem::Help => draw_help(f, f.area(), app.state.show_logs),
             }
             if app.state.debug_state == DebugState::On {
                 let mut dbi = DebugInfo::new();
                 dbi.gather_info(f, app);
-                dbi.render(f, main_layout.main)
+                dbi.render(f, main_layout.main, app.state.show_logs);
             }
 
             draw_loading_spinner(f, f.area(), app, is_loading);
@@ -80,11 +81,19 @@ fn draw_border(f: &mut Frame, rect: Rect, color: Color) {
 }
 
 fn draw_loading_spinner(f: &mut Frame, area: Rect, app: &App, loading: LoadingState) {
-    if !loading.is_loading {
+    if !loading.is_loading && loading.spinner_char != ERROR_CHAR {
         return;
     }
 
-    let spinner = Paragraph::new(loading.spinner_char.to_string()).alignment(Alignment::Right);
+    let style = match loading.spinner_char {
+        ERROR_CHAR => Style::default().fg(Color::Red),
+        _ => Style::default().fg(Color::White),
+    };
+
+    let spinner = Paragraph::new(loading.spinner_char.to_string())
+        .alignment(Alignment::Right)
+        .style(style);
+
     let area = if app.settings.full_screen {
         // render in the bottom right
         Rect::new(
@@ -240,8 +249,14 @@ fn draw_win_probability(f: &mut Frame, rect: Rect, app: &mut App) {
     }
 }
 
-fn draw_help(f: &mut Frame, rect: Rect) {
+fn draw_help(f: &mut Frame, rect: Rect, show_logs: bool) {
     f.render_widget(Clear, rect);
+
+    if show_logs {
+        draw_border(f, rect, Color::White);
+        f.render_widget(LogWidget {}, rect);
+        return;
+    }
 
     // if the terminal is too small display a red border
     let mut color = Color::White;

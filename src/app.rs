@@ -42,6 +42,12 @@ impl App {
     fn configure(&mut self) {
         self.set_all_datepickers_to_today();
         self.state.standings.favorite_team = self.settings.favorite_team;
+
+        // override log level if set
+        if let Some(level) = self.settings.log_level {
+            log::set_max_level(level);
+            tui_logger::set_default_level(level);
+        }
     }
 
     /// Sync date pickers using the correct timezone.
@@ -139,6 +145,10 @@ impl App {
             DebugState::Off => self.state.debug_state = DebugState::On,
             DebugState::On => self.state.debug_state = DebugState::Off,
         }
+    }
+
+    pub fn toggle_show_logs(&mut self) {
+        self.state.show_logs = !self.state.show_logs;
     }
 
     pub fn toggle_full_screen(&mut self) {
