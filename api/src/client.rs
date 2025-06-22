@@ -1,17 +1,17 @@
-use std::fmt;
-
 use crate::live::LiveResponse;
 use crate::schedule::ScheduleResponse;
 use crate::standings::StandingsResponse;
 use crate::stats::StatsResponse;
 use crate::win_probability::WinProbabilityResponse;
+use std::fmt;
+use std::time::Duration;
 
 use chrono::{DateTime, Datelike, Local, NaiveDate};
 use derive_builder::Builder;
-use reqwest::{Client, StatusCode};
+use reqwest::Client;
 use serde::de::DeserializeOwned;
 
-type ApiResult<T> = Result<T, ApiError>;
+pub type ApiResult<T> = Result<T, ApiError>;
 
 const BASE_URL: &str = "https://statsapi.mlb.com/api/";
 
@@ -21,21 +21,25 @@ const BASE_URL: &str = "https://statsapi.mlb.com/api/";
 pub struct MLBApi {
     #[builder(default = "Client::new()")]
     client: Client,
+    #[builder(default = "Duration::from_secs(10)")]
+    timeout: Duration,
     #[builder(setter(into), default = "String::from(BASE_URL)")]
     base_url: String,
 }
 
 #[derive(Debug)]
-enum ApiError {
-    Network(reqwest::Error),
-    Parsing(reqwest::Error),
+pub enum ApiError {
+    Network(reqwest::Error, String),
+    API(reqwest::Error, String),
+    Parsing(reqwest::Error, String),
 }
 
 impl ApiError {
-    fn log(&self, url: &str) {
+    pub fn log(&self) -> String {
         match self {
-            ApiError::Network(e) => eprintln!("Network error for {url}: {e:?}"),
-            ApiError::Parsing(e) => eprintln!("Parsing error for {url}: {e:?}"),
+            ApiError::Network(e, url) => format!("Network error for {url}: {e:?}"),
+            ApiError::API(e, url) => format!("API error for {url}: {e:?}"),
+            ApiError::Parsing(e, url) => format!("Parsing error for {url}: {e:?}"),
         }
     }
 }
@@ -66,12 +70,12 @@ impl fmt::Display for StatGroup {
 }
 
 impl MLBApi {
-    pub async fn get_todays_schedule(&self) -> ScheduleResponse {
+    pub async fn get_todays_schedule(&self) -> ApiResult<ScheduleResponse> {
         let url = format!("{}v1/schedule?sportId=1", self.base_url);
         self.get(url).await
     }
 
-    pub async fn get_schedule_date(&self, date: NaiveDate) -> ScheduleResponse {
+    pub async fn get_schedule_date(&self, date: NaiveDate) -> ApiResult<ScheduleResponse> {
         let url = format!(
             "{}v1/schedule?sportId=1&date={}",
             self.base_url,
@@ -80,9 +84,9 @@ impl MLBApi {
         self.get(url).await
     }
 
-    pub async fn get_live_data(&self, game_id: u64) -> LiveResponse {
+    pub async fn get_live_data(&self, game_id: u64) -> ApiResult<LiveResponse> {
         if game_id == 0 {
-            return LiveResponse::default();
+            return Ok(LiveResponse::default());
         }
         let url = format!(
             "{}v1.1/game/{}/feed/live?language=en",
@@ -91,9 +95,9 @@ impl MLBApi {
         self.get(url).await
     }
 
-    pub async fn get_win_probability(&self, game_id: u64) -> WinProbabilityResponse {
+    pub async fn get_win_probability(&self, game_id: u64) -> ApiResult<WinProbabilityResponse> {
         if game_id == 0 {
-            return WinProbabilityResponse::default();
+            return Ok(WinProbabilityResponse::default());
         }
         let url = format!(
             "{}v1/game/{}/winProbability?fields=homeTeamWinProbability&fields=awayTeamWinProbability&fields=homeTeamWinProbabilityAdded&fields=atBatIndex&fields=about&fields=inning&fields=isTopInning&fields=captivatingIndex&fields=leverageIndex",
@@ -102,7 +106,7 @@ impl MLBApi {
         self.get(url).await
     }
 
-    pub async fn get_standings(&self, date: NaiveDate) -> StandingsResponse {
+    pub async fn get_standings(&self, date: NaiveDate) -> ApiResult<StandingsResponse> {
         let url = format!(
             "{}v1/standings?sportId=1&season={}&date={}&leagueId=103,104",
             self.base_url,
@@ -112,7 +116,7 @@ impl MLBApi {
         self.get(url).await
     }
 
-    pub async fn get_team_stats(&self, group: StatGroup) -> StatsResponse {
+    pub async fn get_team_stats(&self, group: StatGroup) -> ApiResult<StatsResponse> {
         let local: DateTime<Local> = Local::now();
         let url = format!(
             "{}v1/teams/stats?sportId=1&stats=season&season={}&group={}",
@@ -123,7 +127,11 @@ impl MLBApi {
         self.get(url).await
     }
 
-    pub async fn get_team_stats_on_date(&self, group: StatGroup, date: NaiveDate) -> StatsResponse {
+    pub async fn get_team_stats_on_date(
+        &self,
+        group: StatGroup,
+        date: NaiveDate,
+    ) -> ApiResult<StatsResponse> {
         let url = format!(
             "{}v1/teams/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}",
             self.base_url,
@@ -134,7 +142,7 @@ impl MLBApi {
         self.get(url).await
     }
 
-    pub async fn get_player_stats(&self, group: StatGroup) -> StatsResponse {
+    pub async fn get_player_stats(&self, group: StatGroup) -> ApiResult<StatsResponse> {
         let local: DateTime<Local> = Local::now();
         let url = format!(
             "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=300",
@@ -149,7 +157,7 @@ impl MLBApi {
         &self,
         group: StatGroup,
         date: NaiveDate,
-    ) -> StatsResponse {
+    ) -> ApiResult<StatsResponse> {
         let url = format!(
             "{}v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=300",
             self.base_url,
@@ -160,31 +168,30 @@ impl MLBApi {
         self.get(url).await
     }
 
-    async fn get<T: Default + DeserializeOwned>(&self, url: String) -> T {
-        match self.try_get(&url).await {
-            Ok(data) => data,
-            Err(error) => {
-                error.log(&url);
-                T::default()
-            }
-        }
-    }
-
-    // TODO return errors to caller
-
-    async fn try_get<T: Default + DeserializeOwned>(&self, url: &str) -> ApiResult<T> {
+    async fn get<T: Default + DeserializeOwned>(&self, url: String) -> ApiResult<T> {
         let response = self
             .client
-            .get(url)
+            .get(&url)
+            .timeout(self.timeout)
             .send()
             .await
-            .map_err(ApiError::Network)?;
+            .map_err(|err| ApiError::Network(err, url.clone()))?;
 
-        if response.status() == StatusCode::OK {
-            response.json::<T>().await.map_err(ApiError::Parsing)
-        } else {
-            // just swallow non 200 responses
-            Ok(T::default())
+        let status = response.status();
+        match response.error_for_status() {
+            Ok(res) => res
+                .json::<T>()
+                .await
+                .map_err(|err| ApiError::Parsing(err, url.clone())),
+            // 400-5xx returns errors
+            Err(err) => {
+                if status.is_client_error() {
+                    // just swallow 4xx responses
+                    Ok(T::default())
+                } else {
+                    Err(ApiError::API(err, url.clone()))
+                }
+            }
         }
     }
 }

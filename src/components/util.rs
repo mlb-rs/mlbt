@@ -1,3 +1,4 @@
+use log::error;
 use tui::style::Color;
 
 /// Convert a string from the API to a Color::Rgb. The string starts out as:
@@ -11,7 +12,7 @@ pub(crate) fn convert_color(s: String) -> Color {
             c[2].parse().unwrap_or(0),
         )
     } else {
-        eprintln!("color doesn't start with 'rgba(' {:?}", s);
+        error!("color doesn't start with 'rgba(' {:?}", s);
         Color::Rgb(0, 0, 0)
     }
 }
