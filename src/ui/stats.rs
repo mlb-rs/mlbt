@@ -1,5 +1,5 @@
 use crate::components::stats::{
-    STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH, StatsState, TeamOrPlayer,
+    StatsState, TeamOrPlayer, STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH,
 };
 use mlb_api::client::StatGroup;
 use tui::prelude::*;
@@ -24,10 +24,7 @@ impl StatefulWidget for StatsWidget {
             }
             false => vec![Constraint::Percentage(100)],
         };
-        let chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints::<&[Constraint]>(constraints.as_ref())
-            .split(area);
+        let chunks = Layout::horizontal(constraints).split(area);
 
         let (header, rows) = state.generate_table();
 
@@ -95,10 +92,9 @@ impl StatefulWidget for StatsWidget {
         if self.show_options {
             let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
 
-            let chunks = Layout::default()
-                .direction(Direction::Vertical)
-                .constraints([Constraint::Length(4), Constraint::Percentage(100)].as_ref())
-                .split(chunks[1]);
+            let [stats_rect, options_rect] =
+                Layout::vertical([Constraint::Length(4), Constraint::Percentage(100)])
+                    .areas(chunks[1]);
             // hitting | pitching
             // team | player
             let (hitting_style, pitching_style) = match state.stat_type.group {
@@ -129,7 +125,7 @@ impl StatefulWidget for StatsWidget {
                 )
                 .alignment(Alignment::Center)
                 .wrap(Wrap { trim: true })
-                .render(chunks[0], buf);
+                .render(stats_rect, buf);
 
             // options
             let widths = [
@@ -146,7 +142,7 @@ impl StatefulWidget for StatsWidget {
                         .border_type(BorderType::Rounded),
                 )
                 .row_highlight_style(selected_style);
-            StatefulWidget::render(t, chunks[1], buf, &mut state.state);
+            StatefulWidget::render(t, options_rect, buf, &mut state.state);
         }
     }
 }

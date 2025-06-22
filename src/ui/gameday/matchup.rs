@@ -13,38 +13,16 @@ impl Widget for MatchupWidget<'_> {
             .game
             .get_at_bat_by_index_or_current(self.selected_at_bat);
 
-        let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Fill(1), Constraint::Length(1)].as_ref())
-            .split(area)
-            .to_vec();
+        let [matchup, on_deck] =
+            Layout::vertical([Constraint::Fill(1), Constraint::Length(1)]).areas(area);
 
-        let matchup_chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .horizontal_margin(2)
-            .constraints(
-                [
-                    Constraint::Ratio(1, 3),
-                    Constraint::Ratio(1, 3),
-                    Constraint::Ratio(1, 3),
-                ]
-                .as_ref(),
-            )
-            .split(chunks[0])
-            .to_vec();
-
-        let on_deck_chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints(
-                [
-                    Constraint::Fill(1),
-                    Constraint::Length(3),
-                    Constraint::Fill(1),
-                ]
-                .as_ref(),
-            )
-            .split(chunks[1])
-            .to_vec();
+        let [away, scoreboard, home] = Layout::horizontal([
+            Constraint::Ratio(1, 3),
+            Constraint::Ratio(1, 3),
+            Constraint::Ratio(1, 3),
+        ])
+        .horizontal_margin(2)
+        .areas(matchup);
 
         Widget::render(
             Paragraph::new(at_bat.matchup.format_away_lines(
@@ -58,7 +36,7 @@ impl Widget for MatchupWidget<'_> {
                     .borders(Borders::BOTTOM)
                     .padding(Padding::new(0, 0, 1, 0)),
             ),
-            matchup_chunks[0],
+            away,
             buf,
         );
         Widget::render(
@@ -69,7 +47,7 @@ impl Widget for MatchupWidget<'_> {
                         .borders(Borders::BOTTOM)
                         .padding(Padding::new(0, 0, 1, 0)),
                 ),
-            matchup_chunks[1],
+            scoreboard,
             buf,
         );
         Widget::render(
@@ -84,13 +62,20 @@ impl Widget for MatchupWidget<'_> {
                     .borders(Borders::BOTTOM)
                     .padding(Padding::new(0, 0, 1, 0)),
             ),
-            matchup_chunks[2],
+            home,
             buf,
         );
 
         // only display on deck if it's the current at bat
         if is_current {
             // split into three chunks so that the center line is always exactly in the center
+            let [od, split, ih] = Layout::horizontal([
+                Constraint::Fill(1),
+                Constraint::Length(3),
+                Constraint::Fill(1),
+            ])
+            .areas(on_deck);
+
             if let (Some(on_deck), Some(in_hole)) =
                 (self.game.format_on_deck(), self.game.format_in_hole())
             {
@@ -98,21 +83,21 @@ impl Widget for MatchupWidget<'_> {
                     Paragraph::new(on_deck)
                         .alignment(Alignment::Right)
                         .block(Block::default().padding(Padding::new(2, 0, 0, 0))),
-                    on_deck_chunks[0],
+                    od,
                     buf,
                 );
                 Widget::render(
                     Paragraph::new(" | ".to_string())
                         .alignment(Alignment::Center)
                         .block(Block::default().padding(Padding::new(0, 0, 0, 0))),
-                    on_deck_chunks[1],
+                    split,
                     buf,
                 );
                 Widget::render(
                     Paragraph::new(in_hole)
                         .alignment(Alignment::Left)
                         .block(Block::default().padding(Padding::new(0, 2, 0, 0))),
-                    on_deck_chunks[2],
+                    ih,
                     buf,
                 );
             }

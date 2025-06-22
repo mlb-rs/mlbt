@@ -78,16 +78,16 @@ impl Widget for HelpWidget {
             false => Row::new(item.text.clone()).style(help_menu_style),
         });
 
-        let chunks = Layout::horizontal([Constraint::Length(50), Constraint::Length(15)])
+        let [table, banner] = Layout::horizontal([Constraint::Length(50), Constraint::Length(15)])
             .flex(Flex::Legacy)
             .margin(1)
             .horizontal_margin(2)
-            .split(area);
+            .areas(area);
 
         Table::new(rows, [Constraint::Percentage(100)])
             .header(header)
             .style(help_menu_style)
-            .render(chunks[0], buf);
+            .render(table, buf);
 
         let config_file = if let Some(path) = ConfigFile::get_config_location() {
             path.to_string_lossy().to_string()
@@ -101,6 +101,6 @@ impl Widget for HelpWidget {
             config_file
         ))
         .alignment(Alignment::Center)
-        .render(chunks[1], buf);
+        .render(banner, buf);
     }
 }

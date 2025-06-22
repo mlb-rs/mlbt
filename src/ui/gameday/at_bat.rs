@@ -1,6 +1,6 @@
 use crate::components::game::live_game::GameState;
 use crate::components::game::strikezone::{
-    DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH, StrikeZone,
+    StrikeZone, DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH,
 };
 use tui::prelude::*;
 use tui::widgets::canvas::{Canvas, Rectangle};
@@ -18,20 +18,14 @@ impl Widget for AtBatWidget<'_> {
             .get_at_bat_by_index_or_current(self.selected_at_bat);
         let pitches = &at_bat.pitches;
 
-        let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .horizontal_margin(2)
-            .vertical_margin(1)
-            .constraints(
-                [
-                    Constraint::Length(1),      // on deck
-                    Constraint::Percentage(65), // heatmap/pitches
-                    Constraint::Length(1),      // hit stats
-                    Constraint::Percentage(35), // pitch info
-                ]
-                .as_ref(),
-            )
-            .split(area);
+        let [kzone, hit, pitch_info] = Layout::vertical([
+            Constraint::Percentage(65), // heatmap/pitches
+            Constraint::Length(1),      // hit stats
+            Constraint::Percentage(35), // pitch info
+        ])
+        .horizontal_margin(2)
+        .vertical_margin(1)
+        .areas(area);
 
         // grab the strike zone from the first pitch since it doesn't change during the at bat.
         let mut strike_zone_bot = DEFAULT_SZ_BOT * 12.0;
@@ -45,7 +39,7 @@ impl Widget for AtBatWidget<'_> {
         }
         let height = strike_zone_top - strike_zone_bot;
         let coords = StrikeZone::build_coords(strike_zone_bot, strike_zone_top);
-        let strike_zone_area = generate_strike_zone_area(chunks[1]);
+        let strike_zone_area = generate_strike_zone_area(kzone);
 
         // strike zone and pitch display
         Canvas::default()
@@ -78,8 +72,6 @@ impl Widget for AtBatWidget<'_> {
             .y_bounds([0.0, 55.0])
             .render(strike_zone_area, buf);
 
-        // display the on deck information if available
-
         // display the event information
         let events: Vec<Line> = pitches
             .pitches
@@ -90,20 +82,18 @@ impl Widget for AtBatWidget<'_> {
             .flatten()
             .collect();
 
-        let text = Text::from(events);
-        let paragraph = Paragraph::new(text)
+        let paragraph = Paragraph::new(events)
             .wrap(Wrap { trim: false })
             .block(Block::default().borders(Borders::TOP));
-        Widget::render(paragraph, chunks[3], buf);
+        Widget::render(paragraph, pitch_info, buf);
 
         // display the hit information if available
         if let Some(data) = pitches.pitches.pitch_events.last() {
             if let Some(text) = data.format_hit_data() {
-                let text = Text::from(text);
                 let paragraph = Paragraph::new(text)
                     .alignment(Alignment::Center)
                     .wrap(Wrap { trim: false });
-                Widget::render(paragraph.clone(), chunks[2], buf);
+                Widget::render(paragraph, hit, buf);
             }
         };
     }

@@ -36,28 +36,23 @@ impl Widget for WinProbabilityWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         match self.active_tab {
             MenuItem::Scoreboard => {
-                let chunks = Layout::default()
-                    .direction(Direction::Vertical)
-                    .constraints([
-                        Constraint::Fill(1),
-                        Constraint::Length(WinProbabilityData::MINIMUM_TABLE_HEIGHT as u16),
-                    ])
-                    .horizontal_margin(2)
-                    .vertical_margin(1)
-                    .split(area);
-                let data =
-                    WinProbabilityData::new(self.game, self.selected_at_bat, chunks[1].height);
-                data.render_line_chart(chunks[1], buf);
+                let [_, chart] = Layout::vertical([
+                    Constraint::Fill(1),
+                    Constraint::Length(WinProbabilityData::MINIMUM_TABLE_HEIGHT as u16),
+                ])
+                .horizontal_margin(2)
+                .vertical_margin(1)
+                .areas(area);
+                let data = WinProbabilityData::new(self.game, self.selected_at_bat, chart.height);
+                data.render_line_chart(chart, buf);
             }
             MenuItem::Gameday => {
-                let chunks = Layout::default()
-                    .direction(Direction::Horizontal)
-                    .constraints([Constraint::Length(30), Constraint::Fill(1)].as_ref())
-                    .split(area);
-                let data =
-                    WinProbabilityData::new(self.game, self.selected_at_bat, chunks[0].height);
-                data.render_table(chunks[0], buf);
-                data.render_chart(chunks[1], buf);
+                let [table, chart] =
+                    Layout::horizontal([Constraint::Length(30), Constraint::Fill(1)].as_ref())
+                        .areas(area);
+                let data = WinProbabilityData::new(self.game, self.selected_at_bat, table.height);
+                data.render_table(table, buf);
+                data.render_chart(chart, buf);
             }
             _ => (),
         }

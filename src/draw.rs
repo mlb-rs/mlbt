@@ -12,12 +12,12 @@ use crate::ui::boxscore::TeamBatterBoxscoreWidget;
 use crate::ui::date_selector::DateSelectorWidget;
 use crate::ui::gameday::gameday_widget::GamedayWidget;
 use crate::ui::gameday::win_probability::WinProbabilityWidget;
-use crate::ui::help::{DOCS, HelpWidget};
+use crate::ui::help::{HelpWidget, DOCS};
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::standings::StandingsWidget;
-use crate::ui::stats::{STATS_OPTIONS_WIDTH, StatsWidget};
+use crate::ui::stats::{StatsWidget, STATS_OPTIONS_WIDTH};
 
 static TABS: &[&str; 4] = &["Scoreboard", "Gameday", "Stats", "Standings"];
 
@@ -140,26 +140,26 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
         w if w < 125 => Direction::Vertical,
         _ => Direction::Horizontal,
     };
-    let chunks = Layout::default()
+    let [scoreboard, boxscore] = Layout::default()
         .direction(direction)
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-        .split(rect);
+        .areas(rect);
 
     // display scores on left side
     f.render_stateful_widget(
         ScheduleWidget {
             tz_abbreviation: app.settings.timezone_abbreviation.clone(),
         },
-        chunks[0],
+        scoreboard,
         &mut app.state.schedule,
     );
     if app.state.schedule.show_win_probability {
-        draw_win_probability(f, chunks[0], app);
+        draw_win_probability(f, scoreboard, app);
     }
 
     // display line score and box score on right
-    draw_border(f, chunks[1], Color::White);
-    draw_linescore_boxscore(f, chunks[1], app);
+    draw_border(f, boxscore, Color::White);
+    draw_linescore_boxscore(f, boxscore, app);
 }
 
 fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &App) {

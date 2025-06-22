@@ -1,17 +1,11 @@
 use crate::components::debug::DebugInfo;
-use tui::{
-    Frame,
-    layout::{Alignment, Constraint, Direction, Layout, Rect},
-    style::{Color, Style},
-    widgets::{Block, Borders, Clear, Paragraph},
-};
+use tui::layout::Constraint::Percentage;
+use tui::prelude::*;
+use tui::widgets::{Block, Borders, Clear, Paragraph};
 
 impl DebugInfo {
     pub fn render(&self, f: &mut Frame, rect: Rect) {
-        let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
-            .split(rect);
+        let [_, debug] = Layout::vertical([Percentage(80), Percentage(20)]).areas(rect);
 
         let help = Paragraph::new(self.to_string())
             .alignment(Alignment::Left)
@@ -22,7 +16,7 @@ impl DebugInfo {
             )
             .style(Style::default().fg(Color::White));
 
-        f.render_widget(Clear, chunks[1]); //this clears out the background
-        f.render_widget(help, chunks[1]);
+        f.render_widget(Clear, debug); //this clears out the background
+        f.render_widget(help, debug);
     }
 }
