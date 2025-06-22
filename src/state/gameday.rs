@@ -1,9 +1,9 @@
-use crate::components::game::live_game::GameStateV2;
+use crate::components::game::live_game::GameState;
 
 #[derive(Default)]
 pub struct GamedayState {
     pub panels: GamedayPanels,
-    pub game: GameStateV2,
+    pub game: GameState,
     selected_at_bat: Option<usize>,
 }
 

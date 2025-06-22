@@ -140,26 +140,26 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
         w if w < 125 => Direction::Vertical,
         _ => Direction::Horizontal,
     };
-    let chunks = Layout::default()
+    let [scoreboard, boxscore] = Layout::default()
         .direction(direction)
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-        .split(rect);
+        .areas(rect);
 
     // display scores on left side
     f.render_stateful_widget(
         ScheduleWidget {
             tz_abbreviation: app.settings.timezone_abbreviation.clone(),
         },
-        chunks[0],
+        scoreboard,
         &mut app.state.schedule,
     );
     if app.state.schedule.show_win_probability {
-        draw_win_probability(f, chunks[0], app);
+        draw_win_probability(f, scoreboard, app);
     }
 
     // display line score and box score on right
-    draw_border(f, chunks[1], Color::White);
-    draw_linescore_boxscore(f, chunks[1], app);
+    draw_border(f, boxscore, Color::White);
+    draw_linescore_boxscore(f, boxscore, app);
 }
 
 fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &App) {

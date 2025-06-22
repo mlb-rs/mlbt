@@ -139,12 +139,7 @@ impl Pitch {
 
 impl From<&Play> for Pitches {
     fn from(play: &Play) -> Self {
-        let pitch_events = play
-            .play_events
-            .iter()
-            .map(PitchEvent::from)
-            .rev()
-            .collect();
+        let pitch_events = play.play_events.iter().map(PitchEvent::from).collect();
         Pitches { pitch_events }
     }
 }

@@ -3,6 +3,7 @@ pub mod live_game;
 pub mod matchup;
 pub mod pitch_event;
 pub mod pitches;
+pub mod player;
 pub mod plays;
 pub mod strikezone;
 pub mod win_probability;

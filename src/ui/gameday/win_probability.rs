@@ -1,7 +1,7 @@
 use crate::app::MenuItem;
-use crate::components::game::live_game::GameStateV2;
-use crate::components::game::matchup::Summary;
+use crate::components::game::live_game::{AtBatIndex, GameState};
 use crate::components::game::win_probability::WinProbabilityAtBat;
+use crate::components::standings::Team;
 use crate::ui::gameday::plays::{BLUE, GREEN};
 use indexmap::IndexMap;
 use tui::prelude::*;
@@ -12,15 +12,16 @@ use tui::widgets::{
 type ChartPoint = (f64, f64);
 
 pub struct WinProbabilityWidget<'a> {
-    pub game: &'a GameStateV2,
+    pub game: &'a GameState,
     pub selected_at_bat: Option<u8>,
     pub active_tab: MenuItem,
 }
 
 struct WinProbabilityData<'a> {
-    summary: &'a Summary,
-    at_bats: &'a IndexMap<u8, WinProbabilityAtBat>,
-    selected_at_bat_index: Option<u8>,
+    at_bats: &'a IndexMap<AtBatIndex, WinProbabilityAtBat>,
+    home_team: Team,
+    away_team: Team,
+    selected_at_bat_index: Option<AtBatIndex>,
     table_height: u16,
 }
 
@@ -34,30 +35,23 @@ impl Widget for WinProbabilityWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         match self.active_tab {
             MenuItem::Scoreboard => {
-                let chunks = Layout::default()
-                    .direction(Direction::Vertical)
-                    .constraints([
-                        Constraint::Fill(1),
-                        Constraint::Length(WinProbabilityData::MINIMUM_TABLE_HEIGHT as u16),
-                    ])
-                    .horizontal_margin(2)
-                    .vertical_margin(1)
-                    .split(area);
-                let data =
-                    WinProbabilityData::new(self.game, self.selected_at_bat, chunks[1].height);
-                data.render_line_chart(chunks[1], buf);
+                let [_, chart] = Layout::vertical([
+                    Constraint::Fill(1),
+                    Constraint::Length(WinProbabilityData::MINIMUM_TABLE_HEIGHT as u16),
+                ])
+                .horizontal_margin(2)
+                .vertical_margin(1)
+                .areas(area);
+                let data = WinProbabilityData::new(self.game, self.selected_at_bat, chart.height);
+                data.render_line_chart(chart, buf);
             }
             MenuItem::Gameday => {
-                let chunks = Layout::default()
-                    .direction(Direction::Horizontal)
-                    .constraints([Constraint::Length(30), Constraint::Fill(1)].as_ref())
-                    .horizontal_margin(2)
-                    .vertical_margin(1)
-                    .split(area);
-                let data =
-                    WinProbabilityData::new(self.game, self.selected_at_bat, chunks[0].height);
-                data.render_table(chunks[0], buf);
-                data.render_chart(chunks[1], buf);
+                let [table, chart] =
+                    Layout::horizontal([Constraint::Length(30), Constraint::Fill(1)].as_ref())
+                        .areas(area);
+                let data = WinProbabilityData::new(self.game, self.selected_at_bat, table.height);
+                data.render_table(table, buf);
+                data.render_chart(chart, buf);
             }
             _ => (),
         }
@@ -68,11 +62,13 @@ impl<'a> WinProbabilityData<'a> {
     const INTERPOLATION_TARGET_COUNT: usize = 50;
     const MINIMUM_TABLE_HEIGHT: usize = 10;
 
-    fn new(game: &'a GameStateV2, selected_at_bat_index: Option<u8>, table_height: u16) -> Self {
+    fn new(game: &'a GameState, selected_at_bat_index: Option<u8>, table_height: u16) -> Self {
         Self {
             at_bats: &game.win_probability.at_bats,
-            summary: &game.summary,
+            // summary: &game.summary,
             selected_at_bat_index,
+            home_team: game.home_team,
+            away_team: game.away_team,
             table_height,
         }
     }
@@ -284,9 +280,9 @@ impl<'a> WinProbabilityData<'a> {
                 Axis::default()
                     .style(Style::default().fg(Color::Gray))
                     .labels([
-                        self.summary.home_team.abbreviation.to_string(),
+                        self.home_team.abbreviation.to_string(),
                         "50%".into(),
-                        self.summary.away_team.abbreviation.to_string(),
+                        self.away_team.abbreviation.to_string(),
                     ])
                     .bounds([-50.0, 50.0]),
             )

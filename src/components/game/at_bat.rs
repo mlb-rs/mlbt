@@ -1,18 +1,18 @@
-use crate::components::game::matchup::MatchupV2;
+use crate::components::game::matchup::Matchup;
 use crate::components::game::pitches::Pitches;
 use crate::components::game::plays::PlayResult;
 use crate::components::game::strikezone::StrikeZone;
 use mlb_api::plays::Play;
 
 #[derive(Default)]
-pub struct AtBatV2 {
+pub struct AtBat {
     pub index: u8,
     pub inning: u8,
     pub is_top_inning: bool,
     /// Strikezone, pitches, pitch information
     pub pitches: AtBatPitches,
     /// Matchup information
-    pub matchup: MatchupV2,
+    pub matchup: Matchup,
     /// Play information
     pub play_result: PlayResult,
 }
@@ -23,7 +23,7 @@ pub struct AtBatPitches {
     pub strike_zone: StrikeZone,
 }
 
-impl From<&Play> for AtBatV2 {
+impl From<&Play> for AtBat {
     fn from(play: &Play) -> Self {
         Self {
             index: play.about.at_bat_index,

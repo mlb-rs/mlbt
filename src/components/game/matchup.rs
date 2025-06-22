@@ -1,94 +1,19 @@
-use mlb_api::live::LiveResponse;
+use crate::components::game::live_game::PlayerMap;
 use mlb_api::plays::{Count, Play};
+use tui::prelude::Stylize;
+use tui::text::Line;
 
-use crate::components::constants::TEAM_IDS;
-use crate::components::standings::Team;
-use std::fmt;
-
-const DEFAULT_NAME: &str = "-";
-
-pub struct Summary {
-    pub home_team: Team,
-    pub away_team: Team,
-    pub on_deck: String,
-    pub in_hole: String,
-}
-
-impl Default for Summary {
-    fn default() -> Self {
-        let home_team = Team {
-            abbreviation: "H",
-            ..Team::default()
-        };
-        let away_team = Team {
-            abbreviation: "A",
-            ..Team::default()
-        };
-
-        Self {
-            home_team,
-            away_team,
-            on_deck: DEFAULT_NAME.to_owned(),
-            in_hole: DEFAULT_NAME.to_owned(),
-        }
-    }
-}
-
-impl From<&LiveResponse> for Summary {
-    fn from(live_game: &LiveResponse) -> Self {
-        // get the on deck and in the hole batters
-        let on_deck = match live_game.live_data.linescore.offense.on_deck.as_ref() {
-            Some(od) => od.full_name.clone(),
-            None => DEFAULT_NAME.to_owned(),
-        };
-        let in_hole = match live_game.live_data.linescore.offense.in_hole.as_ref() {
-            Some(ih) => ih.full_name.clone(),
-            None => DEFAULT_NAME.to_owned(),
-        };
-
-        Self {
-            home_team: TEAM_IDS
-                .get(live_game.game_data.teams.home.name.as_str())
-                .cloned()
-                .unwrap_or_default(),
-            away_team: TEAM_IDS
-                .get(live_game.game_data.teams.away.name.as_str())
-                .cloned()
-                .unwrap_or_default(),
-            on_deck,
-            in_hole,
-        }
-    }
-}
-
-pub struct MatchupV2 {
+pub struct Matchup {
     #[allow(dead_code)]
     pub at_bat_index: u8,
     pub home_score: u8,
     pub away_score: u8,
-    pub inning: String,
-    pub pitcher_name: String,
-    pub pitcher_side: String,
-    pub batter_name: String,
-    pub batter_side: String,
+    pub inning: u8,
+    pub is_top: bool,
+    pub pitcher_id: u64,
+    pub batter_id: u64,
     pub count: Count,
     pub runners: Runners,
-}
-
-pub struct Matchup {
-    pub home_name: String,
-    pub home_score: u8,
-    pub away_name: String,
-    pub away_score: u8,
-    pub inning: String,
-    pub pitcher_name: String,
-    pub pitcher_side: String,
-    pub batter_name: String,
-    pub batter_side: String,
-    pub count: Count,
-    pub runners: Runners,
-    pub on_deck: String,
-    pub in_hole: String,
 }
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -98,23 +23,10 @@ pub struct Runners {
     pub third: bool,
 }
 
-impl fmt::Display for Runners {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut runners = String::new();
-        if self.first {
-            runners.push_str("1st ");
-        }
-        if self.second {
-            runners.push_str("2nd ");
-        }
-        if self.third {
-            runners.push_str("3rd");
-        }
-        write!(f, "{}", runners)
-    }
-}
-
 impl Runners {
+    const ON_BASE_CHAR: char = '■';
+    const EMPTY_BASE_CHAR: char = '□';
+
     pub fn from_matchup(matchup: &mlb_api::plays::Matchup) -> Self {
         Runners {
             first: matchup.post_on_first.is_some(),
@@ -122,56 +34,50 @@ impl Runners {
             third: matchup.post_on_third.is_some(),
         }
     }
-}
 
-impl Default for Matchup {
-    fn default() -> Self {
-        Matchup {
-            home_name: DEFAULT_NAME.to_owned(),
-            home_score: 0,
-            away_name: DEFAULT_NAME.to_owned(),
-            away_score: 0,
-            inning: DEFAULT_NAME.to_owned(),
-            pitcher_name: DEFAULT_NAME.to_owned(),
-            pitcher_side: DEFAULT_NAME.to_owned(),
-            batter_name: DEFAULT_NAME.to_owned(),
-            batter_side: DEFAULT_NAME.to_owned(),
-            count: Count::default(),
-            runners: Runners::default(),
-            on_deck: DEFAULT_NAME.to_owned(),
-            in_hole: DEFAULT_NAME.to_owned(),
-        }
+    /// Generate two lines, one for second base and one for first and third. Second base is shown
+    /// on a line above first and third.
+    pub fn generate_lines(&self) -> (Line, Line) {
+        let second_base = match self.second {
+            true => format!("  {}  ", Self::ON_BASE_CHAR),
+            false => format!("  {}  ", Self::EMPTY_BASE_CHAR),
+        };
+        let first_third = match (self.first, self.third) {
+            (false, false) => format!("{}   {}", Self::EMPTY_BASE_CHAR, Self::EMPTY_BASE_CHAR),
+            (true, false) => format!("{}   {}", Self::EMPTY_BASE_CHAR, Self::ON_BASE_CHAR),
+            (false, true) => format!("{}   {}", Self::ON_BASE_CHAR, Self::EMPTY_BASE_CHAR),
+            (true, true) => format!("{}   {}", Self::ON_BASE_CHAR, Self::ON_BASE_CHAR),
+        };
+        (Line::from(second_base), Line::from(first_third))
     }
 }
 
-impl Default for MatchupV2 {
+impl Default for Matchup {
     fn default() -> Self {
         Self {
             at_bat_index: 0,
             home_score: 0,
             away_score: 0,
-            inning: DEFAULT_NAME.to_owned(),
-            pitcher_name: DEFAULT_NAME.to_owned(),
-            pitcher_side: DEFAULT_NAME.to_owned(),
-            batter_name: DEFAULT_NAME.to_owned(),
-            batter_side: DEFAULT_NAME.to_owned(),
+            inning: 1,
+            is_top: true,
+            pitcher_id: 0,
+            batter_id: 0,
             count: Count::default(),
             runners: Runners::default(),
         }
     }
 }
 
-impl From<&Play> for MatchupV2 {
+impl From<&Play> for Matchup {
     fn from(play: &Play) -> Self {
         Self {
             at_bat_index: play.about.at_bat_index,
             home_score: play.result.home_score.unwrap_or(0),
             away_score: play.result.away_score.unwrap_or(0),
-            inning: format!("{} {}", play.about.half_inning, play.about.inning),
-            pitcher_name: play.matchup.pitcher.full_name.clone(),
-            pitcher_side: format!("{}HP", play.matchup.pitch_hand.code.clone()),
-            batter_name: play.matchup.batter.full_name.clone(),
-            batter_side: play.matchup.bat_side.code.clone(),
+            inning: play.about.inning,
+            is_top: play.about.is_top_inning,
+            pitcher_id: play.matchup.pitcher.id,
+            batter_id: play.matchup.batter.id,
             count: play.count.clone(),
             runners: Runners::from_matchup(&play.matchup),
         }
@@ -179,50 +85,111 @@ impl From<&Play> for MatchupV2 {
 }
 
 impl Matchup {
-    pub fn from_v2(matchup: &MatchupV2, summary: &Summary, is_current: bool) -> Self {
-        // hide on deck and in hole if not the current at bat since that info is only available for
-        // the current at bat
-        let (on_deck, in_hole) = if is_current {
-            (summary.on_deck.clone(), summary.in_hole.clone())
+    pub fn format_home_lines(
+        &self,
+        home_name: &str,
+        current_play: bool,
+        players: &PlayerMap,
+    ) -> Vec<Line> {
+        let mut lines = vec![Line::from(home_name.to_string()).bold()];
+        if self.is_top {
+            lines.extend(self.get_pitcher_display_lines(current_play, players));
         } else {
-            ("".to_string(), "".to_string())
-        };
-        Self {
-            home_name: summary.home_team.team_name.to_string(),
-            home_score: matchup.home_score,
-            away_name: summary.away_team.team_name.to_string(),
-            away_score: matchup.away_score,
-            inning: matchup.inning.clone(),
-            pitcher_name: matchup.pitcher_name.clone(),
-            pitcher_side: matchup.pitcher_side.clone(),
-            batter_name: matchup.batter_name.clone(),
-            batter_side: matchup.batter_side.clone(),
-            count: matchup.count.clone(),
-            runners: matchup.runners,
-            on_deck,
-            in_hole,
+            lines.extend(self.get_batter_display_lines(current_play, players));
         }
+        lines
     }
 
-    pub fn to_table(&self) -> Vec<Vec<String>> {
+    pub fn format_away_lines(
+        &self,
+        away_name: &str,
+        current_play: bool,
+        players: &PlayerMap,
+    ) -> Vec<Line> {
+        let mut lines = vec![Line::from(away_name.to_string()).bold()];
+        if self.is_top {
+            lines.extend(self.get_batter_display_lines(current_play, players));
+        } else {
+            lines.extend(self.get_pitcher_display_lines(current_play, players));
+        }
+        lines
+    }
+
+    fn get_pitcher_display_lines(&self, current_play: bool, players: &PlayerMap) -> Vec<Line> {
+        let pitcher = match players.get(&self.pitcher_id) {
+            Some(p) => p,
+            None => return vec![],
+        };
+
+        let mut lines = Vec::new();
+        lines.push(Line::from(format!(
+            "{} {} - {}",
+            pitcher.first_name, pitcher.last_name, pitcher.pitch_hand
+        )));
+        if let Some(note) = &pitcher.stats.note {
+            lines.push(Line::from(note.clone()));
+        }
+        if current_play {
+            if pitcher.stats.pitches_thrown.is_some() && pitcher.stats.strikes.is_some() {
+                lines.push(Line::from(format!(
+                    "{} P - {} S",
+                    pitcher.stats.pitches_thrown.unwrap_or_default(),
+                    pitcher.stats.strikes.unwrap_or_default()
+                )));
+            }
+            lines.push(Line::from(
+                pitcher.stats.summary.clone().unwrap_or_default(),
+            ));
+        }
+        lines
+    }
+
+    fn get_batter_display_lines(&self, current_play: bool, players: &PlayerMap) -> Vec<Line> {
+        let batter = match players.get(&self.batter_id) {
+            Some(p) => p,
+            None => return vec![],
+        };
+
+        let mut lines = Vec::new();
+        lines.push(Line::from(format!(
+            "{} {} - {}",
+            batter.first_name, batter.last_name, batter.batter_side
+        )));
+        if current_play {
+            let summary = batter.stats.summary.clone().unwrap_or_default();
+            let splits: Vec<String> = summary.split(" | ").map(|s| s.to_string()).collect();
+
+            if let Some(ab) = splits.first() {
+                lines.push(Line::from(ab.clone()));
+            }
+            if let Some(highlights) = splits.get(1) {
+                lines.push(Line::from(highlights.clone()));
+            } else {
+                lines.push(Line::from("-"));
+            }
+        }
+        lines
+    }
+
+    pub fn format_scoreboard_lines(&self) -> Vec<Line> {
+        let outs = match self.count.outs {
+            0 => "◯ ◯ ◯",
+            1 => "● ◯ ◯",
+            2 => "● ● ◯",
+            3 => "● ● ●",
+            _ => "",
+        };
+        let arrow = if self.is_top { "▲" } else { "▼" };
+        let (second_base, first_third) = self.runners.generate_lines();
+
         vec![
-            vec![self.away_name.clone(), self.away_score.to_string()],
-            vec![self.home_name.clone(), self.home_score.to_string()],
-            vec!["inning".to_string(), self.inning.clone()],
-            vec!["outs".to_string(), self.count.outs.to_string()],
-            vec!["balls".to_string(), self.count.balls.to_string()],
-            vec!["strikes".to_string(), self.count.strikes.to_string()],
-            vec![
-                "pitcher".to_string(),
-                format!("{} - {}", self.pitcher_name, self.pitcher_side),
-            ],
-            vec![
-                "batter".to_string(),
-                format!("{} - {}", self.batter_name, self.batter_side),
-            ],
-            vec!["runners".to_string(), self.runners.to_string()],
-            vec!["on deck".to_string(), self.on_deck.clone()],
-            vec!["in hole".to_string(), self.in_hole.clone()],
+            Line::from(format!(
+                "{}    {} {}    {}",
+                self.away_score, arrow, self.inning, self.home_score
+            )),
+            second_base,
+            first_third,
+            Line::from(outs),
         ]
     }
 }
@@ -234,30 +201,4 @@ fn test_matchup_default_runners() {
     assert!(!r.first);
     assert!(!r.second);
     assert!(!r.third);
-}
-
-#[test]
-#[rustfmt::skip]
-fn test_matchup_runners_display() {
-    // test that the runners are displayed correctly
-    let on_first = Runners{first: true, second: false, third: false};
-    assert_eq!("1st ".to_string(), on_first.to_string());
-
-    let on_second = Runners{first: false, second: true, third: false};
-    assert_eq!("2nd ".to_string(), on_second.to_string());
-
-    let on_third = Runners{first: false, second: false, third: true};
-    assert_eq!("3rd".to_string(), on_third.to_string());
-
-    let first_second = Runners{first: true, second: true, third: false};
-    assert_eq!("1st 2nd ".to_string(), first_second.to_string());
-
-    let first_third = Runners{first: true, second: false, third: true};
-    assert_eq!("1st 3rd".to_string(), first_third.to_string());
-
-    let second_third = Runners{first: false, second: true, third: true};
-    assert_eq!("2nd 3rd".to_string(), second_third.to_string());
-
-    let loaded = Runners{first: true, second: true, third: true};
-    assert_eq!("1st 2nd 3rd".to_string(), loaded.to_string());
 }

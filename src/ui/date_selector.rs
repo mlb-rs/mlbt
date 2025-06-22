@@ -1,10 +1,6 @@
 use crate::state::date_input::DateInput;
-use tui::{
-    buffer::Buffer,
-    layout::{Constraint, Direction, Layout, Rect},
-    style::{Color, Style},
-    widgets::{Block, BorderType, Borders, Clear, Paragraph, StatefulWidget, Widget},
-};
+use tui::prelude::*;
+use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph};
 
 pub struct DateSelectorWidget {}
 
@@ -15,23 +11,18 @@ impl StatefulWidget for DateSelectorWidget {
         let clear = Clear;
         clear.render(area, buf);
 
-        let lines = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints(
-                [
-                    Constraint::Length(1), // top border
-                    Constraint::Length(1), // instructions
-                    Constraint::Length(1), // input
-                ]
-                .as_ref(),
-            )
-            .split(area);
+        let [_, instruct, inp] = Layout::vertical([
+            Constraint::Length(1), // top border
+            Constraint::Length(1), // instructions
+            Constraint::Length(1), // input
+        ])
+        .areas(area);
 
         let instructions = Paragraph::new(" Press Enter to submit or Esc to cancel");
-        instructions.render(lines[1], buf);
+        instructions.render(instruct, buf);
 
         let input = Paragraph::new(format!(" {}", state.text));
-        input.render(lines[2], buf);
+        input.render(inp, buf);
 
         let border = match state.is_valid {
             true => Style::default().fg(Color::Blue),

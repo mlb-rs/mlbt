@@ -1082,7 +1082,7 @@ dependencies = [
 
 [[package]]
 name = "mlbt"
-version = "0.0.16-alpha.4"
+version = "0.0.16-alpha.5"
 dependencies = [
  "anyhow",
  "better-panic",

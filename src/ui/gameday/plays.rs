@@ -1,56 +1,71 @@
-use crate::components::game::live_game::GameStateV2;
+use crate::components::game::live_game::GameState;
 use crate::components::game::plays::PlayResult;
-use crate::ui::layout::LayoutAreas;
 use std::vec;
 use tui::prelude::*;
 use tui::widgets::{Paragraph, Wrap};
 
 // These colors match the green and blue used in the pitch data from the API.
 // The green is used for pitches called as balls.
+// The red is used for pitches called as strikes.
 // The blue is used for contact (hit, out, run scoring).
 pub const GREEN: Color = Color::Rgb(39, 161, 39);
 pub const BLUE: Color = Color::Rgb(26, 86, 190);
+pub const RED: Color = Color::Rgb(170, 21, 11);
 pub const SCORING_SYMBOL: char = '!';
 pub const SELECTION_SYMBOL: char = '>';
 
 pub struct InningPlaysWidget<'a> {
-    pub game: &'a GameStateV2,
+    pub game: &'a GameState,
     pub selected_at_bat: Option<u8>,
 }
 
 impl Widget for InningPlaysWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let chunks = LayoutAreas::for_info(area);
-
+        // TODO this doesn't scroll properly. needs to be a list for that
         let inning_plays = format_plays(self.game, self.selected_at_bat);
         let paragraph = Paragraph::new(inning_plays).wrap(Wrap { trim: false });
 
-        Widget::render(paragraph, chunks[1], buf);
+        Widget::render(paragraph, area, buf);
     }
 }
 
-/// Format the plays for the current half inning as TUI Lines.
-fn format_plays(game: &GameStateV2, selected_at_bat: Option<u8>) -> Vec<Line> {
+/// Format the plays for the current inning as TUI Lines.
+fn format_plays(game: &GameState, selected_at_bat: Option<u8>) -> Vec<Line> {
     let (at_bat, _is_current) = game.get_at_bat_by_index_or_current(selected_at_bat);
     let inning = at_bat.inning;
-    let is_top_inning = at_bat.is_top_inning;
 
     if inning == 0 {
         return vec![];
     }
 
-    // ensure the events are sorted by index, smallest first since it gets reversed later
-    game.at_bats
-        .values()
-        .filter_map(|play| {
-            if play.inning == inning && play.is_top_inning == is_top_inning {
-                build_line(&play.play_result, selected_at_bat)
-            } else {
-                None
+    let mut lines = Vec::new();
+
+    // Track last inning and top/bottom half
+    let mut last_inning: Option<(bool, u8)> = None;
+
+    for play in game.at_bats.values().rev() {
+        let current_inning = (play.is_top_inning, play.inning);
+        if play.inning != inning {
+            continue;
+        }
+
+        if last_inning != Some(current_inning) {
+            // Insert blank line before each new inning section except possibly at start
+            if !lines.is_empty() {
+                lines.push(Line::from(vec![]));
             }
-        })
-        .rev()
-        .collect()
+            let half_str = if play.is_top_inning { "top" } else { "bottom" };
+            let header_text = format!("## {} {}", half_str, play.inning);
+            lines.push(Line::from(header_text).bold());
+            last_inning = Some(current_inning);
+        }
+
+        if let Some(line) = build_line(&play.play_result, selected_at_bat) {
+            lines.push(line);
+        }
+    }
+
+    lines
 }
 
 fn build_line(play: &PlayResult, selected_at_bat: Option<u8>) -> Option<Line> {
@@ -85,9 +100,30 @@ fn format_runs(play: &PlayResult, selected_at_bat: Option<u8>) -> Span {
         };
         Span::styled(text.to_string(), Style::default().fg(BLUE))
     } else {
+        let mut color = Color::White;
+        if play.is_out {
+            color = RED;
+        }
+        let code = &play
+            .events
+            .last()
+            .and_then(|last_event| last_event.code.as_deref());
+        // hit
+        if let Some("D") = code {
+            color = BLUE;
+        }
+        // hbp
+        if let Some("H") = code {
+            color = GREEN;
+        }
+        if play.count.balls == 4 {
+            color = GREEN;
+        } else if play.count.strikes == 3 {
+            color = RED;
+        }
         match selected {
-            true => Span::raw(SELECTION_SYMBOL.to_string()).fg(BLUE).bold(),
-            false => Span::raw("-"),
+            true => Span::raw(SELECTION_SYMBOL.to_string()).fg(color).bold(),
+            false => Span::raw("-").fg(color),
         }
     }
 }

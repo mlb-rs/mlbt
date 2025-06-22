@@ -9,7 +9,7 @@ use crate::ui::gameday::plays::InningPlaysWidget;
 use crate::ui::gameday::win_probability::WinProbabilityWidget;
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
-use tui::prelude::{Buffer, Color, Constraint, Direction, Layout, Rect, Widget};
+use tui::prelude::{Buffer, Color, Rect, Widget};
 
 pub struct GamedayWidget<'a> {
     pub state: &'a GamedayState,
@@ -43,46 +43,38 @@ impl Widget for GamedayWidget<'_> {
         if self.state.panels.at_bat {
             let p = panels.pop().unwrap();
             Self::draw_border(p, buf);
-
-            let at_bat_widget = AtBatWidget {
-                game: &self.state.game,
-                selected_at_bat: self.state.selected_at_bat(),
-            };
-            Widget::render(at_bat_widget, p, buf);
-        }
-        if self.state.panels.info {
-            let p = panels.pop().unwrap();
-            Self::draw_border(p, buf);
+            let [matchup, at_bat] = LayoutAreas::for_at_bat(p);
 
             let matchup_widget = MatchupWidget {
                 game: &self.state.game,
                 selected_at_bat: self.state.selected_at_bat(),
             };
-            Widget::render(matchup_widget, p, buf);
+            Widget::render(matchup_widget, matchup, buf);
+
+            let at_bat_widget = AtBatWidget {
+                game: &self.state.game,
+                selected_at_bat: self.state.selected_at_bat(),
+            };
+            Widget::render(at_bat_widget, at_bat, buf);
+        }
+        if self.state.panels.info {
+            let p = panels.pop().unwrap();
+            Self::draw_border(p, buf);
+            let chunks = LayoutAreas::for_info(p, self.state.panels.win_probability);
 
             let innings_widget = InningPlaysWidget {
                 game: &self.state.game,
                 selected_at_bat: self.state.selected_at_bat(),
             };
+            Widget::render(innings_widget, chunks[0], buf);
 
             if self.state.panels.win_probability {
-                let chunks = Layout::default()
-                    .direction(Direction::Vertical)
-                    .constraints([Constraint::Fill(1), Constraint::Percentage(20)].as_ref())
-                    .split(p);
-
-                Widget::render(innings_widget, chunks[0], buf);
-                Widget::render(
-                    WinProbabilityWidget {
-                        game: &self.state.game,
-                        selected_at_bat: self.state.selected_at_bat(),
-                        active_tab: MenuItem::Gameday,
-                    },
-                    chunks[1],
-                    buf,
-                );
-            } else {
-                Widget::render(innings_widget, p, buf);
+                let wps_widget = WinProbabilityWidget {
+                    game: &self.state.game,
+                    selected_at_bat: self.state.selected_at_bat(),
+                    active_tab: MenuItem::Gameday,
+                };
+                Widget::render(wps_widget, chunks[1], buf);
             }
         }
     }

@@ -1,56 +1,31 @@
-use crate::components::game::live_game::GameStateV2;
+use crate::components::game::live_game::GameState;
 use crate::components::game::strikezone::{
     DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH, StrikeZone,
 };
-use tui::{
-    buffer::Buffer,
-    layout::{Constraint, Direction, Layout, Rect},
-    style::Style,
-    text::{Line, Span, Text},
-    widgets::canvas::{Canvas, Rectangle},
-    widgets::{Block, Borders, Paragraph, Widget, Wrap},
-};
+use tui::prelude::*;
+use tui::widgets::canvas::{Canvas, Rectangle};
+use tui::widgets::{Block, Borders, Paragraph, Wrap};
 
 pub struct AtBatWidget<'a> {
-    pub game: &'a GameStateV2,
+    pub game: &'a GameState,
     pub selected_at_bat: Option<u8>,
 }
 
 impl Widget for AtBatWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let (game, _is_current) = self
+        let (at_bat, _is_current) = self
             .game
             .get_at_bat_by_index_or_current(self.selected_at_bat);
-        let pitches = &game.pitches;
+        let pitches = &at_bat.pitches;
 
-        let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .margin(2)
-            .constraints(
-                [
-                    Constraint::Percentage(50), // heatmap/pitches
-                    Constraint::Percentage(50), // pitch info
-                ]
-                .as_ref(),
-            )
-            .split(area);
-
-        let total_width = 4.0 * 12.0; // 4 feet (arbitrary)
-
-        // Constrain and center the strikezone and pitch display. Without this they get stretched
-        // on wider terminals. This does, unfortunately, over compress when the terminal is small.
-        // TODO when terminal width is too small, don't apply these constraints
-        let strikezone = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints(
-                [
-                    Constraint::Percentage((100 - total_width as u16) / 2),
-                    Constraint::Percentage(total_width as u16),
-                    Constraint::Percentage((100 - total_width as u16) / 2),
-                ]
-                .as_ref(),
-            )
-            .split(chunks[0]);
+        let [kzone, hit, pitch_info] = Layout::vertical([
+            Constraint::Percentage(65), // heatmap/pitches
+            Constraint::Length(1),      // hit stats
+            Constraint::Percentage(35), // pitch info
+        ])
+        .horizontal_margin(2)
+        .vertical_margin(1)
+        .areas(area);
 
         // grab the strike zone from the first pitch since it doesn't change during the at bat.
         let mut strike_zone_bot = DEFAULT_SZ_BOT * 12.0;
@@ -64,6 +39,7 @@ impl Widget for AtBatWidget<'_> {
         }
         let height = strike_zone_top - strike_zone_bot;
         let coords = StrikeZone::build_coords(strike_zone_bot, strike_zone_top);
+        let strike_zone_area = generate_strike_zone_area(kzone);
 
         // strike zone and pitch display
         Canvas::default()
@@ -92,21 +68,66 @@ impl Widget for AtBatWidget<'_> {
                     }
                 }
             })
-            .x_bounds([-0.5 * total_width, 0.5 * total_width])
-            .y_bounds([0.0, 60.0])
-            .render(strikezone[1], buf);
+            .x_bounds([-25.0, 25.0])
+            .y_bounds([0.0, 55.0])
+            .render(strike_zone_area, buf);
 
         // display the event information
         let events: Vec<Line> = pitches
             .pitches
             .pitch_events
             .iter()
+            .rev() // reverse so that the last event is at the top
             .filter_map(|event| event.as_lines(false))
             .flatten()
             .collect();
 
-        let text = Text::from(events);
-        let paragraph = Paragraph::new(text).wrap(Wrap { trim: false });
-        Widget::render(paragraph, chunks[1], buf);
+        let paragraph = Paragraph::new(events)
+            .wrap(Wrap { trim: false })
+            .block(Block::default().borders(Borders::TOP));
+        Widget::render(paragraph, pitch_info, buf);
+
+        // display the hit information if available
+        if let Some(data) = pitches.pitches.pitch_events.last() {
+            if let Some(text) = data.format_hit_data() {
+                let paragraph = Paragraph::new(text)
+                    .alignment(Alignment::Center)
+                    .wrap(Wrap { trim: false });
+                Widget::render(paragraph, hit, buf);
+            }
+        };
     }
+}
+
+fn generate_strike_zone_area(area: Rect) -> Rect {
+    // kind of arbitrary values to make the zone look good
+    const STRIKE_ZONE_WIDTH: u16 = 35;
+    const STRIKE_ZONE_HEIGHT: u16 = 19;
+    let desired_aspect_ratio = STRIKE_ZONE_WIDTH as f64 / STRIKE_ZONE_HEIGHT as f64;
+
+    let available_width = area.width;
+    let available_height = area.height;
+
+    // calculate what dimensions would fit while maintaining aspect ratio
+    let width_constrained_height = (available_width as f64 / desired_aspect_ratio) as u16;
+    let height_constrained_width = (available_height as f64 * desired_aspect_ratio) as u16;
+
+    let (final_width, final_height) = if width_constrained_height <= available_height {
+        // width is the limiting factor
+        (available_width, width_constrained_height)
+    } else {
+        // height is the limiting factor
+        (height_constrained_width, available_height)
+    };
+
+    // center the calculated dimensions
+    let x_offset = (available_width - final_width) / 2;
+    let y_offset = (available_height - final_height) / 2;
+
+    Rect::new(
+        area.x + x_offset,
+        area.y + y_offset,
+        final_width,
+        final_height,
+    )
 }
