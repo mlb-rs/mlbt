@@ -220,6 +220,7 @@ back to the current day, enter `today` or `t`.
 
 - `?`: display help box
 - `Esc`: close help box
+- `"`: display logs
 
 > If your terminal is too small to display the full help box, the border will be
 > displayed red.
@@ -239,7 +240,7 @@ directory. For a user named `Alice` this would be:
 
 - `favorite_team`: This will make that team always show up first in the schedule
   if they have a game that day.
-  See [here](https://github.com/mlb-rs/mlbt/blob/main/src/components/constants.rs#L21)
+  See [here](https://github.com/mlb-rs/mlbt/blob/main/src/components/constants.rs#L37)
   for options (note: use the full name and not the short name).
 - `timezone`: This will change the time zone of the start time for the games in
   the schedule. The default is `US/Pacific`. Some common options are:
@@ -249,6 +250,9 @@ directory. For a user named `Alice` this would be:
     * `US/Eastern`
     * For the full list
       see [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+- `log_level`: Set the log level to be displayed. If not present, `error` level
+  is used. Use a lowercase word, e.g. `debug`. See [here](https://github.com/mlb-rs/mlbt/blob/main/src/config.rs#L16)
+  for the options.
 
 ### Example config
 
@@ -256,6 +260,7 @@ directory. For a user named `Alice` this would be:
 # See https://github.com/mlb-rs/mlbt#config for options
 favorite_team = "Chicago Cubs"
 timezone = "US/Pacific"
+log_levl = "error"
 ```
 
 ## Shout out
