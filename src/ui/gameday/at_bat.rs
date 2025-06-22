@@ -1,6 +1,6 @@
 use crate::components::game::live_game::GameState;
 use crate::components::game::strikezone::{
-    StrikeZone, DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH,
+    DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH, StrikeZone,
 };
 use tui::prelude::*;
 use tui::widgets::canvas::{Canvas, Rectangle};

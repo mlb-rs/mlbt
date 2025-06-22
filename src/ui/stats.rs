@@ -1,5 +1,5 @@
 use crate::components::stats::{
-    StatsState, TeamOrPlayer, STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH,
+    STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH, StatsState, TeamOrPlayer,
 };
 use mlb_api::client::StatGroup;
 use tui::prelude::*;
