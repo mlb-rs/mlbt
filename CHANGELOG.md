@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Gameday view now shows all the plays for the whole inning instead of just the
   half inning. The game info (score, inning, on base, etc.) has been updated
-  and moved to above the pitch display. [PR 64](https://github.com/mlb-rs/mlbt/pull/64)
+  and moved to above the pitch display. [PR 65](https://github.com/mlb-rs/mlbt/pull/65)
 - The Schedule view now displays the team record and the losing team is 
   completely greyed out. [PR 62](https://github.com/mlb-rs/mlbt/pull/62)
 - Standings are now sorted by the configured favorite team, so the division with
@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add more info to Gameday view, [PR 64](https://github.com/mlb-rs/mlbt/pull/64):
+- Add more info to Gameday view, [PR 65](https://github.com/mlb-rs/mlbt/pull/65):
   - hit stats (exit velo, launch angle, distance)
   - batter stats and highlights (e.g. "1-3, HR, 2 RBI")
   - pitcher stats and highlights (e.g. "89 P - 58 S, 5.0 IP, 3 ER, 4 K, 2 BB)
