@@ -2,7 +2,7 @@ use crate::components::standings::StandingsState;
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
-const HEADER: &[&str; 7] = &["Team", "W", "L", "PCT", "GB", "WCGB", "STRK"];
+const HEADER: &[&str; 8] = &["Team", "W", "L", "PCT", "GB", "WCGB", "L10", "STRK"];
 
 pub struct StandingsWidget {}
 
@@ -35,6 +35,7 @@ impl StatefulWidget for StandingsWidget {
             Constraint::Length(5),
             Constraint::Length(5),
             Constraint::Length(5),
+            Constraint::Length(6),
             Constraint::Length(5),
             Constraint::Length(5),
         ];
