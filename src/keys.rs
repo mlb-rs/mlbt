@@ -1,12 +1,12 @@
 use crate::app::{App, DebugState, MenuItem};
 use crate::components::stats::TeamOrPlayer;
 use crate::state::app_state::HomeOrAway;
-use crate::{NetworkRequest, cleanup_terminal};
+use crate::{cleanup_terminal, NetworkRequest};
 use crossterm::event::KeyCode::Char;
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use mlb_api::client::StatGroup;
 use std::sync::Arc;
-use tokio::sync::{Mutex, MutexGuard, mpsc};
+use tokio::sync::{mpsc, Mutex, MutexGuard};
 
 type AppGuard<'a> = MutexGuard<'a, App>;
 
@@ -15,14 +15,17 @@ pub async fn handle_key_bindings(
     app: &Arc<Mutex<App>>,
     network_requests: &mpsc::Sender<NetworkRequest>,
 ) {
-    let mut guard = app.lock().await;
-
-    match (guard.state.active_tab, key_event.code) {
-        (_, Char('q')) => {
+    // handle quit keys before acquiring the lock
+    match (key_event.code, key_event.modifiers) {
+        (Char('q'), _) | (Char('c'), KeyModifiers::CONTROL) => {
             cleanup_terminal();
             std::process::exit(0);
         }
+        _ => {}
+    }
 
+    let mut guard = app.lock().await;
+    match (guard.state.active_tab, key_event.code) {
         // needs to be before the tab switches to capture number inputs
         (MenuItem::DatePicker, Char(c)) => {
             guard.state.date_input.is_valid = true; // reset status
@@ -48,11 +51,11 @@ pub async fn handle_key_bindings(
             load_standings(guard, network_requests).await;
         }
 
-        (MenuItem::Scoreboard, Char('j')) => {
+        (MenuItem::Scoreboard, Char('j') | KeyCode::Down) => {
             guard.state.schedule.next();
             load_game_data(guard, network_requests).await;
         }
-        (MenuItem::Scoreboard, Char('k')) => {
+        (MenuItem::Scoreboard, Char('k') | KeyCode::Up) => {
             guard.state.schedule.previous();
             load_game_data(guard, network_requests).await;
         }
@@ -85,8 +88,8 @@ pub async fn handle_key_bindings(
             guard.state.date_input.text.pop();
         }
 
-        (MenuItem::Stats, Char('j')) => guard.state.stats.next(),
-        (MenuItem::Stats, Char('k')) => guard.state.stats.previous(),
+        (MenuItem::Stats, Char('j') | KeyCode::Down) => guard.state.stats.next(),
+        (MenuItem::Stats, Char('k') | KeyCode::Up) => guard.state.stats.previous(),
         (MenuItem::Stats, Char('o')) => {
             guard.state.stats.show_options = !guard.state.stats.show_options
         }
@@ -110,8 +113,8 @@ pub async fn handle_key_bindings(
         (MenuItem::Stats, Char('s')) => guard.state.stats.store_sort_column(),
         (MenuItem::Stats, Char(':')) => guard.update_tab(MenuItem::DatePicker),
 
-        (MenuItem::Standings, Char('j')) => guard.state.standings.next(),
-        (MenuItem::Standings, Char('k')) => guard.state.standings.previous(),
+        (MenuItem::Standings, Char('j') | KeyCode::Down) => guard.state.standings.next(),
+        (MenuItem::Standings, Char('k') | KeyCode::Up) => guard.state.standings.previous(),
         (MenuItem::Standings, KeyCode::Enter) => {
             let _team_id = guard.state.standings.get_selected();
             // println!("team id: {:?}", team_id);
@@ -123,8 +126,8 @@ pub async fn handle_key_bindings(
         (MenuItem::Gameday, Char('p')) => guard.state.gameday.toggle_at_bat(),
         (MenuItem::Gameday, Char('b')) => guard.state.gameday.toggle_boxscore(),
         (MenuItem::Gameday, Char('w')) => guard.state.gameday.toggle_win_probability(),
-        (MenuItem::Gameday, Char('j')) => guard.state.gameday.previous_at_bat(),
-        (MenuItem::Gameday, Char('k')) => guard.state.gameday.next_at_bat(),
+        (MenuItem::Gameday, Char('j') | KeyCode::Down) => guard.state.gameday.previous_at_bat(),
+        (MenuItem::Gameday, Char('k') | KeyCode::Up) => guard.state.gameday.next_at_bat(),
         (MenuItem::Gameday, Char('l')) => guard.state.gameday.live(),
         (MenuItem::Gameday, Char('s')) => guard.state.gameday.start(),
 
