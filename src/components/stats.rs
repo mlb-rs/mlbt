@@ -1,3 +1,4 @@
+use crate::components::constants::TEAM_IDS;
 use crate::components::date_selector::DateSelector;
 use chrono::NaiveDate;
 use indexmap::IndexMap;
@@ -8,7 +9,7 @@ use std::string::ToString;
 use tui::widgets::TableState;
 
 /// The width of the first column, which is a longer item like team name.
-pub const STATS_FIRST_COL_WIDTH: u16 = 25;
+pub const STATS_FIRST_COL_WIDTH: u16 = 28;
 /// The width of normal columns.
 pub const STATS_DEFAULT_COL_WIDTH: u16 = 6;
 const PLAYER_COLUMN_NAME: &str = "Player";
@@ -142,9 +143,12 @@ impl StatsState {
                     Some(p) => p.full_name.clone(),
                     None => split.team.name.clone(),
                 };
+                let team_abbreviation = TEAM_IDS
+                    .get(&split.team.name.as_str())
+                    .map(|t| t.abbreviation.to_string());
                 match &split.stat {
-                    StatSplit::Pitching(s) => self.load_pitching_stats(name, s),
-                    StatSplit::Hitting(s) => self.load_hitting_stats(name, s),
+                    StatSplit::Pitching(s) => self.load_pitching_stats(name, team_abbreviation, s),
+                    StatSplit::Hitting(s) => self.load_hitting_stats(name, team_abbreviation, s),
                 };
             }
         }
@@ -201,12 +205,13 @@ impl StatsState {
 
     /// Create the pitching stats table. Note that the order of the calls to `table_helper` is the
     /// order in which the stats will be displayed from left to right.
-    fn load_pitching_stats(&mut self, name: String, stat: &PitchingStat) {
-        let col_name = match self.stat_type.team_player {
-            TeamOrPlayer::Team => TEAM_COLUMN_NAME,
-            TeamOrPlayer::Player => PLAYER_COLUMN_NAME,
-        };
-        self.table_helper(col_name, "", true, name);
+    fn load_pitching_stats(
+        &mut self,
+        name: String,
+        team_abbreviation: Option<String>,
+        stat: &PitchingStat,
+    ) {
+        self.format_name_columns(name, team_abbreviation);
         self.table_helper("W", "wins", true, stat.wins);
         self.table_helper("L", "losses", true, stat.losses);
         self.table_helper("ERA", "earned run average", true, &stat.era);
@@ -228,12 +233,13 @@ impl StatsState {
 
     /// Create the hitting stats table. Note that the order of the calls to `table_helper` is the
     /// order in which the stats will be displayed from left to right.
-    fn load_hitting_stats(&mut self, name: String, stat: &HittingStat) {
-        let col_name = match self.stat_type.team_player {
-            TeamOrPlayer::Team => "Team",
-            TeamOrPlayer::Player => "Player",
-        };
-        self.table_helper(col_name, "", true, name);
+    fn load_hitting_stats(
+        &mut self,
+        name: String,
+        team_abbreviation: Option<String>,
+        stat: &HittingStat,
+    ) {
+        self.format_name_columns(name, team_abbreviation);
         self.table_helper("G", "games played", true, stat.games_played);
         self.table_helper("AB", "at bats", true, stat.at_bats);
         self.table_helper("AVG", "batting avg", true, &stat.avg);
@@ -250,6 +256,21 @@ impl StatsState {
         self.table_helper("SO", "strike outs", true, stat.strike_outs);
         self.table_helper("SB", "stolen bases", true, stat.stolen_bases);
         self.table_helper("CS", "caught stealing", true, stat.caught_stealing);
+    }
+
+    fn format_name_columns(&mut self, name: String, team_abbreviation: Option<String>) {
+        match self.stat_type.team_player {
+            TeamOrPlayer::Team => {
+                self.table_helper(TEAM_COLUMN_NAME, "", true, name);
+            }
+            TeamOrPlayer::Player => {
+                // show the team abbreviation if it exists next to the player name
+                self.table_helper(PLAYER_COLUMN_NAME, "", true, name);
+                if let Some(abb) = team_abbreviation {
+                    self.table_helper(TEAM_COLUMN_NAME, "", true, abb);
+                }
+            }
+        };
     }
 
     /// Deactivate columns that would overflow the available width.
