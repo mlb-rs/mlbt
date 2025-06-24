@@ -1,46 +1,94 @@
-use crate::components::boxscore::TeamBatterBoxscore;
+use crate::components::boxscore::Boxscore;
 use crate::state::app_state::HomeOrAway;
+use tui::prelude::*;
+use tui::widgets::{Block, Borders, Paragraph, Row, Table, Wrap};
 
-use tui::{
-    buffer::Buffer,
-    layout::{Constraint, Rect},
-    style::{Color, Modifier, Style},
-    widgets::{Block, Borders, Cell, Row, Table, Widget},
-};
+const BATTER_WIDTHS: [Constraint; 9] = [
+    Constraint::Length(25), // player name
+    Constraint::Length(4),  // ab
+    Constraint::Length(4),  // r
+    Constraint::Length(4),  // h
+    Constraint::Length(4),  // rbi
+    Constraint::Length(4),  // bb
+    Constraint::Length(4),  // k
+    Constraint::Length(4),  // lob
+    Constraint::Length(5),  // avg
+];
 
-const HEADER: [&str; 9] = ["player", "ab", "r", "h", "rbi", "bb", "so", "lob", "avg"];
+const PITCHER_WIDTHS: [Constraint; 9] = [
+    Constraint::Length(25), // pitcher name
+    Constraint::Length(5),  // ip
+    Constraint::Length(4),  // h
+    Constraint::Length(4),  // r
+    Constraint::Length(4),  // er
+    Constraint::Length(4),  // bb
+    Constraint::Length(4),  // k
+    Constraint::Length(4),  // hr
+    Constraint::Length(5),  // era
+];
 
 pub struct TeamBatterBoxscoreWidget<'a> {
     pub active: HomeOrAway,
-    pub boxscore: &'a TeamBatterBoxscore,
+    pub boxscore: &'a Boxscore,
 }
 
 impl Widget for TeamBatterBoxscoreWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let width = 4;
-        let mut widths = vec![Constraint::Length(width); HEADER.len()];
-        // the first width needs to be wider to display the player name
-        widths[0] = Constraint::Length(20);
-        // the last width needs to be wider to display batting average
-        widths[HEADER.len() - 1] = Constraint::Length(5);
+        let batting = self.boxscore.to_batting_table_rows(self.active);
+        let batting_notes = self.boxscore.get_batting_notes(self.active);
+        let pitching = self.boxscore.to_pitching_table_rows(self.active);
 
-        let header = Row::new(HEADER.iter().map(|h| Cell::from(*h)).collect::<Vec<Cell>>())
-            .height(1)
-            .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
+        let [boxscore, note, pitchers, pitching_notes] = Layout::vertical([
+            Constraint::Length(batting.len() as u16 + 1), // +1 for header
+            Constraint::Length(batting_notes.len() as u16),
+            Constraint::Length(pitching.len() as u16 + 1), // +1 for header
+            Constraint::Fill(1),
+        ])
+        .spacing(1)
+        .areas(area);
 
         Widget::render(
-            Table::new(
-                self.boxscore
-                    .to_table_row(self.active)
-                    .iter()
-                    .map(|row| Row::new(row.clone())),
-                widths.as_slice(),
-            )
-            .column_spacing(0)
-            .style(Style::default().fg(Color::White))
-            .header(header)
-            .block(Block::default().borders(Borders::NONE)),
-            area,
+            Table::new(batting.into_iter().map(Row::new), BATTER_WIDTHS)
+                .column_spacing(0)
+                .style(Style::default().fg(Color::White))
+                .header(
+                    Row::new(self.boxscore.get_batting_header().iter().copied())
+                        .bold()
+                        .underlined(),
+                )
+                .block(Block::default().borders(Borders::NONE)),
+            boxscore,
+            buf,
+        );
+
+        let batting_notes = batting_notes.iter().filter_map(|n| n.to_line());
+        Widget::render(
+            Paragraph::new(batting_notes.collect::<Vec<_>>())
+                .block(Block::default())
+                .wrap(Wrap { trim: true }),
+            note,
+            buf,
+        );
+
+        Widget::render(
+            Table::new(pitching.into_iter().map(Row::new), PITCHER_WIDTHS)
+                .column_spacing(0)
+                .style(Style::default().fg(Color::White))
+                .header(
+                    Row::new(self.boxscore.get_pitching_header().iter().copied())
+                        .bold()
+                        .underlined(),
+                )
+                .block(Block::default().borders(Borders::NONE)),
+            pitchers,
+            buf,
+        );
+
+        Widget::render(
+            Paragraph::new(self.boxscore.get_game_notes())
+                .block(Block::default())
+                .wrap(Wrap { trim: true }),
+            pitching_notes,
             buf,
         );
     }

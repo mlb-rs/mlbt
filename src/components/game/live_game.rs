@@ -1,4 +1,4 @@
-use crate::components::boxscore::TeamBatterBoxscore;
+use crate::components::boxscore::Boxscore;
 use crate::components::constants::TEAM_IDS;
 use crate::components::game::at_bat::AtBat;
 use crate::components::game::player::{Player, PlayerStats};
@@ -24,7 +24,7 @@ pub struct GameState {
     pub home_team: Team,
     pub away_team: Team,
     pub linescore: LineScore,
-    pub boxscore: TeamBatterBoxscore,
+    pub boxscore: Boxscore,
     pub current_at_bat: AtBatIndex,
     pub at_bats: IndexMap<AtBatIndex, AtBat>,
     pub on_deck: Option<PlayerId>,
@@ -44,7 +44,7 @@ impl GameState {
         self.set_teams(live_data);
         self.set_on_deck(live_data);
         self.current_at_bat = Self::get_current_play_ab_index(live_data);
-        self.boxscore = TeamBatterBoxscore::from_live_data(live_data, &self.players);
+        self.boxscore = Boxscore::from_live_data(live_data, &self.players);
         self.linescore = LineScore::from_live_data(live_data);
         if let Some(plays) = &live_data.live_data.plays.all_plays {
             plays.iter().for_each(|p| Self::update_single_play(self, p));

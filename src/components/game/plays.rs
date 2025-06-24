@@ -23,12 +23,7 @@ impl From<&Play> for PlayResult {
     fn from(play: &Play) -> Self {
         Self {
             at_bat_index: play.about.at_bat_index,
-            description: play
-                .result
-                .description
-                .as_ref()
-                .unwrap_or(&"".to_string())
-                .to_string(),
+            description: play.result.description.clone().unwrap_or_default(),
             rbi: play.result.rbi.unwrap_or(0),
             away_score: play.result.away_score.unwrap_or(0),
             home_score: play.result.home_score.unwrap_or(0),
