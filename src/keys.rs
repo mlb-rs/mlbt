@@ -1,12 +1,12 @@
 use crate::app::{App, DebugState, MenuItem};
 use crate::components::stats::TeamOrPlayer;
 use crate::state::app_state::HomeOrAway;
-use crate::{cleanup_terminal, NetworkRequest};
+use crate::{NetworkRequest, cleanup_terminal};
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use mlb_api::client::StatGroup;
 use std::sync::Arc;
-use tokio::sync::{mpsc, Mutex, MutexGuard};
+use tokio::sync::{Mutex, MutexGuard, mpsc};
 
 type AppGuard<'a> = MutexGuard<'a, App>;
 
