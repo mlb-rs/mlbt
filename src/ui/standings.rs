@@ -2,7 +2,17 @@ use crate::components::standings::StandingsState;
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
-const HEADER: &[&str; 8] = &["Team", "W", "L", "PCT", "GB", "WCGB", "L10", "STRK"];
+const HEADER: &[&str] = &["Team", "W", "L", "PCT", "GB", "WCGB", "L10", "STRK"];
+const WIDTHS: [Constraint; 8] = [
+    Constraint::Length(25),
+    Constraint::Length(5),
+    Constraint::Length(5),
+    Constraint::Length(5),
+    Constraint::Length(5),
+    Constraint::Length(6),
+    Constraint::Length(5),
+    Constraint::Length(5),
+];
 
 pub struct StandingsWidget {}
 
@@ -29,17 +39,7 @@ impl StatefulWidget for StandingsWidget {
         }
 
         let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
-        let widths = [
-            Constraint::Length(25),
-            Constraint::Length(5),
-            Constraint::Length(5),
-            Constraint::Length(5),
-            Constraint::Length(5),
-            Constraint::Length(6),
-            Constraint::Length(5),
-            Constraint::Length(5),
-        ];
-        let t = Table::new(rows, widths)
+        let t = Table::new(rows, WIDTHS)
             .header(header)
             .block(
                 Block::default()
