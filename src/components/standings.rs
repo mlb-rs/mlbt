@@ -1,9 +1,10 @@
-use crate::components::constants::{DIVISION_ORDERS, DIVISIONS};
+use crate::components::constants::{DIVISION_ORDERS, DIVISIONS, TEAM_IDS};
 use crate::components::date_selector::DateSelector;
 use chrono::NaiveDate;
 use core::option::Option::Some;
 use mlb_api::standings::{StandingsResponse, TeamRecord};
 use std::collections::HashSet;
+use std::string::ToString;
 use tui::widgets::TableState;
 
 /// Stores the state for rendering the standings. The `standings` field is a nested Vec to make
@@ -26,7 +27,6 @@ pub struct Division {
 }
 
 #[derive(Debug, Clone, Copy)]
-#[allow(dead_code)]
 pub struct Team {
     pub id: u16,
     pub division_id: u16,
@@ -53,14 +53,13 @@ impl Default for Team {
 /// Standing information per team.
 #[derive(Debug, Default)]
 pub struct Standing {
-    // pub team: Team, // TODO
-    pub team_name: String,
-    pub team_id: u16,
+    pub team: Team,
     pub wins: u8,
     pub losses: u8,
     pub winning_percentage: String,
     pub games_back: String,
     pub wild_card_games_back: String,
+    pub last_10: String,
     pub streak: String,
 }
 
@@ -118,7 +117,7 @@ impl StandingsState {
             ids.push(division.id);
             self.division_row_indices.insert(count);
             for team in &division.standings {
-                ids.push(team.team_id);
+                ids.push(team.team.id);
             }
             count += 1 + division.standings.len();
         }
@@ -131,7 +130,7 @@ impl StandingsState {
             .iter()
             .flat_map(|division| division.standings.iter())
             .enumerate()
-            .find(|(_idx, standing)| standing.team_name == team.name)
+            .find(|(_idx, standing)| standing.team.id == team.id)
             .map(|(idx, _standing)| idx + 1);
 
         self.state.select(idx);
@@ -253,31 +252,42 @@ impl Division {
 
 impl Standing {
     fn from_team_record(team: &TeamRecord) -> Self {
-        let streak = if let Some(s) = team.streak.as_ref() {
-            s.streak_code.clone()
-        } else {
-            "-".to_string()
-        };
+        let streak = team
+            .streak
+            .as_ref()
+            .map(|s| s.streak_code.clone())
+            .unwrap_or_else(|| "-".to_string());
+        let last_10 = team
+            .records
+            .split_records
+            .iter()
+            .find(|r| r.record_type.as_deref() == Some("lastTen"))
+            .map(|r| format!("{}-{}", r.wins, r.losses))
+            .unwrap_or_else(|| "-".to_string());
         Standing {
-            team_name: team.team.name.clone(),
-            team_id: team.team.id,
+            team: TEAM_IDS
+                .get(&team.team.name.as_str())
+                .cloned()
+                .unwrap_or_default(),
             wins: team.wins,
             losses: team.losses,
             winning_percentage: team.winning_percentage.clone(),
             games_back: team.games_back.clone(),
             wild_card_games_back: team.wild_card_games_back.clone(),
+            last_10,
             streak,
         }
     }
 
     pub fn to_cells(&self) -> Vec<String> {
         vec![
-            self.team_name.clone(),
+            self.team.name.to_string(),
             self.wins.to_string(),
             self.losses.to_string(),
             self.winning_percentage.clone(),
             self.games_back.clone(),
             self.wild_card_games_back.clone(),
+            self.last_10.clone(),
             self.streak.clone(),
         ]
     }
