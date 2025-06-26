@@ -1,11 +1,11 @@
 use crate::components::constants::{DIVISION_ORDERS, DIVISIONS, TEAM_IDS};
 use crate::components::date_selector::DateSelector;
 use chrono::NaiveDate;
-use core::option::Option::Some;
-use mlb_api::standings::{StandingsResponse, TeamRecord};
+use mlb_api::standings::{RecordElement, StandingsResponse, TeamRecord};
 use std::collections::HashSet;
 use std::string::ToString;
-use tui::widgets::TableState;
+use tui::prelude::{Color, Stylize};
+use tui::widgets::{Cell, TableState};
 
 /// Stores the state for rendering the standings. The `standings` field is a nested Vec to make
 /// displaying by division easier.
@@ -61,6 +61,12 @@ pub struct Standing {
     pub wild_card_games_back: String,
     pub last_10: String,
     pub streak: String,
+    pub runs_scored: u16,
+    pub runs_allowed: u16,
+    pub run_differential: i16,
+    pub xwl: String,
+    pub home: String,
+    pub away: String,
 }
 
 impl Default for StandingsState {
@@ -209,7 +215,7 @@ impl Division {
     fn create_divisions() -> Vec<Division> {
         (200..206)
             .map(|id| Division {
-                name: DIVISIONS.get(&id).unwrap().to_string(),
+                name: DIVISIONS[&id].to_string(),
                 id,
                 standings: vec![],
             })
@@ -251,19 +257,30 @@ impl Division {
 }
 
 impl Standing {
+    fn find_record(records: &[RecordElement], record_type: &str) -> String {
+        records
+            .iter()
+            .find(|r| r.record_type.as_deref() == Some(record_type))
+            .map(|r| format!("{}-{}", r.wins, r.losses))
+            .unwrap_or_else(|| "-".to_string())
+    }
+
     fn from_team_record(team: &TeamRecord) -> Self {
         let streak = team
             .streak
             .as_ref()
             .map(|s| s.streak_code.clone())
             .unwrap_or_else(|| "-".to_string());
-        let last_10 = team
+        let last_10 = Self::find_record(&team.records.split_records, "lastTen");
+        let home = Self::find_record(&team.records.overall_records, "home");
+        let away = Self::find_record(&team.records.overall_records, "away");
+        let xwl = team
             .records
-            .split_records
-            .iter()
-            .find(|r| r.record_type.as_deref() == Some("lastTen"))
-            .map(|r| format!("{}-{}", r.wins, r.losses))
+            .expected_records
+            .as_ref()
+            .map(|records| Self::find_record(records, "xWinLoss"))
             .unwrap_or_else(|| "-".to_string());
+
         Standing {
             team: TEAM_IDS
                 .get(&team.team.name.as_str())
@@ -276,19 +293,36 @@ impl Standing {
             wild_card_games_back: team.wild_card_games_back.clone(),
             last_10,
             streak,
+            runs_scored: team.runs_scored,
+            runs_allowed: team.runs_allowed,
+            run_differential: team.run_differential,
+            xwl,
+            home,
+            away,
         }
     }
 
-    pub fn to_cells(&self) -> Vec<String> {
+    pub fn to_cells(&self) -> Vec<Cell> {
+        let (prefix, rdiff_color) = match self.run_differential.signum() {
+            1 => ("+", Color::Green),
+            -1 => ("", Color::Red),
+            _ => ("", Color::White),
+        };
         vec![
-            self.team.name.to_string(),
-            self.wins.to_string(),
-            self.losses.to_string(),
-            self.winning_percentage.clone(),
-            self.games_back.clone(),
-            self.wild_card_games_back.clone(),
-            self.last_10.clone(),
-            self.streak.clone(),
+            self.team.name.to_string().into(),
+            self.wins.to_string().into(),
+            self.losses.to_string().into(),
+            self.winning_percentage.clone().into(),
+            self.games_back.clone().into(),
+            self.wild_card_games_back.clone().into(),
+            self.last_10.clone().into(),
+            self.streak.clone().into(),
+            self.runs_scored.to_string().into(),
+            self.runs_allowed.to_string().into(),
+            Cell::from(format!("{}{}", prefix, self.run_differential)).fg(rdiff_color),
+            self.xwl.clone().into(),
+            self.home.clone().into(),
+            self.away.clone().into(),
         ]
     }
 }
