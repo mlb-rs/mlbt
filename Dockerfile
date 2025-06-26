@@ -1,4 +1,4 @@
-FROM rust:1.86
+FROM rust:1.88
 
 WORKDIR /usr/src/mlbt
 COPY . .

@@ -81,9 +81,9 @@ impl<'a> WinProbabilityData<'a> {
 
         let home_wp = at_bat.home_team_wp.clamp(0.0, 100.0);
         let wp = if home_wp == 100.0 || home_wp == 0.0 {
-            format!("{:.0}%", home_wp) // just show 100% or 0%
+            format!("{home_wp:.0}%") // just show 100% or 0%
         } else {
-            format!("{:.1}%", home_wp)
+            format!("{home_wp:.1}%")
         };
 
         let wp_color = match home_wp {
@@ -97,7 +97,7 @@ impl<'a> WinProbabilityData<'a> {
         let li = if leverage == 0.0 {
             "0".to_string() // don't show "0.00", just "0"
         } else {
-            format!("{:.2}", leverage)
+            format!("{leverage:.2}")
         };
         let leverage_color = if leverage > 2.0 {
             Color::Red
@@ -115,10 +115,10 @@ impl<'a> WinProbabilityData<'a> {
         };
 
         Row::new([
-            Cell::from(format!("{:<8}", label)),
-            Cell::from(format!(" {:<4}", li)).style(Style::default().fg(leverage_color)),
+            Cell::from(format!("{label:<8}")),
+            Cell::from(format!(" {li:<4}")).style(Style::default().fg(leverage_color)),
             Cell::from(wpa),
-            Cell::from(format!("{:<6}", wp)).style(Style::default().fg(wp_color)),
+            Cell::from(format!("{wp:<6}")).style(Style::default().fg(wp_color)),
         ])
     }
 

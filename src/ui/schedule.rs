@@ -22,7 +22,7 @@ impl ScheduleRow {
         let s = score
             .map(|s| s.to_string())
             .unwrap_or_else(|| "-".to_string());
-        format!("{:<3}", s)
+        format!("{s:<3}")
     }
 
     fn get_styles(&self, team: HomeOrAway) -> (Style, Style) {

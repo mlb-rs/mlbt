@@ -99,21 +99,21 @@ impl PitchEvent {
         let mut text = String::new();
         if let Some(hit) = &self.hit_data {
             if let Some(exit_velocity) = hit.exit_velocity {
-                text.push_str(&format!("exit velo: {}", exit_velocity));
+                text.push_str(&format!("exit velo: {exit_velocity}"));
             }
 
             if let Some(launch_angle) = hit.launch_angle {
                 if !text.is_empty() {
                     text.push_str(" | ");
                 }
-                text.push_str(&format!("LA: {}°", launch_angle));
+                text.push_str(&format!("LA: {launch_angle}°"));
             }
 
             if let Some(distance) = hit.distance {
                 if !text.is_empty() {
                     text.push_str(" | ");
                 }
-                text.push_str(&format!("distance: {}'", distance));
+                text.push_str(&format!("distance: {distance}'"));
             }
             Some(text)
         } else {

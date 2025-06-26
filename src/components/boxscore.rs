@@ -84,7 +84,7 @@ impl TeamBatterBoxscore {
             .iter()
             .enumerate()
             .filter_map(|(idx, player_id)| {
-                let player = team.players.get(&*format!("ID{}", player_id))?;
+                let player = team.players.get(&*format!("ID{player_id}"))?;
                 let player_name = players.get(player_id)?;
                 Some(BatterBoxscore::from_data(
                     player,
