@@ -1,6 +1,6 @@
 use crate::components::game::player::Player;
 use crate::state::app_state::HomeOrAway;
-use mlb_api::boxscore::{Player as ApiPlayer, Team};
+use mlb_api::boxscore::{LabelValue, Player as ApiPlayer, Team};
 use mlb_api::live::LiveResponse;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -104,7 +104,7 @@ impl BatterBoxscore {
     pub fn to_cells(&self) -> Vec<Cell> {
         let note = self.note.as_deref().unwrap_or_default();
         let prefix = match self.is_substitute {
-            true => "   ".to_string(),
+            true => "  ".to_string(),
             false => "".to_string(),
         };
         let name = if self.name == "Totals" {
@@ -199,6 +199,8 @@ impl Boxscore {
     const PITCHING_HEADER: &'static [&'static str] =
         &["pitcher", "ip", "h", "r", "er", "bb", "k", "hr", "era"];
 
+    const BLANK_LINE_SENTINEL: &'static str = "****";
+
     pub fn from_live_data(live_game: &LiveResponse, players: &HashMap<u64, Player>) -> Self {
         let (home, away) = match &live_game.live_data.boxscore.teams {
             Some(t) => (&t.home, &t.away),
@@ -232,15 +234,8 @@ impl Boxscore {
             .as_deref()
             .unwrap_or_default()
             .iter()
-            .filter_map(|n| {
-                n.value.as_ref().map(|value| {
-                    BattingNote {
-                        label: n.label.clone(),
-                        value: value.clone(),
-                    }
-                    .into()
-                })
-            })
+            .filter(|n| n.value.is_some())
+            .map(|n| BattingNote::from(n).into())
             .collect();
 
         // blank line
@@ -248,7 +243,7 @@ impl Boxscore {
             ab_notes.push(
                 BattingNote {
                     label: "".to_string(),
-                    value: " ".to_string(), // check for this when adding a blank line
+                    value: Self::BLANK_LINE_SENTINEL.to_string(),
                 }
                 .into(),
             );
@@ -263,13 +258,7 @@ impl Boxscore {
             .filter(|i| i.title == "BATTING")
             .flat_map(|i| &i.field_list)
             .filter(|f| f.value.is_some() && Self::BATTING_NOTES.contains(&f.label.as_str()))
-            .map(|f| {
-                GameNote {
-                    label: f.label.clone(),
-                    value: f.value.clone().unwrap_or_default(),
-                }
-                .into()
-            })
+            .map(|f| GameNote::from(f).into())
             .collect();
 
         ab_notes.extend(batting_notes);
@@ -281,7 +270,7 @@ impl Boxscore {
         let mut pitchers = Vec::new();
 
         for &player_id in &team.pitchers {
-            let player_key = format!("ID{}", player_id);
+            let player_key = format!("ID{player_id}");
             if let Some(player) = team.players.get(&player_key) {
                 if let Some(player_name) = players.get(&player_id) {
                     let note = player.stats.pitching.note.clone();
@@ -319,7 +308,7 @@ impl Boxscore {
         let mut batters = Vec::new();
 
         for &player_id in &team.batters {
-            let player_key = format!("ID{}", player_id);
+            let player_key = format!("ID{player_id}");
             if let Some(player) = team.players.get(&player_key) {
                 if let Some(batting_order) = &player.batting_order {
                     if let Some(player_name) = players.get(&player_id) {
@@ -397,12 +386,8 @@ impl Boxscore {
             .as_deref()
             .unwrap_or_default()
             .iter()
-            .filter_map(|i| {
-                i.value.as_ref().map(|value| GameNote {
-                    label: i.label.clone(),
-                    value: value.clone(),
-                })
-            })
+            .filter(|i| i.value.is_some())
+            .map(GameNote::from)
             .collect()
     }
 }
@@ -439,12 +424,32 @@ impl GameNote {
     }
 }
 
+impl From<&LabelValue> for GameNote {
+    fn from(value: &LabelValue) -> Self {
+        Self {
+            label: value.label.clone(),
+            value: value.value.clone().unwrap_or_default(),
+        }
+    }
+}
+
 impl BattingNote {
     pub fn to_line<'a>(&self) -> Option<Line<'a>> {
         match (self.label.is_empty(), self.value.is_empty()) {
             (false, false) => Some(Line::from(format!("{}-{}", self.label, self.value))),
-            (true, false) if self.value.as_str() == " " => Some(Line::default()),
+            (true, false) if self.value.as_str() == Boxscore::BLANK_LINE_SENTINEL => {
+                Some(Line::default())
+            }
             (_, _) => None,
+        }
+    }
+}
+
+impl From<&LabelValue> for BattingNote {
+    fn from(value: &LabelValue) -> Self {
+        Self {
+            label: value.label.clone(),
+            value: value.value.clone().unwrap_or_default(),
         }
     }
 }
