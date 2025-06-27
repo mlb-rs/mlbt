@@ -9,6 +9,8 @@ use tui::style::Color;
 use tui::text::Span;
 use tui::widgets::Cell;
 
+const SECONDARY_COLOR: Color = Color::DarkGray;
+
 #[derive(Default)]
 pub struct Boxscore {
     home_batting: Vec<BatterBoxscore>,
@@ -108,11 +110,11 @@ impl BatterBoxscore {
             false => "".to_string(),
         };
         let name = if self.name == "Totals" {
-            Span::from("Totals").fg(Color::Gray).into()
+            Span::from("Totals").fg(SECONDARY_COLOR).into()
         } else {
             Line::from(vec![
                 Span::from(format!("{prefix}{note}{} ", self.name)),
-                Span::from(self.position.clone()).fg(Color::Gray),
+                Span::from(self.position.clone()).fg(SECONDARY_COLOR),
             ])
         };
 
@@ -167,11 +169,11 @@ impl PitcherBoxscore {
     pub fn to_cells(&self) -> Vec<Cell> {
         let note = self.note.as_deref().unwrap_or_default();
         let name = if self.name == "Totals" {
-            Span::from("Totals").fg(Color::Gray).into()
+            Span::from("Totals").fg(SECONDARY_COLOR).into()
         } else if !note.is_empty() {
             Line::from(vec![
                 Span::from(format!("{} ", self.name)),
-                Span::from(note).fg(Color::Gray),
+                Span::from(note).fg(SECONDARY_COLOR),
             ])
         } else {
             self.name.clone().into()
