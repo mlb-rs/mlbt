@@ -192,7 +192,17 @@ impl PitcherBoxscore {
 }
 
 impl Boxscore {
-    const BATTING_NOTES: &'static [&'static str] = &["2B", "3B", "HR", "RBI", "TB", "2-out RBI"];
+    const NOTE_FILTER: &'static [&'static str] = &[
+        "2B",
+        "3B",
+        "HR",
+        "RBI",
+        "TB",
+        "2-out RBI",
+        "Team RISP",
+        "E",
+        "SB",
+    ];
     const BATTING_HEADER: &'static [&'static str] =
         &["player", "ab", "r", "h", "rbi", "bb", "k", "lob", "avg"];
 
@@ -249,15 +259,14 @@ impl Boxscore {
             );
         }
 
-        // batting notes, e.g. "HR Suzuki 2 (20, 1st inning...)"
+        // offense notes, e.g. "HR Suzuki 2 (20, 1st inning...)"
         let batting_notes: Vec<Note> = team
             .info
             .iter()
             .flatten()
-            // ignoring fielding and baserunning stats to keep the length down
-            .filter(|i| i.title == "BATTING")
             .flat_map(|i| &i.field_list)
-            .filter(|f| f.value.is_some() && Self::BATTING_NOTES.contains(&f.label.as_str()))
+            // filter out some notes to keep the display smaller
+            .filter(|f| f.value.is_some() && Self::NOTE_FILTER.contains(&f.label.as_str()))
             .map(|f| GameNote::from(f).into())
             .collect();
 

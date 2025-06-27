@@ -35,12 +35,19 @@ pub struct TeamBatterBoxscoreWidget<'a> {
 impl Widget for TeamBatterBoxscoreWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let batting = self.boxscore.to_batting_table_rows(self.active);
-        let batting_notes = self.boxscore.get_batting_notes(self.active);
+        let batting_notes = self
+            .boxscore
+            .get_batting_notes(self.active)
+            .iter()
+            .filter_map(|n| n.to_line());
+        let notes_paragraph = Paragraph::new(batting_notes.collect::<Vec<_>>())
+            .block(Block::default())
+            .wrap(Wrap { trim: true });
         let pitching = self.boxscore.to_pitching_table_rows(self.active);
 
-        let [boxscore, note, pitchers, pitching_notes] = Layout::vertical([
+        let [boxscore, note, pitchers, game_notes] = Layout::vertical([
             Constraint::Length(batting.len() as u16 + 1), // +1 for header
-            Constraint::Length(batting_notes.len() as u16),
+            Constraint::Length(notes_paragraph.line_count(area.width) as u16),
             Constraint::Length(pitching.len() as u16 + 1), // +1 for header
             Constraint::Fill(1),
         ])
@@ -61,14 +68,7 @@ impl Widget for TeamBatterBoxscoreWidget<'_> {
             buf,
         );
 
-        let batting_notes = batting_notes.iter().filter_map(|n| n.to_line());
-        Widget::render(
-            Paragraph::new(batting_notes.collect::<Vec<_>>())
-                .block(Block::default())
-                .wrap(Wrap { trim: true }),
-            note,
-            buf,
-        );
+        Widget::render(notes_paragraph, note, buf);
 
         Widget::render(
             Table::new(pitching.into_iter().map(Row::new), PITCHER_WIDTHS)
@@ -88,7 +88,7 @@ impl Widget for TeamBatterBoxscoreWidget<'_> {
             Paragraph::new(self.boxscore.get_game_notes())
                 .block(Block::default())
                 .wrap(Wrap { trim: true }),
-            pitching_notes,
+            game_notes,
             buf,
         );
     }
