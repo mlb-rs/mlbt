@@ -11,7 +11,7 @@ async fn generate_mock_client() -> (MLBApi, ServerGuard) {
     let formatted_url = if base_url.ends_with('/') {
         base_url
     } else {
-        format!("{}/", base_url)
+        format!("{base_url}/")
     };
 
     let client = MLBApiBuilder::default()
