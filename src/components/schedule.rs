@@ -184,17 +184,18 @@ impl ScheduleRow {
 
         let game_status = match &game.status.detailed_state {
             Some(s) if s == "In Progress" => {
-                let half = match game.linescore.is_top_inning.unwrap_or(true) {
-                    true => "Top",
-                    false => "Bottom",
-                };
-                format!(
-                    "{half} {}",
-                    game.linescore
-                        .current_inning_ordinal
-                        .as_deref()
-                        .unwrap_or("1st")
-                )
+                if let Some(linescore) = game.linescore.as_ref() {
+                    let half = match linescore.is_top_inning.unwrap_or(true) {
+                        true => "Top",
+                        false => "Bottom",
+                    };
+                    format!(
+                        "{half} {}",
+                        linescore.current_inning_ordinal.as_deref().unwrap_or("1st")
+                    )
+                } else {
+                    s.clone()
+                }
             }
             Some(s) => s.clone(),
             None => "-".to_string(),

@@ -45,7 +45,6 @@ pub struct ScheduleLinescore {
     pub inning_state: Option<String>,
     pub inning_half: Option<String>,
     pub is_top_inning: Option<bool>,
-    pub scheduled_innings: i64,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -59,7 +58,8 @@ pub struct Game {
     pub official_date: String,
     pub status: Status,
     pub teams: Teams,
-    pub linescore: ScheduleLinescore,
+    /// Only present if `hydrate=linescore` is used.
+    pub linescore: Option<ScheduleLinescore>,
     pub venue: Option<IdNameLink>,
     pub content: Option<Content>,
     pub is_tie: Option<bool>,
