@@ -39,6 +39,16 @@ pub struct Dates {
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ScheduleLinescore {
+    pub current_inning: Option<i64>,
+    pub current_inning_ordinal: Option<String>,
+    pub inning_state: Option<String>,
+    pub inning_half: Option<String>,
+    pub is_top_inning: Option<bool>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Game {
     pub game_pk: u64,
     pub link: String,
@@ -48,6 +58,8 @@ pub struct Game {
     pub official_date: String,
     pub status: Status,
     pub teams: Teams,
+    /// Only present if `hydrate=linescore` is used.
+    pub linescore: Option<ScheduleLinescore>,
     pub venue: Option<IdNameLink>,
     pub content: Option<Content>,
     pub is_tie: Option<bool>,

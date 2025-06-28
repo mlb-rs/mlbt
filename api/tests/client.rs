@@ -34,7 +34,10 @@ mod tests {
         let (client, mut server) = generate_mock_client().await;
 
         let m = server
-            .mock("GET", "/v1/schedule?sportId=1&date=2021-07-13")
+            .mock(
+                "GET",
+                "/v1/schedule?sportId=1&hydrate=linescore&date=2021-07-13",
+            )
             .with_status(200)
             .with_header("content-type", "application/json;charset=UTF-8")
             .with_body_from_file("./tests/responses/all-star-game.json")
