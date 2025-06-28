@@ -183,8 +183,21 @@ impl ScheduleRow {
         let start_time = datetime.format("%l:%M %P").to_string();
 
         let game_status = match &game.status.detailed_state {
-            Some(s) => s.to_string(),
-            _ => "-".to_string(),
+            Some(s) if s == "In Progress" => {
+                let half = match game.linescore.is_top_inning.unwrap_or(true) {
+                    true => "Top",
+                    false => "Bottom",
+                };
+                format!(
+                    "{half} {}",
+                    game.linescore
+                        .current_inning_ordinal
+                        .as_deref()
+                        .unwrap_or("1st")
+                )
+            }
+            Some(s) => s.clone(),
+            None => "-".to_string(),
         };
 
         ScheduleRow {

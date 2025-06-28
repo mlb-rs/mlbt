@@ -1,5 +1,5 @@
 {
-  "copyright": "Copyright 2021 MLB Advanced Media, L.P.  Use of any content on this page acknowledges agreement to the terms posted here http://gdx.mlb.com/components/copyright.txt",
+  "copyright": "Copyright 2025 MLB Advanced Media, L.P.  Use of any content on this page acknowledges agreement to the terms posted here http://gdx.mlb.com/components/copyright.txt",
   "totalItems": 1,
   "totalEvents": 0,
   "totalGames": 1,
@@ -14,50 +14,325 @@
       "games": [
         {
           "gamePk": 634675,
+          "gameGuid": "5c9164af-cda7-4058-b199-560b10ff4052",
           "link": "/api/v1.1/game/634675/feed/live",
           "gameType": "A",
           "season": "2021",
           "gameDate": "2021-07-13T23:30:00Z",
           "officialDate": "2021-07-13",
           "status": {
-            "abstractGameState": "Preview",
-            "codedGameState": "P",
-            "detailedState": "Pre-Game",
-            "statusCode": "P",
+            "abstractGameState": "Final",
+            "codedGameState": "F",
+            "detailedState": "Final",
+            "statusCode": "F",
             "startTimeTBD": false,
-            "abstractGameCode": "P"
+            "abstractGameCode": "F"
           },
           "teams": {
             "away": {
               "leagueRecord": {
-                "wins": 0,
+                "wins": 1,
                 "losses": 0,
-                "pct": ".000"
+                "pct": "1.000"
               },
-              "score": 0,
+              "score": 5,
               "team": {
                 "id": 159,
                 "name": "American League All-Stars",
                 "link": "/api/v1/teams/159"
               },
+              "isWinner": true,
               "splitSquad": false,
               "seriesNumber": 0
             },
             "home": {
               "leagueRecord": {
                 "wins": 0,
-                "losses": 0,
+                "losses": 1,
                 "pct": ".000"
               },
-              "score": 0,
+              "score": 2,
               "team": {
                 "id": 160,
                 "name": "National League All-Stars",
                 "link": "/api/v1/teams/160"
               },
+              "isWinner": false,
               "splitSquad": false,
               "seriesNumber": 0
             }
+          },
+          "linescore": {
+            "currentInning": 9,
+            "currentInningOrdinal": "9th",
+            "inningState": "Bottom",
+            "inningHalf": "Bottom",
+            "isTopInning": false,
+            "scheduledInnings": 9,
+            "innings": [
+              {
+                "num": 1,
+                "ordinalNum": "1st",
+                "home": {
+                  "runs": 0,
+                  "hits": 0,
+                  "errors": 0,
+                  "leftOnBase": 0
+                },
+                "away": {
+                  "runs": 0,
+                  "hits": 0,
+                  "errors": 0,
+                  "leftOnBase": 0
+                }
+              },
+              {
+                "num": 2,
+                "ordinalNum": "2nd",
+                "home": {
+                  "runs": 0,
+                  "hits": 0,
+                  "errors": 0,
+                  "leftOnBase": 1
+                },
+                "away": {
+                  "runs": 1,
+                  "hits": 2,
+                  "errors": 0,
+                  "leftOnBase": 1
+                }
+              },
+              {
+                "num": 3,
+                "ordinalNum": "3rd",
+                "home": {
+                  "runs": 0,
+                  "hits": 1,
+                  "errors": 0,
+                  "leftOnBase": 1
+                },
+                "away": {
+                  "runs": 1,
+                  "hits": 2,
+                  "errors": 0,
+                  "leftOnBase": 1
+                }
+              },
+              {
+                "num": 4,
+                "ordinalNum": "4th",
+                "home": {
+                  "runs": 0,
+                  "hits": 1,
+                  "errors": 0,
+                  "leftOnBase": 0
+                },
+                "away": {
+                  "runs": 0,
+                  "hits": 0,
+                  "errors": 0,
+                  "leftOnBase": 0
+                }
+              },
+              {
+                "num": 5,
+                "ordinalNum": "5th",
+                "home": {
+                  "runs": 1,
+                  "hits": 1,
+                  "errors": 1,
+                  "leftOnBase": 0
+                },
+                "away": {
+                  "runs": 2,
+                  "hits": 2,
+                  "errors": 0,
+                  "leftOnBase": 1
+                }
+              },
+              {
+                "num": 6,
+                "ordinalNum": "6th",
+                "home": {
+                  "runs": 1,
+                  "hits": 1,
+                  "errors": 0,
+                  "leftOnBase": 2
+                },
+                "away": {
+                  "runs": 1,
+                  "hits": 1,
+                  "errors": 1,
+                  "leftOnBase": 0
+                }
+              },
+              {
+                "num": 7,
+                "ordinalNum": "7th",
+                "home": {
+                  "runs": 0,
+                  "hits": 0,
+                  "errors": 0,
+                  "leftOnBase": 0
+                },
+                "away": {
+                  "runs": 0,
+                  "hits": 0,
+                  "errors": 0,
+                  "leftOnBase": 0
+                }
+              },
+              {
+                "num": 8,
+                "ordinalNum": "8th",
+                "home": {
+                  "runs": 0,
+                  "hits": 2,
+                  "errors": 0,
+                  "leftOnBase": 3
+                },
+                "away": {
+                  "runs": 0,
+                  "hits": 1,
+                  "errors": 0,
+                  "leftOnBase": 2
+                }
+              },
+              {
+                "num": 9,
+                "ordinalNum": "9th",
+                "home": {
+                  "runs": 0,
+                  "hits": 2,
+                  "errors": 0,
+                  "leftOnBase": 1
+                },
+                "away": {
+                  "runs": 0,
+                  "hits": 1,
+                  "errors": 0,
+                  "leftOnBase": 1
+                }
+              }
+            ],
+            "teams": {
+              "home": {
+                "runs": 2,
+                "hits": 8,
+                "errors": 1,
+                "leftOnBase": 8,
+                "isWinner": false
+              },
+              "away": {
+                "runs": 5,
+                "hits": 9,
+                "errors": 1,
+                "leftOnBase": 6,
+                "isWinner": true
+              }
+            },
+            "defense": {
+              "pitcher": {
+                "id": 521230,
+                "fullName": "Liam Hendriks",
+                "link": "/api/v1/people/521230"
+              },
+              "catcher": {
+                "id": 572287,
+                "fullName": "Mike Zunino",
+                "link": "/api/v1/people/572287"
+              },
+              "first": {
+                "id": 621566,
+                "fullName": "Matt Olson",
+                "link": "/api/v1/people/621566"
+              },
+              "second": {
+                "id": 593160,
+                "fullName": "Whit Merrifield",
+                "link": "/api/v1/people/593160"
+              },
+              "third": {
+                "id": 621563,
+                "fullName": "Joey Wendle",
+                "link": "/api/v1/people/621563"
+              },
+              "shortstop": {
+                "id": 641313,
+                "fullName": "Tim Anderson",
+                "link": "/api/v1/people/641313"
+              },
+              "left": {
+                "id": 665120,
+                "fullName": "Jared Walsh",
+                "link": "/api/v1/people/665120"
+              },
+              "center": {
+                "id": 666969,
+                "fullName": "Adolis García",
+                "link": "/api/v1/people/666969"
+              },
+              "right": {
+                "id": 608336,
+                "fullName": "Joey Gallo",
+                "link": "/api/v1/people/608336"
+              },
+              "batter": {
+                "id": 641313,
+                "fullName": "Tim Anderson",
+                "link": "/api/v1/people/641313"
+              },
+              "onDeck": {
+                "id": 608336,
+                "fullName": "Joey Gallo",
+                "link": "/api/v1/people/608336"
+              },
+              "inHole": {
+                "id": 621563,
+                "fullName": "Joey Wendle",
+                "link": "/api/v1/people/621563"
+              },
+              "battingOrder": 3,
+              "team": {
+                "id": 159,
+                "link": "/api/v1/teams/159"
+              }
+            },
+            "offense": {
+              "batter": {
+                "id": 607208,
+                "fullName": "Trea Turner",
+                "link": "/api/v1/people/607208"
+              },
+              "onDeck": {
+                "id": 457759,
+                "fullName": "Justin Turner",
+                "link": "/api/v1/people/457759"
+              },
+              "inHole": {
+                "id": 500871,
+                "fullName": "Eduardo Escobar",
+                "link": "/api/v1/people/500871"
+              },
+              "second": {
+                "id": 645277,
+                "fullName": "Ozzie Albies",
+                "link": "/api/v1/people/645277"
+              },
+              "pitcher": {
+                "id": 554430,
+                "fullName": "Zack Wheeler",
+                "link": "/api/v1/people/554430"
+              },
+              "battingOrder": 1,
+              "team": {
+                "id": 160,
+                "link": "/api/v1/teams/160"
+              }
+            },
+            "balls": 0,
+            "strikes": 0,
+            "outs": 3
           },
           "venue": {
             "id": 19,
@@ -67,6 +342,7 @@
           "content": {
             "link": "/api/v1/game/634675/content"
           },
+          "isTie": false,
           "gameNumber": 1,
           "publicFacing": true,
           "doubleHeader": "N",
