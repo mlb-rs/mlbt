@@ -107,25 +107,31 @@ impl BatterBoxscore {
             true => "  ".to_string(),
             false => "".to_string(),
         };
-        let name = if self.name == "Totals" {
-            Span::from("Totals").fg(SECONDARY_COLOR).into()
+        let (name, color) = if self.name == "Totals" {
+            (
+                Span::from("Totals").fg(SECONDARY_COLOR).into(),
+                SECONDARY_COLOR,
+            )
         } else {
-            Line::from(vec![
-                Span::from(format!("{prefix}{note}{} ", self.name)),
-                Span::from(self.position.clone()).fg(SECONDARY_COLOR),
-            ])
+            (
+                Line::from(vec![
+                    Span::from(format!("{prefix}{note}{} ", self.name)),
+                    Span::from(self.position.clone()).fg(SECONDARY_COLOR),
+                ]),
+                Color::White,
+            )
         };
 
         vec![
             Cell::from(name),
-            Cell::from(self.at_bats.to_string()),
-            Cell::from(self.runs.to_string()),
-            Cell::from(self.hits.to_string()),
-            Cell::from(self.rbis.to_string()),
-            Cell::from(self.walks.to_string()),
-            Cell::from(self.strike_outs.to_string()),
-            Cell::from(self.left_on.to_string()),
-            Cell::from(self.batting_average.to_string()),
+            Cell::from(self.at_bats.to_string()).fg(color),
+            Cell::from(self.runs.to_string()).fg(color),
+            Cell::from(self.hits.to_string()).fg(color),
+            Cell::from(self.rbis.to_string()).fg(color),
+            Cell::from(self.walks.to_string()).fg(color),
+            Cell::from(self.strike_outs.to_string()).fg(color),
+            Cell::from(self.left_on.to_string()).fg(color),
+            Cell::from(self.batting_average.to_string()).fg(color),
         ]
     }
 }
@@ -165,27 +171,33 @@ impl PitcherBoxscore {
 
     pub fn to_cells(&self) -> Vec<Cell> {
         let note = self.note.as_deref().unwrap_or_default();
-        let name = if self.name == "Totals" {
-            Span::from("Totals").fg(SECONDARY_COLOR).into()
+        let (name, color) = if self.name == "Totals" {
+            (
+                Span::from("Totals").fg(SECONDARY_COLOR).into(),
+                SECONDARY_COLOR,
+            )
         } else if !note.is_empty() {
-            Line::from(vec![
-                Span::from(format!("{} ", self.name)),
-                Span::from(note).fg(SECONDARY_COLOR),
-            ])
+            (
+                Line::from(vec![
+                    Span::from(format!("{} ", self.name)),
+                    Span::from(note).fg(SECONDARY_COLOR),
+                ]),
+                Color::White,
+            )
         } else {
-            self.name.clone().into()
+            (self.name.clone().into(), Color::White)
         };
 
         vec![
             Cell::from(name),
-            Cell::from(self.innings_pitched.clone()),
-            Cell::from(self.hits.to_string()),
-            Cell::from(self.runs.to_string()),
-            Cell::from(self.earned_runs.to_string()),
-            Cell::from(self.walks.to_string()),
-            Cell::from(self.strikeouts.to_string()),
-            Cell::from(self.home_runs.to_string()),
-            Cell::from(self.era.clone()),
+            Cell::from(self.innings_pitched.clone()).fg(color),
+            Cell::from(self.hits.to_string()).fg(color),
+            Cell::from(self.runs.to_string()).fg(color),
+            Cell::from(self.earned_runs.to_string()).fg(color),
+            Cell::from(self.walks.to_string()).fg(color),
+            Cell::from(self.strikeouts.to_string()).fg(color),
+            Cell::from(self.home_runs.to_string()).fg(color),
+            Cell::from(self.era.clone()).fg(color),
         ]
     }
 }

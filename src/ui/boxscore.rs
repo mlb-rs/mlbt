@@ -1,7 +1,7 @@
 use crate::components::boxscore::Boxscore;
 use crate::state::app_state::HomeOrAway;
 use tui::prelude::*;
-use tui::widgets::{Block, Borders, Paragraph, Row, Table, Wrap};
+use tui::widgets::{Block, Paragraph, Row, Table, Wrap};
 
 const BATTER_WIDTHS: [Constraint; 9] = [
     Constraint::Length(25), // player name
@@ -57,13 +57,11 @@ impl Widget for TeamBatterBoxscoreWidget<'_> {
         Widget::render(
             Table::new(batting.into_iter().map(Row::new), BATTER_WIDTHS)
                 .column_spacing(0)
-                .style(Style::default().fg(Color::White))
                 .header(
                     Row::new(self.boxscore.get_batting_header().iter().copied())
                         .bold()
                         .underlined(),
-                )
-                .block(Block::default().borders(Borders::NONE)),
+                ),
             boxscore,
             buf,
         );
@@ -73,13 +71,11 @@ impl Widget for TeamBatterBoxscoreWidget<'_> {
         Widget::render(
             Table::new(pitching.into_iter().map(Row::new), PITCHER_WIDTHS)
                 .column_spacing(0)
-                .style(Style::default().fg(Color::White))
                 .header(
                     Row::new(self.boxscore.get_pitching_header().iter().copied())
                         .bold()
                         .underlined(),
-                )
-                .block(Block::default().borders(Borders::NONE)),
+                ),
             pitchers,
             buf,
         );
