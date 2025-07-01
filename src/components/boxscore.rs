@@ -2,7 +2,6 @@ use crate::components::game::player::Player;
 use crate::state::app_state::HomeOrAway;
 use mlb_api::boxscore::{LabelValue, Player as ApiPlayer, Team};
 use mlb_api::live::LiveResponse;
-use std::borrow::Cow;
 use std::collections::HashMap;
 use tui::prelude::{Line, Stylize};
 use tui::style::Color;
@@ -33,7 +32,7 @@ pub struct BatterBoxscore {
     walks: u16,
     strike_outs: u16,
     left_on: u16,
-    batting_average: Cow<'static, str>,
+    batting_average: String,
     note: Option<String>,
     is_substitute: bool,
 }
@@ -48,7 +47,7 @@ pub struct PitcherBoxscore {
     walks: u8,
     strikeouts: u8,
     home_runs: u8,
-    era: Cow<'static, str>,
+    era: String,
     #[allow(dead_code)]
     pitches: u8,
     #[allow(dead_code)]
@@ -96,8 +95,7 @@ impl BatterBoxscore {
                 .batting
                 .avg
                 .clone()
-                .map(Cow::Owned)
-                .unwrap_or_else(|| Cow::Borrowed("---")),
+                .unwrap_or_else(|| "---".to_string()),
             note,
             is_substitute,
         }
@@ -153,8 +151,7 @@ impl PitcherBoxscore {
                 .pitching
                 .era
                 .clone()
-                .map(Cow::Owned)
-                .unwrap_or_else(|| Cow::Borrowed("---")),
+                .unwrap_or_else(|| "---".to_string()),
             pitches: player
                 .stats
                 .pitching
@@ -306,7 +303,7 @@ impl Boxscore {
             walks: team.team_stats.pitching.base_on_balls.unwrap_or_default() as u8,
             strikeouts: team.team_stats.pitching.strike_outs.unwrap_or_default() as u8,
             home_runs: team.team_stats.pitching.home_runs.unwrap_or_default() as u8,
-            era: Cow::Borrowed(""),
+            era: "".to_string(),
             pitches: 0,
             strikes: 0,
             note: None,
@@ -348,7 +345,7 @@ impl Boxscore {
             walks: team.team_stats.batting.base_on_balls.unwrap_or_default(),
             strike_outs: team.team_stats.batting.strike_outs.unwrap_or_default(),
             left_on: team.team_stats.batting.left_on_base.unwrap_or_default(),
-            batting_average: Cow::Borrowed(""),
+            batting_average: "".to_string(),
             note: None,
             is_substitute: false,
         });
