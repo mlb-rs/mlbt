@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/andschneider/mlbt/actions/workflows/ci.yml/badge.svg?event=push)](https://github.com/andschneider/mlbt/actions/workflows/ci.yml)
 [![dependency status](https://deps.rs/repo/github/mlb-rs/mlbt/status.svg)](https://deps.rs/repo/github/mlb-rs/mlbt)
+[![Built With Ratatui](https://ratatui.rs/built-with-ratatui/badge.svg)](https://ratatui.rs/)
 
 A terminal user interface for the MLB Statcast API, written in Rust.
 
@@ -94,30 +95,37 @@ docker run -it --rm --name mlbt mlbt:latest
 ## Features
 
 - [X] scoreboard and box score
+    - [X] sorted by favorite team
     - [X] selectable date
+    - [X] win probability graph
 
 - [X] gameday
+    - [X] pitch display
+    - [X] batter strike zone with heat map coloring
+    - [X] selectable at bats (view the pitches and outcome of any at bat in the
+      game)
+    - [X] hit stats (exit velocity, launch angle, distance)
+    - [X] win probability per at bat
 
-- [X] standings
-    - [ ] team information
-
-- [X] stats
+- [X] pitching and hitting stats
     - [X] player stats
     - [X] team stats
+    - [X] sorting
+    - [X] selectable date
 
-- [ ] CLI
+- [X] standings
+    - [X] sorted by favorite team
+    - [X] selectable date
 
-- [ ] configuration:
+- [X] configuration
     - [X] favorite team
     - [X] time zone
-    - [ ] colors
-    - [ ] keymap
 
 ## Usage
 
-After installing, run `mlbt` from you terminal to open the program.
+After installing, run `mlbt` from your terminal to open the program.
 
-Press `q` to exit the program at any time.
+Press `q` to exit at any time.
 
 ### Tabs
 
@@ -134,16 +142,15 @@ Press `f` for full screen mode to hide the tab bar.
 
 Press `1` to activate this tab.
 
-- `j`: move down
-- `k`: move up
-- `Enter`: view current game in Gameday
-- `:`: activate date picker (see [Date Picker](#date-picker))
-- `w`: toggle win probability graph
-
-To switch the team displayed in the box score:
-
-- `h`: home team
-- `a`: away team
+| Key       | Description                                            |
+|-----------|--------------------------------------------------------|
+| `j` / `↓` | move down                                              |
+| `k` / `↑` | move up                                                |
+| `Enter`   | view current game in Gameday                           |
+| `:`       | activate date picker (see [Date Picker](#date-picker)) |
+| `w`       | toggle win probability graph                           |
+| `h`       | switch to home team in boxscore                        |
+| `a`       | switch to away team in boxscore                        |
 
 ### Gameday
 
@@ -152,22 +159,28 @@ Press `2` to activate this tab.
 By default, the `info` and `pitches` panes are shown. However, each pane can be
 toggled on and off using:
 
-- `i`: info pane
-- `p`: pitches pane
-- `b`: box score pane
+| Key | Description                  |
+|-----|------------------------------|
+| `i` | info pane                    |
+| `p` | pitches pane                 |
+| `b` | boxscore pane                |
+| `w` | toggle win probability graph |
 
 To view different at bats in the game, use:
 
-- `j`: move to previous play
-- `k`: move to next play
-- `l`: move to the "live" play, or the latest available
-- `s`: move to first play of the game
-- `w`: toggle win probability graph
+| Key       | Description                                  |
+|-----------|----------------------------------------------|
+| `j` / `↓` | move to previous play                        |
+| `k` / `↑` | move to next play                            |
+| `l`       | move to the "live" play, or latest available |
+| `s`       | move to first play of the game               |
 
 To switch the team displayed in the box score:
 
-- `h`: home team
-- `a`: away team
+| Key | Description                     |
+|-----|---------------------------------|
+| `h` | switch to home team in boxscore |
+| `a` | switch to away team in boxscore |
 
 ### Stats
 
@@ -176,10 +189,12 @@ Press `3` to activate this tab.
 You can switch between `pitching` and `hitting` stats and filter based on `team`
 or `player` using:
 
-- `p`: pitching
-- `h`: hitting
-- `t`: team
-- `l`: player
+| Key | Description |
+|-----|-------------|
+| `p` | pitching    |
+| `h` | hitting     |
+| `t` | team        |
+| `l` | player      |
 
 Within each stat group (pitching or hitting) you can toggle the display of
 individual stat columns by selecting the stat with `Enter`. This selection pane
@@ -188,39 +203,50 @@ can be turned on/off with `o`.
 To sort the stats by a column, instead of hitting `Enter` you can press `s`. To
 flip the sort order from ascending to descending or vice versa press `s` again.
 
-- `j`: move down
-- `k`: move up
-- `Enter`: toggle stat column
-- `s`: sort by the currently selected column
-- `:`: activate date picker (see [Date Picker](#date-picker))
-- `o`: toggle stat selection pane
+| Key       | Description                                            |
+|-----------|--------------------------------------------------------|
+| `j` / `↓` | move down                                              |
+| `k` / `↑` | move up                                                |
+| `Enter`   | toggle stat column                                     |
+| `s`       | sort by the currently selected column                  |
+| `:`       | activate date picker (see [Date Picker](#date-picker)) |
+| `o`       | toggle stat selection pane                             |
 
 > If your terminal is too small to display all columns, they will be turned off
-> starting from the left side.
+> starting from the right side.
 
 ### Standings
 
 Press `4` to activate this tab.
 
-- `j`: move down
-- `k`: move up
-- `:`: activate date picker (see [Date Picker](#date-picker))
-- `Enter`: display a teams roster (TODO)
+| Key       | Description                                            |
+|-----------|--------------------------------------------------------|
+| `j` / `↓` | move down                                              |
+| `k` / `↑` | move up                                                |
+| `:`       | activate date picker (see [Date Picker](#date-picker)) |
 
 ### Date Picker
 
 With the date picker active, input a date in the form of `YYYY-MM-DD`, or use
-the `left`/`right` arrow keys, and press `Enter`. To cancel, press `Esc`. To go
-back to the current day, enter `today` or `t`.
+the `left`/`right` arrow keys, and press `Enter`.
 
-> Note that each tab has its own date, i.e. if you're viewing older stats or 
+| Key           | Description                     |
+|---------------|---------------------------------|
+| `←` / `→`     | use arrow keys to navigate date |
+| `Enter`       | confirm the selected date       |
+| `Esc`         | cancel selection                |
+| `today` / `t` | go back to the current day      |
+
+> Note that each tab has its own date, i.e. if you're viewing older stats or
 > standings, the schedule can be the current date.
 
 ### Help
 
-- `?`: display help box
-- `Esc`: close help box
-- `"`: display logs
+| Key   | Description      |
+|-------|------------------|
+| `?`   | display help box |
+| `Esc` | close help box   |
+| `"`   | display logs     |
 
 > If your terminal is too small to display the full help box, the border will be
 > displayed red.
@@ -251,7 +277,8 @@ directory. For a user named `Alice` this would be:
     * For the full list
       see [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
 - `log_level`: Set the log level to be displayed. If not present, `error` level
-  is used. Use a lowercase word, e.g. `debug`. See [here](https://github.com/mlb-rs/mlbt/blob/main/src/config.rs#L16)
+  is used. Use a lowercase word, e.g. `debug`.
+  See [here](https://github.com/mlb-rs/mlbt/blob/main/src/config.rs#L16)
   for the options.
 
 ### Example config
