@@ -18,7 +18,7 @@ pub struct Boxscore {
     away_batting: Vec<BatterBoxscore>,
     away_pitching: Vec<PitcherBoxscore>,
     away_batting_notes: Vec<Note>,
-    game_notes: Vec<GameNote>,
+    game_notes: Vec<Note>,
 }
 
 #[derive(Default)]
@@ -203,17 +203,6 @@ impl PitcherBoxscore {
 }
 
 impl Boxscore {
-    const NOTE_FILTER: &'static [&'static str] = &[
-        "2B",
-        "3B",
-        "HR",
-        "RBI",
-        "TB",
-        "2-out RBI",
-        "Team RISP",
-        "E",
-        "SB",
-    ];
     const BATTING_HEADER: &'static [&'static str] =
         &["player", "ab", "r", "h", "rbi", "bb", "k", "lob", "avg"];
 
@@ -221,6 +210,7 @@ impl Boxscore {
         &["pitcher", "ip", "h", "r", "er", "bb", "k", "hr", "era"];
 
     const BLANK_LINE_SENTINEL: &'static str = "****";
+    const HEADER_SENTINEL: &'static str = "header";
 
     pub fn from_live_data(live_game: &LiveResponse, players: &HashMap<u64, Player>) -> Self {
         let (home, away) = match &live_game.live_data.boxscore.teams {
@@ -275,10 +265,16 @@ impl Boxscore {
             .info
             .iter()
             .flatten()
-            .flat_map(|i| &i.field_list)
-            // filter out some notes to keep the display smaller
-            .filter(|f| f.value.is_some() && Self::NOTE_FILTER.contains(&f.label.as_str()))
-            .map(|f| GameNote::from(f).into())
+            .flat_map(|i| {
+                std::iter::once(
+                    GameNote {
+                        label: i.title.clone(),
+                        value: Self::HEADER_SENTINEL.to_string(),
+                    }
+                    .into(),
+                )
+                .chain(i.field_list.iter().map(|f| GameNote::from(f).into()))
+            })
             .collect();
 
         ab_notes.extend(batting_notes);
@@ -372,6 +368,13 @@ impl Boxscore {
         }
     }
 
+    pub fn count_batting_table_rows(&self, active: HomeOrAway) -> usize {
+        match active {
+            HomeOrAway::Home => self.home_batting.len(),
+            HomeOrAway::Away => self.away_batting.len(),
+        }
+    }
+
     pub fn get_batting_header(&self) -> &'static [&'static str] {
         Self::BATTING_HEADER
     }
@@ -380,6 +383,13 @@ impl Boxscore {
         match active {
             HomeOrAway::Home => self.home_pitching.iter().map(|p| p.to_cells()).collect(),
             HomeOrAway::Away => self.away_pitching.iter().map(|p| p.to_cells()).collect(),
+        }
+    }
+
+    pub fn count_pitching_table_rows(&self, active: HomeOrAway) -> usize {
+        match active {
+            HomeOrAway::Home => self.home_pitching.len(),
+            HomeOrAway::Away => self.away_pitching.len(),
         }
     }
 
@@ -394,11 +404,11 @@ impl Boxscore {
         }
     }
 
-    pub fn get_game_notes(&self) -> Vec<Line> {
-        self.game_notes.iter().filter_map(|n| n.to_line()).collect()
+    pub fn get_game_notes(&self) -> &[Note] {
+        &self.game_notes
     }
 
-    fn generate_game_notes(live_response: &LiveResponse) -> Vec<GameNote> {
+    fn generate_game_notes(live_response: &LiveResponse) -> Vec<Note> {
         live_response
             .live_data
             .boxscore
@@ -407,7 +417,7 @@ impl Boxscore {
             .unwrap_or_default()
             .iter()
             .filter(|i| i.value.is_some())
-            .map(GameNote::from)
+            .map(|n| GameNote::from(n).into())
             .collect()
     }
 }
@@ -435,6 +445,11 @@ impl Note {
 impl GameNote {
     pub fn to_line<'a>(&self) -> Option<Line<'a>> {
         match (self.label.is_empty(), self.value.is_empty()) {
+            (false, false) if self.value == Boxscore::HEADER_SENTINEL => Some(Line::from(vec![
+                Span::from(self.label.to_string())
+                    .bold()
+                    .fg(SECONDARY_COLOR),
+            ])),
             (false, false) => Some(Line::from(vec![
                 Span::from(format!("{}: ", self.label)).bold(),
                 Span::from(self.value.clone()),
@@ -457,9 +472,7 @@ impl BattingNote {
     pub fn to_line<'a>(&self) -> Option<Line<'a>> {
         match (self.label.is_empty(), self.value.is_empty()) {
             (false, false) => Some(Line::from(format!("{}-{}", self.label, self.value))),
-            (true, false) if self.value.as_str() == Boxscore::BLANK_LINE_SENTINEL => {
-                Some(Line::default())
-            }
+            (true, false) if self.value == Boxscore::BLANK_LINE_SENTINEL => Some(Line::default()),
             (_, _) => None,
         }
     }
