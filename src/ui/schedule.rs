@@ -27,7 +27,7 @@ impl ScheduleRow {
 
     fn get_styles(&self, team: HomeOrAway) -> (Style, Style) {
         let winning_team = self.winning_team();
-        let lose_style = Style::default().fg(Color::Gray);
+        let lose_style = Style::default().fg(Color::DarkGray);
         match winning_team {
             Some(winner) if winner == team => (Style::default(), Style::default()),
             None => (Style::default(), Style::default()),

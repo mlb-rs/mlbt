@@ -5,6 +5,7 @@ use std::collections::HashMap;
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Boxscore {
     pub teams: Option<Teams>,
+    pub info: Option<Vec<LabelValue>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -25,6 +26,8 @@ pub struct Team {
     bullpen: Vec<u64>,
     pub batting_order: Vec<u64>,
     pub season_stats: Option<TeamStats>,
+    pub info: Option<Vec<TeamInfo>>,
+    pub note: Option<Vec<LabelValue>>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -34,11 +37,26 @@ pub struct IdName {
     pub name: String,
 }
 
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TeamInfo {
+    pub title: String,
+    pub field_list: Vec<LabelValue>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LabelValue {
+    pub label: String,
+    pub value: Option<String>,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Player {
     pub person: Person,
     pub position: Position,
+    pub batting_order: Option<String>,
     pub stats: TeamStats,
     pub season_stats: TeamStats,
 }
@@ -109,6 +127,7 @@ pub struct PitchingStats {
     pub stolen_bases: Option<i64>,
     pub stolen_base_percentage: Option<String>,
     pub number_of_pitches: Option<i64>,
+    pub era: Option<String>,
     pub innings_pitched: Option<String>,
     pub wins: Option<i64>,
     pub losses: Option<i64>,
