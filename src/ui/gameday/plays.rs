@@ -141,7 +141,7 @@ fn format_score(play: &PlayResult) -> Span {
 fn format_outs(play: &PlayResult) -> Span {
     if play.is_out {
         let out = if play.count.outs == 1 { "out" } else { "outs" };
-        Span::raw(format!(" {} {}", &play.count.outs, out))
+        Span::raw(format!(" {} {}", &play.count.outs, out)).bold()
     } else {
         Span::raw("")
     }
