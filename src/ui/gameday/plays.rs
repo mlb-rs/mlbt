@@ -60,13 +60,11 @@ fn format_plays(game: &GameState, selected_at_bat: Option<u8>) -> Vec<Line> {
             last_inning = Some(current_inning);
         }
 
-        let home_team_abbreviation = game.home_team.abbreviation;
-        let away_team_abbreviation = game.away_team.abbreviation;
         if let Some(line) = build_line(
             &play.play_result,
             selected_at_bat,
-            home_team_abbreviation,
-            away_team_abbreviation,
+            game.home_team.abbreviation,
+            game.away_team.abbreviation,
         ) {
             lines.push(line);
         }
