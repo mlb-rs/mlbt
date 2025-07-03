@@ -60,7 +60,12 @@ fn format_plays(game: &GameState, selected_at_bat: Option<u8>) -> Vec<Line> {
             last_inning = Some(current_inning);
         }
 
-        if let Some(line) = build_line(&play.play_result, selected_at_bat) {
+        if let Some(line) = build_line(
+            &play.play_result,
+            selected_at_bat,
+            game.home_team.abbreviation,
+            game.away_team.abbreviation,
+        ) {
             lines.push(line);
         }
     }
@@ -68,7 +73,12 @@ fn format_plays(game: &GameState, selected_at_bat: Option<u8>) -> Vec<Line> {
     lines
 }
 
-fn build_line(play: &PlayResult, selected_at_bat: Option<u8>) -> Option<Line> {
+fn build_line<'a>(
+    play: &'a PlayResult,
+    selected_at_bat: Option<u8>,
+    home_team_abbreviation: &'static str,
+    away_team_abbreviation: &'static str,
+) -> Option<Line<'a>> {
     let description = if play.description.is_empty() {
         "in progress..."
     } else {
@@ -76,10 +86,10 @@ fn build_line(play: &PlayResult, selected_at_bat: Option<u8>) -> Option<Line> {
     };
     let info = vec![
         format_runs(play, selected_at_bat),
-        format_score(play),
         Span::raw(" "),
         Span::raw(description),
         format_outs(play),
+        format_score(play, home_team_abbreviation, away_team_abbreviation),
     ];
     Some(Line::from(info))
 }
@@ -129,9 +139,17 @@ fn format_runs(play: &PlayResult, selected_at_bat: Option<u8>) -> Span {
 }
 
 /// If runs were scored display the new score.
-fn format_score(play: &PlayResult) -> Span {
+fn format_score<'a>(
+    play: &'a PlayResult,
+    home_team_abbreviation: &'static str,
+    away_team_abbreviation: &'static str,
+) -> Span<'a> {
     if play.is_scoring_play {
-        Span::raw(format!(" {}-{}", play.away_score, play.home_score))
+        Span::raw(format!(
+            " [{} {}, {} {}]",
+            away_team_abbreviation, play.away_score, home_team_abbreviation, play.home_score
+        ))
+        .bold()
     } else {
         Span::raw("")
     }
