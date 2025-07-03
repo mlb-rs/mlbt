@@ -1,6 +1,5 @@
 use crate::app::{App, DebugState, MenuItem};
 use crate::components::stats::TeamOrPlayer;
-use crate::state::app_state::HomeOrAway;
 use crate::{NetworkRequest, cleanup_terminal};
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
@@ -138,10 +137,10 @@ pub async fn handle_key_bindings(
         (MenuItem::Gameday, Char('l'), _) => guard.state.gameday.live(),
         (MenuItem::Gameday, Char('s'), _) => guard.state.gameday.start(),
 
-        (MenuItem::Gameday, Char('h'), _) => guard.state.boxscore_state.team = HomeOrAway::Home,
-        (MenuItem::Gameday, Char('a'), _) => guard.state.boxscore_state.team = HomeOrAway::Away,
-        (MenuItem::Scoreboard, Char('h'), _) => guard.state.boxscore_state.team = HomeOrAway::Home,
-        (MenuItem::Scoreboard, Char('a'), _) => guard.state.boxscore_state.team = HomeOrAway::Away,
+        (MenuItem::Gameday, Char('h'), _) => guard.state.boxscore_state.set_home_active(),
+        (MenuItem::Gameday, Char('a'), _) => guard.state.boxscore_state.set_away_active(),
+        (MenuItem::Scoreboard, Char('h'), _) => guard.state.boxscore_state.set_home_active(),
+        (MenuItem::Scoreboard, Char('a'), _) => guard.state.boxscore_state.set_away_active(),
 
         (_, Char('?'), _) => guard.update_tab(MenuItem::Help),
         (MenuItem::Help, KeyCode::Esc, _) => guard.exit_help(),

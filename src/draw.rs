@@ -176,14 +176,14 @@ fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App) {
 
     f.render_widget(
         LineScoreWidget {
-            active: app.state.boxscore_state.team,
+            active: app.state.boxscore_state.active_team,
             linescore: &app.state.gameday.game.linescore,
         },
         chunks[0],
     );
     f.render_widget(
         TeamBatterBoxscoreWidget {
-            active: app.state.boxscore_state.team,
+            active: app.state.boxscore_state.active_team,
             state: &mut app.state.boxscore_state,
         },
         chunks[1],
@@ -204,7 +204,7 @@ fn draw_date_picker(f: &mut Frame, rect: Rect, app: &mut App) {
 fn draw_gameday(f: &mut Frame, rect: Rect, app: &mut App) {
     f.render_widget(
         GamedayWidget {
-            active: app.state.boxscore_state.team,
+            active: app.state.boxscore_state.active_team,
             state: &app.state.gameday,
             boxscore_state: &mut app.state.boxscore_state,
         },

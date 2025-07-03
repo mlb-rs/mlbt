@@ -203,12 +203,6 @@ impl PitcherBoxscore {
 }
 
 impl Boxscore {
-    const BATTING_HEADER: &'static [&'static str] =
-        &["player", "ab", "r", "h", "rbi", "bb", "k", "lob", "avg"];
-
-    const PITCHING_HEADER: &'static [&'static str] =
-        &["pitcher", "ip", "h", "r", "er", "bb", "k", "hr", "era"];
-
     const BLANK_LINE_SENTINEL: &'static str = "****";
     const HEADER_SENTINEL: &'static str = "header";
 
@@ -361,10 +355,13 @@ impl Boxscore {
         batters
     }
 
-    pub fn to_batting_table_rows(&self, active: HomeOrAway) -> Vec<Vec<Cell>> {
+    pub fn to_batting_table_rows<'a>(
+        &'a self,
+        active: HomeOrAway,
+    ) -> impl Iterator<Item = Vec<Cell<'a>>> + 'a {
         match active {
-            HomeOrAway::Home => self.home_batting.iter().map(|p| p.to_cells()).collect(),
-            HomeOrAway::Away => self.away_batting.iter().map(|p| p.to_cells()).collect(),
+            HomeOrAway::Home => self.home_batting.iter().map(BatterBoxscore::to_cells),
+            HomeOrAway::Away => self.away_batting.iter().map(BatterBoxscore::to_cells),
         }
     }
 
@@ -375,14 +372,13 @@ impl Boxscore {
         }
     }
 
-    pub fn get_batting_header(&self) -> &'static [&'static str] {
-        Self::BATTING_HEADER
-    }
-
-    pub fn to_pitching_table_rows(&self, active: HomeOrAway) -> Vec<Vec<Cell>> {
+    pub fn to_pitching_table_rows<'a>(
+        &'a self,
+        active: HomeOrAway,
+    ) -> impl Iterator<Item = Vec<Cell<'a>>> + 'a {
         match active {
-            HomeOrAway::Home => self.home_pitching.iter().map(|p| p.to_cells()).collect(),
-            HomeOrAway::Away => self.away_pitching.iter().map(|p| p.to_cells()).collect(),
+            HomeOrAway::Home => self.home_pitching.iter().map(PitcherBoxscore::to_cells),
+            HomeOrAway::Away => self.away_pitching.iter().map(PitcherBoxscore::to_cells),
         }
     }
 
@@ -391,10 +387,6 @@ impl Boxscore {
             HomeOrAway::Home => self.home_pitching.len(),
             HomeOrAway::Away => self.away_pitching.len(),
         }
-    }
-
-    pub fn get_pitching_header(&self) -> &'static [&'static str] {
-        Self::PITCHING_HEADER
     }
 
     pub fn get_batting_notes(&self, active: HomeOrAway) -> &[Note] {

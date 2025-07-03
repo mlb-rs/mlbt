@@ -8,59 +8,108 @@ use std::collections::HashMap;
 use tui::prelude::*;
 use tui::widgets::{Block, Cell, Paragraph, ScrollbarState, Wrap};
 
+const LAYOUT_SPACING: usize = 3;
+
 #[derive(Default)]
 pub struct BoxscoreState {
-    pub team: HomeOrAway,
+    pub active_team: HomeOrAway,
     pub boxscore: Boxscore,
     pub scroll: usize,
     pub scroll_state: ScrollbarState,
-    pub cache: BoxscoreRenderCache,
+    pub cache: RenderCache,
     pub max_scroll: usize,
 }
 
 #[derive(Default)]
-pub struct BoxscoreRenderCache {
-    // Cache paragraphs for length calculation
-    pub home_batting_notes_paragraph: Option<Paragraph<'static>>,
-    pub away_batting_notes_paragraph: Option<Paragraph<'static>>,
+pub struct TeamCache {
+    // Cache paragraph for length calculation based on viewport width
+    pub batting_notes_paragraph: Option<Paragraph<'static>>,
+    pub batting_notes_height: usize,
+
+    // Cache static table heights
+    pub batting_stats_height: usize,
+    pub pitching_stats_height: usize,
+
+    /// Total height for all the team data
+    pub total_content_height: u16,
+}
+
+#[derive(Default)]
+pub struct RenderCache {
+    pub home_team_cache: TeamCache,
+    pub away_team_cache: TeamCache,
+
     pub game_notes_paragraph: Option<Paragraph<'static>>,
-    // Cache table heights
-    pub home_batting_stats_height: usize,
-    pub away_batting_stats_height: usize,
-    pub home_pitching_stats_height: usize,
-    pub away_pitching_stats_height: usize,
-    // Cache paragraph heights
-    pub home_batting_notes_height: usize,
-    pub away_batting_notes_height: usize,
     pub game_notes_height: usize,
-    pub home_total_content_height: u16,
-    pub away_total_content_height: u16,
+
     // Track last viewport width to know when to recalculate
     pub last_viewport_width: u16,
 }
 
+impl TeamCache {
+    fn calculate_for_width(&mut self, viewport_width: u16) {
+        if let Some(paragraph) = &self.batting_notes_paragraph {
+            self.batting_notes_height = paragraph.line_count(viewport_width);
+        } else {
+            self.batting_notes_height = 0;
+        }
+
+        self.total_content_height = (self.batting_stats_height
+            + self.batting_notes_height
+            + self.pitching_stats_height
+            + LAYOUT_SPACING) as u16
+    }
+}
+
 impl BoxscoreState {
-    pub fn update(&mut self, live_game: &LiveResponse, players: &HashMap<PlayerId, Player>) {
-        self.boxscore = Boxscore::from_live_data(live_game, players);
-        self.update_cache();
+    pub fn set_home_active(&mut self) {
+        self.active_team = Home;
     }
 
-    fn update_cache(&mut self) {
-        // cache full paragraphs to be used later to calculate height based on wrapped line length
-        self.cache.home_batting_notes_paragraph =
-            Self::build_paragraph(self.boxscore.get_batting_notes(Home));
-        self.cache.away_batting_notes_paragraph =
-            Self::build_paragraph(self.boxscore.get_batting_notes(Away));
+    pub fn set_away_active(&mut self) {
+        self.active_team = Away;
+    }
+
+    pub fn update(&mut self, live_game: &LiveResponse, players: &HashMap<PlayerId, Player>) {
+        self.boxscore = Boxscore::from_live_data(live_game, players);
+        self.update_static_cache();
+    }
+
+    fn build_team_cache(&self, team: HomeOrAway) -> TeamCache {
+        let notes = Self::build_paragraph(self.boxscore.get_batting_notes(team));
+        TeamCache {
+            batting_notes_paragraph: notes,
+            batting_notes_height: 0,
+            batting_stats_height: self.boxscore.count_batting_table_rows(team) + 1, // +1 for header
+            pitching_stats_height: self.boxscore.count_pitching_table_rows(team) + 1, // +1 for header
+            total_content_height: 0,
+        }
+    }
+
+    fn update_static_cache(&mut self) {
+        self.cache.home_team_cache = self.build_team_cache(Home);
+        self.cache.away_team_cache = self.build_team_cache(Away);
         self.cache.game_notes_paragraph = Self::build_paragraph(self.boxscore.get_game_notes());
-
-        // calculate static table heights
-        self.cache.home_batting_stats_height = self.boxscore.count_batting_table_rows(Home) + 1; // +1 for header
-        self.cache.away_batting_stats_height = self.boxscore.count_batting_table_rows(Away) + 1; // +1 for header
-        self.cache.home_pitching_stats_height = self.boxscore.count_pitching_table_rows(Home) + 1; // +1 for header
-        self.cache.away_pitching_stats_height = self.boxscore.count_pitching_table_rows(Away) + 1; // +1 for header
-
         // Reset viewport width to force recalculation of wrapped content heights
         self.cache.last_viewport_width = 0;
+    }
+
+    pub fn sync_scrollbar(&mut self, viewport_height: u16, viewport_width: u16) {
+        // use the view height to determine the total number of rows after text wrapping
+        let total_content_height = self.calculate_heights_for_width(viewport_width);
+
+        if total_content_height > viewport_height {
+            self.max_scroll = total_content_height.saturating_sub(viewport_height) as usize;
+            self.scroll = self.scroll.min(self.max_scroll);
+
+            self.scroll_state = self
+                .scroll_state
+                .content_length(total_content_height as usize)
+                .position(self.scroll);
+        } else {
+            self.max_scroll = 0;
+            self.scroll = 0;
+        }
     }
 
     fn build_paragraph(notes: &[Note]) -> Option<Paragraph<'static>> {
@@ -77,73 +126,51 @@ impl BoxscoreState {
     }
 
     /// Calculate the height of wrapped text for the current viewport width and cache the results.
-    fn calculate_heights_for_width(&mut self, viewport_width: u16) {
-        if self.cache.last_viewport_width == viewport_width {
+    fn calculate_heights_for_width(&mut self, width: u16) -> u16 {
+        if self.cache.last_viewport_width == width {
             // already calculated for this width
-            return;
+            return self.get_total_content_height();
         }
 
-        let line_count = |p: &Option<Paragraph<'static>>| -> usize {
-            p.as_ref()
-                .map(|p| p.line_count(viewport_width))
-                .unwrap_or(0)
-        };
-
-        self.cache.home_batting_notes_height = line_count(&self.cache.home_batting_notes_paragraph);
-        self.cache.away_batting_notes_height = line_count(&self.cache.away_batting_notes_paragraph);
-        self.cache.game_notes_height = line_count(&self.cache.game_notes_paragraph);
-
-        // calculate total content height for each team
-        self.cache.home_total_content_height = (self.cache.home_batting_stats_height
-            + self.cache.home_batting_notes_height
-            + self.cache.home_pitching_stats_height
-            + self.cache.game_notes_height
-            + 3) as u16; // +3 for spacing
-
-        self.cache.away_total_content_height = (self.cache.away_batting_stats_height
-            + self.cache.away_batting_notes_height
-            + self.cache.away_pitching_stats_height
-            + self.cache.game_notes_height
-            + 3) as u16; // +3 for spacing
-
-        self.cache.last_viewport_width = viewport_width;
-    }
-
-    pub fn update_scroll_state_for_viewport(&mut self, viewport_height: u16, viewport_width: u16) {
-        // use the height to determine height after text wrapping
-        self.calculate_heights_for_width(viewport_width);
-
-        let total_content_height = match self.team {
-            Home => self.cache.home_total_content_height,
-            Away => self.cache.away_total_content_height,
-        };
-
-        if total_content_height > viewport_height {
-            self.max_scroll = total_content_height.saturating_sub(viewport_height) as usize;
-            self.scroll = self.scroll.min(self.max_scroll);
-
-            self.scroll_state = self
-                .scroll_state
-                .content_length(total_content_height as usize)
-                .position(self.scroll);
+        self.cache.home_team_cache.calculate_for_width(width);
+        self.cache.away_team_cache.calculate_for_width(width);
+        if let Some(paragraph) = &self.cache.game_notes_paragraph {
+            self.cache.game_notes_height = paragraph.line_count(width);
         } else {
-            self.max_scroll = 0;
-            self.scroll = 0;
+            self.cache.game_notes_height = 0;
         }
+
+        self.cache.last_viewport_width = width;
+
+        self.get_total_content_height()
     }
 
-    pub fn get_batting_rows(&self, team: HomeOrAway) -> Vec<Vec<Cell>> {
+    pub fn get_total_content_height(&self) -> u16 {
+        let team_content_height = match self.active_team {
+            Home => self.cache.home_team_cache.total_content_height,
+            Away => self.cache.away_team_cache.total_content_height,
+        };
+        team_content_height + self.cache.game_notes_height as u16
+    }
+
+    pub fn get_batting_rows<'a>(
+        &'a self,
+        team: HomeOrAway,
+    ) -> impl Iterator<Item = Vec<Cell<'a>>> + 'a {
         self.boxscore.to_batting_table_rows(team)
     }
 
-    pub fn get_pitching_rows(&self, team: HomeOrAway) -> Vec<Vec<Cell>> {
+    pub fn get_pitching_rows<'a>(
+        &'a self,
+        team: HomeOrAway,
+    ) -> impl Iterator<Item = Vec<Cell<'a>>> + 'a {
         self.boxscore.to_pitching_table_rows(team)
     }
 
     pub fn get_batting_notes_paragraph(&self, team: HomeOrAway) -> Option<&Paragraph<'static>> {
         match team {
-            Home => self.cache.home_batting_notes_paragraph.as_ref(),
-            Away => self.cache.away_batting_notes_paragraph.as_ref(),
+            Home => self.cache.home_team_cache.batting_notes_paragraph.as_ref(),
+            Away => self.cache.away_team_cache.batting_notes_paragraph.as_ref(),
         }
     }
 
@@ -151,23 +178,19 @@ impl BoxscoreState {
         self.cache.game_notes_paragraph.as_ref()
     }
 
+    /// Get individual component heights to create the layout constraints.
     pub fn get_content_heights(&self, team: HomeOrAway) -> (u16, u16, u16, u16, u16) {
         let (batting_height, pitching_height, notes_height) = match team {
             Home => (
-                self.cache.home_batting_stats_height,
-                self.cache.home_pitching_stats_height,
-                self.cache.home_batting_notes_height,
+                self.cache.home_team_cache.batting_stats_height,
+                self.cache.home_team_cache.pitching_stats_height,
+                self.cache.home_team_cache.batting_notes_height,
             ),
             Away => (
-                self.cache.away_batting_stats_height,
-                self.cache.away_pitching_stats_height,
-                self.cache.away_batting_notes_height,
+                self.cache.away_team_cache.batting_stats_height,
+                self.cache.away_team_cache.pitching_stats_height,
+                self.cache.away_team_cache.batting_notes_height,
             ),
-        };
-
-        let total_content_height = match self.team {
-            Home => self.cache.home_total_content_height,
-            Away => self.cache.away_total_content_height,
         };
 
         (
@@ -175,7 +198,7 @@ impl BoxscoreState {
             notes_height as u16,
             pitching_height as u16,
             self.cache.game_notes_height as u16,
-            total_content_height,
+            self.get_total_content_height(),
         )
     }
 
