@@ -2,6 +2,7 @@ use crate::app::{DebugState, MenuItem};
 use crate::components::schedule::ScheduleState;
 use crate::components::standings::StandingsState;
 use crate::components::stats::StatsState;
+use crate::state::boxscore::BoxscoreState;
 use crate::state::date_input::DateInput;
 use crate::state::gameday::GamedayState;
 
@@ -22,7 +23,7 @@ pub struct AppState {
     pub date_input: DateInput,
     pub schedule: ScheduleState,
     pub gameday: GamedayState,
-    pub boxscore_tab: HomeOrAway,
+    pub boxscore_state: BoxscoreState,
     pub standings: StandingsState,
     pub stats: StatsState,
 }

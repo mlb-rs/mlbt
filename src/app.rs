@@ -86,6 +86,17 @@ impl App {
         // this prevents gameday from showing incorrect data if the user scrolls through games quickly
         if Some(live_data.game_pk) == self.state.schedule.get_selected_game_opt() {
             self.state.gameday.game.update(live_data, win_probability);
+            // update this after the gameday so the players are correct
+            self.state
+                .boxscore_state
+                .update(live_data, &self.state.gameday.game.players);
+
+            // only reset the scroll state if on the scoreboard tab. this will reset when a new game
+            // is selected or the data refreshes. don't reset the scroll in Gameday because that
+            // happens too frequently and makes it hard to read the box score
+            if self.state.active_tab == MenuItem::Scoreboard {
+                self.state.boxscore_state.reset_scroll();
+            }
         }
     }
 
@@ -99,9 +110,17 @@ impl App {
         self.state.active_tab = next;
         self.state.debug_state = DebugState::Off;
 
-        // reset selection when switching tabs but not when date picker is opened
+        // reset standings selection when switching tabs but not when date picker is opened
         if next != MenuItem::DatePicker && self.state.previous_tab == MenuItem::Standings {
             self.state.standings.reset_selection();
+        }
+
+        // reset boxscore scroll
+        if next != MenuItem::DatePicker
+            && (self.state.previous_tab == MenuItem::Scoreboard
+                || self.state.previous_tab == MenuItem::Gameday)
+        {
+            self.state.boxscore_state.reset_scroll();
         }
     }
 

@@ -1,6 +1,7 @@
 use crate::app::MenuItem;
 use crate::draw;
 use crate::state::app_state::HomeOrAway;
+use crate::state::boxscore::BoxscoreState;
 use crate::state::gameday::GamedayState;
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
 use crate::ui::gameday::at_bat::AtBatWidget;
@@ -13,6 +14,7 @@ use tui::prelude::{Buffer, Color, Rect, Widget};
 
 pub struct GamedayWidget<'a> {
     pub state: &'a GamedayState,
+    pub boxscore_state: &'a mut BoxscoreState,
     pub active: HomeOrAway,
 }
 
@@ -36,7 +38,7 @@ impl Widget for GamedayWidget<'_> {
 
             let boxscore_widget = TeamBatterBoxscoreWidget {
                 active: self.active,
-                boxscore: &self.state.game.boxscore,
+                state: self.boxscore_state,
             };
             Widget::render(boxscore_widget, chunks[1], buf);
         }

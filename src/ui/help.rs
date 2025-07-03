@@ -5,38 +5,42 @@ use tui::prelude::{Buffer, Modifier, Rect, Style};
 use tui::widgets::{Paragraph, Row, Table, Widget};
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
-pub const DOCS: &[&[&str; 2]; 33] = &[
+pub const DOCS: &[&[&str; 2]; 37] = &[
     &["Exit help", "Esc"],
     &["Quit", "q"],
     &["Full screen", "f"],
     &["Scoreboard", "1"],
-    &["Move down", "j"],
-    &["Move up", "k"],
+    &["Move down", "j/↓"],
+    &["Move up", "k/↑"],
     &["Select date", ":"],
     &["Switch boxscore team", "h/a"],
+    &["Scroll boxscore down", "Shift + j/↓"],
+    &["Scroll boxscore up", "Shift + k/↑"],
     &["Toggle win probability", "w"],
     &["Gameday", "2"],
     &["Toggle game info", "i"],
     &["Toggle pitches", "p"],
     &["Toggle boxscore", "b"],
     &["Switch boxscore team", "h/a"],
+    &["Scroll boxscore down", "Shift + j/↓"],
+    &["Scroll boxscore up", "Shift + k/↑"],
     &["Toggle win probability", "w"],
-    &["Move down at bat", "j"],
-    &["Move up at bat", "k"],
+    &["Move down at bat", "j/↓"],
+    &["Move up at bat", "k/↑"],
     &["Go to live at bat", "l"],
     &["Go to first at bat", "s"],
     &["Stats", "3"],
     &["Switch hitting/pitching", "h/p"],
     &["Switch team/player", "t/l"],
-    &["Move down", "j"],
-    &["Move up", "k"],
+    &["Move down", "j/↓"],
+    &["Move up", "k/↑"],
     &["Toggle stat", "Enter"],
     &["Sort by stat", "s"],
     &["Select date", ":"],
     &["Toggle stat selection", "o"],
     &["Standings", "4"],
-    &["Move down", "j"],
-    &["Move up", "k"],
+    &["Move down", "j/↓"],
+    &["Move up", "k/↑"],
     &["Select date", ":"],
     &["View team info", "Enter"],
 ];
@@ -67,12 +71,13 @@ impl Widget for HelpWidget {
             .bottom_margin(0)
             .style(header_style);
 
-        let docs = DOCS.iter().map(|d| format_row(d)).collect::<Vec<HelpRow>>();
-
-        let rows = docs.iter().map(|item| match item.is_header {
-            true => Row::new(item.text.clone()).style(header_style),
-            false => Row::new(item.text.clone()).style(help_menu_style),
-        });
+        let rows = DOCS
+            .iter()
+            .map(|d| format_row(d))
+            .map(|item| match item.is_header {
+                true => Row::new(item.text).style(header_style),
+                false => Row::new(item.text).style(help_menu_style),
+            });
 
         let [table, banner] = Layout::horizontal([Constraint::Length(50), Constraint::Length(15)])
             .flex(Flex::Legacy)

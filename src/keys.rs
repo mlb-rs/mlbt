@@ -1,6 +1,5 @@
 use crate::app::{App, DebugState, MenuItem};
 use crate::components::stats::TeamOrPlayer;
-use crate::state::app_state::HomeOrAway;
 use crate::{NetworkRequest, cleanup_terminal};
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
@@ -15,132 +14,139 @@ pub async fn handle_key_bindings(
     app: &Arc<Mutex<App>>,
     network_requests: &mpsc::Sender<NetworkRequest>,
 ) {
-    // handle quit keys before acquiring the lock
-    match (key_event.code, key_event.modifiers) {
-        (Char('q'), _) | (Char('c'), KeyModifiers::CONTROL) => {
+    let mut guard = app.lock().await;
+    match (guard.state.active_tab, key_event.code, key_event.modifiers) {
+        (_, Char('q'), _) | (_, Char('c'), KeyModifiers::CONTROL) => {
             cleanup_terminal();
             std::process::exit(0);
         }
-        _ => {}
-    }
-
-    let mut guard = app.lock().await;
-    match (guard.state.active_tab, key_event.code) {
         // needs to be before the tab switches to capture number inputs
-        (MenuItem::DatePicker, Char(c)) => {
+        (MenuItem::DatePicker, Char(c), _) => {
             guard.state.date_input.is_valid = true; // reset status
             guard.state.date_input.text.push(c);
         }
 
-        (_, Char('f')) => guard.toggle_full_screen(),
-        (_, Char('1')) => {
+        (_, Char('f'), _) => guard.toggle_full_screen(),
+        (_, Char('1'), _) => {
             guard.update_tab(MenuItem::Scoreboard);
             guard.state.gameday.live(); // reset at bat selection
             load_scoreboard(guard, network_requests).await;
         }
-        (_, Char('2')) => {
+        (_, Char('2'), _) => {
             guard.update_tab(MenuItem::Gameday);
             load_game_data(guard, network_requests).await;
         }
-        (_, Char('3')) => {
+        (_, Char('3'), _) => {
             guard.update_tab(MenuItem::Stats);
             load_stats(guard, network_requests).await;
         }
-        (_, Char('4')) => {
+        (_, Char('4'), _) => {
             guard.update_tab(MenuItem::Standings);
             load_standings(guard, network_requests).await;
         }
 
-        (MenuItem::Scoreboard, Char('j') | KeyCode::Down) => {
+        (MenuItem::Scoreboard, Char('J') | KeyCode::Down, KeyModifiers::SHIFT) => {
+            guard.state.boxscore_state.scroll_down()
+        }
+        (MenuItem::Scoreboard, Char('j') | KeyCode::Down, _) => {
             guard.state.schedule.next();
             load_game_data(guard, network_requests).await;
         }
-        (MenuItem::Scoreboard, Char('k') | KeyCode::Up) => {
+        (MenuItem::Scoreboard, Char('K') | KeyCode::Up, KeyModifiers::SHIFT) => {
+            guard.state.boxscore_state.scroll_up()
+        }
+        (MenuItem::Scoreboard, Char('k') | KeyCode::Up, _) => {
             guard.state.schedule.previous();
             load_game_data(guard, network_requests).await;
         }
-        (MenuItem::Scoreboard, Char(':')) => guard.update_tab(MenuItem::DatePicker),
-        (MenuItem::Scoreboard, Char('w')) => guard.state.schedule.toggle_win_probability(),
-        (MenuItem::Scoreboard, KeyCode::Enter) => {
+        (MenuItem::Scoreboard, Char(':'), _) => guard.update_tab(MenuItem::DatePicker),
+        (MenuItem::Scoreboard, Char('w'), _) => guard.state.schedule.toggle_win_probability(),
+        (MenuItem::Scoreboard, KeyCode::Enter, _) => {
             guard.update_tab(MenuItem::Gameday);
             load_game_data(guard, network_requests).await;
         }
 
-        (MenuItem::DatePicker, KeyCode::Enter) => {
+        (MenuItem::DatePicker, KeyCode::Enter, _) => {
             if guard.try_update_date_from_input().is_ok() {
                 let previous_tab = guard.state.previous_tab;
                 guard.update_tab(previous_tab);
                 handle_date_change(guard, network_requests).await;
             }
         }
-        (MenuItem::DatePicker, KeyCode::Right) => {
+        (MenuItem::DatePicker, KeyCode::Right, _) => {
             guard.move_date_selector_by_arrow(true);
         }
-        (MenuItem::DatePicker, KeyCode::Left) => {
+        (MenuItem::DatePicker, KeyCode::Left, _) => {
             guard.move_date_selector_by_arrow(false);
         }
-        (MenuItem::DatePicker, KeyCode::Esc) => {
+        (MenuItem::DatePicker, KeyCode::Esc, _) => {
             guard.state.date_input.text.clear();
             let previous_tab = guard.state.previous_tab;
             guard.update_tab(previous_tab);
         }
-        (MenuItem::DatePicker, KeyCode::Backspace) => {
+        (MenuItem::DatePicker, KeyCode::Backspace, _) => {
             guard.state.date_input.text.pop();
         }
 
-        (MenuItem::Stats, Char('j') | KeyCode::Down) => guard.state.stats.next(),
-        (MenuItem::Stats, Char('k') | KeyCode::Up) => guard.state.stats.previous(),
-        (MenuItem::Stats, Char('o')) => {
+        (MenuItem::Stats, Char('j') | KeyCode::Down, _) => guard.state.stats.next(),
+        (MenuItem::Stats, Char('k') | KeyCode::Up, _) => guard.state.stats.previous(),
+        (MenuItem::Stats, Char('o'), _) => {
             guard.state.stats.show_options = !guard.state.stats.show_options
         }
-        (MenuItem::Stats, Char('p')) => {
+        (MenuItem::Stats, Char('p'), _) => {
             guard.state.stats.stat_type.group = StatGroup::Pitching;
             load_stats(guard, network_requests).await;
         }
-        (MenuItem::Stats, Char('h')) => {
+        (MenuItem::Stats, Char('h'), _) => {
             guard.state.stats.stat_type.group = StatGroup::Hitting;
             load_stats(guard, network_requests).await;
         }
-        (MenuItem::Stats, Char('l')) => {
+        (MenuItem::Stats, Char('l'), _) => {
             guard.state.stats.stat_type.team_player = TeamOrPlayer::Player;
             load_stats(guard, network_requests).await;
         }
-        (MenuItem::Stats, Char('t')) => {
+        (MenuItem::Stats, Char('t'), _) => {
             guard.state.stats.stat_type.team_player = TeamOrPlayer::Team;
             load_stats(guard, network_requests).await;
         }
-        (MenuItem::Stats, KeyCode::Enter) => guard.state.stats.toggle_stat(),
-        (MenuItem::Stats, Char('s')) => guard.state.stats.store_sort_column(),
-        (MenuItem::Stats, Char(':')) => guard.update_tab(MenuItem::DatePicker),
+        (MenuItem::Stats, KeyCode::Enter, _) => guard.state.stats.toggle_stat(),
+        (MenuItem::Stats, Char('s'), _) => guard.state.stats.store_sort_column(),
+        (MenuItem::Stats, Char(':'), _) => guard.update_tab(MenuItem::DatePicker),
 
-        (MenuItem::Standings, Char('j') | KeyCode::Down) => guard.state.standings.next(),
-        (MenuItem::Standings, Char('k') | KeyCode::Up) => guard.state.standings.previous(),
-        (MenuItem::Standings, KeyCode::Enter) => {
+        (MenuItem::Standings, Char('j') | KeyCode::Down, _) => guard.state.standings.next(),
+        (MenuItem::Standings, Char('k') | KeyCode::Up, _) => guard.state.standings.previous(),
+        (MenuItem::Standings, KeyCode::Enter, _) => {
             let _team_id = guard.state.standings.get_selected();
             // println!("team id: {:?}", team_id);
             // TODO show team info panel
         }
-        (MenuItem::Standings, Char(':')) => guard.update_tab(MenuItem::DatePicker),
+        (MenuItem::Standings, Char(':'), _) => guard.update_tab(MenuItem::DatePicker),
 
-        (MenuItem::Gameday, Char('i')) => guard.state.gameday.toggle_info(),
-        (MenuItem::Gameday, Char('p')) => guard.state.gameday.toggle_at_bat(),
-        (MenuItem::Gameday, Char('b')) => guard.state.gameday.toggle_boxscore(),
-        (MenuItem::Gameday, Char('w')) => guard.state.gameday.toggle_win_probability(),
-        (MenuItem::Gameday, Char('j') | KeyCode::Down) => guard.state.gameday.previous_at_bat(),
-        (MenuItem::Gameday, Char('k') | KeyCode::Up) => guard.state.gameday.next_at_bat(),
-        (MenuItem::Gameday, Char('l')) => guard.state.gameday.live(),
-        (MenuItem::Gameday, Char('s')) => guard.state.gameday.start(),
+        (MenuItem::Gameday, Char('i'), _) => guard.state.gameday.toggle_info(),
+        (MenuItem::Gameday, Char('p'), _) => guard.state.gameday.toggle_at_bat(),
+        (MenuItem::Gameday, Char('b'), _) => guard.state.gameday.toggle_boxscore(),
+        (MenuItem::Gameday, Char('w'), _) => guard.state.gameday.toggle_win_probability(),
+        (MenuItem::Gameday, Char('J') | KeyCode::Down, KeyModifiers::SHIFT) => {
+            guard.state.boxscore_state.scroll_down()
+        }
+        (MenuItem::Gameday, Char('K') | KeyCode::Up, KeyModifiers::SHIFT) => {
+            guard.state.boxscore_state.scroll_up()
+        }
+        (MenuItem::Gameday, Char('j') | KeyCode::Down, _) => guard.state.gameday.previous_at_bat(),
+        (MenuItem::Gameday, Char('k') | KeyCode::Up, _) => guard.state.gameday.next_at_bat(),
+        (MenuItem::Gameday, Char('l'), _) => guard.state.gameday.live(),
+        (MenuItem::Gameday, Char('s'), _) => guard.state.gameday.start(),
 
-        (MenuItem::Gameday, Char('h')) => guard.state.boxscore_tab = HomeOrAway::Home,
-        (MenuItem::Gameday, Char('a')) => guard.state.boxscore_tab = HomeOrAway::Away,
-        (MenuItem::Scoreboard, Char('h')) => guard.state.boxscore_tab = HomeOrAway::Home,
-        (MenuItem::Scoreboard, Char('a')) => guard.state.boxscore_tab = HomeOrAway::Away,
+        (MenuItem::Gameday, Char('h'), _) => guard.state.boxscore_state.set_home_active(),
+        (MenuItem::Gameday, Char('a'), _) => guard.state.boxscore_state.set_away_active(),
+        (MenuItem::Scoreboard, Char('h'), _) => guard.state.boxscore_state.set_home_active(),
+        (MenuItem::Scoreboard, Char('a'), _) => guard.state.boxscore_state.set_away_active(),
 
-        (_, Char('?')) => guard.update_tab(MenuItem::Help),
-        (MenuItem::Help, KeyCode::Esc) => guard.exit_help(),
-        (_, Char('d')) => guard.toggle_debug(),
-        (MenuItem::Help, Char('"')) => guard.toggle_show_logs(),
-        (_, Char('"')) => {
+        (_, Char('?'), _) => guard.update_tab(MenuItem::Help),
+        (MenuItem::Help, KeyCode::Esc, _) => guard.exit_help(),
+        (_, Char('d'), _) => guard.toggle_debug(),
+        (MenuItem::Help, Char('"'), _) => guard.toggle_show_logs(),
+        (_, Char('"'), _) => {
             if guard.state.debug_state == DebugState::On {
                 guard.toggle_show_logs();
             }
