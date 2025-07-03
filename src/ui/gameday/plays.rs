@@ -60,7 +60,8 @@ fn format_plays(game: &GameState, selected_at_bat: Option<u8>) -> Vec<Line> {
             last_inning = Some(current_inning);
         }
 
-        if let Some(line) = build_line(&play.play_result, selected_at_bat) {
+        let team_abbreviations = (game.home_team.abbreviation, game.away_team.abbreviation);
+        if let Some(line) = build_line(&play.play_result, selected_at_bat, team_abbreviations) {
             lines.push(line);
         }
     }
@@ -68,7 +69,11 @@ fn format_plays(game: &GameState, selected_at_bat: Option<u8>) -> Vec<Line> {
     lines
 }
 
-fn build_line(play: &PlayResult, selected_at_bat: Option<u8>) -> Option<Line> {
+fn build_line<'a>(
+    play: &'a PlayResult,
+    selected_at_bat: Option<u8>,
+    team_abbreviations: (&'static str, &'static str),
+) -> Option<Line<'a>> {
     let description = if play.description.is_empty() {
         "in progress..."
     } else {
@@ -76,10 +81,10 @@ fn build_line(play: &PlayResult, selected_at_bat: Option<u8>) -> Option<Line> {
     };
     let info = vec![
         format_runs(play, selected_at_bat),
-        format_score(play),
         Span::raw(" "),
         Span::raw(description),
         format_outs(play),
+        format_score(play, team_abbreviations),
     ];
     Some(Line::from(info))
 }
@@ -129,9 +134,17 @@ fn format_runs(play: &PlayResult, selected_at_bat: Option<u8>) -> Span {
 }
 
 /// If runs were scored display the new score.
-fn format_score(play: &PlayResult) -> Span {
+fn format_score<'a>(
+    play: &'a PlayResult,
+    team_abbreviations: (&'static str, &'static str),
+) -> Span<'a> {
     if play.is_scoring_play {
-        Span::raw(format!(" {}-{}", play.away_score, play.home_score))
+        let (home, away) = team_abbreviations;
+        Span::raw(format!(
+            " ({} {}, {} {})",
+            away, play.away_score, home, play.home_score
+        ))
+        .bold()
     } else {
         Span::raw("")
     }
