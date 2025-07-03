@@ -60,8 +60,14 @@ fn format_plays(game: &GameState, selected_at_bat: Option<u8>) -> Vec<Line> {
             last_inning = Some(current_inning);
         }
 
-        let team_abbreviations = (game.home_team.abbreviation, game.away_team.abbreviation);
-        if let Some(line) = build_line(&play.play_result, selected_at_bat, team_abbreviations) {
+        let home_team_abbreviation = game.home_team.abbreviation;
+        let away_team_abbreviation = game.away_team.abbreviation;
+        if let Some(line) = build_line(
+            &play.play_result,
+            selected_at_bat,
+            home_team_abbreviation,
+            away_team_abbreviation,
+        ) {
             lines.push(line);
         }
     }
@@ -72,7 +78,8 @@ fn format_plays(game: &GameState, selected_at_bat: Option<u8>) -> Vec<Line> {
 fn build_line<'a>(
     play: &'a PlayResult,
     selected_at_bat: Option<u8>,
-    team_abbreviations: (&'static str, &'static str),
+    home_team_abbreviation: &'static str,
+    away_team_abbreviation: &'static str,
 ) -> Option<Line<'a>> {
     let description = if play.description.is_empty() {
         "in progress..."
@@ -84,7 +91,7 @@ fn build_line<'a>(
         Span::raw(" "),
         Span::raw(description),
         format_outs(play),
-        format_score(play, team_abbreviations),
+        format_score(play, home_team_abbreviation, away_team_abbreviation),
     ];
     Some(Line::from(info))
 }
@@ -136,13 +143,13 @@ fn format_runs(play: &PlayResult, selected_at_bat: Option<u8>) -> Span {
 /// If runs were scored display the new score.
 fn format_score<'a>(
     play: &'a PlayResult,
-    team_abbreviations: (&'static str, &'static str),
+    home_team_abbreviation: &'static str,
+    away_team_abbreviation: &'static str,
 ) -> Span<'a> {
     if play.is_scoring_play {
-        let (home, away) = team_abbreviations;
         Span::raw(format!(
-            " ({} {}, {} {})",
-            away, play.away_score, home, play.home_score
+            " [{} {}, {} {}]",
+            away_team_abbreviation, play.away_score, home_team_abbreviation, play.home_score
         ))
         .bold()
     } else {
