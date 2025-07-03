@@ -37,21 +37,21 @@ impl Widget for TeamBatterBoxscoreWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         self.state
             .update_scroll_state_for_viewport(area.height, area.width);
-        let total_content_height = match self.active {
-            HomeOrAway::Home => self.state.cache.home_total_content_height,
-            HomeOrAway::Away => self.state.cache.away_total_content_height,
-        };
-        let needs_scrolling = total_content_height > area.height;
+
+        let (
+            batting_height,
+            notes_height,
+            pitching_height,
+            game_notes_height,
+            total_content_height,
+        ) = self.state.get_content_heights(self.active);
 
         let batting_rows = self.state.get_batting_rows(self.active);
-        let pitching_rows = self.state.get_pitching_rows(self.active);
         let batting_notes_paragraph = self.state.get_batting_notes_paragraph(self.active);
+        let pitching_rows = self.state.get_pitching_rows(self.active);
         let game_notes_paragraph = self.state.get_game_notes_paragraph();
 
-        let (batting_height, notes_height, pitching_height, game_notes_height) =
-            self.state.get_content_heights(self.active);
-
-        if needs_scrolling {
+        if total_content_height > area.height {
             // Create a large virtual area for rendering
             let virtual_area = Rect {
                 x: area.x,
