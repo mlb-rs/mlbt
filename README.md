@@ -142,15 +142,17 @@ Press `f` for full screen mode to hide the tab bar.
 
 Press `1` to activate this tab.
 
-| Key       | Description                                            |
-|-----------|--------------------------------------------------------|
-| `j` / `↓` | move down                                              |
-| `k` / `↑` | move up                                                |
-| `Enter`   | view current game in Gameday                           |
-| `:`       | activate date picker (see [Date Picker](#date-picker)) |
-| `w`       | toggle win probability graph                           |
-| `h`       | switch to home team in boxscore                        |
-| `a`       | switch to away team in boxscore                        |
+| Key                 | Description                                            |
+|---------------------|--------------------------------------------------------|
+| `j` / `↓`           | move down                                              |
+| `k` / `↑`           | move up                                                |
+| `Enter`             | view current game in Gameday                           |
+| `:`                 | activate date picker (see [Date Picker](#date-picker)) |
+| `w`                 | toggle win probability graph                           |
+| `h`                 | switch to home team in box score                       |
+| `a`                 | switch to away team in box score                       |
+| `Shift` +  `j`/ `↓` | scroll box score down                                  |
+| `Shift` +  `k`/ `↑` | scroll box score up                                    |
 
 ### Gameday
 
@@ -163,7 +165,7 @@ toggled on and off using:
 |-----|------------------------------|
 | `i` | info pane                    |
 | `p` | pitches pane                 |
-| `b` | boxscore pane                |
+| `b` | box score pane               |
 | `w` | toggle win probability graph |
 
 To view different at bats in the game, use:
@@ -175,12 +177,14 @@ To view different at bats in the game, use:
 | `l`       | move to the "live" play, or latest available |
 | `s`       | move to first play of the game               |
 
-To switch the team displayed in the box score:
+To interact with the box score, use:
 
-| Key | Description                     |
-|-----|---------------------------------|
-| `h` | switch to home team in boxscore |
-| `a` | switch to away team in boxscore |
+| Key                 | Description                      |
+|---------------------|----------------------------------|
+| `h`                 | switch to home team in box score |
+| `a`                 | switch to away team in box score |
+| `Shift` +  `j`/ `↓` | scroll box score down            |
+| `Shift` +  `k`/ `↑` | scroll box score up              |
 
 ### Stats
 
