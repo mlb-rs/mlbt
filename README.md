@@ -8,7 +8,7 @@ A terminal user interface for the MLB Statcast API, written in Rust.
 
 Check scores, standings, and stats. Even watch a live game using Gameday!
 
-<img src="assets/demo.gif" alt="Demo showing schedule view, Gameday, and standings."/>
+<img src="https://github.com/user-attachments/assets/1c11e22b-df11-46df-8774-5783b77def84" alt="Demo showing the Schedule, Gameday, Stats, and Standings."/>
 
 ## Table of Contents
 
