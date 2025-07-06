@@ -9,16 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Update box score UI with way more information: [PR 74](https://github.com/mlb-rs/mlbt/pull/74)
+- Update box score UI with way more information: [PR 74](https://github.com/mlb-rs/mlbt/pull/74) & [PR 78](https://github.com/mlb-rs/mlbt/pull/78)
 
 ### Changed
 
+- Add team abbreviation to player stats: [PR 67](https://github.com/mlb-rs/mlbt/pull/67)
 - Add arrow key (up/down) support wherever j/k is supported: [PR 69](https://github.com/mlb-rs/mlbt/pull/69)
 - Add last 10, runs scored/against, run differential, home/away splits, and 
   expected win/loss to Standings: [PR 68](https://github.com/mlb-rs/mlbt/pull/68) and [PR 70](https://github.com/mlb-rs/mlbt/pull/70)
-- Add team abbreviation to player stats: [PR 67](https://github.com/mlb-rs/mlbt/pull/67)
-- Show the current inning of a live game in Schedule: [PR 72](https://github.com/mlb-rs/mlbt/pull/72)
 - Bump Rust to 1.88: [PR 71](https://github.com/mlb-rs/mlbt/pull/71)
+- Show the current inning of a live game in Schedule: [PR 72](https://github.com/mlb-rs/mlbt/pull/72)
+- Change styling of outs and the score in Gameday. Thanks @sliminality! [PR 76](https://github.com/mlb-rs/mlbt/pull/76) & [PR 77](https://github.com/mlb-rs/mlbt/pull/77)
 
 ## [0.0.16] - 2025-06-24
 
