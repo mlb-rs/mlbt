@@ -34,3 +34,14 @@ jobs:
 
       - name: Run cargo test
         run: cargo test --all-features --all-targets --workspace --locked
+
+  test-docker-build:
+    name: Verify docker image can build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v3
+
+      - name: Build Image
+        run: |
+          docker build .

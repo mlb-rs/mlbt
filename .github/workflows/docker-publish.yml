@@ -1,0 +1,27 @@
+name: Publish Docker Image to GHCR
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  publish-docker-image:
+    runs-on: ubuntu-latest
+    permissions:
+     contents: read
+     packages: write
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Build and Push Image
+        run: |
+          docker build . --tag ghcr.io/mlb-rs/mlbt:latest
+          docker push ghcr.io/mlb-rs/mlbt:latest

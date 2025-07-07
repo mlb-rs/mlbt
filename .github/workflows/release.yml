@@ -6,7 +6,7 @@ on:
       - "v*.*.*"
 
 jobs:
-  publish:
+  publish-platform-artifacts:
     name: Publishing for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -89,3 +89,31 @@ jobs:
             target/${{ matrix.target }}/release/mlbt-${{ matrix.artifact_prefix }}.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-docker-image:
+    runs-on: ubuntu-latest
+    permissions:
+     contents: read
+     packages: write
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get tag
+        run: |
+          git fetch --tags --force
+          echo "TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Build and Push Image
+        run: |
+          docker build . --tag ghcr.io/mlb-rs/mlbt:$TAG
+          docker push ghcr.io/mlb-rs/mlbt:$TAG
