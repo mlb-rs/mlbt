@@ -17,6 +17,7 @@ Check scores, standings, and stats. Even watch a live game using Gameday!
     - [Homebrew](#homebrew)
     - [Binaries](#binaries)
     - [Cargo](#cargo)
+    - [Docker](#docker)
 - [Features](#features)
 - [Usage](#usage)
     - [Scoreboard](#scoreboard)
@@ -80,7 +81,18 @@ cargo install mlbt --path .
 
 ### Docker
 
-Build image with:
+`mlbt` [publishes docker images on ghcr](https://github.com/mlb-rs/mlbt/pkgs/container/mlbt).
+```bash
+docker run -it --rm --name mlbt ghcr.io/mlb-rs/mlbt
+```
+
+`mlbt` follows [semver](https://semver.org/) practices.
+You can execute individual releases explicitly.
+```bash
+docker run -it --rm --name mlbt ghcr.io/mlb-rs/mlbt:v0.0.18
+```
+
+Alternately build the `mlbt` image with:
 
 ```bash
 docker build -t mlbt .
