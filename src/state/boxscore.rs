@@ -12,6 +12,7 @@ const LAYOUT_SPACING: usize = 3;
 
 #[derive(Default)]
 pub struct BoxscoreState {
+    pub game_id: u64,
     pub active_team: HomeOrAway,
     pub boxscore: Boxscore,
     pub scroll: usize,
@@ -71,8 +72,16 @@ impl BoxscoreState {
     }
 
     pub fn update(&mut self, live_game: &LiveResponse, players: &HashMap<PlayerId, Player>) {
+        self.game_id = live_game.game_pk;
         self.boxscore = Boxscore::from_live_data(live_game, players);
         self.update_static_cache();
+    }
+
+    pub fn reset(&mut self, game_id: Option<u64>) {
+        let new_id = game_id.unwrap_or(0);
+        if self.game_id != new_id {
+            *self = Self::default();
+        }
     }
 
     fn build_team_cache(&self, team: HomeOrAway) -> TeamCache {

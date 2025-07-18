@@ -67,8 +67,9 @@ impl App {
         self.state.schedule.update(&self.settings, schedule);
         let selected = self.state.schedule.get_selected_game_opt();
 
-        // reset boxscore to selected game if it exists
+        // reset data based on the currently selected game
         self.state.gameday.reset(selected);
+        self.state.boxscore_state.reset(selected);
 
         // return the game id only if it changed
         match selected {
