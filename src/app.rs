@@ -67,8 +67,9 @@ impl App {
         self.state.schedule.update(&self.settings, schedule);
         let selected = self.state.schedule.get_selected_game_opt();
 
-        // reset boxscore to selected game if it exists
+        // reset data based on the currently selected game
         self.state.gameday.reset(selected);
+        self.state.box_score.reset(selected);
 
         // return the game id only if it changed
         match selected {
@@ -88,14 +89,14 @@ impl App {
             self.state.gameday.game.update(live_data, win_probability);
             // update this after the gameday so the players are correct
             self.state
-                .boxscore_state
+                .box_score
                 .update(live_data, &self.state.gameday.game.players);
 
             // only reset the scroll state if on the scoreboard tab. this will reset when a new game
             // is selected or the data refreshes. don't reset the scroll in Gameday because that
             // happens too frequently and makes it hard to read the box score
             if self.state.active_tab == MenuItem::Scoreboard {
-                self.state.boxscore_state.reset_scroll();
+                self.state.box_score.reset_scroll();
             }
         }
     }
@@ -120,7 +121,7 @@ impl App {
             && (self.state.previous_tab == MenuItem::Scoreboard
                 || self.state.previous_tab == MenuItem::Gameday)
         {
-            self.state.boxscore_state.reset_scroll();
+            self.state.box_score.reset_scroll();
         }
     }
 

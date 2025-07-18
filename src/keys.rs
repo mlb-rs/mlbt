@@ -46,14 +46,14 @@ pub async fn handle_key_bindings(
         }
 
         (MenuItem::Scoreboard, Char('J') | KeyCode::Down, KeyModifiers::SHIFT) => {
-            guard.state.boxscore_state.scroll_down()
+            guard.state.box_score.scroll_down()
         }
         (MenuItem::Scoreboard, Char('j') | KeyCode::Down, _) => {
             guard.state.schedule.next();
             load_game_data(guard, network_requests).await;
         }
         (MenuItem::Scoreboard, Char('K') | KeyCode::Up, KeyModifiers::SHIFT) => {
-            guard.state.boxscore_state.scroll_up()
+            guard.state.box_score.scroll_up()
         }
         (MenuItem::Scoreboard, Char('k') | KeyCode::Up, _) => {
             guard.state.schedule.previous();
@@ -127,20 +127,20 @@ pub async fn handle_key_bindings(
         (MenuItem::Gameday, Char('b'), _) => guard.state.gameday.toggle_boxscore(),
         (MenuItem::Gameday, Char('w'), _) => guard.state.gameday.toggle_win_probability(),
         (MenuItem::Gameday, Char('J') | KeyCode::Down, KeyModifiers::SHIFT) => {
-            guard.state.boxscore_state.scroll_down()
+            guard.state.box_score.scroll_down()
         }
         (MenuItem::Gameday, Char('K') | KeyCode::Up, KeyModifiers::SHIFT) => {
-            guard.state.boxscore_state.scroll_up()
+            guard.state.box_score.scroll_up()
         }
         (MenuItem::Gameday, Char('j') | KeyCode::Down, _) => guard.state.gameday.previous_at_bat(),
         (MenuItem::Gameday, Char('k') | KeyCode::Up, _) => guard.state.gameday.next_at_bat(),
         (MenuItem::Gameday, Char('l'), _) => guard.state.gameday.live(),
         (MenuItem::Gameday, Char('s'), _) => guard.state.gameday.start(),
 
-        (MenuItem::Gameday, Char('h'), _) => guard.state.boxscore_state.set_home_active(),
-        (MenuItem::Gameday, Char('a'), _) => guard.state.boxscore_state.set_away_active(),
-        (MenuItem::Scoreboard, Char('h'), _) => guard.state.boxscore_state.set_home_active(),
-        (MenuItem::Scoreboard, Char('a'), _) => guard.state.boxscore_state.set_away_active(),
+        (MenuItem::Gameday, Char('h'), _) => guard.state.box_score.set_home_active(),
+        (MenuItem::Gameday, Char('a'), _) => guard.state.box_score.set_away_active(),
+        (MenuItem::Scoreboard, Char('h'), _) => guard.state.box_score.set_home_active(),
+        (MenuItem::Scoreboard, Char('a'), _) => guard.state.box_score.set_away_active(),
 
         (_, Char('?'), _) => guard.update_tab(MenuItem::Help),
         (MenuItem::Help, KeyCode::Esc, _) => guard.exit_help(),

@@ -23,7 +23,7 @@ pub struct AppState {
     pub date_input: DateInput,
     pub schedule: ScheduleState,
     pub gameday: GamedayState,
-    pub boxscore_state: BoxscoreState,
+    pub box_score: BoxscoreState,
     pub standings: StandingsState,
     pub stats: StatsState,
 }
