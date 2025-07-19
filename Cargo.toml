@@ -1,6 +1,6 @@
 [package]
 name = "mlbt"
-version = "0.0.18-alpha.1"
+version = "0.0.18"
 authors = ["Andrew Schneider <andjschneider@gmail.com>"]
 edition = "2024"
 license = "MIT"

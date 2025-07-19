@@ -1066,7 +1066,7 @@ dependencies = [
 
 [[package]]
 name = "mlbt"
-version = "0.0.18-alpha.1"
+version = "0.0.18"
 dependencies = [
  "anyhow",
  "better-panic",

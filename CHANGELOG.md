@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.18] - 2025-07-19
+
+## Fixed
+
+- Reset the box score correctly when changing dates in the schedule: [PR 84](https://github.com/mlb-rs/mlbt/pull/84)
+
+## Added
+
+- Docker images of `mlbt` are now published to Github. Thanks @isaacnboyd! [PR 81](https://github.com/mlb-rs/mlbt/pull/81)
+
 ## [0.0.17] - 2025-07-06
 
 ### Added
