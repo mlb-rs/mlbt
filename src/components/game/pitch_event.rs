@@ -1,5 +1,5 @@
 use crate::components::game::pitches::Pitch;
-use crate::ui::gameday::plays::{BLUE, SCORING_SYMBOL};
+use crate::ui::gameday::plays::{BLUE, SCORING_SYMBOL, build_scoring_span};
 use tui::prelude::{Line, Span, Style};
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
@@ -63,34 +63,50 @@ impl PitchEvent {
     /// Convert a pitch event into a TUI Line item.
     /// If it's a pitch, display the pitch information.
     /// Otherwise, display the description.
-    pub fn as_lines(&self, debug: bool) -> Option<Vec<Line>> {
+    pub fn as_lines(
+        &self,
+        debug: bool,
+        home_team_abbreviation: &'static str,
+        away_team_abbreviation: &'static str,
+    ) -> Option<Vec<Line>> {
         match self.event_type {
             PitchEventType::Pitch if self.pitch.is_some() => {
                 self.pitch.as_ref().map(|pitch| pitch.as_lines(debug))
             }
             PitchEventType::Pitch => None,
-            _ => Some(self.format_non_pitch_event()),
+            _ => Some(self.format_non_pitch_event(home_team_abbreviation, away_team_abbreviation)),
         }
     }
 
-    fn format_non_pitch_event(&self) -> Vec<Line> {
+    fn format_non_pitch_event(
+        &self,
+        home_team_abbreviation: &'static str,
+        away_team_abbreviation: &'static str,
+    ) -> Vec<Line> {
         let mut spans = Vec::new();
 
         // Add scoring information if this is a scoring event
-        if self.is_scoring.unwrap_or(false) {
+        let is_scoring = self.is_scoring.unwrap_or(false);
+        if is_scoring {
             spans.push(Span::styled(
                 format!(" {SCORING_SYMBOL}"),
                 Style::default().fg(BLUE),
             ));
-
-            // Add the score if available
-            if let (Some(away), Some(home)) = (self.away_score, self.home_score) {
-                spans.push(Span::raw(format!(" {away}-{home}")));
-            }
         }
 
         spans.push(Span::raw(format!(" {}", self.description)));
-        spans.push(Span::raw(" "));
+
+        // Add the score at the end of the line if available
+        if is_scoring {
+            if let (Some(away_score), Some(home_score)) = (self.away_score, self.home_score) {
+                spans.push(build_scoring_span(
+                    home_score,
+                    home_team_abbreviation,
+                    away_score,
+                    away_team_abbreviation,
+                ));
+            }
+        }
 
         vec![Line::from(spans)]
     }
