@@ -43,7 +43,7 @@ pub const DOCS: &[&[&str; 2]; 38] = &[
     &["Move up", "k/↑"],
     &["Select date", ":"],
     &["View team info", "Enter"],
-    &["Toggle division / League", "tab"],
+    &["Toggle division/league", "tab"],
 ];
 
 /// Used to keep track of whether a row should be styled like a header.
