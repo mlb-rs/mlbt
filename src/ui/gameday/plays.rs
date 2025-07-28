@@ -145,14 +145,27 @@ fn format_score<'a>(
     away_team_abbreviation: &'static str,
 ) -> Span<'a> {
     if play.is_scoring_play {
-        Span::raw(format!(
-            " [{} {}, {} {}]",
-            away_team_abbreviation, play.away_score, home_team_abbreviation, play.home_score
-        ))
-        .bold()
+        build_scoring_span(
+            play.home_score,
+            home_team_abbreviation,
+            play.away_score,
+            away_team_abbreviation,
+        )
     } else {
         Span::raw("")
     }
+}
+
+pub fn build_scoring_span(
+    home_score: u8,
+    home_team_abbreviation: &'static str,
+    away_score: u8,
+    away_team_abbreviation: &'static str,
+) -> Span<'static> {
+    Span::raw(format!(
+        " [{away_team_abbreviation} {away_score}, {home_team_abbreviation} {home_score}]"
+    ))
+    .bold()
 }
 
 /// If an out was made display it.

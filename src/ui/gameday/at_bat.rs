@@ -78,7 +78,13 @@ impl Widget for AtBatWidget<'_> {
             .pitch_events
             .iter()
             .rev() // reverse so that the last event is at the top
-            .filter_map(|event| event.as_lines(false))
+            .filter_map(|event| {
+                event.as_lines(
+                    false,
+                    self.game.home_team.abbreviation,
+                    self.game.away_team.abbreviation,
+                )
+            })
             .flatten()
             .collect();
 

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+## Fixed
+
+- Format the score changes on non pitch events (e.g. pass ball) the same as an
+  at bat event: [PR 86](https://github.com/mlb-rs/mlbt/pull/86).
+
 ## [0.0.18] - 2025-07-19
 
 ## Fixed
