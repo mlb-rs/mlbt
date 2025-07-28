@@ -76,14 +76,7 @@ impl StatefulWidget for StandingsWidget {
                     .border_type(BorderType::Rounded)
                     .padding(Padding::new(1, 1, 0, 0))
                     .title(Span::styled(
-                        format!(
-                            "{} - {}",
-                            state.date_selector.format_date_border_title(),
-                            match state.view_mode {
-                                ViewMode::ByDivision => "By Division (Tab: Overall)",
-                                ViewMode::Overall => "Overall (Tab: By Division)",
-                            }
-                        ),
+                        state.date_selector.format_date_border_title(),
                         Style::default().fg(Color::Black).bg(Color::Blue),
                     )),
             )
