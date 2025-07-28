@@ -5,7 +5,7 @@ use tui::prelude::{Buffer, Modifier, Rect, Style};
 use tui::widgets::{Paragraph, Row, Table, Widget};
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
-pub const DOCS: &[&[&str; 2]; 37] = &[
+pub const DOCS: &[&[&str; 2]; 38] = &[
     &["Exit help", "Esc"],
     &["Quit", "q"],
     &["Full screen", "f"],
@@ -43,6 +43,7 @@ pub const DOCS: &[&[&str; 2]; 37] = &[
     &["Move up", "k/↑"],
     &["Select date", ":"],
     &["View team info", "Enter"],
+    &["Toggle division / League", "tab"],
 ];
 
 /// Used to keep track of whether a row should be styled like a header.
