@@ -42,7 +42,7 @@ impl StatefulWidget for StandingsWidget {
         };
 
         let mut rows = Vec::with_capacity(36); // 30 teams + 6 divisions
-        
+
         match state.view_mode {
             ViewMode::ByDivision => {
                 for d in &state.standings {
@@ -76,7 +76,8 @@ impl StatefulWidget for StandingsWidget {
                     .border_type(BorderType::Rounded)
                     .padding(Padding::new(1, 1, 0, 0))
                     .title(Span::styled(
-                        format!("{} - {}", 
+                        format!(
+                            "{} - {}",
                             state.date_selector.format_date_border_title(),
                             match state.view_mode {
                                 ViewMode::ByDivision => "By Division (Tab: Overall)",

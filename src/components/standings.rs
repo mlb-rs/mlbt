@@ -143,18 +143,18 @@ impl StandingsState {
             .flat_map(|division| division.standings.iter())
             .cloned()
             .collect();
-        
+
         teams.sort_by(|a, b| {
             // Sort by wins descending, then losses ascending
             b.wins.cmp(&a.wins).then(a.losses.cmp(&b.losses))
         });
-        
+
         teams
     }
 
     fn generate_ids(&mut self) -> Vec<u16> {
         self.division_row_indices.clear(); // clear previous indices in case they change, e.g. historical standings
-        
+
         match self.view_mode {
             ViewMode::ByDivision => {
                 let mut ids = Vec::with_capacity(36); // 30 teams, 6 divisions
