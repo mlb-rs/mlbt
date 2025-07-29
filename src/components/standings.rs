@@ -19,6 +19,7 @@ pub struct StandingsState {
     pub state: TableState,
     pub favorite_team: Option<Team>,
     pub standings: Vec<Division>,
+    pub league_standings: Vec<Standing>,
     pub team_ids: Vec<u16>,
     pub date_selector: DateSelector,
     pub view_mode: ViewMode,
@@ -81,6 +82,7 @@ impl Default for StandingsState {
         Self {
             state: TableState::default(),
             standings: Division::create_divisions(),
+            league_standings: vec![],
             team_ids: vec![200, 201, 202, 203, 204, 205],
             date_selector: DateSelector::default(),
             view_mode: ViewMode::ByDivision,
@@ -95,6 +97,7 @@ impl StandingsState {
     pub fn update(&mut self, standings: &StandingsResponse) {
         self.standings = Division::create_table(standings, self.favorite_team);
         self.team_ids = self.generate_ids();
+        self.league_standings = self.get_teams_by_record();
 
         if self.standings.is_empty() {
             self.state.select(None);
@@ -136,7 +139,7 @@ impl StandingsState {
     }
 
     /// Get all teams sorted by record (for overall view)
-    pub fn get_teams_by_record(&self) -> Vec<Standing> {
+    fn get_teams_by_record(&self) -> Vec<Standing> {
         let mut teams: Vec<Standing> = self
             .standings
             .iter()
@@ -171,7 +174,7 @@ impl StandingsState {
             }
             ViewMode::Overall => {
                 // For overall view, just collect team IDs without divisions
-                self.get_teams_by_record()
+                self.league_standings
                     .iter()
                     .map(|standing| standing.team.id)
                     .collect()

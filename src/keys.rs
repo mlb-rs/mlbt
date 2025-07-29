@@ -115,7 +115,7 @@ pub async fn handle_key_bindings(
 
         (MenuItem::Standings, Char('j') | KeyCode::Down, _) => guard.state.standings.next(),
         (MenuItem::Standings, Char('k') | KeyCode::Up, _) => guard.state.standings.previous(),
-        (MenuItem::Standings, KeyCode::Tab, _) => guard.state.standings.toggle_view_mode(),
+        (MenuItem::Standings, Char('l'), _) => guard.state.standings.toggle_view_mode(),
         (MenuItem::Standings, KeyCode::Enter, _) => {
             let _team_id = guard.state.standings.get_selected();
             // println!("team id: {:?}", team_id);

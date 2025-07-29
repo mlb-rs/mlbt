@@ -34,13 +34,6 @@ impl StatefulWidget for StandingsWidget {
             .height(1)
             .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
 
-        // Get teams data if in overall mode to avoid borrowing conflicts
-        let teams_by_record = if state.view_mode == ViewMode::Overall {
-            Some(state.get_teams_by_record())
-        } else {
-            None
-        };
-
         let mut rows = Vec::with_capacity(36); // 30 teams + 6 divisions
 
         match state.view_mode {
@@ -59,10 +52,8 @@ impl StatefulWidget for StandingsWidget {
             }
             ViewMode::Overall => {
                 // Show all teams sorted by record without division headers
-                if let Some(teams) = &teams_by_record {
-                    for s in teams {
-                        rows.push(Row::new(s.to_cells()).height(1));
-                    }
+                for t in &state.league_standings {
+                    rows.push(Row::new(t.to_cells()).height(1));
                 }
             }
         }
