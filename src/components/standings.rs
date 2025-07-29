@@ -7,14 +7,22 @@ use std::string::ToString;
 use tui::prelude::{Color, Stylize};
 use tui::widgets::{Cell, TableState};
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ViewMode {
+    ByDivision,
+    Overall,
+}
+
 /// Stores the state for rendering the standings. The `standings` field is a nested Vec to make
 /// displaying by division easier.
 pub struct StandingsState {
     pub state: TableState,
     pub favorite_team: Option<Team>,
     pub standings: Vec<Division>,
+    pub league_standings: Vec<Standing>,
     pub team_ids: Vec<u16>,
     pub date_selector: DateSelector,
+    pub view_mode: ViewMode,
     /// Used to skip selecting division names in the table.
     division_row_indices: HashSet<usize>,
 }
@@ -51,7 +59,7 @@ impl Default for Team {
 }
 
 /// Standing information per team.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Standing {
     pub team: Team,
     pub wins: u8,
@@ -74,8 +82,10 @@ impl Default for StandingsState {
         Self {
             state: TableState::default(),
             standings: Division::create_divisions(),
+            league_standings: vec![],
             team_ids: vec![200, 201, 202, 203, 204, 205],
             date_selector: DateSelector::default(),
+            view_mode: ViewMode::ByDivision,
             division_row_indices: HashSet::new(),
             favorite_team: None,
         }
@@ -86,6 +96,7 @@ impl StandingsState {
     /// Update the data from the API.
     pub fn update(&mut self, standings: &StandingsResponse) {
         self.standings = Division::create_table(standings, self.favorite_team);
+        self.league_standings = self.get_teams_by_record();
         self.team_ids = self.generate_ids();
 
         if self.standings.is_empty() {
@@ -99,7 +110,10 @@ impl StandingsState {
         if let Some(team) = self.favorite_team {
             self.select_favorite_team(team)
         } else if !self.team_ids.is_empty() {
-            let offset = 1; // TODO this should be 0 if the standings are pre 1969 since they don't have divisions
+            let offset = match self.view_mode {
+                ViewMode::ByDivision => 1, // Skip first division header
+                ViewMode::Overall => 0,    // No division headers to skip
+            };
             self.state.select(Some(offset));
         }
     }
@@ -114,30 +128,84 @@ impl StandingsState {
         self.date_selector.set_date_with_arrows(forward)
     }
 
-    fn generate_ids(&mut self) -> Vec<u16> {
-        let mut ids = Vec::with_capacity(36); // 30 teams, 6 divisions
-        self.division_row_indices.clear(); // clear previous indices in case they change, e.g. historical standings
-
-        let mut count = 0;
-        for division in &self.standings {
-            ids.push(division.id);
-            self.division_row_indices.insert(count);
-            for team in &division.standings {
-                ids.push(team.team.id);
-            }
-            count += 1 + division.standings.len();
-        }
-        ids
+    /// Toggle between division view and overall view
+    pub fn toggle_view_mode(&mut self) {
+        self.view_mode = match self.view_mode {
+            ViewMode::ByDivision => ViewMode::Overall,
+            ViewMode::Overall => ViewMode::ByDivision,
+        };
+        self.team_ids = self.generate_ids();
+        self.reset_selection();
     }
 
-    fn select_favorite_team(&mut self, team: Team) {
-        let idx = self
+    /// Get all teams sorted by record (for overall view)
+    fn get_teams_by_record(&self) -> Vec<Standing> {
+        let mut teams: Vec<Standing> = self
             .standings
             .iter()
             .flat_map(|division| division.standings.iter())
-            .enumerate()
-            .find(|(_idx, standing)| standing.team.id == team.id)
-            .map(|(idx, _standing)| idx + 1);
+            .cloned()
+            .collect();
+
+        teams.sort_by(|a, b| {
+            // Sort by wins descending, then losses ascending
+            b.wins.cmp(&a.wins).then(a.losses.cmp(&b.losses))
+        });
+
+        teams
+    }
+
+    fn generate_ids(&mut self) -> Vec<u16> {
+        self.division_row_indices.clear(); // clear previous indices in case they change, e.g. historical standings
+
+        match self.view_mode {
+            ViewMode::ByDivision => {
+                let mut ids = Vec::with_capacity(36); // 30 teams, 6 divisions
+                let mut count = 0;
+                for division in &self.standings {
+                    ids.push(division.id);
+                    self.division_row_indices.insert(count);
+                    for team in &division.standings {
+                        ids.push(team.team.id);
+                    }
+                    count += 1 + division.standings.len();
+                }
+                ids
+            }
+            ViewMode::Overall => {
+                // For overall view, just collect team IDs without divisions
+                self.league_standings
+                    .iter()
+                    .map(|standing| standing.team.id)
+                    .collect()
+            }
+        }
+    }
+
+    fn select_favorite_team(&mut self, team: Team) {
+        let idx = match self.view_mode {
+            ViewMode::ByDivision => {
+                // Find team position including division headers
+                let mut current_idx = 0;
+                for division in &self.standings {
+                    current_idx += 1; // Skip division header
+                    for standing in &division.standings {
+                        if standing.team.id == team.id {
+                            self.state.select(Some(current_idx));
+                            return;
+                        }
+                        current_idx += 1;
+                    }
+                }
+                None
+            }
+            ViewMode::Overall => {
+                // Find team position in sorted list
+                self.league_standings
+                    .iter()
+                    .position(|standing| standing.team.id == team.id)
+            }
+        };
 
         self.state.select(idx);
     }
@@ -152,7 +220,8 @@ impl StandingsState {
     }
 
     fn skip_division(&self, index: usize) -> bool {
-        self.division_row_indices.contains(&index)
+        // Only skip division rows in division view mode
+        self.view_mode == ViewMode::ByDivision && self.division_row_indices.contains(&index)
     }
 
     fn move_forward(&self, current: usize) -> usize {
