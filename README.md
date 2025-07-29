@@ -240,6 +240,7 @@ Press `4` to activate this tab.
 | `j` / `↓` | move down                                              |
 | `k` / `↑` | move up                                                |
 | `:`       | activate date picker (see [Date Picker](#date-picker)) |
+| `l`       | toggle division/league view                            |
 
 ### Date Picker
 
