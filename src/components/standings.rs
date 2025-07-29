@@ -96,8 +96,8 @@ impl StandingsState {
     /// Update the data from the API.
     pub fn update(&mut self, standings: &StandingsResponse) {
         self.standings = Division::create_table(standings, self.favorite_team);
-        self.team_ids = self.generate_ids();
         self.league_standings = self.get_teams_by_record();
+        self.team_ids = self.generate_ids();
 
         if self.standings.is_empty() {
             self.state.select(None);
@@ -201,7 +201,7 @@ impl StandingsState {
             }
             ViewMode::Overall => {
                 // Find team position in sorted list
-                self.get_teams_by_record()
+                self.league_standings
                     .iter()
                     .position(|standing| standing.team.id == team.id)
             }
