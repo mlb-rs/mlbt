@@ -5,20 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [0.0.19] - 2025-07-30
 
-## Fixed
+### Fixed
 
 - Format the score changes on non pitch events (e.g. pass ball) the same as an
   at bat event: [PR 86](https://github.com/mlb-rs/mlbt/pull/86).
 
+### Added 
+
+- Add toggle to display standings league wide instead of divisional with `l`. 
+  Thanks @tjweir! [PR 87](https://github.com/mlb-rs/mlbt/pull/87)
+
 ## [0.0.18] - 2025-07-19
 
-## Fixed
+### Fixed
 
 - Reset the box score correctly when changing dates in the schedule: [PR 84](https://github.com/mlb-rs/mlbt/pull/84)
 
-## Added
+### Added
 
 - Docker images of `mlbt` are now published to Github. Thanks @isaacnboyd! [PR 81](https://github.com/mlb-rs/mlbt/pull/81)
 
