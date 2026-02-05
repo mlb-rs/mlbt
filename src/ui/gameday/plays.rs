@@ -30,7 +30,7 @@ impl Widget for InningPlaysWidget<'_> {
 }
 
 /// Format the plays for the current inning as TUI Lines.
-fn format_plays(game: &GameState, selected_at_bat: Option<u8>) -> Vec<Line> {
+fn format_plays(game: &GameState, selected_at_bat: Option<u8>) -> Vec<Line<'_>> {
     let (at_bat, _is_current) = game.get_at_bat_by_index_or_current(selected_at_bat);
     let inning = at_bat.inning;
 
@@ -96,7 +96,7 @@ fn build_line<'a>(
 
 /// If runs were scored display as blue exclamation mark(s). Otherwise use `-` to indicate a new
 /// line. If the line is selected, display `>` instead of `-`.
-fn format_runs(play: &PlayResult, selected_at_bat: Option<u8>) -> Span {
+fn format_runs(play: &PlayResult, selected_at_bat: Option<u8>) -> Span<'_> {
     let selected = selected_at_bat
         .map(|ab_idx| play.at_bat_index == ab_idx)
         .unwrap_or(false);
@@ -169,7 +169,7 @@ pub fn build_scoring_span(
 }
 
 /// If an out was made display it.
-fn format_outs(play: &PlayResult) -> Span {
+fn format_outs(play: &PlayResult) -> Span<'_> {
     if play.is_out {
         let out = if play.count.outs == 1 { "out" } else { "outs" };
         Span::raw(format!(" {} {}", &play.count.outs, out)).bold()

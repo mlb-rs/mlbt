@@ -1,4 +1,4 @@
-use tui::prelude::Color;
+use tui::prelude::{Color, Line};
 use tui::widgets::Block;
 use tui::{buffer::Buffer, layout::Rect, style::Style, widgets::Widget};
 use tui_logger::{TuiLoggerLevelOutput, TuiLoggerWidget};
@@ -8,7 +8,7 @@ pub struct LogWidget {}
 impl Widget for LogWidget {
     fn render(self, area: Rect, buf: &mut Buffer) {
         TuiLoggerWidget::default()
-            .block(Block::bordered().title("logs"))
+            .block(Block::bordered().title(Line::from("logs")))
             .style_error(Style::default().fg(Color::Red))
             .style_warn(Style::default().fg(Color::Yellow))
             .style_info(Style::default().fg(Color::Cyan))

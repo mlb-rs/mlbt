@@ -174,10 +174,10 @@ async fn input_handler_task(ui_events: mpsc::Sender<UiEvent>) {
                 _ => None,
             };
 
-            if let Some(ui_event) = ui_event {
-                if ui_events.send(ui_event).await.is_err() {
-                    break; // Channel closed, exit task
-                }
+            if let Some(ui_event) = ui_event
+                && ui_events.send(ui_event).await.is_err()
+            {
+                break; // Channel closed, exit task
             }
         }
     }

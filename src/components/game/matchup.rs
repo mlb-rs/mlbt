@@ -37,7 +37,7 @@ impl Runners {
 
     /// Generate two lines, one for second base and one for first and third. Second base is shown
     /// on a line above first and third.
-    pub fn generate_lines(&self) -> (Line, Line) {
+    pub fn generate_lines(&self) -> (Line<'_>, Line<'_>) {
         let second_base = match self.second {
             true => format!("  {}  ", Self::ON_BASE_CHAR),
             false => format!("  {}  ", Self::EMPTY_BASE_CHAR),
@@ -90,7 +90,7 @@ impl Matchup {
         home_name: &str,
         current_play: bool,
         players: &PlayerMap,
-    ) -> Vec<Line> {
+    ) -> Vec<Line<'_>> {
         let mut lines = vec![Line::from(home_name.to_string()).bold()];
         if self.is_top {
             lines.extend(self.get_pitcher_display_lines(current_play, players));
@@ -105,7 +105,7 @@ impl Matchup {
         away_name: &str,
         current_play: bool,
         players: &PlayerMap,
-    ) -> Vec<Line> {
+    ) -> Vec<Line<'_>> {
         let mut lines = vec![Line::from(away_name.to_string()).bold()];
         if self.is_top {
             lines.extend(self.get_batter_display_lines(current_play, players));
@@ -115,7 +115,7 @@ impl Matchup {
         lines
     }
 
-    fn get_pitcher_display_lines(&self, current_play: bool, players: &PlayerMap) -> Vec<Line> {
+    fn get_pitcher_display_lines(&self, current_play: bool, players: &PlayerMap) -> Vec<Line<'_>> {
         let pitcher = match players.get(&self.pitcher_id) {
             Some(p) => p,
             None => return vec![],
@@ -144,7 +144,7 @@ impl Matchup {
         lines
     }
 
-    fn get_batter_display_lines(&self, current_play: bool, players: &PlayerMap) -> Vec<Line> {
+    fn get_batter_display_lines(&self, current_play: bool, players: &PlayerMap) -> Vec<Line<'_>> {
         let batter = match players.get(&self.batter_id) {
             Some(p) => p,
             None => return vec![],
@@ -171,7 +171,7 @@ impl Matchup {
         lines
     }
 
-    pub fn format_scoreboard_lines(&self) -> Vec<Line> {
+    pub fn format_scoreboard_lines(&self) -> Vec<Line<'_>> {
         let outs = match self.count.outs {
             0 => "◯ ◯ ◯",
             1 => "● ◯ ◯",

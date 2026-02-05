@@ -35,7 +35,7 @@ impl ScheduleRow {
         }
     }
 
-    fn format(&self, width: u16) -> Vec<Span> {
+    fn format(&self, width: u16) -> Vec<Span<'_>> {
         let (away_team_style, away_score_style) = self.get_styles(HomeOrAway::Away);
         let (home_team_style, home_score_style) = self.get_styles(HomeOrAway::Home);
         let away_record = Self::format_record(self.away_record);

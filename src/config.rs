@@ -82,10 +82,10 @@ impl ConfigFile {
     }
 
     fn validate_favorite_team(&self) -> Option<Team> {
-        if let Some(favorite) = &self.favorite_team {
-            if let Some(team) = TEAM_IDS.get(favorite.as_str()) {
-                return Some(*team);
-            }
+        if let Some(favorite) = &self.favorite_team
+            && let Some(team) = TEAM_IDS.get(favorite.as_str())
+        {
+            return Some(*team);
         }
         None
     }
@@ -122,10 +122,10 @@ impl ConfigFile {
             .get_or_init(|| {
                 if let Some(proj_dirs) = ProjectDirs::from("", "", "mlbt") {
                     let dir = proj_dirs.config_dir();
-                    if !dir.exists() {
-                        if let Err(err) = std::fs::create_dir_all(dir) {
-                            error!("could not create config dir: {err:?}");
-                        }
+                    if !dir.exists()
+                        && let Err(err) = std::fs::create_dir_all(dir)
+                    {
+                        error!("could not create config dir: {err:?}");
                     }
                     let config_file = dir.join(Self::CONFIG_FILE_NAME);
                     Some(config_file)

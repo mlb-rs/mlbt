@@ -101,7 +101,7 @@ impl BatterBoxscore {
         }
     }
 
-    pub fn to_cells(&self) -> Vec<Cell> {
+    pub fn to_cells(&self) -> Vec<Cell<'_>> {
         let note = self.note.as_deref().unwrap_or_default();
         let prefix = match self.is_substitute {
             true => "  ".to_string(),
@@ -169,7 +169,7 @@ impl PitcherBoxscore {
         }
     }
 
-    pub fn to_cells(&self) -> Vec<Cell> {
+    pub fn to_cells(&self) -> Vec<Cell<'_>> {
         let note = self.note.as_deref().unwrap_or_default();
         let (name, color) = if self.name == "Totals" {
             (
@@ -281,12 +281,12 @@ impl Boxscore {
 
         for &player_id in &team.pitchers {
             let player_key = format!("ID{player_id}");
-            if let Some(player) = team.players.get(&player_key) {
-                if let Some(player_name) = players.get(&player_id) {
-                    let note = player.stats.pitching.note.clone();
-                    let pitcher = PitcherBoxscore::from_data(player, player_name, note);
-                    pitchers.push(pitcher);
-                }
+            if let Some(player) = team.players.get(&player_key)
+                && let Some(player_name) = players.get(&player_id)
+            {
+                let note = player.stats.pitching.note.clone();
+                let pitcher = PitcherBoxscore::from_data(player, player_name, note);
+                pitchers.push(pitcher);
             }
         }
 
@@ -319,20 +319,19 @@ impl Boxscore {
 
         for &player_id in &team.batters {
             let player_key = format!("ID{player_id}");
-            if let Some(player) = team.players.get(&player_key) {
-                if let Some(batting_order) = &player.batting_order {
-                    if let Some(player_name) = players.get(&player_id) {
-                        // determine if this is a starter or substitute based on batting order
-                        let is_starter = batting_order.ends_with('0');
-                        let batter = BatterBoxscore::from_data(
-                            player,
-                            player_name,
-                            player.stats.batting.note.clone(),
-                            !is_starter,
-                        );
-                        batters.push(batter);
-                    }
-                }
+            if let Some(player) = team.players.get(&player_key)
+                && let Some(batting_order) = &player.batting_order
+                && let Some(player_name) = players.get(&player_id)
+            {
+                // determine if this is a starter or substitute based on batting order
+                let is_starter = batting_order.ends_with('0');
+                let batter = BatterBoxscore::from_data(
+                    player,
+                    player_name,
+                    player.stats.batting.note.clone(),
+                    !is_starter,
+                );
+                batters.push(batter);
             }
         }
 

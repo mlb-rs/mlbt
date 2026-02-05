@@ -90,11 +90,11 @@ impl TeamBatterBoxscoreWidget<'_> {
             );
         }
 
-        if let Some(visible_note) = adjust_area_for_scroll(notes_area, params) {
-            if let Some(paragraph) = self.state.get_batting_notes_paragraph(self.active) {
-                let offset = scroll_offset.saturating_sub(batting_height + 1); // +1 for space
-                render_paragraph_with_scroll(paragraph, offset, visible_note, buf);
-            }
+        if let Some(visible_note) = adjust_area_for_scroll(notes_area, params)
+            && let Some(paragraph) = self.state.get_batting_notes_paragraph(self.active)
+        {
+            let offset = scroll_offset.saturating_sub(batting_height + 1); // +1 for space
+            render_paragraph_with_scroll(paragraph, offset, visible_note, buf);
         }
 
         if let Some(visible_pitchers) = adjust_area_for_scroll(pitchers_area, params) {
@@ -113,14 +113,14 @@ impl TeamBatterBoxscoreWidget<'_> {
             );
         }
 
-        if let Some(visible_game_notes) = adjust_area_for_scroll(game_notes_area, params) {
-            if let Some(paragraph) = self.state.get_game_notes_paragraph() {
-                let offset = scroll_offset
-                    .saturating_sub(batting_height + 1)
-                    .saturating_sub(notes_height + 1)
-                    .saturating_sub(pitching_height + 1); // +1 for space
-                render_paragraph_with_scroll(paragraph, offset, visible_game_notes, buf);
-            }
+        if let Some(visible_game_notes) = adjust_area_for_scroll(game_notes_area, params)
+            && let Some(paragraph) = self.state.get_game_notes_paragraph()
+        {
+            let offset = scroll_offset
+                .saturating_sub(batting_height + 1)
+                .saturating_sub(notes_height + 1)
+                .saturating_sub(pitching_height + 1); // +1 for space
+            render_paragraph_with_scroll(paragraph, offset, visible_game_notes, buf);
         }
 
         self.render_scrollbar(area, buf);

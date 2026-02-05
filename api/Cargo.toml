@@ -5,12 +5,12 @@ authors = ["Andrew Schneider <andjschneider@gmail.com>"]
 edition = "2024"
 
 [dependencies]
-chrono = "0.4.41"
+chrono = "0.4.43"
 derive_builder = "0.20.2"
-reqwest = { version = "0.12.22", default-features = false, features = ["json", "rustls-tls"] }
-serde = { version = "1.0.219", features = ["derive"] }
-serde_json = "1.0.140"
+reqwest = { version = "0.13.1", features = ["json"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
 
 [dev-dependencies]
-mockito = "1.7.0"
-tokio = { version = "1.46.1", features = ["macros"] }
+mockito = "1.7.2"
+tokio = { version = "1.49.0", features = ["macros"] }

@@ -94,13 +94,13 @@ impl Widget for AtBatWidget<'_> {
         Widget::render(paragraph, pitch_info, buf);
 
         // display the hit information if available
-        if let Some(data) = pitches.pitches.pitch_events.last() {
-            if let Some(text) = data.format_hit_data() {
-                let paragraph = Paragraph::new(text)
-                    .alignment(Alignment::Center)
-                    .wrap(Wrap { trim: false });
-                Widget::render(paragraph, hit, buf);
-            }
+        if let Some(data) = pitches.pitches.pitch_events.last()
+            && let Some(text) = data.format_hit_data()
+        {
+            let paragraph = Paragraph::new(text)
+                .alignment(Alignment::Center)
+                .wrap(Wrap { trim: false });
+            Widget::render(paragraph, hit, buf);
         };
     }
 }

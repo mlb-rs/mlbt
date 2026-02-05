@@ -371,7 +371,7 @@ impl Standing {
         }
     }
 
-    pub fn to_cells(&self) -> Vec<Cell> {
+    pub fn to_cells(&self) -> Vec<Cell<'_>> {
         let (prefix, rdiff_color) = match self.run_differential.signum() {
             1 => ("+", Color::Green),
             -1 => ("", Color::Red),

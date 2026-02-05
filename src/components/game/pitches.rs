@@ -115,7 +115,7 @@ impl Pitch {
 
     /// Convert a pitch into a TUI Line item, displaying the pitch index, result (ball, strike, ect)
     /// and pitch type (cutter, changeup, ect). For example: "1  Foul | Four-Seam Fastball"
-    pub fn as_lines(&self, debug: bool) -> Vec<Line> {
+    pub fn as_lines(&self, debug: bool) -> Vec<Line<'_>> {
         vec![Line::from(vec![
             Span::styled(
                 format!(" {:<2}", self.index),
