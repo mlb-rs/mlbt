@@ -90,7 +90,7 @@ impl LineScoreLine {
         line
     }
 
-    pub fn create_score_vec(&self, active: HomeOrAway) -> Vec<Cell> {
+    pub fn create_score_vec(&self, active: HomeOrAway) -> Vec<Cell<'_>> {
         let mut row = vec![];
         // Display a blue background if the team is active
         let team = match active == self.team {

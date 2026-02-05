@@ -73,7 +73,7 @@ impl<'a> WinProbabilityData<'a> {
         }
     }
 
-    fn create_table_row(&self, at_bat: &WinProbabilityAtBat) -> Row {
+    fn create_table_row(&self, at_bat: &WinProbabilityAtBat) -> Row<'_> {
         let label = match at_bat.is_top_inning {
             true => format!("top {}", at_bat.inning),
             false => format!("bot {}", at_bat.inning),
@@ -161,7 +161,7 @@ impl<'a> WinProbabilityData<'a> {
         StatefulWidget::render(table, area, buf, &mut table_state);
     }
 
-    fn create_chart_bar(&self, at_bat: &WinProbabilityAtBat) -> Bar {
+    fn create_chart_bar(&self, at_bat: &WinProbabilityAtBat) -> Bar<'_> {
         let home_wp = (at_bat.home_team_wp.round() as u8).clamp(0, 100);
         Bar::default()
             .value(home_wp.into())
@@ -169,7 +169,7 @@ impl<'a> WinProbabilityData<'a> {
             .style(Style::default().fg(BLUE))
     }
 
-    fn create_header_bar(&self, width: u16) -> Bar {
+    fn create_header_bar(&self, width: u16) -> Bar<'_> {
         Bar::default()
             .value(100)
             // use the width of the the area to ensure underline goes all the way across
@@ -344,7 +344,7 @@ impl<'a> WinProbabilityData<'a> {
         datasets
     }
 
-    fn create_team_dataset(points: &[ChartPoint], color: Color) -> Dataset {
+    fn create_team_dataset(points: &[ChartPoint], color: Color) -> Dataset<'_> {
         Dataset::default()
             .marker(symbols::Marker::Braille)
             .style(Style::default().fg(color))
@@ -359,17 +359,17 @@ impl<'a> WinProbabilityData<'a> {
         for at_bat in self.at_bats.values() {
             let current_state = (at_bat.inning, at_bat.is_top_inning);
 
-            if let Some(prev) = prev_state {
-                if prev != current_state {
-                    let x = at_bat.at_bat_index as f64;
-                    // full inning lines are longer than half inning lines
-                    let line = if at_bat.is_top_inning {
-                        [(x, -25.0), (x, 25.0)]
-                    } else {
-                        [(x, -15.0), (x, 15.0)]
-                    };
-                    inning_lines.push(line);
-                }
+            if let Some(prev) = prev_state
+                && prev != current_state
+            {
+                let x = at_bat.at_bat_index as f64;
+                // full inning lines are longer than half inning lines
+                let line = if at_bat.is_top_inning {
+                    [(x, -25.0), (x, 25.0)]
+                } else {
+                    [(x, -15.0), (x, 15.0)]
+                };
+                inning_lines.push(line);
             }
 
             prev_state = Some(current_state);

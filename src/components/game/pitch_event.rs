@@ -68,7 +68,7 @@ impl PitchEvent {
         debug: bool,
         home_team_abbreviation: &'static str,
         away_team_abbreviation: &'static str,
-    ) -> Option<Vec<Line>> {
+    ) -> Option<Vec<Line<'_>>> {
         match self.event_type {
             PitchEventType::Pitch if self.pitch.is_some() => {
                 self.pitch.as_ref().map(|pitch| pitch.as_lines(debug))
@@ -82,7 +82,7 @@ impl PitchEvent {
         &self,
         home_team_abbreviation: &'static str,
         away_team_abbreviation: &'static str,
-    ) -> Vec<Line> {
+    ) -> Vec<Line<'_>> {
         let mut spans = Vec::new();
 
         // Add scoring information if this is a scoring event
@@ -97,15 +97,15 @@ impl PitchEvent {
         spans.push(Span::raw(format!(" {}", self.description)));
 
         // Add the score at the end of the line if available
-        if is_scoring {
-            if let (Some(away_score), Some(home_score)) = (self.away_score, self.home_score) {
-                spans.push(build_scoring_span(
-                    home_score,
-                    home_team_abbreviation,
-                    away_score,
-                    away_team_abbreviation,
-                ));
-            }
+        if is_scoring
+            && let (Some(away_score), Some(home_score)) = (self.away_score, self.home_score)
+        {
+            spans.push(build_scoring_span(
+                home_score,
+                home_team_abbreviation,
+                away_score,
+                away_team_abbreviation,
+            ));
         }
 
         vec![Line::from(spans)]

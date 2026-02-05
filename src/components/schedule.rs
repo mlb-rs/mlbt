@@ -67,10 +67,10 @@ impl ScheduleState {
         }
 
         // If there was a selection but the new schedule is shorter, reset to first game
-        if let Some(selected) = self.state.selected() {
-            if selected >= self.schedule.len() {
-                self.state.select(Some(0));
-            }
+        if let Some(selected) = self.state.selected()
+            && selected >= self.schedule.len()
+        {
+            self.state.select(Some(0));
         }
     }
 
