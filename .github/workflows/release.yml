@@ -150,10 +150,10 @@ jobs:
 
           cat > mlbt.rb << EOF
           class Mlbt < Formula
-            desc "Interact with MLB's Statcast API and even watch a live game"
+            desc "Interact with MLB's Statcast API and even watch a live baseball game in your terminal."
             homepage "https://github.com/mlb-rs/mlbt"
-            license "MIT"
             version "${VERSION}"
+            license "MIT"
 
             on_macos do
               on_arm do
@@ -180,8 +180,19 @@ jobs:
             def install
               bin.install "mlbt"
             end
+
+            def caveats
+              <<~EOS
+                Play ball! Run with "mlbt"
+              EOS
+            end
+
+            test do
+              assert_predicate bin/"mlbt", :executable?
+            end
           end
           EOF
+          sed -i 's/^          //' mlbt.rb
 
       - name: Update tap repo
         env:
