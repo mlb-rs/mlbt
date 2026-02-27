@@ -12,7 +12,7 @@ pub struct StandingsResponse {
 pub struct Record {
     pub standings_type: String,
     pub league: IdLink,
-    pub division: IdLink,
+    pub division: Option<IdLink>,
     pub last_updated: String,
     pub team_records: Vec<TeamRecord>,
 }
@@ -29,7 +29,7 @@ pub struct TeamRecord {
     pub team: IdNameLink,
     pub season: String,
     pub streak: Option<Streak>,
-    pub division_rank: String,
+    pub division_rank: Option<String>,
     pub league_rank: String,
     pub sport_rank: Option<String>,
     pub games_played: u8,
@@ -74,7 +74,7 @@ pub struct RecordElement {
 #[serde(rename_all = "camelCase")]
 pub struct Records {
     pub split_records: Vec<RecordElement>,
-    pub division_records: Vec<RecordElement>,
+    pub division_records: Option<Vec<RecordElement>>,
     pub overall_records: Vec<RecordElement>,
     pub league_records: Vec<RecordElement>,
     pub expected_records: Option<Vec<RecordElement>>,
@@ -83,7 +83,7 @@ pub struct Records {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Streak {
-    pub streak_type: String,
-    pub streak_number: u8,
+    pub streak_type: Option<String>,
+    pub streak_number: Option<u8>,
     pub streak_code: String,
 }

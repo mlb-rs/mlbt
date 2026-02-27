@@ -58,7 +58,7 @@ mod tests {
         let m = server
             .mock(
                 "GET",
-                "/v1/standings?sportId=1&season=2021&date=2021-06-10&leagueId=103,104",
+                "/v1/standings?sportId=1&season=2021&date=2021-06-10&leagueId=103,104&hydrate=team",
             )
             .with_status(200)
             .with_header("content-type", "application/json;charset=UTF-8")
@@ -219,7 +219,7 @@ mod tests {
         let m = server
             .mock(
                 "GET",
-                "/v1/standings?sportId=1&season=2026&standingsType=springTraining&leagueId=103,104",
+                "/v1/standings?sportId=1&season=2026&standingsType=springTraining&leagueId=103,104&hydrate=team",
             )
             .with_status(200)
             .with_header("content-type", "application/json;charset=UTF-8")
