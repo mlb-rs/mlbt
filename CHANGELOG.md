@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add ABS challenge information and display in Gameday view: [PR 92](https://github.com/mlb-rs/mlbt/pull/92)
+ 
 ### Changed
 
 - Update Rust to 1.93
