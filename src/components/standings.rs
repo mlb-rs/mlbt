@@ -296,14 +296,23 @@ impl Division {
         let mut s: Vec<Division> = standings
             .records
             .iter()
-            .map(|r| Division {
-                name: DIVISIONS.get(&(r.division.id as u16)).unwrap().to_string(),
-                id: r.division.id as u16,
-                standings: r
-                    .team_records
-                    .iter()
-                    .map(Standing::from_team_record)
-                    .collect(),
+            .map(|r| {
+                // Pre-1969 seasons have no divisions, fall back to league.
+                let group_id = r
+                    .division
+                    .as_ref()
+                    .map(|d| d.id as u16)
+                    .unwrap_or(r.league.id as u16);
+                let group_name = DIVISIONS.get(&group_id).unwrap_or(&"Unknown").to_string();
+                Division {
+                    name: group_name,
+                    id: group_id,
+                    standings: r
+                        .team_records
+                        .iter()
+                        .map(Standing::from_team_record)
+                        .collect(),
+                }
             })
             .collect();
 
