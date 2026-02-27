@@ -157,9 +157,10 @@ mod tests {
         let local: DateTime<Local> = Local::now();
         for group in [StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!(
-                "/v1/stats?sportId=1&stats=season&season={}&group={}&limit=300",
+                "/v1/stats?sportId=1&stats=season&season={}&group={}&limit=300&sortStat={}&order=desc",
                 local.year(),
-                group
+                group,
+                group.default_sort_stat()
             );
 
             let m = server
@@ -186,10 +187,11 @@ mod tests {
 
         for group in [StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!(
-                "/v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=300",
+                "/v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=300&sortStat={}&order=desc",
                 date.year(),
                 date.format("%Y-%m-%d"),
-                group
+                group,
+                group.default_sort_stat()
             );
 
             let m = server
@@ -287,10 +289,10 @@ mod tests {
 
         for group in [StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!(
-                "/v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=300&gameType=S",
+                "/v1/stats?sportId=1&stats=season&season={}&group={}&limit=300&sortStat={}&order=desc&gameType=S&playerPool=ALL",
                 date.year(),
-                date.format("%Y-%m-%d"),
-                group
+                group,
+                group.default_sort_stat()
             );
 
             let m = server
