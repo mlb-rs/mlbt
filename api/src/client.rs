@@ -131,12 +131,12 @@ impl MLBApi {
     ) -> ApiResult<StandingsResponse> {
         let url = match game_type {
             GameType::SpringTraining => format!(
-                "{}v1/standings?sportId=1&season={}&standingsType=springTraining&leagueId=103,104",
+                "{}v1/standings?sportId=1&season={}&standingsType=springTraining&leagueId=103,104&hydrate=team",
                 self.base_url,
                 date.year(),
             ),
             GameType::RegularSeason => format!(
-                "{}v1/standings?sportId=1&season={}&date={}&leagueId=103,104",
+                "{}v1/standings?sportId=1&season={}&date={}&leagueId=103,104&hydrate=team",
                 self.base_url,
                 date.year(),
                 date.format("%Y-%m-%d"),
