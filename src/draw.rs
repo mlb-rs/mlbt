@@ -2,7 +2,7 @@ use tui::backend::Backend;
 use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Modifier, Style};
 use tui::text::Line;
-use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, Tabs};
+use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, TableState, Tabs};
 use tui::{Frame, Terminal};
 
 use crate::app::{App, DebugState, MenuItem};
@@ -12,7 +12,7 @@ use crate::ui::boxscore::TeamBatterBoxscoreWidget;
 use crate::ui::date_selector::DateSelectorWidget;
 use crate::ui::gameday::gameday_widget::GamedayWidget;
 use crate::ui::gameday::win_probability::WinProbabilityWidget;
-use crate::ui::help::{DOCS, HelpWidget};
+use crate::ui::help::HelpWidget;
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
 use crate::ui::logs::LogWidget;
@@ -55,7 +55,9 @@ where
                 MenuItem::Gameday => draw_gameday(f, main_layout.main, app),
                 MenuItem::Stats => draw_stats(f, main_layout.main, app),
                 MenuItem::Standings => draw_standings(f, main_layout.main, app),
-                MenuItem::Help => draw_help(f, f.area(), app.state.show_logs),
+                MenuItem::Help => {
+                    draw_help(f, f.area(), app.state.show_logs, &mut app.state.help.state)
+                }
             }
             if app.state.debug_state == DebugState::On {
                 let mut dbi = DebugInfo::new();
@@ -250,7 +252,7 @@ fn draw_win_probability(f: &mut Frame, rect: Rect, app: &mut App) {
     }
 }
 
-fn draw_help(f: &mut Frame, rect: Rect, show_logs: bool) {
+fn draw_help(f: &mut Frame, rect: Rect, show_logs: bool, help_state: &mut TableState) {
     f.render_widget(Clear, rect);
 
     if show_logs {
@@ -259,13 +261,6 @@ fn draw_help(f: &mut Frame, rect: Rect, show_logs: bool) {
         return;
     }
 
-    // if the terminal is too small display a red border
-    let mut color = Color::White;
-    let min_height = DOCS.len() as u16 + 3; // 3 for table header, top border, bottom border
-    if rect.height < min_height || rect.width < 35 {
-        color = Color::Red;
-    }
-    draw_border(f, rect, color);
-
-    f.render_widget(HelpWidget {}, rect);
+    draw_border(f, rect, Color::White);
+    f.render_stateful_widget(HelpWidget {}, rect, help_state);
 }

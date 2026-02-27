@@ -153,6 +153,8 @@ pub async fn handle_key_bindings(
         (MenuItem::Scoreboard, Char('a'), _) => guard.state.box_score.set_away_active(),
 
         (_, Char('?'), _) => guard.update_tab(MenuItem::Help),
+        (MenuItem::Help, Char('j') | KeyCode::Down, _) => guard.state.help.next(),
+        (MenuItem::Help, Char('k') | KeyCode::Up, _) => guard.state.help.previous(),
         (MenuItem::Help, KeyCode::Esc, _) => guard.exit_help(),
         (_, Char('d'), _) => guard.toggle_debug(),
         (MenuItem::Help, Char('"'), _) => guard.toggle_show_logs(),

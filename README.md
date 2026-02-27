@@ -272,14 +272,14 @@ the `left`/`right` arrow keys, and press `Enter`.
 
 ### Help
 
-| Key   | Description      |
-|-------|------------------|
-| `?`   | display help box |
-| `Esc` | close help box   |
-| `"`   | display logs     |
+Press `?` from any tab to open the help page.
 
-> If your terminal is too small to display the full help box, the border will be
-> displayed red.
+| Key       | Description    |
+|-----------|----------------|
+| `j` / `↓` | move down      |
+| `k` / `↑` | move up        |
+| `Esc`     | close help box |
+| `"`       | display logs   |
 
 ## Config
 
