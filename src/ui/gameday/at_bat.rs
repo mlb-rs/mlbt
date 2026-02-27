@@ -81,8 +81,9 @@ impl Widget for AtBatWidget<'_> {
             .filter_map(|event| {
                 event.as_lines(
                     false,
-                    self.game.home_team.abbreviation,
-                    self.game.away_team.abbreviation,
+                    &self.game.home_team,
+                    &self.game.away_team,
+                    &self.game.players,
                 )
             })
             .flatten()

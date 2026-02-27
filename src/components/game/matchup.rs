@@ -85,29 +85,34 @@ impl From<&Play> for Matchup {
 }
 
 impl Matchup {
-    pub fn format_home_lines(
+    pub fn format_team_lines(
         &self,
-        home_name: &str,
+        team_name: &str,
+        abs_challenges: Option<u8>,
+        is_home: bool,
         current_play: bool,
         players: &PlayerMap,
     ) -> Vec<Line<'_>> {
-        let mut lines = vec![Line::from(home_name.to_string()).bold()];
-        if self.is_top {
-            lines.extend(self.get_pitcher_display_lines(current_play, players));
+        // only show the remaining challenges if the current play is selected
+        let challenges = if current_play {
+            match abs_challenges {
+                Some(0) => "◇ ◇",
+                Some(1) => "◆ ◇",
+                Some(2) => "◆ ◆",
+                _ => "",
+            }
         } else {
-            lines.extend(self.get_batter_display_lines(current_play, players));
-        }
-        lines
-    }
+            ""
+        };
+        let header = match (is_home, challenges.is_empty()) {
+            (true, false) => format!("{challenges}  {team_name}"),
+            (false, false) => format!("{team_name}  {challenges}"),
+            _ => team_name.to_string(),
+        };
+        let mut lines = vec![Line::from(header).bold()];
 
-    pub fn format_away_lines(
-        &self,
-        away_name: &str,
-        current_play: bool,
-        players: &PlayerMap,
-    ) -> Vec<Line<'_>> {
-        let mut lines = vec![Line::from(away_name.to_string()).bold()];
-        if self.is_top {
+        let is_batting = if is_home { !self.is_top } else { self.is_top };
+        if is_batting {
             lines.extend(self.get_batter_display_lines(current_play, players));
         } else {
             lines.extend(self.get_pitcher_display_lines(current_play, players));
