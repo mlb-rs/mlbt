@@ -16,6 +16,11 @@ strip = true
 opt-level = "z"
 codegen-units = 1
 
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/mlbt-{ target }.tar.gz"
+bin-dir = "mlbt{ binary-ext }"
+pkg-fmt = "tgz"
+
 [workspace]
 members = [".", "api"]
 
