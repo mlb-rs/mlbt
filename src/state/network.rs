@@ -1,8 +1,9 @@
 use crate::components::stats::{StatType, TeamOrPlayer};
 use crate::{NetworkRequest, NetworkResponse};
-use chrono::NaiveDate;
-use log::{debug, error};
+use chrono::{Datelike, NaiveDate};
+use log::{debug, error, warn};
 use mlb_api::client::{ApiResult, MLBApi, MLBApiBuilder};
+use mlb_api::season::{SeasonInfo, game_type_for_date};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
@@ -31,6 +32,8 @@ pub struct NetworkWorker {
     requests: mpsc::Receiver<NetworkRequest>,
     responses: mpsc::Sender<NetworkResponse>,
     is_loading: Arc<AtomicBool>,
+    /// Cached season info, keyed by year.
+    season_info: Option<(i32, SeasonInfo)>,
 }
 
 impl NetworkWorker {
@@ -43,6 +46,7 @@ impl NetworkWorker {
             requests,
             responses,
             is_loading: Arc::new(AtomicBool::new(false)),
+            season_info: None,
         }
     }
 
@@ -87,24 +91,58 @@ impl NetworkWorker {
         })
     }
 
-    async fn handle_load_standings(&self, date: NaiveDate) -> ApiResult<NetworkResponse> {
+    async fn handle_load_standings(&mut self, date: NaiveDate) -> ApiResult<NetworkResponse> {
         debug!("loading standings for {date}");
-        let standings = self.client.get_standings(date).await?;
+        self.ensure_season_info(date).await;
+        let game_type = game_type_for_date(date, self.cached_season_info());
+        let standings = self.client.get_standings(date, game_type).await?;
         Ok(NetworkResponse::StandingsLoaded { standings })
     }
 
     async fn handle_load_stats(
-        &self,
+        &mut self,
         date: NaiveDate,
         stat_type: StatType,
     ) -> ApiResult<NetworkResponse> {
         debug!("loading {stat_type:?} stats for {date}");
+        self.ensure_season_info(date).await;
+        let game_type = game_type_for_date(date, self.cached_season_info());
         let StatType { team_player, group } = stat_type;
         let stats = match team_player {
-            TeamOrPlayer::Team => self.client.get_team_stats_on_date(group, date).await,
-            TeamOrPlayer::Player => self.client.get_player_stats_on_date(group, date).await,
+            TeamOrPlayer::Team => {
+                self.client
+                    .get_team_stats_on_date(group, date, game_type)
+                    .await
+            }
+            TeamOrPlayer::Player => {
+                self.client
+                    .get_player_stats_on_date(group, date, game_type)
+                    .await
+            }
         }?;
         Ok(NetworkResponse::StatsLoaded { stats })
+    }
+
+    fn cached_season_info(&self) -> Option<&SeasonInfo> {
+        self.season_info.as_ref().map(|(_, info)| info)
+    }
+
+    /// Lazily fetch and cache season info, re-fetching if the year changes.
+    async fn ensure_season_info(&mut self, date: NaiveDate) {
+        let year = date.year();
+        if let Some((cached_year, _)) = &self.season_info
+            && *cached_year == year
+        {
+            return;
+        }
+        match self.client.get_season_info(year).await {
+            Ok(Some(info)) => self.season_info = Some((year, info)),
+            Ok(None) => self.season_info = None,
+            Err(e) => {
+                warn!("Failed to fetch season info, using fallback: {}", e.log());
+                self.season_info = None;
+            }
+        }
     }
 
     async fn start_loading_animation(&self) {

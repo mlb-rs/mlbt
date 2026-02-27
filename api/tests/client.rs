@@ -2,6 +2,7 @@ use chrono::NaiveDate;
 use mlb_api::client::MLBApi;
 use mlb_api::client::MLBApiBuilder;
 use mlb_api::client::StatGroup;
+use mlb_api::season::GameType;
 use mockito::{Matcher, ServerGuard};
 use std::time::Duration;
 
@@ -64,7 +65,10 @@ mod tests {
             .with_body_from_file("./tests/responses/standings.json")
             .create();
 
-        let resp = client.get_standings(date).await.unwrap();
+        let resp = client
+            .get_standings(date, GameType::RegularSeason)
+            .await
+            .unwrap();
         m.assert(); // assert mock was called
         assert_ne!(resp.records.len(), 0);
     }
@@ -106,7 +110,10 @@ mod tests {
                 .with_body_from_file(format!("./tests/responses/team-stats-{group}.json"))
                 .create();
 
-            let resp = client.get_team_stats(group).await.unwrap();
+            let resp = client
+                .get_team_stats(group, GameType::RegularSeason)
+                .await
+                .unwrap();
             m.assert(); // assert mock was called
             assert_ne!(resp.stats.len(), 0);
             assert_eq!(resp.stats[0].group.display_name, group.to_string());
@@ -133,7 +140,10 @@ mod tests {
                 .with_body_from_file(format!("./tests/responses/team-stats-{group}-date.json"))
                 .create();
 
-            let resp = client.get_team_stats_on_date(group, date).await.unwrap();
+            let resp = client
+                .get_team_stats_on_date(group, date, GameType::RegularSeason)
+                .await
+                .unwrap();
             m.assert(); // assert mock was called
             assert_ne!(resp.stats.len(), 0);
             assert_eq!(resp.stats[0].group.display_name, group.to_string());
@@ -159,7 +169,10 @@ mod tests {
                 .with_body_from_file(format!("./tests/responses/player-stats-{group}.json"))
                 .create();
 
-            let resp = client.get_player_stats(group).await.unwrap();
+            let resp = client
+                .get_player_stats(group, GameType::RegularSeason)
+                .await
+                .unwrap();
             m.assert(); // assert mock was called
             assert_ne!(resp.stats.len(), 0);
             assert_eq!(resp.stats[0].group.display_name, group.to_string());
@@ -186,10 +199,113 @@ mod tests {
                 .with_body_from_file(format!("./tests/responses/player-stats-{group}-date.json"))
                 .create();
 
-            let resp = client.get_player_stats_on_date(group, date).await.unwrap();
+            let resp = client
+                .get_player_stats_on_date(group, date, GameType::RegularSeason)
+                .await
+                .unwrap();
             m.assert(); // assert mock was called
             assert_ne!(resp.stats.len(), 0);
             assert_eq!(resp.stats[0].group.display_name, group.to_string());
+        }
+    }
+
+    #[tokio::test]
+    async fn test_standings_spring_training() {
+        let (client, mut server) = generate_mock_client().await;
+        let date: NaiveDate = NaiveDate::from_ymd_opt(2026, 3, 10).unwrap();
+
+        let m = server
+            .mock(
+                "GET",
+                "/v1/standings?sportId=1&season=2026&standingsType=springTraining&leagueId=103,104",
+            )
+            .with_status(200)
+            .with_header("content-type", "application/json;charset=UTF-8")
+            .with_body_from_file("./tests/responses/standings-spring-training.json")
+            .create();
+
+        let resp = client
+            .get_standings(date, GameType::SpringTraining)
+            .await
+            .unwrap();
+        m.assert();
+        assert_ne!(resp.records.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn test_season_info() {
+        let (client, mut server) = generate_mock_client().await;
+
+        let m = server
+            .mock("GET", "/v1/seasons/2026?sportId=1")
+            .with_status(200)
+            .with_header("content-type", "application/json;charset=UTF-8")
+            .with_body_from_file("./tests/responses/season-info.json")
+            .create();
+
+        let info = client.get_season_info(2026).await.unwrap().unwrap();
+        m.assert();
+        assert_eq!(
+            info.regular_season_start_date,
+            NaiveDate::from_ymd_opt(2026, 3, 25).unwrap()
+        );
+    }
+
+    #[tokio::test]
+    async fn test_team_stats_spring_training_url() {
+        let (client, mut server) = generate_mock_client().await;
+        let date: NaiveDate = NaiveDate::from_ymd_opt(2026, 3, 10).unwrap();
+
+        for group in [StatGroup::Hitting, StatGroup::Pitching] {
+            let url = format!(
+                "/v1/teams/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&gameType=S",
+                date.year(),
+                date.format("%Y-%m-%d"),
+                group
+            );
+
+            let m = server
+                .mock("GET", Matcher::Exact(url))
+                .with_status(200)
+                .with_header("content-type", "application/json;charset=UTF-8")
+                .with_body_from_file(format!("./tests/responses/team-stats-{group}-date.json"))
+                .create();
+
+            let resp = client
+                .get_team_stats_on_date(group, date, GameType::SpringTraining)
+                .await
+                .unwrap();
+            m.assert();
+            assert_ne!(resp.stats.len(), 0);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_player_stats_spring_training_url() {
+        let (client, mut server) = generate_mock_client().await;
+        let date: NaiveDate = NaiveDate::from_ymd_opt(2026, 3, 10).unwrap();
+
+        for group in [StatGroup::Hitting, StatGroup::Pitching] {
+            let url = format!(
+                "/v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=300&gameType=S",
+                date.year(),
+                date.format("%Y-%m-%d"),
+                group
+            );
+
+            let m = server
+                .mock("GET", Matcher::Exact(url))
+                .with_status(200)
+                .with_header("content-type", "application/json;charset=UTF-8")
+                .with_body_from_file(format!("./tests/responses/player-stats-{group}-date.json"))
+                .create();
+
+            let resp = client
+                .get_player_stats_on_date(group, date, GameType::SpringTraining)
+                .await
+                .unwrap();
+            m.assert();
+            assert_ne!(resp.stats.len(), 0);
         }
     }
 }
