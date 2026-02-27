@@ -1,5 +1,6 @@
 use crate::live::LiveResponse;
 use crate::schedule::ScheduleResponse;
+use crate::season::{GameType, SeasonInfo, SeasonsResponse};
 use crate::standings::StandingsResponse;
 use crate::stats::StatsResponse;
 use crate::win_probability::WinProbabilityResponse;
@@ -69,6 +70,16 @@ impl fmt::Display for StatGroup {
     }
 }
 
+impl StatGroup {
+    /// The default sort stat for player leaderboards.
+    pub fn default_sort_stat(&self) -> &'static str {
+        match self {
+            StatGroup::Hitting => "plateAppearances",
+            StatGroup::Pitching => "inningsPitched",
+        }
+    }
+}
+
 impl MLBApi {
     pub async fn get_todays_schedule(&self) -> ApiResult<ScheduleResponse> {
         let url = format!("{}v1/schedule?sportId=1&hydrate=linescore", self.base_url);
@@ -106,24 +117,49 @@ impl MLBApi {
         self.get(url).await
     }
 
-    pub async fn get_standings(&self, date: NaiveDate) -> ApiResult<StandingsResponse> {
-        let url = format!(
-            "{}v1/standings?sportId=1&season={}&date={}&leagueId=103,104",
-            self.base_url,
-            date.year(),
-            date.format("%Y-%m-%d"),
-        );
+    /// Fetch season info from the MLB API for a given year.
+    pub async fn get_season_info(&self, year: i32) -> ApiResult<Option<SeasonInfo>> {
+        let url = format!("{}v1/seasons/{}?sportId=1", self.base_url, year);
+        let resp = self.get::<SeasonsResponse>(url).await?;
+        Ok(resp.seasons.into_iter().next())
+    }
+
+    pub async fn get_standings(
+        &self,
+        date: NaiveDate,
+        game_type: GameType,
+    ) -> ApiResult<StandingsResponse> {
+        let url = match game_type {
+            GameType::SpringTraining => format!(
+                "{}v1/standings?sportId=1&season={}&standingsType=springTraining&leagueId=103,104",
+                self.base_url,
+                date.year(),
+            ),
+            GameType::RegularSeason => format!(
+                "{}v1/standings?sportId=1&season={}&date={}&leagueId=103,104",
+                self.base_url,
+                date.year(),
+                date.format("%Y-%m-%d"),
+            ),
+        };
         self.get(url).await
     }
 
-    pub async fn get_team_stats(&self, group: StatGroup) -> ApiResult<StatsResponse> {
+    pub async fn get_team_stats(
+        &self,
+        group: StatGroup,
+        game_type: GameType,
+    ) -> ApiResult<StatsResponse> {
         let local: DateTime<Local> = Local::now();
-        let url = format!(
+        let mut url = format!(
             "{}v1/teams/stats?sportId=1&stats=season&season={}&group={}",
             self.base_url,
             local.year(),
             group
         );
+        if game_type == GameType::SpringTraining {
+            url.push_str("&gameType=S");
+        }
         self.get(url).await
     }
 
@@ -131,25 +167,38 @@ impl MLBApi {
         &self,
         group: StatGroup,
         date: NaiveDate,
+        game_type: GameType,
     ) -> ApiResult<StatsResponse> {
-        let url = format!(
+        let mut url = format!(
             "{}v1/teams/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}",
             self.base_url,
             date.year(),
             date.format("%Y-%m-%d"),
             group
         );
+        if game_type == GameType::SpringTraining {
+            url.push_str("&gameType=S");
+        }
         self.get(url).await
     }
 
-    pub async fn get_player_stats(&self, group: StatGroup) -> ApiResult<StatsResponse> {
+    pub async fn get_player_stats(
+        &self,
+        group: StatGroup,
+        game_type: GameType,
+    ) -> ApiResult<StatsResponse> {
         let local: DateTime<Local> = Local::now();
-        let url = format!(
-            "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=300",
+        let sort = group.default_sort_stat();
+        let mut url = format!(
+            "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=300&sortStat={}&order=desc",
             self.base_url,
             local.year(),
-            group
+            group,
+            sort
         );
+        if game_type == GameType::SpringTraining {
+            url.push_str("&gameType=S&playerPool=ALL");
+        }
         self.get(url).await
     }
 
@@ -157,14 +206,27 @@ impl MLBApi {
         &self,
         group: StatGroup,
         date: NaiveDate,
+        game_type: GameType,
     ) -> ApiResult<StatsResponse> {
-        let url = format!(
-            "{}v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=300",
-            self.base_url,
-            date.year(),
-            date.format("%Y-%m-%d"),
-            group
-        );
+        let sort = group.default_sort_stat();
+        // Spring training doesn't work well with byDateRange, use season instead.
+        let url = match game_type {
+            GameType::SpringTraining => format!(
+                "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=300&sortStat={}&order=desc&gameType=S&playerPool=ALL",
+                self.base_url,
+                date.year(),
+                group,
+                sort
+            ),
+            GameType::RegularSeason => format!(
+                "{}v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=300&sortStat={}&order=desc",
+                self.base_url,
+                date.year(),
+                date.format("%Y-%m-%d"),
+                group,
+                sort
+            ),
+        };
         self.get(url).await
     }
 
