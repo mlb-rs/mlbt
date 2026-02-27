@@ -136,9 +136,9 @@ pub struct CodeDescription {
 }
 
 impl CodeDescription {
-    /// Default code to "Unknown" if the code value is missing.
+    /// Default code to "UNKNOWN" if the code key is missing.
     fn default_code() -> String {
-        "UN".to_owned()
+        "UNKNOWN".to_owned()
     }
 }
 

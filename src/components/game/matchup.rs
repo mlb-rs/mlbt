@@ -199,11 +199,45 @@ impl Matchup {
     }
 }
 
-#[test]
-fn test_matchup_default_runners() {
-    // verify that the default is to have no runners on base
-    let r = Runners::default();
-    assert!(!r.first);
-    assert!(!r.second);
-    assert!(!r.third);
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashMap;
+
+    fn header(name: &str, challenges: Option<u8>, is_home: bool, current: bool) -> String {
+        let m = Matchup::default();
+        m.format_team_lines(name, challenges, is_home, current, &HashMap::new())[0].to_string()
+    }
+
+    #[test]
+    fn default_runners() {
+        let r = Runners::default();
+        assert!(!r.first && !r.second && !r.third);
+    }
+
+    #[test]
+    fn home_challenges_before_name() {
+        assert!(header("NYY", Some(2), true, true).starts_with("◆ ◆"));
+    }
+
+    #[test]
+    fn away_challenges_after_name() {
+        let h = header("BOS", Some(1), false, true);
+        assert!(h.starts_with("BOS") && h.contains("◆ ◇"));
+    }
+
+    #[test]
+    fn zero_challenges_shows_empty_diamonds() {
+        assert!(header("CHC", Some(0), true, true).contains("◇ ◇"));
+    }
+
+    #[test]
+    fn no_challenges_when_not_current_play() {
+        assert_eq!(header("CHC", Some(2), true, false), "CHC");
+    }
+
+    #[test]
+    fn no_challenges_when_none() {
+        assert_eq!(header("CHC", None, true, true), "CHC");
+    }
 }

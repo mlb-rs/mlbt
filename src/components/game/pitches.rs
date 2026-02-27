@@ -151,7 +151,7 @@ impl Pitch {
         lines
     }
 
-    fn format_spans(&self, debug: bool, player_map: &PlayerMap) -> Vec<Span<'_>> {
+    fn format_spans(&self, debug: bool, players: &PlayerMap) -> Vec<Span<'_>> {
         let base = format!(
             " {:<20}| {}-{} | {:^5.1}| {}",
             self.description, self.count.balls, self.count.strikes, self.speed, self.pitch_type,
@@ -163,7 +163,7 @@ impl Pitch {
         };
         let mut spans = vec![Span::raw(s)];
         if let Some(review) = &self.review_details
-            && let Some(review_spans) = review.format_status_spans(player_map)
+            && let Some(review_spans) = review.format_status_spans(players)
         {
             spans.extend(review_spans);
         }
