@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add ABS challenge information and display in Gameday view: [PR 92](https://github.com/mlb-rs/mlbt/pull/92)
+- Add stats and standings for Spring Training: [PR 93](https://github.com/mlb-rs/mlbt/pull/93)
  
 ### Changed
 
