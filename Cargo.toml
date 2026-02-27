@@ -21,6 +21,15 @@ pkg-url = "{ repo }/releases/download/v{ version }/mlbt-{ target }.tar.gz"
 bin-dir = "mlbt{ binary-ext }"
 pkg-fmt = "tgz"
 
+[package.metadata.deb]
+maintainer = "Andrew Schneider <andjschneider@gmail.com>"
+section = "utils"
+
+[package.metadata.generate-rpm]
+assets = [
+    { source = "target/release/mlbt", dest = "/usr/bin/mlbt", mode = "0755" },
+]
+
 [workspace]
 members = [".", "api"]
 
