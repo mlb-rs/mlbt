@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update Rust to 1.93
 - Update `ratatui` to 0.30.0
 
+### Fixed
+
+- Fix historical standings in [PR 94](https://github.com/mlb-rs/mlbt/pull/94):
+  - Previous season team names are displayed correctly
+  - Pre-1969 standings are now displayed, sorted by league and not by division. [Issue 57](https://github.com/mlb-rs/mlbt/issues/57)
+
 ## [0.0.19] - 2025-07-30
 
 ### Fixed
