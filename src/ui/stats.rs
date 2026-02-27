@@ -1,5 +1,5 @@
 use crate::components::stats::{
-    STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH, StatsState, TeamOrPlayer,
+    ActivePane, STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH, StatsState, TeamOrPlayer,
 };
 use mlb_api::client::StatGroup;
 use tui::prelude::*;
@@ -73,7 +73,7 @@ impl StatefulWidget for StatsWidget {
         }
 
         // stats
-        let t = Table::new(rows, constraints)
+        let mut t = Table::new(rows, constraints)
             .header(header)
             .column_spacing(0)
             .block(
@@ -86,8 +86,14 @@ impl StatefulWidget for StatsWidget {
                         Style::default().fg(Color::Black).bg(Color::Blue),
                     )),
             );
+        if state.active_pane == ActivePane::Data {
+            t = t.row_highlight_style(Style::default().bg(Color::Blue).fg(Color::Black));
+        }
 
-        StatefulWidget::render(t, chunks[0], buf, &mut state.state);
+        // borders (2) + header (1) = 3 rows of overhead
+        state.visible_rows = chunks[0].height.saturating_sub(3) as usize;
+
+        StatefulWidget::render(t, chunks[0], buf, &mut state.data_state);
 
         if self.show_options {
             let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
@@ -133,16 +139,16 @@ impl StatefulWidget for StatsWidget {
                 Constraint::Length(6),
                 Constraint::Length(25),
             ];
-            let t = Table::new(options, widths)
-                .column_spacing(0)
-                .block(
-                    Block::default()
-                        .padding(Padding::new(1, 1, 0, 0))
-                        .borders(Borders::ALL)
-                        .border_type(BorderType::Rounded),
-                )
-                .row_highlight_style(selected_style);
-            StatefulWidget::render(t, options_rect, buf, &mut state.state);
+            let mut t = Table::new(options, widths).column_spacing(0).block(
+                Block::default()
+                    .padding(Padding::new(1, 1, 0, 0))
+                    .borders(Borders::ALL)
+                    .border_type(BorderType::Rounded),
+            );
+            if state.active_pane == ActivePane::Options {
+                t = t.row_highlight_style(selected_style);
+            }
+            StatefulWidget::render(t, options_rect, buf, &mut state.options_state);
         }
     }
 }

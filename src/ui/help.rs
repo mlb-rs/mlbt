@@ -1,12 +1,14 @@
 use crate::components::banner::BANNER;
 use crate::config::ConfigFile;
 use tui::layout::{Alignment, Constraint, Flex, Layout};
-use tui::prelude::{Buffer, Modifier, Rect, Style};
-use tui::widgets::{Paragraph, Row, Table, Widget};
+use tui::prelude::*;
+use tui::widgets::{Paragraph, Row, Table, TableState};
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
-pub const DOCS: &[&[&str; 2]; 38] = &[
+pub const DOCS: &[&[&str; 2]; 43] = &[
     &["Exit help", "Esc"],
+    &["Move down", "j/↓"],
+    &["Move up", "k/↑"],
     &["Quit", "q"],
     &["Full screen", "f"],
     &["Scoreboard", "1"],
@@ -32,8 +34,11 @@ pub const DOCS: &[&[&str; 2]; 38] = &[
     &["Stats", "3"],
     &["Switch hitting/pitching", "h/p"],
     &["Switch team/player", "t/l"],
+    &["Switch pane", "←/→/Tab"],
     &["Move down", "j/↓"],
     &["Move up", "k/↑"],
+    &["Page down", "Shift + j/↓"],
+    &["Page up", "Shift + k/↑"],
     &["Toggle stat", "Enter"],
     &["Sort by stat", "s"],
     &["Select date", ":"],
@@ -52,10 +57,34 @@ struct HelpRow {
     text: Vec<String>,
 }
 
+pub struct HelpState {
+    pub state: TableState,
+}
+
+impl Default for HelpState {
+    fn default() -> Self {
+        let mut state = TableState::default();
+        state.select(Some(0));
+        Self { state }
+    }
+}
+
+impl HelpState {
+    pub fn next(&mut self) {
+        self.state.scroll_down_by(1);
+    }
+
+    pub fn previous(&mut self) {
+        self.state.scroll_up_by(1);
+    }
+}
+
 pub struct HelpWidget {}
 
-impl Widget for HelpWidget {
-    fn render(self, area: Rect, buf: &mut Buffer) {
+impl StatefulWidget for HelpWidget {
+    type State = TableState;
+
+    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         // Create a one-column table to avoid flickering due to non-determinism when
         // resolving constraints on widths of table columns.
         let format_row = |r: &[&str; 2]| -> HelpRow {
@@ -86,10 +115,16 @@ impl Widget for HelpWidget {
             .horizontal_margin(2)
             .areas(area);
 
-        Table::new(rows, [Constraint::Percentage(100)])
-            .header(header)
-            .style(help_menu_style)
-            .render(table, buf);
+        let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
+        StatefulWidget::render(
+            Table::new(rows, [Constraint::Percentage(100)])
+                .header(header)
+                .style(help_menu_style)
+                .row_highlight_style(selected_style),
+            table,
+            buf,
+            state,
+        );
 
         let config_file = if let Some(path) = ConfigFile::get_config_location() {
             path.to_string_lossy().to_string()
