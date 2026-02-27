@@ -29,6 +29,7 @@ pub struct GameData {
     pub game: Game,
     pub teams: Teams,
     pub players: HashMap<String, FullPlayer>,
+    pub abs_challenges: Option<AbsChallenges>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -104,6 +105,22 @@ pub struct Game {
     pub calendar_event_id: String,
     pub season: String,
     pub season_display: String,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PerTeamChallenges {
+    pub used_successful: u8,
+    pub used_failed: u8,
+    pub remaining: u8,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AbsChallenges {
+    pub has_challenges: bool,
+    pub away: PerTeamChallenges,
+    pub home: PerTeamChallenges,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]

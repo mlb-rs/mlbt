@@ -1,4 +1,6 @@
+use crate::components::game::live_game::PlayerMap;
 use crate::components::game::pitches::Pitch;
+use crate::components::standings::Team;
 use crate::ui::gameday::plays::{BLUE, SCORING_SYMBOL, build_scoring_span};
 use tui::prelude::{Line, Span, Style};
 
@@ -66,15 +68,17 @@ impl PitchEvent {
     pub fn as_lines(
         &self,
         debug: bool,
-        home_team_abbreviation: &'static str,
-        away_team_abbreviation: &'static str,
+        home_team: &Team,
+        away_team: &Team,
+        players: &PlayerMap,
     ) -> Option<Vec<Line<'_>>> {
         match self.event_type {
-            PitchEventType::Pitch if self.pitch.is_some() => {
-                self.pitch.as_ref().map(|pitch| pitch.as_lines(debug))
-            }
+            PitchEventType::Pitch if self.pitch.is_some() => self
+                .pitch
+                .as_ref()
+                .map(|pitch| pitch.as_lines(debug, home_team, away_team, players)),
             PitchEventType::Pitch => None,
-            _ => Some(self.format_non_pitch_event(home_team_abbreviation, away_team_abbreviation)),
+            _ => Some(self.format_non_pitch_event(home_team.abbreviation, away_team.abbreviation)),
         }
     }
 

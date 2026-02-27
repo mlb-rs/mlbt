@@ -91,6 +91,17 @@ pub struct PlayEvent {
     pub is_pitch: bool,
     pub is_base_running_play: Option<bool>,
     pub pitch_number: Option<u8>,
+    pub review_details: Option<ReviewDetails>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReviewDetails {
+    pub is_overturned: bool,
+    pub in_progress: bool,
+    pub review_type: String,
+    pub challenge_team_id: u16,
+    pub player: Option<Person>,
 }
 
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
@@ -119,8 +130,16 @@ pub struct Details {
 
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
 pub struct CodeDescription {
+    #[serde(default = "CodeDescription::default_code")]
     pub code: String,
     pub description: String,
+}
+
+impl CodeDescription {
+    /// Default code to "UNKNOWN" if the code key is missing.
+    fn default_code() -> String {
+        "UNKNOWN".to_owned()
+    }
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]

@@ -1,5 +1,8 @@
+use crate::components::game::live_game::PlayerMap;
 use crate::components::game::pitch_event::PitchEvent;
+use crate::components::game::review::ReviewDetails;
 use crate::components::game::strikezone::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP};
+use crate::components::standings::Team;
 use crate::components::util::convert_color;
 use mlb_api::plays::{Play, PlayEvent};
 use tui::{
@@ -18,14 +21,15 @@ pub struct Pitch {
     #[allow(dead_code)]
     pub strike: bool,
     pub color: Color,
-    pub description: String, // called strike, hit, strike out, ect.
+    pub description: String, // called strike, hit, strike out, etc.
     pub location: (f64, f64),
     pub index: u8,
-    pub pitch_type: String, // fastball, slider, ect.
+    pub pitch_type: String, // fastball, slider, etc.
     pub speed: f64,
     pub strike_zone_bot: f64,
     pub strike_zone_top: f64,
     pub count: Count,
+    pub review_details: Option<ReviewDetails>,
 }
 
 impl Default for Pitch {
@@ -41,6 +45,7 @@ impl Default for Pitch {
             strike_zone_bot: DEFAULT_SZ_BOT,
             strike_zone_top: DEFAULT_SZ_TOP,
             count: Count::default(),
+            review_details: None,
         }
     }
 }
@@ -87,14 +92,15 @@ impl From<&PlayEvent> for Pitch {
             description: pitch_details.description.clone().unwrap_or_default(),
             pitch_type: pitch_details
                 .pitch_type
-                .clone()
-                .unwrap_or_default()
-                .description,
+                .as_ref()
+                .map(|pt| pt.description.clone())
+                .unwrap_or_default(),
             location: (*x_coord, *z_coord),
             index: play.pitch_number.unwrap_or_default(),
             strike_zone_bot: pitch_data.strike_zone_bottom.unwrap_or(DEFAULT_SZ_BOT),
             strike_zone_top: pitch_data.strike_zone_top.unwrap_or(DEFAULT_SZ_TOP),
             count: play.count.clone().into(),
+            review_details: play.review_details.as_ref().map(ReviewDetails::from),
         }
     }
 }
@@ -115,25 +121,53 @@ impl Pitch {
 
     /// Convert a pitch into a TUI Line item, displaying the pitch index, result (ball, strike, ect)
     /// and pitch type (cutter, changeup, ect). For example: "1  Foul | Four-Seam Fastball"
-    pub fn as_lines(&self, debug: bool) -> Vec<Line<'_>> {
-        vec![Line::from(vec![
-            Span::styled(
-                format!(" {:<2}", self.index),
-                Style::default().fg(self.color),
-            ),
-            Span::raw(self.format(debug)),
-        ])]
+    /// If the pitch is under review, a new line will displayed under the pitch with the player and
+    /// team that initiated the review.
+    pub fn as_lines(
+        &self,
+        debug: bool,
+        home_team: &Team,
+        away_team: &Team,
+        players: &PlayerMap,
+    ) -> Vec<Line<'_>> {
+        let mut lines = Vec::new();
+
+        // if the pitch is under review, display the review status above the pitch info
+        if let Some(review) = &self.review_details
+            && let Some(spans) = review.format_in_progress_spans(home_team, away_team, players)
+        {
+            let mut in_progress_spans = vec![Span::raw(" ")];
+            in_progress_spans.extend(spans);
+            lines.push(Line::from(in_progress_spans));
+        }
+
+        let mut pitch_line_spans = vec![Span::styled(
+            format!(" {:<2}", self.index),
+            Style::default().fg(self.color),
+        )];
+        pitch_line_spans.extend(self.format_spans(debug, players));
+        lines.push(Line::from(pitch_line_spans));
+
+        lines
     }
 
-    fn format(&self, debug: bool) -> String {
-        let s = format!(
+    fn format_spans(&self, debug: bool, players: &PlayerMap) -> Vec<Span<'_>> {
+        let base = format!(
             " {:<20}| {}-{} | {:^5.1}| {}",
-            self.description, self.count.balls, self.count.strikes, self.speed, self.pitch_type
+            self.description, self.count.balls, self.count.strikes, self.speed, self.pitch_type,
         );
-        if debug {
-            return format!(" {} | {:?}", s, self.location);
+        let s = if debug {
+            format!(" {} | {:?}", base, self.location)
+        } else {
+            base
+        };
+        let mut spans = vec![Span::raw(s)];
+        if let Some(review) = &self.review_details
+            && let Some(review_spans) = review.format_status_spans(players)
+        {
+            spans.extend(review_spans);
         }
-        s
+        spans
     }
 }
 

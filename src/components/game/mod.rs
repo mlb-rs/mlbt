@@ -5,5 +5,6 @@ pub mod pitch_event;
 pub mod pitches;
 pub mod player;
 pub mod plays;
+mod review;
 pub mod strikezone;
 pub mod win_probability;

@@ -29,6 +29,10 @@ pub struct GameState {
     pub in_hole: Option<PlayerId>,
     pub win_probability: WinProbability,
     pub players: PlayerMap,
+    /// Remaining ABS challenges, if available.
+    pub home_abs_challenges: Option<u8>,
+    /// Remaining ABS challenges, if available.
+    pub away_abs_challenges: Option<u8>,
 }
 
 impl GameState {
@@ -41,6 +45,7 @@ impl GameState {
         self.players = Self::create_players(live_data); // do this first
         self.set_teams(live_data);
         self.set_on_deck(live_data);
+        self.set_abs_challenges(live_data);
         self.current_at_bat = Self::get_current_play_ab_index(live_data);
         self.linescore = LineScore::from_live_data(live_data);
         if let Some(plays) = &live_data.live_data.plays.all_plays {
@@ -58,6 +63,12 @@ impl GameState {
             .get(live_data.game_data.teams.away.name.as_str())
             .cloned()
             .unwrap_or_default();
+    }
+
+    fn set_abs_challenges(&mut self, live_data: &LiveResponse) {
+        let abs = live_data.game_data.abs_challenges.as_ref();
+        self.home_abs_challenges = abs.map(|abs| abs.home.remaining);
+        self.away_abs_challenges = abs.map(|abs| abs.away.remaining);
     }
 
     fn set_on_deck(&mut self, live_data: &LiveResponse) {

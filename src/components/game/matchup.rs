@@ -85,29 +85,34 @@ impl From<&Play> for Matchup {
 }
 
 impl Matchup {
-    pub fn format_home_lines(
+    pub fn format_team_lines(
         &self,
-        home_name: &str,
+        team_name: &str,
+        abs_challenges: Option<u8>,
+        is_home: bool,
         current_play: bool,
         players: &PlayerMap,
     ) -> Vec<Line<'_>> {
-        let mut lines = vec![Line::from(home_name.to_string()).bold()];
-        if self.is_top {
-            lines.extend(self.get_pitcher_display_lines(current_play, players));
+        // only show the remaining challenges if the current play is selected
+        let challenges = if current_play {
+            match abs_challenges {
+                Some(0) => "◇ ◇",
+                Some(1) => "◆ ◇",
+                Some(2) => "◆ ◆",
+                _ => "",
+            }
         } else {
-            lines.extend(self.get_batter_display_lines(current_play, players));
-        }
-        lines
-    }
+            ""
+        };
+        let header = match (is_home, challenges.is_empty()) {
+            (true, false) => format!("{challenges}  {team_name}"),
+            (false, false) => format!("{team_name}  {challenges}"),
+            _ => team_name.to_string(),
+        };
+        let mut lines = vec![Line::from(header).bold()];
 
-    pub fn format_away_lines(
-        &self,
-        away_name: &str,
-        current_play: bool,
-        players: &PlayerMap,
-    ) -> Vec<Line<'_>> {
-        let mut lines = vec![Line::from(away_name.to_string()).bold()];
-        if self.is_top {
+        let is_batting = if is_home { !self.is_top } else { self.is_top };
+        if is_batting {
             lines.extend(self.get_batter_display_lines(current_play, players));
         } else {
             lines.extend(self.get_pitcher_display_lines(current_play, players));
@@ -194,11 +199,45 @@ impl Matchup {
     }
 }
 
-#[test]
-fn test_matchup_default_runners() {
-    // verify that the default is to have no runners on base
-    let r = Runners::default();
-    assert!(!r.first);
-    assert!(!r.second);
-    assert!(!r.third);
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashMap;
+
+    fn header(name: &str, challenges: Option<u8>, is_home: bool, current: bool) -> String {
+        let m = Matchup::default();
+        m.format_team_lines(name, challenges, is_home, current, &HashMap::new())[0].to_string()
+    }
+
+    #[test]
+    fn default_runners() {
+        let r = Runners::default();
+        assert!(!r.first && !r.second && !r.third);
+    }
+
+    #[test]
+    fn home_challenges_before_name() {
+        assert!(header("NYY", Some(2), true, true).starts_with("◆ ◆"));
+    }
+
+    #[test]
+    fn away_challenges_after_name() {
+        let h = header("BOS", Some(1), false, true);
+        assert!(h.starts_with("BOS") && h.contains("◆ ◇"));
+    }
+
+    #[test]
+    fn zero_challenges_shows_empty_diamonds() {
+        assert!(header("CHC", Some(0), true, true).contains("◇ ◇"));
+    }
+
+    #[test]
+    fn no_challenges_when_not_current_play() {
+        assert_eq!(header("CHC", Some(2), true, false), "CHC");
+    }
+
+    #[test]
+    fn no_challenges_when_none() {
+        assert_eq!(header("CHC", None, true, true), "CHC");
+    }
 }
