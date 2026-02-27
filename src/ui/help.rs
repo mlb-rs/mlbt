@@ -5,7 +5,7 @@ use tui::prelude::{Buffer, Modifier, Rect, Style};
 use tui::widgets::{Paragraph, Row, Table, Widget};
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
-pub const DOCS: &[&[&str; 2]; 38] = &[
+pub const DOCS: &[&[&str; 2]; 41] = &[
     &["Exit help", "Esc"],
     &["Quit", "q"],
     &["Full screen", "f"],
@@ -32,8 +32,11 @@ pub const DOCS: &[&[&str; 2]; 38] = &[
     &["Stats", "3"],
     &["Switch hitting/pitching", "h/p"],
     &["Switch team/player", "t/l"],
+    &["Switch pane", "←/→/Tab"],
     &["Move down", "j/↓"],
     &["Move up", "k/↑"],
+    &["Page down", "Shift + j/↓"],
+    &["Page up", "Shift + k/↑"],
     &["Toggle stat", "Enter"],
     &["Sort by stat", "s"],
     &["Select date", ":"],

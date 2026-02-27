@@ -29,6 +29,13 @@ pub enum TeamOrPlayer {
     Player,
 }
 
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub enum ActivePane {
+    Data,
+    #[default]
+    Options,
+}
+
 #[derive(Copy, Clone, Debug, Default, Eq, PartialEq)]
 pub enum Order {
     #[default]
@@ -75,7 +82,12 @@ impl Default for Sort {
 
 /// Stores the state for rendering the stats.
 pub struct StatsState {
-    pub state: TableState,
+    /// TableState for the options sidebar column selection.
+    pub options_state: TableState,
+    /// TableState for the main data table row selection.
+    pub data_state: TableState,
+    /// Which pane is currently focused.
+    pub active_pane: ActivePane,
     /// The stat type combination of team/player and pitching/hitting.
     pub stat_type: StatType,
     /// Stores the data in columnar form. The key is the column name and the value contains the
@@ -88,6 +100,8 @@ pub struct StatsState {
     pub show_options: bool,
     /// Date selector for viewing stats on a specific date.
     pub date_selector: DateSelector,
+    /// Visible row count in the data table, updated during render.
+    pub visible_rows: usize,
 }
 
 /// The information for a stat, including all the data values.
@@ -103,7 +117,9 @@ pub struct TableEntry {
 impl Default for StatsState {
     fn default() -> Self {
         let mut ss = StatsState {
-            state: TableState::default(),
+            options_state: TableState::default(),
+            data_state: TableState::default(),
+            active_pane: ActivePane::default(),
             stat_type: StatType {
                 group: StatGroup::Pitching,
                 team_player: TeamOrPlayer::Team,
@@ -112,8 +128,9 @@ impl Default for StatsState {
             sorting: Sort::default(),
             show_options: true,
             date_selector: DateSelector::default(),
+            visible_rows: 0,
         };
-        ss.state.select(Some(0));
+        ss.options_state.select(Some(0));
         ss
     }
 }
@@ -122,12 +139,20 @@ impl StatsState {
     pub fn update(&mut self, stats: &StatsResponse) {
         self.stats.clear();
         self.create_table(stats);
+        self.data_state.select(Some(0));
     }
 
     /// Set the date from the validated input string from the date picker.
     pub fn set_date_from_valid_input(&mut self, date: NaiveDate) {
         self.date_selector.set_date_from_valid_input(date);
-        self.state.select(Some(0));
+        self.select(Some(0));
+    }
+
+    fn select(&mut self, index: Option<usize>) {
+        match self.active_pane {
+            ActivePane::Data => self.data_state.select(index),
+            ActivePane::Options => self.options_state.select(index),
+        }
     }
 
     /// Set the date using Left/Right arrow keys to move a single day at a time.
@@ -301,7 +326,7 @@ impl StatsState {
 
     /// Toggle the visibility of the stat column that is selected.
     pub fn toggle_stat(&mut self) {
-        let toggled_column_index = self.state.selected().unwrap_or_default();
+        let toggled_column_index = self.options_state.selected().unwrap_or_default();
         let sort_column_index = self.get_sort_column_index();
 
         if let Some((_, v)) = self.stats.get_index_mut(toggled_column_index) {
@@ -332,7 +357,7 @@ impl StatsState {
 
     /// Sort the table by this stat.
     pub fn store_sort_column(&mut self) {
-        let Some(selected_index) = self.state.selected() else {
+        let Some(selected_index) = self.options_state.selected() else {
             return;
         };
 
@@ -380,10 +405,46 @@ impl StatsState {
         }
     }
 
+    pub fn toggle_options(&mut self) {
+        self.show_options = !self.show_options;
+        if !self.show_options {
+            self.active_pane = ActivePane::Data;
+        }
+    }
+
+    pub fn switch_pane(&mut self) {
+        if !self.show_options {
+            return;
+        }
+        self.active_pane = match self.active_pane {
+            ActivePane::Data => ActivePane::Options,
+            ActivePane::Options => ActivePane::Data,
+        };
+    }
+
+    fn row_count(&self) -> usize {
+        self.stats
+            .values()
+            .next()
+            .map(|entry| entry.rows.len())
+            .unwrap_or(0)
+    }
+
     pub fn next(&mut self) {
-        let i = match self.state.selected() {
+        let len = match self.active_pane {
+            ActivePane::Data => self.row_count(),
+            ActivePane::Options => self.stats.len(),
+        };
+        if len == 0 {
+            return;
+        }
+        let selected = match self.active_pane {
+            ActivePane::Data => self.data_state.selected(),
+            ActivePane::Options => self.options_state.selected(),
+        };
+        let i = match selected {
             Some(i) => {
-                if i >= self.stats.len() - 1 {
+                if i >= len - 1 {
                     0
                 } else {
                     i + 1
@@ -391,20 +452,61 @@ impl StatsState {
             }
             None => 0,
         };
-        self.state.select(Some(i));
+        self.select(Some(i));
+    }
+
+    pub fn page_down(&mut self) {
+        if self.active_pane != ActivePane::Data {
+            return;
+        }
+        let len = self.row_count();
+        if len == 0 || self.visible_rows == 0 {
+            return;
+        }
+        // The last visible row becomes the first visible row
+        let offset = self.data_state.offset();
+        let last_visible = (offset + self.visible_rows - 1).min(len - 1);
+        *self.data_state.offset_mut() = last_visible;
+        self.data_state.select(Some(last_visible));
+    }
+
+    pub fn page_up(&mut self) {
+        if self.active_pane != ActivePane::Data {
+            return;
+        }
+        let len = self.row_count();
+        if len == 0 || self.visible_rows == 0 {
+            return;
+        }
+        // The first visible row becomes the last visible row
+        let offset = self.data_state.offset();
+        let new_offset = offset.saturating_sub(self.visible_rows - 1);
+        *self.data_state.offset_mut() = new_offset;
+        self.data_state.select(Some(new_offset));
     }
 
     pub fn previous(&mut self) {
-        let i = match self.state.selected() {
+        let len = match self.active_pane {
+            ActivePane::Data => self.row_count(),
+            ActivePane::Options => self.stats.len(),
+        };
+        if len == 0 {
+            return;
+        }
+        let selected = match self.active_pane {
+            ActivePane::Data => self.data_state.selected(),
+            ActivePane::Options => self.options_state.selected(),
+        };
+        let i = match selected {
             Some(i) => {
                 if i == 0 {
-                    self.stats.len() - 1
+                    len - 1
                 } else {
                     i - 1
                 }
             }
             None => 0,
         };
-        self.state.select(Some(i));
+        self.select(Some(i));
     }
 }

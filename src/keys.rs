@@ -88,11 +88,17 @@ pub async fn handle_key_bindings(
             guard.state.date_input.text.pop();
         }
 
+        (MenuItem::Stats, Char('J') | KeyCode::Down, KeyModifiers::SHIFT) => {
+            guard.state.stats.page_down()
+        }
+        (MenuItem::Stats, Char('K') | KeyCode::Up, KeyModifiers::SHIFT) => {
+            guard.state.stats.page_up()
+        }
+        (MenuItem::Stats, KeyCode::PageDown, _) => guard.state.stats.page_down(),
+        (MenuItem::Stats, KeyCode::PageUp, _) => guard.state.stats.page_up(),
         (MenuItem::Stats, Char('j') | KeyCode::Down, _) => guard.state.stats.next(),
         (MenuItem::Stats, Char('k') | KeyCode::Up, _) => guard.state.stats.previous(),
-        (MenuItem::Stats, Char('o'), _) => {
-            guard.state.stats.show_options = !guard.state.stats.show_options
-        }
+        (MenuItem::Stats, Char('o'), _) => guard.state.stats.toggle_options(),
         (MenuItem::Stats, Char('p'), _) => {
             guard.state.stats.stat_type.group = StatGroup::Pitching;
             load_stats(guard, network_requests).await;
@@ -111,6 +117,9 @@ pub async fn handle_key_bindings(
         }
         (MenuItem::Stats, KeyCode::Enter, _) => guard.state.stats.toggle_stat(),
         (MenuItem::Stats, Char('s'), _) => guard.state.stats.store_sort_column(),
+        (MenuItem::Stats, KeyCode::Left | KeyCode::Right | KeyCode::Tab, _) => {
+            guard.state.stats.switch_pane()
+        }
         (MenuItem::Stats, Char(':'), _) => guard.update_tab(MenuItem::DatePicker),
 
         (MenuItem::Standings, Char('j') | KeyCode::Down, _) => guard.state.standings.next(),

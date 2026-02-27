@@ -82,12 +82,14 @@ cargo install mlbt --path .
 ### Docker
 
 `mlbt` [publishes docker images on ghcr](https://github.com/mlb-rs/mlbt/pkgs/container/mlbt).
+
 ```bash
 docker run -it --rm --name mlbt ghcr.io/mlb-rs/mlbt
 ```
 
 `mlbt` follows [semver](https://semver.org/) practices.
 You can execute individual releases explicitly.
+
 ```bash
 docker run -it --rm --name mlbt ghcr.io/mlb-rs/mlbt:v0.0.18
 ```
@@ -202,6 +204,19 @@ To interact with the box score, use:
 
 Press `3` to activate this tab.
 
+Use `←`/`→`/`Tab` to switch focus between the stats table and the options pane.
+When the stats table is focused, `j`/`k` scroll through rows. When the options
+pane is focused, `j`/`k` navigate stat columns for toggling and sorting. You can
+also use `Shift` + `j`/`k` to page through the stats table.
+
+| Key                 | Description                                 |
+|---------------------|---------------------------------------------|
+| `←` / `→` / `Tab`   | switch between stats table and options pane |
+| `j` / `↓`           | move down in active pane                    |
+| `k` / `↑`           | move up in active pane                      |
+| `Shift` + `j` / `↓` | page down in stats table                    |
+| `Shift` + `k` / `↑` | page up in stats table                      |
+
 You can switch between `pitching` and `hitting` stats and filter based on `team`
 or `player` using:
 
@@ -219,14 +234,12 @@ can be turned on/off with `o`.
 To sort the stats by a column, instead of hitting `Enter` you can press `s`. To
 flip the sort order from ascending to descending or vice versa press `s` again.
 
-| Key       | Description                                            |
-|-----------|--------------------------------------------------------|
-| `j` / `↓` | move down                                              |
-| `k` / `↑` | move up                                                |
-| `Enter`   | toggle stat column                                     |
-| `s`       | sort by the currently selected column                  |
-| `:`       | activate date picker (see [Date Picker](#date-picker)) |
-| `o`       | toggle stat selection pane                             |
+| Key     | Description                                            |
+|---------|--------------------------------------------------------|
+| `Enter` | toggle stat column                                     |
+| `s`     | sort by the currently selected column                  |
+| `:`     | activate date picker (see [Date Picker](#date-picker)) |
+| `o`     | toggle stat selection pane                             |
 
 > If your terminal is too small to display all columns, they will be turned off
 > starting from the right side.
