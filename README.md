@@ -14,10 +14,9 @@ Check scores, standings, and stats. Even watch a live game using Gameday!
 
 - [What](#what)
 - [Installation](#installation)
+    - [Cargo](#cargo)
     - [Homebrew](#homebrew)
     - [Binaries](#binaries)
-    - [Cargo binstall](#cargo-binstall)
-    - [Cargo](#cargo)
     - [Docker](#docker)
 - [Features](#features)
 - [Usage](#usage)
@@ -54,6 +53,20 @@ version is to mimic the official version as closely as possible.
 
 ## Installation
 
+### Cargo
+
+Install a pre-built binary using [cargo-binstall](https://github.com/cargo-bins/cargo-binstall):
+
+```bash
+cargo binstall mlbt
+```
+
+Or build from source:
+
+```bash
+cargo install mlbt
+```
+
 ### Homebrew
 
 ```bash
@@ -84,22 +97,6 @@ macOS, Linux, and Windows binaries are available on the
 | Windows (x86_64)       | `x86_64-pc-windows-msvc`        |
 
 `.deb` and `.rpm` packages are also available for Linux x86_64 and ARM64.
-
-### Cargo binstall
-
-Install a pre-built binary using [cargo-binstall](https://github.com/cargo-bins/cargo-binstall):
-
-```bash
-cargo binstall --git https://github.com/mlb-rs/mlbt
-```
-
-### Cargo
-
-After cloning or downloading the source:
-
-```bash
-cargo install mlbt --path .
-```
 
 ### Docker
 
