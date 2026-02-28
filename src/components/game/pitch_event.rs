@@ -32,8 +32,8 @@ pub struct PitchEvent {
     pub home_score: Option<u8>,
 }
 
-impl From<&mlb_api::plays::PlayEvent> for PitchEvent {
-    fn from(play: &mlb_api::plays::PlayEvent) -> Self {
+impl From<&mlbt_api::plays::PlayEvent> for PitchEvent {
+    fn from(play: &mlbt_api::plays::PlayEvent) -> Self {
         let pitch = match play.is_pitch {
             true => Some(Pitch::from(play)),
             false => None,

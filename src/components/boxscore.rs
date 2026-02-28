@@ -1,7 +1,7 @@
 use crate::components::game::player::Player;
 use crate::state::app_state::HomeOrAway;
-use mlb_api::boxscore::{LabelValue, Player as ApiPlayer, Team};
-use mlb_api::live::LiveResponse;
+use mlbt_api::boxscore::{LabelValue, Player as ApiPlayer, Team};
+use mlbt_api::live::LiveResponse;
 use std::collections::HashMap;
 use tui::prelude::{Line, Stylize};
 use tui::style::Color;

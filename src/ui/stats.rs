@@ -1,7 +1,7 @@
 use crate::components::stats::{
     ActivePane, STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH, StatsState, TeamOrPlayer,
 };
-use mlb_api::client::StatGroup;
+use mlbt_api::client::StatGroup;
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Table, Wrap};
 

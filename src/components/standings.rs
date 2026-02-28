@@ -1,7 +1,7 @@
 use crate::components::constants::{DIVISION_ORDERS, DIVISIONS, TEAM_IDS};
 use crate::components::date_selector::DateSelector;
 use chrono::NaiveDate;
-use mlb_api::standings::{RecordElement, StandingsResponse, TeamRecord};
+use mlbt_api::standings::{RecordElement, StandingsResponse, TeamRecord};
 use std::collections::HashSet;
 use std::string::ToString;
 use tui::prelude::{Color, Stylize};

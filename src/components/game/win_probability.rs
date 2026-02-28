@@ -1,6 +1,6 @@
 use crate::components::game::live_game::AtBatIndex;
 use indexmap::IndexMap;
-use mlb_api::win_probability::{WinProbabilityPerAtBat, WinProbabilityResponse};
+use mlbt_api::win_probability::{WinProbabilityPerAtBat, WinProbabilityResponse};
 
 #[derive(Debug)]
 pub struct WinProbability {

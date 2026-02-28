@@ -4,7 +4,7 @@ use crate::components::game::review::ReviewDetails;
 use crate::components::game::strikezone::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP};
 use crate::components::standings::Team;
 use crate::components::util::convert_color;
-use mlb_api::plays::{Play, PlayEvent};
+use mlbt_api::plays::{Play, PlayEvent};
 use tui::{
     style::{Color, Style},
     text::{Line, Span},
@@ -56,8 +56,8 @@ pub struct Count {
     pub strikes: u8,
 }
 
-impl From<mlb_api::plays::Count> for Count {
-    fn from(value: mlb_api::plays::Count) -> Self {
+impl From<mlbt_api::plays::Count> for Count {
+    fn from(value: mlbt_api::plays::Count) -> Self {
         Self {
             balls: value.balls,
             strikes: value.strikes,

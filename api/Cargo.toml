@@ -1,8 +1,11 @@
 [package]
-name = "mlb-api"
+name = "mlbt-api"
 version = "0.2.0"
 authors = ["Andrew Schneider <andjschneider@gmail.com>"]
 edition = "2024"
+description = "Internal API client for mlbt"
+license = "MIT"
+repository = "https://github.com/mlb-rs/mlbt"
 
 [dependencies]
 chrono = { version = "0.4.43", features = ["serde"] }

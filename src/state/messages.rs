@@ -2,11 +2,11 @@ use crate::components::stats::StatType;
 use crate::state::network::LoadingState;
 use chrono::NaiveDate;
 use crossterm::event::KeyEvent;
-use mlb_api::live::LiveResponse;
-use mlb_api::schedule::ScheduleResponse;
-use mlb_api::standings::StandingsResponse;
-use mlb_api::stats::StatsResponse;
-use mlb_api::win_probability::WinProbabilityResponse;
+use mlbt_api::live::LiveResponse;
+use mlbt_api::schedule::ScheduleResponse;
+use mlbt_api::standings::StandingsResponse;
+use mlbt_api::stats::StatsResponse;
+use mlbt_api::win_probability::WinProbabilityResponse;
 
 #[derive(Debug, Clone)]
 pub enum NetworkRequest {

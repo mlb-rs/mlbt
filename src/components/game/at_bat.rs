@@ -2,7 +2,7 @@ use crate::components::game::matchup::Matchup;
 use crate::components::game::pitches::Pitches;
 use crate::components::game::plays::PlayResult;
 use crate::components::game::strikezone::StrikeZone;
-use mlb_api::plays::Play;
+use mlbt_api::plays::Play;
 
 #[derive(Default)]
 pub struct AtBat {

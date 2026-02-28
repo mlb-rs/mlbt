@@ -13,8 +13,8 @@ pub struct ReviewDetails {
     pub player_id: Option<PlayerId>,
 }
 
-impl From<&mlb_api::plays::ReviewDetails> for ReviewDetails {
-    fn from(review: &mlb_api::plays::ReviewDetails) -> Self {
+impl From<&mlbt_api::plays::ReviewDetails> for ReviewDetails {
+    fn from(review: &mlbt_api::plays::ReviewDetails) -> Self {
         Self {
             is_overturned: review.is_overturned,
             in_progress: review.in_progress,
