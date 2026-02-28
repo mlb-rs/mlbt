@@ -1,4 +1,4 @@
-use mlb_api::plays::{Count, Play};
+use mlbt_api::plays::{Count, Play};
 
 #[derive(Default)]
 pub struct PlayEvent {

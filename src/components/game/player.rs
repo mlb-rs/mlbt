@@ -1,5 +1,5 @@
-use mlb_api::boxscore::Player as ApiPlayer;
-use mlb_api::live::FullPlayer;
+use mlbt_api::boxscore::Player as ApiPlayer;
+use mlbt_api::live::FullPlayer;
 
 const DEFAULT_NAME: &str = "-";
 

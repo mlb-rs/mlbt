@@ -1,5 +1,5 @@
 use crate::components::game::live_game::PlayerMap;
-use mlb_api::plays::{Count, Play};
+use mlbt_api::plays::{Count, Play};
 use tui::prelude::Stylize;
 use tui::text::Line;
 
@@ -27,7 +27,7 @@ impl Runners {
     const ON_BASE_CHAR: char = '■';
     const EMPTY_BASE_CHAR: char = '□';
 
-    pub fn from_matchup(matchup: &mlb_api::plays::Matchup) -> Self {
+    pub fn from_matchup(matchup: &mlbt_api::plays::Matchup) -> Self {
         Runners {
             first: matchup.post_on_first.is_some(),
             second: matchup.post_on_second.is_some(),

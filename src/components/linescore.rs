@@ -1,4 +1,4 @@
-use mlb_api::live::LiveResponse;
+use mlbt_api::live::LiveResponse;
 
 use crate::state::app_state::HomeOrAway;
 use tui::style::{Color, Modifier, Style};

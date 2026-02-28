@@ -1,8 +1,6 @@
 use chrono::NaiveDate;
-use mlb_api::client::MLBApi;
-use mlb_api::client::MLBApiBuilder;
-use mlb_api::client::StatGroup;
-use mlb_api::season::GameType;
+use mlbt_api::client::{MLBApi, MLBApiBuilder, StatGroup};
+use mlbt_api::season::GameType;
 use mockito::{Matcher, ServerGuard};
 use std::time::Duration;
 

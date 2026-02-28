@@ -3,7 +3,7 @@ use crate::components::game::live_game::PlayerId;
 use crate::components::game::player::Player;
 use crate::state::app_state::HomeOrAway;
 use crate::state::app_state::HomeOrAway::{Away, Home};
-use mlb_api::live::LiveResponse;
+use mlbt_api::live::LiveResponse;
 use std::collections::HashMap;
 use tui::prelude::*;
 use tui::widgets::{Block, Cell, Paragraph, ScrollbarState, Wrap};

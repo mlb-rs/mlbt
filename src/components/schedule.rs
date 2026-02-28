@@ -6,7 +6,7 @@ use crate::state::app_state::HomeOrAway;
 use chrono::{DateTime, NaiveDate};
 use chrono_tz::Tz;
 use core::option::Option::{None, Some};
-use mlb_api::schedule::{Game, LeagueRecord, ScheduleResponse};
+use mlbt_api::schedule::{Game, LeagueRecord, ScheduleResponse};
 use std::cmp::Ordering;
 use tui::widgets::TableState;
 

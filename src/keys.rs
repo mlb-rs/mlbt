@@ -3,7 +3,7 @@ use crate::components::stats::TeamOrPlayer;
 use crate::{NetworkRequest, cleanup_terminal};
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
-use mlb_api::client::StatGroup;
+use mlbt_api::client::StatGroup;
 use std::sync::Arc;
 use tokio::sync::{Mutex, MutexGuard, mpsc};
 

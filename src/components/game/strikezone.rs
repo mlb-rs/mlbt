@@ -1,6 +1,6 @@
 use tui::style::Color;
 
-use mlb_api::plays::{Play, Zone};
+use mlbt_api::plays::{Play, Zone};
 
 use crate::components::util::convert_color;
 

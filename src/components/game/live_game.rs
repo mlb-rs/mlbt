@@ -5,9 +5,9 @@ use crate::components::game::win_probability::WinProbability;
 use crate::components::linescore::LineScore;
 use crate::components::standings::Team;
 use indexmap::IndexMap;
-use mlb_api::live::LiveResponse;
-use mlb_api::plays::Play;
-use mlb_api::win_probability::WinProbabilityResponse;
+use mlbt_api::live::LiveResponse;
+use mlbt_api::plays::Play;
+use mlbt_api::win_probability::WinProbabilityResponse;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
