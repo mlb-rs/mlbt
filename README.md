@@ -1,6 +1,6 @@
 # mlbt
 
-[![CI](https://github.com/andschneider/mlbt/actions/workflows/ci.yml/badge.svg?event=push)](https://github.com/andschneider/mlbt/actions/workflows/ci.yml)
+[![CI](https://github.com/mlb-rs/mlbt/actions/workflows/ci.yml/badge.svg?event=push)](https://github.com/mlb-rs/mlbt/actions/workflows/ci.yml)
 [![dependency status](https://deps.rs/repo/github/mlb-rs/mlbt/status.svg)](https://deps.rs/repo/github/mlb-rs/mlbt)
 [![Built With Ratatui](https://ratatui.rs/built-with-ratatui/badge.svg)](https://ratatui.rs/)
 
@@ -16,6 +16,7 @@ Check scores, standings, and stats. Even watch a live game using Gameday!
 - [Installation](#installation)
     - [Homebrew](#homebrew)
     - [Binaries](#binaries)
+    - [Cargo binstall](#cargo-binstall)
     - [Cargo](#cargo)
     - [Docker](#docker)
 - [Features](#features)
@@ -71,6 +72,27 @@ brew upgrade mlbt
 macOS, Linux, and Windows binaries are available on the
 [releases](https://github.com/mlb-rs/mlbt/releases) page.
 
+| Platform               | Target                          |
+|------------------------|---------------------------------|
+| macOS (Apple Silicon)  | `aarch64-apple-darwin`          |
+| macOS (Intel)          | `x86_64-apple-darwin`           |
+| Linux (x86_64)         | `x86_64-unknown-linux-gnu`      |
+| Linux (x86_64, static) | `x86_64-unknown-linux-musl`     |
+| Linux (ARM64)          | `aarch64-unknown-linux-gnu`     |
+| Linux (ARM64, static)  | `aarch64-unknown-linux-musl`    |
+| Linux (ARMv7)          | `armv7-unknown-linux-gnueabihf` |
+| Windows (x86_64)       | `x86_64-pc-windows-msvc`        |
+
+`.deb` and `.rpm` packages are also available for Linux x86_64 and ARM64.
+
+### Cargo binstall
+
+Install a pre-built binary using [cargo-binstall](https://github.com/cargo-bins/cargo-binstall):
+
+```bash
+cargo binstall --git https://github.com/mlb-rs/mlbt
+```
+
 ### Cargo
 
 After cloning or downloading the source:
@@ -119,6 +141,8 @@ docker run -it --rm --name mlbt mlbt:latest
     - [X] selectable at bats (view the pitches and outcome of any at bat in the
       game)
     - [X] hit stats (exit velocity, launch angle, distance)
+    - [X] ABS challenge information for 2026+ games (review status, player that
+      challenged)
     - [X] win probability per at bat
 
 - [X] pitching and hitting stats
@@ -130,6 +154,7 @@ docker run -it --rm --name mlbt mlbt:latest
 - [X] standings
     - [X] sorted by favorite team
     - [X] selectable date
+    - [X] division/league view
 
 - [X] configuration
     - [X] favorite team
