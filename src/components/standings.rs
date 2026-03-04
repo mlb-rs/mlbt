@@ -58,6 +58,33 @@ impl Default for Team {
     }
 }
 
+impl Team {
+    /// Create a team from the schedule API response data.
+    /// Uses `Box::leak` to promote strings to `&'static str`.
+    pub fn from_schedule(team: &mlbt_api::schedule::IdNameLink) -> Self {
+        let leaked: &'static str = Box::leak(team.name.clone().into_boxed_str());
+        Self {
+            id: team.id,
+            name: leaked,
+            team_name: leaked,
+            abbreviation: leaked,
+            ..Self::default()
+        }
+    }
+
+    /// Create a team from the live game API response data.
+    /// Uses `Box::leak` to promote strings to `&'static str`.
+    pub fn from_live(team: &mlbt_api::live::Team) -> Self {
+        Self {
+            id: team.id,
+            name: Box::leak(team.name.clone().into_boxed_str()),
+            team_name: Box::leak(team.team_name.clone().into_boxed_str()),
+            abbreviation: Box::leak(team.abbreviation.clone().into_boxed_str()),
+            ..Self::default()
+        }
+    }
+}
+
 /// Standing information per team.
 #[derive(Debug, Default, Clone)]
 pub struct Standing {

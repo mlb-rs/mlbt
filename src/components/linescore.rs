@@ -1,5 +1,6 @@
 use mlbt_api::live::LiveResponse;
 
+use crate::components::standings::Team;
 use crate::state::app_state::HomeOrAway;
 use tui::style::{Color, Modifier, Style};
 use tui::text::Span;
@@ -50,9 +51,9 @@ impl Default for LineScore {
 }
 
 impl LineScore {
-    pub fn from_live_data(live_game: &LiveResponse) -> Self {
-        let home = LineScoreLine::from_live_data(live_game, true);
-        let away = LineScoreLine::from_live_data(live_game, false);
+    pub fn from_live_data(live_game: &LiveResponse, home_team: &Team, away_team: &Team) -> Self {
+        let home = LineScoreLine::from_live_data(live_game, home_team, true);
+        let away = LineScoreLine::from_live_data(live_game, away_team, false);
         let played = live_game.live_data.linescore.current_inning.unwrap_or(0);
         let header = LineScoreLine::create_header_vec(played);
         LineScore {
@@ -65,15 +66,15 @@ impl LineScore {
 }
 
 impl LineScoreLine {
-    pub fn from_live_data(live_game: &LiveResponse, home: bool) -> Self {
-        let (name, team) = match home {
-            true => (&live_game.game_data.teams.home, HomeOrAway::Home),
-            false => (&live_game.game_data.teams.away, HomeOrAway::Away),
+    pub fn from_live_data(live_game: &LiveResponse, team_info: &Team, home: bool) -> Self {
+        let team = match home {
+            true => HomeOrAway::Home,
+            false => HomeOrAway::Away,
         };
         let mut line = LineScoreLine {
             team,
-            name: name.team_name.to_string(),
-            abbreviation: name.abbreviation.to_string(),
+            name: team_info.team_name.to_string(),
+            abbreviation: team_info.abbreviation.to_string(),
             ..Default::default()
         };
         for inning in &live_game.live_data.linescore.innings {
