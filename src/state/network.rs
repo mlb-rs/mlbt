@@ -1,9 +1,11 @@
+use crate::components::constants::register_teams;
 use crate::components::stats::{StatType, TeamOrPlayer};
 use crate::{NetworkRequest, NetworkResponse};
 use chrono::{Datelike, NaiveDate};
 use log::{debug, error, warn};
 use mlbt_api::client::{ApiResult, MLBApi, MLBApiBuilder};
 use mlbt_api::season::{SeasonInfo, game_type_for_date};
+use mlbt_api::teams::SportId;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
@@ -54,6 +56,7 @@ impl NetworkWorker {
         while let Some(request) = self.requests.recv().await {
             self.start_loading_animation().await;
             let result = match request {
+                NetworkRequest::Initialize => self.handle_initialize().await,
                 NetworkRequest::Schedule { date } => self.handle_load_schedule(date).await,
                 NetworkRequest::GameData { game_id } => self.handle_load_game_data(game_id).await,
                 NetworkRequest::Standings { date } => self.handle_load_standings(date).await,
@@ -121,6 +124,24 @@ impl NetworkWorker {
             }
         }?;
         Ok(NetworkResponse::StatsLoaded { stats })
+    }
+
+    /// Best-effort initialization that always returns Ok so the app can proceed even if the API
+    /// calls fails.
+    /// - Fetch teams from the API to populate the dynamic team cache.
+    async fn handle_initialize(&self) -> ApiResult<NetworkResponse> {
+        match self
+            .client
+            .get_teams(&[SportId::Mlb, SportId::International])
+            .await
+        {
+            Ok(response) => {
+                debug!("loaded {} teams from API", response.teams.len());
+                register_teams(response.teams);
+            }
+            Err(e) => warn!("Failed to fetch teams, using static fallback: {}", e.log()),
+        }
+        Ok(NetworkResponse::Initialized)
     }
 
     fn cached_season_info(&self) -> Option<&SeasonInfo> {

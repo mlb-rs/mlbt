@@ -1,6 +1,6 @@
 [package]
 name = "mlbt-api"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Andrew Schneider <andjschneider@gmail.com>"]
 edition = "2024"
 description = "Internal API client for mlbt"

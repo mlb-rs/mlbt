@@ -100,13 +100,7 @@ async fn handle_ui_event(
 ) -> bool {
     match ui_event {
         UiEvent::AppStarted => {
-            let date = {
-                let guard = app.lock().await;
-                guard.state.schedule.date_selector.date
-            };
-            let _ = network_requests
-                .send(NetworkRequest::Schedule { date })
-                .await;
+            let _ = network_requests.send(NetworkRequest::Initialize).await;
             true // Redraw immediately to show loading state
         }
         UiEvent::KeyPressed(key_event) => {
@@ -155,6 +149,16 @@ async fn handle_network_response(
         NetworkResponse::StatsLoaded { stats } => {
             let mut guard = app.lock().await;
             guard.state.stats.update(&stats);
+        }
+        NetworkResponse::Initialized => {
+            // Teams must be loaded before the schedule so international team names resolve.
+            let date = {
+                let guard = app.lock().await;
+                guard.state.schedule.date_selector.date
+            };
+            let _ = network_requests
+                .send(NetworkRequest::Schedule { date })
+                .await;
         }
         NetworkResponse::Error { message } => {
             error!("Network error: {message}");

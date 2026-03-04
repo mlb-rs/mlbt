@@ -1,6 +1,7 @@
 use crate::components::standings::Team;
+use mlbt_api::teams::ApiTeam;
 use std::collections::HashMap;
-use std::sync::LazyLock;
+use std::sync::{LazyLock, OnceLock};
 
 /// This maps the `divisionId` to the `shortName` for each division and league.
 /// The team names are taken from the `divisions` endpoint.
@@ -30,9 +31,43 @@ pub static DIVISION_ORDERS: LazyLock<HashMap<u16, Vec<u16>>> = LazyLock::new(|| 
     ])
 });
 
+/// Teams fetched from the API at startup, used as a fallback when a team is not in `TEAM_IDS`.
+static DYNAMIC_TEAMS: OnceLock<HashMap<String, Team>> = OnceLock::new();
+
+/// Register teams fetched from the API into the dynamic cache.
+/// Uses `Box::leak` to promote `String` → `&'static str` so `Team` can remain `Copy`.
+pub fn register_teams(api_teams: Vec<ApiTeam>) {
+    let mut map = HashMap::with_capacity(api_teams.len());
+    for t in api_teams {
+        let team = Team {
+            id: t.id,
+            division_id: t.division.as_ref().map(|d| d.id).unwrap_or(0),
+            name: Box::leak(t.name.clone().into_boxed_str()),
+            team_name: Box::leak(t.team_name.clone().into_boxed_str()),
+            abbreviation: Box::leak(t.abbreviation.clone().into_boxed_str()),
+        };
+        map.insert(t.name.clone(), team);
+    }
+    let _ = DYNAMIC_TEAMS.set(map);
+}
+
+/// Look up a team by name. Checks the static `TEAM_IDS` first, then falls back to the
+/// dynamic cache populated from the API. Returns a default "unknown" team if not found.
+pub fn lookup_team(name: &str) -> Team {
+    if let Some(team) = TEAM_IDS.get(name) {
+        return *team;
+    }
+    if let Some(dynamic) = DYNAMIC_TEAMS.get()
+        && let Some(team) = dynamic.get(name)
+    {
+        return *team;
+    }
+    Team::default()
+}
+
 /// This maps the full name of a team to its full `Team` struct.
-/// The data is from the `teams` endpoint.
-// TODO generate from API?
+/// The data is from the `teams` endpoint. Historical and alternate team names are included
+/// here since they won't be returned by the API.
 #[rustfmt::skip]
 pub static TEAM_IDS: LazyLock<HashMap<&'static str, Team>> = LazyLock::new(|| {
     let mut m = HashMap::new();

@@ -1,0 +1,1136 @@
+{
+  "teams": [
+    {
+      "id": 897,
+      "name": "Puerto Rico",
+      "abbreviation": "PUR",
+      "teamName": "Puerto Rico",
+      "division": {
+        "id": 310,
+        "name": "Pool A"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 133,
+      "name": "Athletics",
+      "abbreviation": "ATH",
+      "teamName": "Athletics",
+      "division": {
+        "id": 200,
+        "name": "American League West"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 134,
+      "name": "Pittsburgh Pirates",
+      "abbreviation": "PIT",
+      "teamName": "Pirates",
+      "division": {
+        "id": 205,
+        "name": "National League Central"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 135,
+      "name": "San Diego Padres",
+      "abbreviation": "SD",
+      "teamName": "Padres",
+      "division": {
+        "id": 203,
+        "name": "National League West"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 776,
+      "name": "Brazil",
+      "abbreviation": "BRA",
+      "teamName": "Brazil",
+      "division": {
+        "id": 311,
+        "name": "Pool B"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 136,
+      "name": "Seattle Mariners",
+      "abbreviation": "SEA",
+      "teamName": "Mariners",
+      "division": {
+        "id": 200,
+        "name": "American League West"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 137,
+      "name": "San Francisco Giants",
+      "abbreviation": "SF",
+      "teamName": "Giants",
+      "division": {
+        "id": 203,
+        "name": "National League West"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 138,
+      "name": "St. Louis Cardinals",
+      "abbreviation": "STL",
+      "teamName": "Cardinals",
+      "division": {
+        "id": 205,
+        "name": "National League Central"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 139,
+      "name": "Tampa Bay Rays",
+      "abbreviation": "TB",
+      "teamName": "Rays",
+      "division": {
+        "id": 201,
+        "name": "American League East"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 140,
+      "name": "Texas Rangers",
+      "abbreviation": "TEX",
+      "teamName": "Rangers",
+      "division": {
+        "id": 200,
+        "name": "American League West"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 141,
+      "name": "Toronto Blue Jays",
+      "abbreviation": "TOR",
+      "teamName": "Blue Jays",
+      "division": {
+        "id": 201,
+        "name": "American League East"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 142,
+      "name": "Minnesota Twins",
+      "abbreviation": "MIN",
+      "teamName": "Twins",
+      "division": {
+        "id": 202,
+        "name": "American League Central"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 143,
+      "name": "Philadelphia Phillies",
+      "abbreviation": "PHI",
+      "teamName": "Phillies",
+      "division": {
+        "id": 204,
+        "name": "National League East"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 784,
+      "name": "Canada",
+      "abbreviation": "CAN",
+      "teamName": "Canada",
+      "division": {
+        "id": 310,
+        "name": "Pool A"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 144,
+      "name": "Atlanta Braves",
+      "abbreviation": "ATL",
+      "teamName": "Braves",
+      "division": {
+        "id": 204,
+        "name": "National League East"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 145,
+      "name": "Chicago White Sox",
+      "abbreviation": "CWS",
+      "teamName": "White Sox",
+      "division": {
+        "id": 202,
+        "name": "American League Central"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 146,
+      "name": "Miami Marlins",
+      "abbreviation": "MIA",
+      "teamName": "Marlins",
+      "division": {
+        "id": 204,
+        "name": "National League East"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 1171,
+      "name": "Korea",
+      "abbreviation": "KOR",
+      "teamName": "Korea",
+      "division": {
+        "id": 312,
+        "name": "Pool C"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 147,
+      "name": "New York Yankees",
+      "abbreviation": "NYY",
+      "teamName": "Yankees",
+      "division": {
+        "id": 201,
+        "name": "American League East"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 918,
+      "name": "South Africa",
+      "abbreviation": "RSA",
+      "teamName": "South Africa",
+      "division": {
+        "id": 316,
+        "name": "WBC Qualifier 1 - Taipei"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 790,
+      "name": "China",
+      "abbreviation": "CHN",
+      "teamName": "China",
+      "division": {
+        "id": 317,
+        "name": "WBC Qualifier 2 - Tucson"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 791,
+      "name": "Chinese Taipei",
+      "abbreviation": "TPE",
+      "teamName": "Chinese Taipei",
+      "division": {
+        "id": 312,
+        "name": "Pool C"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 920,
+      "name": "Spain",
+      "abbreviation": "ESP",
+      "teamName": "Spain",
+      "division": {
+        "id": 316,
+        "name": "WBC Qualifier 1 - Taipei"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 792,
+      "name": "Colombia",
+      "abbreviation": "COL",
+      "teamName": "Colombia",
+      "division": {
+        "id": 310,
+        "name": "Pool A"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 798,
+      "name": "Cuba",
+      "abbreviation": "CUB",
+      "teamName": "Cuba",
+      "division": {
+        "id": 310,
+        "name": "Pool A"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 158,
+      "name": "Milwaukee Brewers",
+      "abbreviation": "MIL",
+      "teamName": "Brewers",
+      "division": {
+        "id": 205,
+        "name": "National League Central"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 3231,
+      "name": "Croatia",
+      "abbreviation": "CRO",
+      "teamName": "Croatia",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 800,
+      "name": "Czechia",
+      "abbreviation": "CZE",
+      "teamName": "Czechia",
+      "division": {
+        "id": 312,
+        "name": "Pool C"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 805,
+      "name": "Dominican Republic",
+      "abbreviation": "DOM",
+      "teamName": "Dominican Rep.",
+      "division": {
+        "id": 313,
+        "name": "Pool D"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2473,
+      "name": "China",
+      "abbreviation": "CHN",
+      "teamName": "China",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2474,
+      "name": "Chinese Taipei",
+      "abbreviation": "TPE",
+      "teamName": "Chinese Taipei",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2475,
+      "name": "Columbia Blowfish",
+      "abbreviation": "COL",
+      "teamName": "Blowfish",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 6060,
+      "name": "International Player Workout",
+      "abbreviation": "IPW",
+      "teamName": "Int'l Player Workout",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 940,
+      "name": "United States",
+      "abbreviation": "USA",
+      "teamName": "United States",
+      "division": {
+        "id": 311,
+        "name": "Pool B"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2476,
+      "name": "Cuba",
+      "abbreviation": "CUB",
+      "teamName": "Cuba",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2477,
+      "name": "Czech Republic",
+      "abbreviation": "CZE",
+      "teamName": "Czech Republic",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2478,
+      "name": "Fayetteville Swampdogs",
+      "abbreviation": "FAY",
+      "teamName": "Swampdogs",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 815,
+      "name": "France",
+      "abbreviation": "FRA",
+      "teamName": "France",
+      "division": {
+        "id": 316,
+        "name": "WBC Qualifier 1 - Regensburg"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2479,
+      "name": "Germany",
+      "abbreviation": "GER",
+      "teamName": "Germany",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 944,
+      "name": "Venezuela",
+      "abbreviation": "VEN",
+      "teamName": "Venezuela",
+      "division": {
+        "id": 313,
+        "name": "Pool D"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2480,
+      "name": "Holyoke Sox",
+      "abbreviation": "HOL",
+      "teamName": "Holyoke Sox",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2481,
+      "name": "Japan",
+      "abbreviation": "JPN",
+      "teamName": "Japan",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2482,
+      "name": "Keene Swamp Bats",
+      "abbreviation": "KEE",
+      "teamName": "Swamp Bats",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 819,
+      "name": "Germany",
+      "abbreviation": "GER",
+      "teamName": "Germany",
+      "division": {
+        "id": 317,
+        "name": "WBC Qualifier 2 - Tucson"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2484,
+      "name": "Netherlands",
+      "abbreviation": "NED",
+      "teamName": "Netherlands",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 821,
+      "name": "Great Britain",
+      "abbreviation": "GBR",
+      "teamName": "Great Britain",
+      "division": {
+        "id": 311,
+        "name": "Pool B"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2485,
+      "name": "Netherlands Antilles",
+      "abbreviation": "AHO",
+      "teamName": "Netherlands Antilles",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2486,
+      "name": "Newport Gulls",
+      "abbreviation": "NPT",
+      "teamName": "Newport Gulls",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2487,
+      "name": "North Adams SteepleCats",
+      "abbreviation": "NOA",
+      "teamName": "SteepleCats",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2488,
+      "name": "North Shore Navigators",
+      "abbreviation": "NOS",
+      "teamName": "Navigators",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2489,
+      "name": "Pittsfield Dukes",
+      "abbreviation": "PIT",
+      "teamName": "Dukes",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2490,
+      "name": "Torrington Twisters",
+      "abbreviation": "TOR",
+      "teamName": "Twisters",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 840,
+      "name": "Israel",
+      "abbreviation": "ISR",
+      "teamName": "Israel",
+      "division": {
+        "id": 313,
+        "name": "Pool D"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 841,
+      "name": "Italy",
+      "abbreviation": "ITA",
+      "teamName": "Italy",
+      "division": {
+        "id": 311,
+        "name": "Pool B"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 843,
+      "name": "Japan",
+      "abbreviation": "JPN",
+      "teamName": "Japan",
+      "division": {
+        "id": 312,
+        "name": "Pool C"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2510,
+      "name": "Canada",
+      "abbreviation": "CAN",
+      "teamName": "Canada",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2512,
+      "name": "Korea",
+      "abbreviation": "KOR",
+      "teamName": "Korea",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2513,
+      "name": "Lithuania",
+      "abbreviation": "LTU",
+      "teamName": "Lithuania",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 341,
+      "name": "Hanshin Tigers",
+      "abbreviation": "HAN",
+      "teamName": "Tigers",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 867,
+      "name": "Mexico",
+      "abbreviation": "MEX",
+      "teamName": "Mexico",
+      "division": {
+        "id": 311,
+        "name": "Pool B"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 3175,
+      "name": "NECBL All-Stars",
+      "abbreviation": "NEC",
+      "teamName": "NECBL All-Stars",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 3176,
+      "name": "Kokusai Budo University",
+      "abbreviation": "KOK",
+      "teamName": "Kokusai Budo Univ.",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 3177,
+      "name": "Bahamas",
+      "abbreviation": "BAH",
+      "teamName": "Bahamas",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 3178,
+      "name": "USA-Reno",
+      "abbreviation": "REN",
+      "teamName": "USA-Reno",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 3179,
+      "name": "Prince George Axemen",
+      "abbreviation": "PG",
+      "teamName": "Axemen",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 108,
+      "name": "Los Angeles Angels",
+      "abbreviation": "LAA",
+      "teamName": "Angels",
+      "division": {
+        "id": 200,
+        "name": "American League West"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 109,
+      "name": "Arizona Diamondbacks",
+      "abbreviation": "AZ",
+      "teamName": "D-backs",
+      "division": {
+        "id": 203,
+        "name": "National League West"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 878,
+      "name": "Kingdom of the Netherlands",
+      "abbreviation": "NED",
+      "teamName": "Netherlands",
+      "division": {
+        "id": 313,
+        "name": "Pool D"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 110,
+      "name": "Baltimore Orioles",
+      "abbreviation": "BAL",
+      "teamName": "Orioles",
+      "division": {
+        "id": 201,
+        "name": "American League East"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 2671,
+      "name": "Hokkaido Nippon Ham Fighters",
+      "abbreviation": "NHF",
+      "teamName": "Fighters",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 111,
+      "name": "Boston Red Sox",
+      "abbreviation": "BOS",
+      "teamName": "Red Sox",
+      "division": {
+        "id": 201,
+        "name": "American League East"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 880,
+      "name": "New Zealand",
+      "abbreviation": "NZL",
+      "teamName": "New Zealand",
+      "division": {
+        "id": 317,
+        "name": "WBC Qualifier 2 - Panama City"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 112,
+      "name": "Chicago Cubs",
+      "abbreviation": "CHC",
+      "teamName": "Cubs",
+      "division": {
+        "id": 205,
+        "name": "National League Central"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 881,
+      "name": "Nicaragua",
+      "abbreviation": "NCA",
+      "teamName": "Nicaragua",
+      "division": {
+        "id": 313,
+        "name": "Pool D"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 241,
+      "name": "Tokyo Yomiuri Giants",
+      "abbreviation": "YOM",
+      "teamName": "Giants",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 113,
+      "name": "Cincinnati Reds",
+      "abbreviation": "CIN",
+      "teamName": "Reds",
+      "division": {
+        "id": 205,
+        "name": "National League Central"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 114,
+      "name": "Cleveland Guardians",
+      "abbreviation": "CLE",
+      "teamName": "Guardians",
+      "division": {
+        "id": 202,
+        "name": "American League Central"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 115,
+      "name": "Colorado Rockies",
+      "abbreviation": "COL",
+      "teamName": "Rockies",
+      "division": {
+        "id": 203,
+        "name": "National League West"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 116,
+      "name": "Detroit Tigers",
+      "abbreviation": "DET",
+      "teamName": "Tigers",
+      "division": {
+        "id": 202,
+        "name": "American League Central"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 757,
+      "name": "Argentina",
+      "abbreviation": "ARG",
+      "teamName": "Argentina",
+      "division": {
+        "id": 317,
+        "name": "WBC Qualifier 2 - Panama City"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 117,
+      "name": "Houston Astros",
+      "abbreviation": "HOU",
+      "teamName": "Astros",
+      "division": {
+        "id": 200,
+        "name": "American League West"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 118,
+      "name": "Kansas City Royals",
+      "abbreviation": "KC",
+      "teamName": "Royals",
+      "division": {
+        "id": 202,
+        "name": "American League Central"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 887,
+      "name": "Pakistan",
+      "abbreviation": "PAK",
+      "teamName": "Pakistan",
+      "division": {
+        "id": 317,
+        "name": "WBC Qualifier 2 - Panama City"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 119,
+      "name": "Los Angeles Dodgers",
+      "abbreviation": "LAD",
+      "teamName": "Dodgers",
+      "division": {
+        "id": 203,
+        "name": "National League West"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 760,
+      "name": "Australia",
+      "abbreviation": "AUS",
+      "teamName": "Australia",
+      "division": {
+        "id": 312,
+        "name": "Pool C"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 120,
+      "name": "Washington Nationals",
+      "abbreviation": "WSH",
+      "teamName": "Nationals",
+      "division": {
+        "id": 204,
+        "name": "National League East"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 121,
+      "name": "New York Mets",
+      "abbreviation": "NYM",
+      "teamName": "Mets",
+      "division": {
+        "id": 204,
+        "name": "National League East"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      }
+    },
+    {
+      "id": 890,
+      "name": "Panama",
+      "abbreviation": "PAN",
+      "teamName": "Panama",
+      "division": {
+        "id": 310,
+        "name": "Pool A"
+      },
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 2171,
+      "name": "USA Baseball National Team",
+      "abbreviation": "USA",
+      "teamName": "USAB National Team",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    },
+    {
+      "id": 3198,
+      "name": "Guatemala",
+      "abbreviation": "GUA",
+      "teamName": "Guatemala",
+      "sport": {
+        "id": 51,
+        "name": "International Baseball"
+      }
+    }
+  ]
+}

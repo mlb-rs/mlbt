@@ -1,4 +1,4 @@
-use crate::components::constants::TEAM_IDS;
+use crate::components::constants::lookup_team;
 use crate::components::game::at_bat::AtBat;
 use crate::components::game::player::{Player, PlayerStats};
 use crate::components::game::win_probability::WinProbability;
@@ -55,14 +55,8 @@ impl GameState {
     }
 
     fn set_teams(&mut self, live_data: &LiveResponse) {
-        self.home_team = TEAM_IDS
-            .get(live_data.game_data.teams.home.name.as_str())
-            .cloned()
-            .unwrap_or_default();
-        self.away_team = TEAM_IDS
-            .get(live_data.game_data.teams.away.name.as_str())
-            .cloned()
-            .unwrap_or_default();
+        self.home_team = lookup_team(&live_data.game_data.teams.home.name);
+        self.away_team = lookup_team(&live_data.game_data.teams.away.name);
     }
 
     fn set_abs_challenges(&mut self, live_data: &LiveResponse) {
