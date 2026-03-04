@@ -36,7 +36,7 @@ mod tests {
         let m = server
             .mock(
                 "GET",
-                "/v1/schedule?sportId=1&hydrate=linescore&date=2021-07-13",
+                "/v1/schedule?sportId=1,51&hydrate=linescore&date=2021-07-13",
             )
             .with_status(200)
             .with_header("content-type", "application/json;charset=UTF-8")
@@ -47,6 +47,27 @@ mod tests {
         let resp = client.get_schedule_date(date).await.unwrap();
         m.assert(); // assert mock was called
         assert_eq!(resp.total_games, 1);
+    }
+
+    /// Test that a schedule with both MLB and WBC games can be parsed.
+    #[tokio::test]
+    async fn test_schedule_wbc() {
+        let (client, mut server) = generate_mock_client().await;
+
+        let m = server
+            .mock(
+                "GET",
+                "/v1/schedule?sportId=1,51&hydrate=linescore&date=2026-03-14",
+            )
+            .with_status(200)
+            .with_header("content-type", "application/json;charset=UTF-8")
+            .with_body_from_file("./tests/responses/schedule-wbc.json")
+            .create();
+
+        let date = NaiveDate::from_ymd_opt(2026, 3, 14).unwrap();
+        let resp = client.get_schedule_date(date).await.unwrap();
+        m.assert();
+        assert_eq!(resp.total_games, 19);
     }
 
     #[tokio::test]

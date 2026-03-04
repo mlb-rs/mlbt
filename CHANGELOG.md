@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.1] - 2026-03-03
 
+### Added
+
+- World Baseball Classic games will show up in the Schedule view: [PR 101](https://github.com/mlb-rs/mlbt/pull/101)
+ 
 ### Fixed
 
 - Fix World Baseball Classic team names not showing up correctly: [PR 100](https://github.com/mlb-rs/mlbt/pull/100)
