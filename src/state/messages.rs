@@ -10,6 +10,7 @@ use mlbt_api::win_probability::WinProbabilityResponse;
 
 #[derive(Debug, Clone)]
 pub enum NetworkRequest {
+    Initialize,
     Schedule {
         date: NaiveDate,
     },
@@ -43,6 +44,7 @@ pub enum NetworkResponse {
     StatsLoaded {
         stats: StatsResponse,
     },
+    Initialized,
     // TODO pass through errors from API
     #[allow(dead_code)]
     Error {

@@ -1,4 +1,4 @@
-use crate::components::constants::{DIVISION_ORDERS, DIVISIONS, TEAM_IDS};
+use crate::components::constants::{DIVISION_ORDERS, DIVISIONS, lookup_team};
 use crate::components::date_selector::DateSelector;
 use chrono::NaiveDate;
 use mlbt_api::standings::{RecordElement, StandingsResponse, TeamRecord};
@@ -360,10 +360,7 @@ impl Standing {
             .unwrap_or_else(|| "-".to_string());
 
         Standing {
-            team: TEAM_IDS
-                .get(&team.team.name.as_str())
-                .cloned()
-                .unwrap_or_default(),
+            team: lookup_team(&team.team.name),
             wins: team.wins,
             losses: team.losses,
             winning_percentage: team.winning_percentage.clone(),

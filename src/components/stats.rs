@@ -1,4 +1,4 @@
-use crate::components::constants::TEAM_IDS;
+use crate::components::constants::lookup_team;
 use crate::components::date_selector::DateSelector;
 use chrono::NaiveDate;
 use indexmap::IndexMap;
@@ -168,9 +168,8 @@ impl StatsState {
                     Some(p) => p.full_name.clone(),
                     None => split.team.name.clone(),
                 };
-                let team_abbreviation = TEAM_IDS
-                    .get(&split.team.name.as_str())
-                    .map(|t| t.abbreviation.to_string());
+                let team_abbreviation =
+                    Some(lookup_team(&split.team.name).abbreviation.to_string());
                 match &split.stat {
                     StatSplit::Pitching(s) => self.load_pitching_stats(name, team_abbreviation, s),
                     StatSplit::Hitting(s) => self.load_hitting_stats(name, team_abbreviation, s),

@@ -1,6 +1,7 @@
 use chrono::NaiveDate;
 use mlbt_api::client::{MLBApi, MLBApiBuilder, StatGroup};
 use mlbt_api::season::GameType;
+use mlbt_api::teams::SportId;
 use mockito::{Matcher, ServerGuard};
 use std::time::Duration;
 
@@ -278,6 +279,36 @@ mod tests {
             m.assert();
             assert_ne!(resp.stats.len(), 0);
         }
+    }
+
+    #[tokio::test]
+    async fn test_teams() {
+        let (client, mut server) = generate_mock_client().await;
+
+        let m = server
+            .mock(
+                "GET",
+                "/v1/teams?sportIds=1,51&fields=teams,id,name,division,teamName,abbreviation,sport",
+            )
+            .with_status(200)
+            .with_header("content-type", "application/json;charset=UTF-8")
+            .with_body_from_file("./tests/responses/teams.json")
+            .create();
+
+        let resp = client
+            .get_teams(&[SportId::Mlb, SportId::International])
+            .await
+            .unwrap();
+        m.assert();
+        assert!(!resp.teams.is_empty());
+        // Verify a WBC team is present
+        let puerto_rico = resp.teams.iter().find(|t| t.id == 897);
+        assert!(puerto_rico.is_some());
+        assert_eq!(puerto_rico.unwrap().abbreviation, "PUR");
+        // Verify an MLB team is present
+        let athletics = resp.teams.iter().find(|t| t.id == 133);
+        assert!(athletics.is_some());
+        assert_eq!(athletics.unwrap().abbreviation, "ATH");
     }
 
     #[tokio::test]

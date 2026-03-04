@@ -83,7 +83,16 @@ impl StatefulWidget for ScheduleWidget {
         let name_constraint = if area.width < ScheduleRow::ABBREVIATION_WIDTH {
             Constraint::Length(5)
         } else {
-            Constraint::Length(11)
+            // dynamically size the team name column to fit the longest name in the schedule.
+            // this accommodates longer international team names (e.g. WBC) while staying tight
+            // on MLB-only days.
+            let max_name_len = state
+                .schedule
+                .iter()
+                .map(|r| r.home_team.team_name.len().max(r.away_team.team_name.len()))
+                .max()
+                .unwrap_or(11);
+            Constraint::Length(max_name_len.max(11) as u16)
         };
         let widths = [
             name_constraint,        // away team name

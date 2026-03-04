@@ -1,4 +1,4 @@
-use crate::components::constants::TEAM_IDS;
+use crate::components::constants::lookup_team;
 use crate::components::date_selector::DateSelector;
 use crate::components::standings::Team;
 use crate::state::app_settings::AppSettings;
@@ -164,17 +164,11 @@ impl ScheduleRow {
     /// away team name and score, home team name and score, start time, and game status
     fn create_matchup(game: &Game, timezone: Tz) -> Self {
         let home_team = &game.teams.home;
-        let home_name = TEAM_IDS
-            .get(&*home_team.team.name)
-            .cloned()
-            .unwrap_or_default();
+        let home_name = lookup_team(&home_team.team.name);
         let home_record = Record::from_league_record(home_team.league_record.as_ref());
 
         let away_team = &game.teams.away;
-        let away_name = TEAM_IDS
-            .get(&*away_team.team.name)
-            .cloned()
-            .unwrap_or_default();
+        let away_name = lookup_team(&away_team.team.name);
         let away_record = Record::from_league_record(away_team.league_record.as_ref());
 
         let datetime = DateTime::parse_from_rfc3339(&game.game_date)

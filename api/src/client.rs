@@ -3,6 +3,7 @@ use crate::schedule::ScheduleResponse;
 use crate::season::{GameType, SeasonInfo, SeasonsResponse};
 use crate::standings::StandingsResponse;
 use crate::stats::StatsResponse;
+use crate::teams::{SportId, TeamsResponse};
 use crate::win_probability::WinProbabilityResponse;
 use std::fmt;
 use std::time::Duration;
@@ -227,6 +228,16 @@ impl MLBApi {
                 sort
             ),
         };
+        self.get(url).await
+    }
+
+    pub async fn get_teams(&self, sport_ids: &[SportId]) -> ApiResult<TeamsResponse> {
+        let ids: Vec<String> = sport_ids.iter().map(|id| id.to_string()).collect();
+        let url = format!(
+            "{}v1/teams?sportIds={}&fields=teams,id,name,division,teamName,abbreviation,sport",
+            self.base_url,
+            ids.join(",")
+        );
         self.get(url).await
     }
 
