@@ -54,6 +54,12 @@ pub fn register_teams(api_teams: Vec<ApiTeam>) {
 /// Look up a team by name. Checks the static `TEAM_IDS` first, then falls back to the
 /// dynamic cache populated from the API. Returns a default "unknown" team if not found.
 pub fn lookup_team(name: &str) -> Team {
+    lookup_team_or(name, Team::default)
+}
+
+/// Look up a team by name with a custom fallback when the team is not found in either
+/// the static or dynamic caches.
+pub fn lookup_team_or(name: &str, fallback: impl FnOnce() -> Team) -> Team {
     if let Some(team) = TEAM_IDS.get(name) {
         return *team;
     }
@@ -62,7 +68,7 @@ pub fn lookup_team(name: &str) -> Team {
     {
         return *team;
     }
-    Team::default()
+    fallback()
 }
 
 /// This maps the full name of a team to its full `Team` struct.

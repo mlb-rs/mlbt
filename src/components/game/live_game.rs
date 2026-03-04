@@ -1,4 +1,4 @@
-use crate::components::constants::lookup_team;
+use crate::components::constants::lookup_team_or;
 use crate::components::game::at_bat::AtBat;
 use crate::components::game::player::{Player, PlayerStats};
 use crate::components::game::win_probability::WinProbability;
@@ -47,7 +47,7 @@ impl GameState {
         self.set_on_deck(live_data);
         self.set_abs_challenges(live_data);
         self.current_at_bat = Self::get_current_play_ab_index(live_data);
-        self.linescore = LineScore::from_live_data(live_data);
+        self.linescore = LineScore::from_live_data(live_data, &self.home_team, &self.away_team);
         if let Some(plays) = &live_data.live_data.plays.all_plays {
             plays.iter().for_each(|p| Self::update_single_play(self, p));
         }
@@ -55,8 +55,10 @@ impl GameState {
     }
 
     fn set_teams(&mut self, live_data: &LiveResponse) {
-        self.home_team = lookup_team(&live_data.game_data.teams.home.name);
-        self.away_team = lookup_team(&live_data.game_data.teams.away.name);
+        let home = &live_data.game_data.teams.home;
+        let away = &live_data.game_data.teams.away;
+        self.home_team = lookup_team_or(&home.name, || Team::from_live(home));
+        self.away_team = lookup_team_or(&away.name, || Team::from_live(away));
     }
 
     fn set_abs_challenges(&mut self, live_data: &LiveResponse) {
