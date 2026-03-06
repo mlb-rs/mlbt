@@ -41,6 +41,8 @@ pub struct ScheduleRow {
     pub away_record: Option<Record>,
     pub start_time: String,
     pub game_status: String,
+    pub tv_feeds: Vec<String>,
+    pub radio_feeds: Vec<String>,
 }
 
 #[derive(Default, Copy, Clone)]
@@ -146,6 +148,51 @@ impl Record {
 }
 
 impl ScheduleRow {
+    fn normalize_feed_side(home_away: Option<&str>, is_national: bool) -> String {
+        if is_national {
+            return "nat".to_string();
+        }
+        match home_away {
+            Some("home") => "h".to_string(),
+            Some("away") => "a".to_string(),
+            Some(val) => val.to_string(),
+            None => "unk".to_string(),
+        }
+    }
+
+    fn extract_feeds(game: &Game) -> (Vec<String>, Vec<String>) {
+        let mut tv_feeds = Vec::new();
+        let mut radio_feeds = Vec::new();
+
+        if let Some(broadcasts) = &game.broadcasts {
+            for broadcast in broadcasts {
+                if !broadcast.available_for_streaming.unwrap_or(false) {
+                    continue;
+                }
+
+                let side = Self::normalize_feed_side(
+                    broadcast.home_away.as_deref(),
+                    broadcast.is_national.unwrap_or(false),
+                );
+                let is_tv = broadcast
+                    .broadcast_type
+                    .as_deref()
+                    .map(|t| t.eq_ignore_ascii_case("TV"))
+                    .unwrap_or(false);
+
+                if is_tv {
+                    if !tv_feeds.contains(&side) {
+                        tv_feeds.push(side);
+                    }
+                } else if !radio_feeds.contains(&side) {
+                    radio_feeds.push(side);
+                }
+            }
+        }
+
+        (tv_feeds, radio_feeds)
+    }
+
     /// Determine which team, if either, is winning the game. A team may not have a score, e.g. if
     /// the game hasn't started yet, or the game may be tied, so return None in these cases.
     pub fn winning_team(&self) -> Option<HomeOrAway> {
@@ -199,6 +246,8 @@ impl ScheduleRow {
             None => "-".to_string(),
         };
 
+        let (tv_feeds, radio_feeds) = Self::extract_feeds(game);
+
         ScheduleRow {
             game_id: game.game_pk,
             home_team: home_name,
@@ -209,6 +258,8 @@ impl ScheduleRow {
             away_score: game.teams.away.score,
             game_status,
             start_time,
+            tv_feeds,
+            radio_feeds,
         }
     }
 

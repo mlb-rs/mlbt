@@ -60,6 +60,7 @@ pub struct Game {
     pub teams: Teams,
     /// Only present if `hydrate=linescore` is used.
     pub linescore: Option<ScheduleLinescore>,
+    pub broadcasts: Option<Vec<Broadcast>>,
     pub venue: Option<IdNameLink>,
     pub content: Option<Content>,
     pub is_tie: Option<bool>,
@@ -84,6 +85,19 @@ pub struct Game {
     // pub description: Option<String>,
     // pub resume_date: Option<String>,
     // pub reschedule_date: Option<String>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Broadcast {
+    #[serde(rename = "type")]
+    pub broadcast_type: Option<String>,
+    pub is_national: Option<bool>,
+    pub home_away: Option<String>,
+    pub available_for_streaming: Option<bool>,
+    pub media_id: Option<String>,
+    pub call_sign: Option<String>,
+    pub name: Option<String>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
