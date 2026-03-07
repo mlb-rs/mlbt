@@ -3,7 +3,7 @@ use crate::state::app_state::HomeOrAway;
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
-const HEADER: &[&str; 8] = &["away", "", "", "home", "", "", "time", "status"];
+const HEADER: &[&str; 10] = &["away", "", "", "home", "", "", "time", "status", "tv", "radio"];
 
 pub struct ScheduleWidget {
     pub tz_abbreviation: String,
@@ -56,6 +56,8 @@ impl ScheduleRow {
             Span::styled(Self::default_score(self.home_score), home_score_style),
             Span::raw(self.start_time.to_string()),
             Span::raw(self.game_status.to_string()),
+            Span::raw(self.tv_feeds.join(",")),
+            Span::raw(self.radio_feeds.join(",")),
         ]
     }
 }
@@ -103,6 +105,8 @@ impl StatefulWidget for ScheduleWidget {
             Constraint::Length(3),  // home score
             Constraint::Length(12), // game time
             Constraint::Fill(1),    // game status
+            Constraint::Length(6),  // tv feeds
+            Constraint::Length(6),  // radio feeds
         ];
         let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
 

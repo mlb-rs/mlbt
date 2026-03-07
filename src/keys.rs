@@ -1,8 +1,10 @@
 use crate::app::{App, DebugState, MenuItem};
 use crate::components::stats::TeamOrPlayer;
+use crate::playback::{self, FeedKind};
 use crate::{NetworkRequest, cleanup_terminal};
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use log::{error, info};
 use mlbt_api::client::StatGroup;
 use std::sync::Arc;
 use tokio::sync::{Mutex, MutexGuard, mpsc};
@@ -61,6 +63,8 @@ pub async fn handle_key_bindings(
         }
         (MenuItem::Scoreboard, Char(':'), _) => guard.update_tab(MenuItem::DatePicker),
         (MenuItem::Scoreboard, Char('w'), _) => guard.state.schedule.toggle_win_probability(),
+        (MenuItem::Scoreboard, Char('v'), _) => launch_selected_feed(guard, FeedKind::Tv),
+        (MenuItem::Scoreboard, Char('r'), _) => launch_selected_feed(guard, FeedKind::Radio),
         (MenuItem::Scoreboard, KeyCode::Enter, _) => {
             guard.update_tab(MenuItem::Gameday);
             load_game_data(guard, network_requests).await;
@@ -220,5 +224,21 @@ async fn handle_date_change(guard: AppGuard<'_>, network_requests: &mpsc::Sender
         MenuItem::Standings => load_standings(guard, network_requests).await,
         MenuItem::Stats => load_stats(guard, network_requests).await,
         _ => {}
+    }
+}
+
+fn launch_selected_feed(guard: AppGuard<'_>, kind: FeedKind) {
+    if let Some(row) = guard.state.schedule.get_selected_row() {
+        match playback::launch_for_selection(
+            &guard.settings,
+            row,
+            guard.state.box_score.active_team,
+            kind,
+        ) {
+            Ok(command) => info!("launched {:?} stream with command: {command}", kind),
+            Err(message) => error!("stream launch failed: {message}"),
+        }
+    } else {
+        error!("stream launch failed: no game selected");
     }
 }

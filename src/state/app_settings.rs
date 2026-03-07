@@ -10,6 +10,8 @@ pub struct AppSettings {
     pub timezone: Tz,
     pub timezone_abbreviation: String,
     pub log_level: Option<LevelFilter>,
+    pub tv_launch_command: Option<String>,
+    pub radio_launch_command: Option<String>,
 }
 
 impl AppSettings {

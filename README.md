@@ -185,6 +185,8 @@ Press `1` to activate this tab.
 | `Enter`             | view current game in Gameday                           |
 | `:`                 | activate date picker (see [Date Picker](#date-picker)) |
 | `w`                 | toggle win probability graph                           |
+| `v`                 | launch configured TV stream command                    |
+| `r`                 | launch configured radio stream command                 |
 | `h`                 | switch to home team in box score                       |
 | `a`                 | switch to away team in box score                       |
 | `Shift` +  `j`/ `↓` | scroll box score down                                  |
@@ -332,6 +334,10 @@ directory. For a user named `Alice` this would be:
   is used. Use a lowercase word, e.g. `debug`.
   See [here](https://github.com/mlb-rs/mlbt/blob/main/src/config.rs#L16)
   for the options.
+- `tv_launch_command`: Optional shell command for `v` in Scoreboard. Supports
+  templates: `{team}`, `{home}`, `{away}`, `{game_id}`.
+- `radio_launch_command`: Optional shell command for `r` in Scoreboard.
+  Supports templates: `{team}`, `{home}`, `{away}`, `{game_id}`.
 
 ### Example config
 
@@ -339,7 +345,9 @@ directory. For a user named `Alice` this would be:
 # See https://github.com/mlb-rs/mlbt#config for options
 favorite_team = "Chicago Cubs"
 timezone = "US/Pacific"
-log_levl = "error"
+log_level = "error"
+tv_launch_command = "mlbv -t {team}"
+radio_launch_command = "mlbv -t {team} --radio"
 ```
 
 ## Shout out

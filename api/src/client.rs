@@ -84,7 +84,7 @@ impl StatGroup {
 impl MLBApi {
     pub async fn get_todays_schedule(&self) -> ApiResult<ScheduleResponse> {
         let url = format!(
-            "{}v1/schedule?sportId=1,51&hydrate=linescore",
+            "{}v1/schedule?sportId=1,51&hydrate=linescore,broadcasts(all)",
             self.base_url
         );
         self.get(url).await
@@ -92,7 +92,7 @@ impl MLBApi {
 
     pub async fn get_schedule_date(&self, date: NaiveDate) -> ApiResult<ScheduleResponse> {
         let url = format!(
-            "{}v1/schedule?sportId=1,51&hydrate=linescore&date={}",
+            "{}v1/schedule?sportId=1,51&hydrate=linescore,broadcasts(all)&date={}",
             self.base_url,
             date.format("%Y-%m-%d")
         );

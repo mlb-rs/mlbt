@@ -3,6 +3,7 @@ mod components;
 mod config;
 mod draw;
 mod keys;
+mod playback;
 mod state;
 mod ui;
 

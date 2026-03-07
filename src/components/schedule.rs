@@ -30,7 +30,7 @@ impl Default for ScheduleState {
 }
 
 /// The information needed to create a single row in a table.
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct ScheduleRow {
     pub game_id: u64,
     pub home_team: Team,
@@ -95,6 +95,11 @@ impl ScheduleState {
     pub fn get_selected_game_opt(&self) -> Option<u64> {
         let idx = self.state.selected()?;
         self.schedule.get(idx).map(|s| s.game_id)
+    }
+
+    pub fn get_selected_row(&self) -> Option<&ScheduleRow> {
+        let idx = self.state.selected()?;
+        self.schedule.get(idx)
     }
 
     pub fn toggle_win_probability(&mut self) {
@@ -166,7 +171,7 @@ impl ScheduleRow {
 
         if let Some(broadcasts) = &game.broadcasts {
             for broadcast in broadcasts {
-                if !broadcast.available_for_streaming.unwrap_or(false) {
+                if matches!(broadcast.available_for_streaming, Some(false)) {
                     continue;
                 }
 

@@ -39,6 +39,12 @@ pub struct ConfigFile {
     /// Optional log level to use. If not present, the default is `Error`.
     /// Set the level using a lowercase string, e.g. "error".
     pub log_level: Option<LogLevel>,
+    /// Optional shell command to launch a TV stream for the selected game.
+    /// Supported templates: {team}, {home}, {away}, {game_id}
+    pub tv_launch_command: Option<String>,
+    /// Optional shell command to launch a radio stream for the selected game.
+    /// Supported templates: {team}, {home}, {away}, {game_id}
+    pub radio_launch_command: Option<String>,
 }
 
 impl Default for ConfigFile {
@@ -47,6 +53,8 @@ impl Default for ConfigFile {
             favorite_team: None,
             timezone: Some(ConfigFile::DEFAULT_TIMEZONE),
             log_level: None,
+            tv_launch_command: None,
+            radio_launch_command: None,
         }
     }
 }
@@ -60,6 +68,8 @@ impl Into<AppSettings> for ConfigFile {
             timezone: self.validate_timezone(),
             timezone_abbreviation: self.get_timezone_abbreviation(),
             log_level: self.validate_log_level(),
+            tv_launch_command: self.tv_launch_command,
+            radio_launch_command: self.radio_launch_command,
         }
     }
 }
