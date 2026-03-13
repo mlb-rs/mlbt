@@ -188,7 +188,7 @@ jobs:
             end
 
             test do
-              assert_predicate bin/"mlbt", :executable?
+              assert_match version.to_s, shell_output("#{bin}/mlbt --version")
             end
           end
           EOF

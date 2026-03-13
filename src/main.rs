@@ -21,6 +21,11 @@ use tui::{Terminal, backend::CrosstermBackend};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    if std::env::args().any(|a| matches!(a.as_str(), "--version" | "-V")) {
+        println!("mlbt {}", env!("CARGO_PKG_VERSION"));
+        return Ok(());
+    }
+
     better_panic::install();
 
     let backend = CrosstermBackend::new(io::stdout());
