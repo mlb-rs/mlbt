@@ -10,7 +10,9 @@ pub struct ScheduleWidget {
 }
 
 impl ScheduleRow {
-    const ABBREVIATION_WIDTH: u16 = 70;
+    pub const ABBREVIATION_WIDTH: u16 = 70;
+    pub const ABBREVIATION_COL_WIDTH: u16 = 5;
+    pub const NORMAL_COL_WIDTH: u16 = 11;
 
     fn format_record(record: Option<Record>) -> String {
         record
@@ -81,7 +83,7 @@ impl StatefulWidget for ScheduleWidget {
             .iter()
             .map(|r| Row::new(r.format(area.width)));
         let name_constraint = if area.width < ScheduleRow::ABBREVIATION_WIDTH {
-            Constraint::Length(5)
+            Constraint::Length(ScheduleRow::ABBREVIATION_COL_WIDTH)
         } else {
             // dynamically size the team name column to fit the longest name in the schedule.
             // this accommodates longer international team names (e.g. WBC) while staying tight
@@ -91,8 +93,8 @@ impl StatefulWidget for ScheduleWidget {
                 .iter()
                 .map(|r| r.home_team.team_name.len().max(r.away_team.team_name.len()))
                 .max()
-                .unwrap_or(11);
-            Constraint::Length(max_name_len.max(11) as u16)
+                .unwrap_or(ScheduleRow::NORMAL_COL_WIDTH as usize);
+            Constraint::Length(max_name_len.max(ScheduleRow::NORMAL_COL_WIDTH as usize) as u16)
         };
         let widths = [
             name_constraint,        // away team name

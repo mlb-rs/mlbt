@@ -1343,7 +1343,7 @@ dependencies = [
 
 [[package]]
 name = "mlbt"
-version = "0.1.1"
+version = "0.1.2-alpha.1"
 dependencies = [
  "anyhow",
  "better-panic",
@@ -1363,7 +1363,7 @@ dependencies = [
 
 [[package]]
 name = "mlbt-api"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "chrono",
  "derive_builder",

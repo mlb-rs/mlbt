@@ -16,6 +16,7 @@ use crate::ui::help::HelpWidget;
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
 use crate::ui::logs::LogWidget;
+use crate::ui::probable_pitchers::ProbablePitchersWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::standings::StandingsWidget;
 use crate::ui::stats::{STATS_OPTIONS_WIDTH, StatsWidget};
@@ -168,9 +169,13 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
         draw_win_probability(f, scoreboard, app);
     }
 
-    // display line score and box score on right
-    draw_border(f, boxscore, Color::White);
-    draw_linescore_boxscore(f, boxscore, app);
+    // display probable pitchers or line score and box score on right
+    if let Some(matchup) = app.state.schedule.get_probable_pitchers_opt() {
+        f.render_widget(ProbablePitchersWidget { matchup }, boxscore);
+    } else {
+        draw_border(f, boxscore, Color::White);
+        draw_linescore_boxscore(f, boxscore, app);
+    }
 }
 
 fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App) {

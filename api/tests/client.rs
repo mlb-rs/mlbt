@@ -36,7 +36,7 @@ mod tests {
         let m = server
             .mock(
                 "GET",
-                "/v1/schedule?sportId=1,51&hydrate=linescore&date=2021-07-13",
+                "/v1/schedule?sportId=1,51&hydrate=linescore,probablePitcher,stats&date=2021-07-13",
             )
             .with_status(200)
             .with_header("content-type", "application/json;charset=UTF-8")
@@ -57,7 +57,7 @@ mod tests {
         let m = server
             .mock(
                 "GET",
-                "/v1/schedule?sportId=1,51&hydrate=linescore&date=2026-03-14",
+                "/v1/schedule?sportId=1,51&hydrate=linescore,probablePitcher,stats&date=2026-03-14",
             )
             .with_status(200)
             .with_header("content-type", "application/json;charset=UTF-8")
@@ -68,6 +68,39 @@ mod tests {
         let resp = client.get_schedule_date(date).await.unwrap();
         m.assert();
         assert_eq!(resp.total_games, 19);
+    }
+
+    /// Test the schedule that includes probable pitcher data.
+    #[tokio::test]
+    async fn test_schedule_probable_pitcher() {
+        let (client, mut server) = generate_mock_client().await;
+
+        let m = server
+            .mock(
+                "GET",
+                "/v1/schedule?sportId=1,51&hydrate=linescore,probablePitcher,stats&date=2026-03-18",
+            )
+            .with_status(200)
+            .with_header("content-type", "application/json;charset=UTF-8")
+            .with_body_from_file("./tests/responses/schedule-probable-pitchers.json")
+            .create();
+
+        let date = NaiveDate::from_ymd_opt(2026, 3, 18).unwrap();
+        let resp = client.get_schedule_date(date).await.unwrap();
+        m.assert(); // assert mock was called
+        assert_eq!(resp.total_games, 13);
+
+        // Verify the probable pitcher for the first game's away team (Houston Astros)
+        let first_game = &resp.dates[0].games.as_ref().unwrap()[0];
+        let away_pitcher = first_game
+            .teams
+            .away
+            .probable_pitcher
+            .as_ref()
+            .expect("Expected a probable pitcher for the away team");
+
+        assert_eq!(away_pitcher.full_name, "J.P. France");
+        assert_eq!(away_pitcher.stats.len(), 4);
     }
 
     #[tokio::test]
