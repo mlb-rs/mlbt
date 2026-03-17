@@ -1,6 +1,6 @@
 [package]
 name = "mlbt"
-version = "0.1.1"
+version = "0.1.2-alpha.1"
 authors = ["Andrew Schneider <andjschneider@gmail.com>"]
 edition = "2024"
 license = "MIT"
@@ -42,7 +42,7 @@ crossterm = "0.29.0"
 directories = "6.0.0"
 indexmap = "2.13.0"
 log = "0.4.29"
-mlbt-api = { path = "api", version = "0.3.0" }
+mlbt-api = { path = "api", version = "0.4.0" }
 serde = { version = "1.0.228", features = ["derive"] }
 tokio = { version = "1.49.0", features = ["full"] }
 toml = "0.9.8"

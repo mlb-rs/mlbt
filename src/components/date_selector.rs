@@ -5,6 +5,8 @@ pub struct DateSelector {
     pub date: NaiveDate,
     /// Used for selecting the date with arrow keys.
     pub selection_offset: i64,
+    /// Set when the date changes after user input. Consumers should check and clear this after handling.
+    pub date_changed: bool,
 }
 
 impl Default for DateSelector {
@@ -12,6 +14,7 @@ impl Default for DateSelector {
         Self {
             date: Utc::now().date_naive(),
             selection_offset: 0,
+            date_changed: false,
         }
     }
 }
@@ -19,6 +22,7 @@ impl Default for DateSelector {
 impl DateSelector {
     /// Set the date from the validated input string from the date picker.
     pub fn set_date_from_valid_input(&mut self, date: NaiveDate) {
+        self.date_changed = date != self.date;
         self.date = date;
         self.selection_offset = 0;
     }

@@ -1,5 +1,6 @@
 use crate::components::constants::lookup_team_or;
 use crate::components::date_selector::DateSelector;
+use crate::components::probable_pitchers::{ProbablePitcher, ProbablePitcherMatchup};
 use crate::components::standings::Team;
 use crate::state::app_settings::AppSettings;
 use crate::state::app_state::HomeOrAway;
@@ -41,6 +42,8 @@ pub struct ScheduleRow {
     pub away_record: Option<Record>,
     pub start_time: String,
     pub game_status: String,
+    pub home_probable_pitcher: ProbablePitcher,
+    pub away_probable_pitcher: ProbablePitcher,
 }
 
 #[derive(Default, Copy, Clone)]
@@ -61,13 +64,12 @@ impl ScheduleState {
             return;
         }
 
-        // Auto-select first game if available and nothing is currently selected
-        if self.state.selected().is_none() {
+        if self.date_selector.date_changed {
+            self.date_selector.date_changed = false;
             self.state.select(Some(0));
-        }
-
-        // If there was a selection but the new schedule is shorter, reset to first game
-        if let Some(selected) = self.state.selected()
+        } else if self.state.selected().is_none() {
+            self.state.select(Some(0));
+        } else if let Some(selected) = self.state.selected()
             && selected >= self.schedule.len()
         {
             self.state.select(Some(0));
@@ -81,7 +83,6 @@ impl ScheduleState {
     /// Set the date from the validated input string from the date picker.
     pub fn set_date_from_valid_input(&mut self, date: NaiveDate) {
         self.date_selector.set_date_from_valid_input(date);
-        self.state.select(Some(0));
     }
 
     /// Set the date using Left/Right arrow keys to move a single day at a time.
@@ -93,6 +94,22 @@ impl ScheduleState {
     pub fn get_selected_game_opt(&self) -> Option<u64> {
         let idx = self.state.selected()?;
         self.schedule.get(idx).map(|s| s.game_id)
+    }
+
+    /// Return the probable pitchers for the selected game, or None if no game is selected.
+    /// If the game is not in a "Scheduled" state, None will be returned.
+    pub fn get_probable_pitchers_opt(&self) -> Option<ProbablePitcherMatchup<'_>> {
+        let idx = self.state.selected()?;
+        let row = self.schedule.get(idx)?;
+        if row.game_status != "Scheduled" {
+            return None;
+        }
+        Some(ProbablePitcherMatchup {
+            home_pitcher: &row.home_probable_pitcher,
+            home_team: row.home_team,
+            away_pitcher: &row.away_probable_pitcher,
+            away_team: row.away_team,
+        })
     }
 
     pub fn toggle_win_probability(&mut self) {
@@ -209,6 +226,8 @@ impl ScheduleRow {
             away_score: game.teams.away.score,
             game_status,
             start_time,
+            home_probable_pitcher: ProbablePitcher::from_team(&game.teams.home).unwrap_or_default(),
+            away_probable_pitcher: ProbablePitcher::from_team(&game.teams.away).unwrap_or_default(),
         }
     }
 

@@ -1,3 +1,4 @@
+use crate::stats::DisplayName;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -119,6 +120,7 @@ pub struct TeamInfo {
     pub is_winner: Option<bool>,
     pub split_squad: Option<bool>,
     pub series_number: Option<u8>,
+    pub probable_pitcher: Option<ProbablePitcher>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -149,4 +151,34 @@ pub enum AbstractGameState {
     Final,
     Live,
     Preview,
+}
+
+/// Only present if `hydrate=probablePitcher` is used.
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProbablePitcher {
+    pub full_name: String,
+    #[serde(default)]
+    pub stats: Vec<StatEntry>,
+}
+
+/// Only present if `hydrate=stats` is used.
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct StatEntry {
+    #[serde(rename = "type")]
+    pub stat_type: Option<DisplayName>,
+    pub group: Option<DisplayName>,
+    pub stats: Option<PitcherStats>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PitcherStats {
+    pub summary: Option<String>,
+    pub strike_outs: Option<u16>,
+    pub base_on_balls: Option<u16>,
+    pub era: Option<String>,
+    pub innings_pitched: Option<String>,
+    pub wins: Option<u8>,
+    pub losses: Option<u8>,
 }
