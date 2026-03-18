@@ -8,6 +8,7 @@ pub struct InputPopup<'a> {
     pub instructions: &'a str,
     pub input_text: &'a str,
     pub border_color: Color,
+    pub info: Option<&'a str>,
 }
 
 impl Widget for InputPopup<'_> {
@@ -23,6 +24,16 @@ impl Widget for InputPopup<'_> {
 
         Paragraph::new(format!(" {}", self.instructions)).render(instruct, buf);
         Paragraph::new(format!(" {}", self.input_text)).render(inp, buf);
+        if let Some(info) = self.info {
+            let info_width = info.len() as u16 + 2; // +2 for padding
+            let input_width = self.input_text.len() as u16 + 2; // +2 for " " prefix and gap
+            if inp.width > info_width + input_width {
+                Paragraph::new(format!("{} ", info))
+                    .alignment(Alignment::Right)
+                    .style(Style::default().fg(Color::DarkGray))
+                    .render(inp, buf);
+            }
+        }
 
         Block::default()
             .title(self.title)

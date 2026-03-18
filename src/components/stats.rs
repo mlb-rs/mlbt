@@ -23,6 +23,18 @@ pub struct StatType {
     pub team_player: TeamOrPlayer,
 }
 
+impl StatType {
+    pub fn search_label(&self) -> &'static str {
+        match self.team_player {
+            TeamOrPlayer::Team => "teams",
+            TeamOrPlayer::Player => match self.group {
+                StatGroup::Hitting => "hitters",
+                StatGroup::Pitching => "pitchers",
+            },
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Default)]
 pub enum TeamOrPlayer {
     #[default]
@@ -460,16 +472,21 @@ impl StatsState {
         };
     }
 
-    /// Returns the number of visible data rows, accounting for search filtering.
-    fn row_count(&self) -> usize {
-        if self.search.is_filtering() {
-            return self.search.matched_indices.len();
-        }
+    /// Returns the total number of data rows, ignoring any search filter.
+    pub fn total_row_count(&self) -> usize {
         self.stats
             .values()
             .next()
             .map(|entry| entry.rows.len())
             .unwrap_or(0)
+    }
+
+    /// Returns the number of visible data rows, accounting for search filtering.
+    fn row_count(&self) -> usize {
+        if self.search.is_filtering() {
+            return self.search.matched_indices.len();
+        }
+        self.total_row_count()
     }
 
     pub fn next(&mut self) {

@@ -19,6 +19,7 @@ impl StatefulWidget for DateSelectorWidget {
             instructions: "Press Enter to submit or Esc to cancel",
             input_text: &state.text,
             border_color,
+            info: None,
         }
         .render(area, buf);
     }

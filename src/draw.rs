@@ -219,16 +219,17 @@ fn draw_gameday(f: &mut Frame, rect: Rect, app: &mut App) {
 
 fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
     // Split horizontally first: data pane (left) and options pane (right)
-    let (data_area, options_area) = if app.state.stats.show_options {
-        let [data, options] = Layout::horizontal([
-            Constraint::Length(rect.width - STATS_OPTIONS_WIDTH),
-            Constraint::Length(STATS_OPTIONS_WIDTH),
-        ])
-        .areas(rect);
-        (data, Some(options))
-    } else {
-        (rect, None)
-    };
+    let (data_area, options_area) =
+        if app.state.stats.show_options && rect.width > STATS_OPTIONS_WIDTH {
+            let [data, options] = Layout::horizontal([
+                Constraint::Length(rect.width - STATS_OPTIONS_WIDTH),
+                Constraint::Length(STATS_OPTIONS_WIDTH),
+            ])
+            .areas(rect);
+            (data, Some(options))
+        } else {
+            (rect, None)
+        };
 
     // If search is open, shrink only the data pane to make room for the search bar
     let (data_table_area, search_area) = if app.state.stats.search.is_open {
@@ -250,11 +251,20 @@ fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
     }
 
     if let Some(search_area) = search_area {
+        let title = format!("Search {}", app.state.stats.stat_type.search_label());
+        let total = app.state.stats.total_row_count();
+        let filtered = app.state.stats.search.matched_indices.len();
+        let info = if app.state.stats.search.is_filtering() {
+            format!("{}/{}", filtered, total)
+        } else {
+            format!("{}", total)
+        };
         InputPopup {
-            title: "Search",
+            title: &title,
             instructions: "Press Enter to search or Esc to cancel",
             input_text: &app.state.stats.search.input,
             border_color: Color::Blue,
+            info: Some(&info),
         }
         .render(search_area, f.buffer_mut());
 
