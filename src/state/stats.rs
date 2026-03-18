@@ -126,6 +126,7 @@ impl StatsState {
     /// Cancel search and restore the pane that was active before opening search.
     pub fn cancel_search(&mut self) {
         self.search.close();
+        self.table.invalidate_cache();
         if let Some(previous) = self.search_previous_pane.take() {
             self.active_pane = if previous == ActivePane::Options && !self.show_options {
                 ActivePane::Data
