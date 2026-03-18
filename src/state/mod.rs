@@ -6,3 +6,4 @@ pub mod gameday;
 pub mod messages;
 pub mod network;
 pub mod refresher;
+pub mod stats;

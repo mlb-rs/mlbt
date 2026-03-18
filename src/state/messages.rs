@@ -1,4 +1,4 @@
-use crate::components::stats::StatType;
+use crate::components::stats::table::StatType;
 use crate::state::network::LoadingState;
 use chrono::NaiveDate;
 use crossterm::event::KeyEvent;

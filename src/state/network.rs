@@ -1,5 +1,5 @@
 use crate::components::constants::register_teams;
-use crate::components::stats::{StatType, TeamOrPlayer};
+use crate::components::stats::table::{StatType, TeamOrPlayer};
 use crate::{NetworkRequest, NetworkResponse};
 use chrono::{Datelike, NaiveDate};
 use log::{debug, error, warn};

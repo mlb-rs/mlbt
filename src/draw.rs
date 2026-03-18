@@ -243,7 +243,7 @@ fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
     // TODO by taking into account the width of the options pane I'm basically removing that amount
     // of space for columns. If I didn't, you could select columns that would be covered by the
     // options pane, but then when its disabled would become visible.
-    app.state.stats.trim_columns(data_table_area.width);
+    app.state.stats.table.trim_columns(data_table_area.width);
     f.render_stateful_widget(StatsDataWidget {}, data_table_area, &mut app.state.stats);
 
     if let Some(options_area) = options_area {

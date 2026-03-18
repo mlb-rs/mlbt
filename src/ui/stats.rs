@@ -1,6 +1,6 @@
-use crate::components::stats::{
-    ActivePane, STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH, StatsState, TeamOrPlayer,
-};
+use crate::components::stats::table::TeamOrPlayer;
+use crate::components::stats::{STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH};
+use crate::state::stats::{ActivePane, StatsState};
 use mlbt_api::client::StatGroup;
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Table, Wrap};
@@ -17,13 +17,21 @@ impl StatefulWidget for StatsDataWidget {
         let (header, rows) = state.generate_table();
 
         // use the sort column to include up/down arrow in the column name
-        let sort_column = state.sorting.column_name.as_deref().unwrap_or_default();
+        let sort_column = state
+            .table
+            .sorting
+            .column_name
+            .as_deref()
+            .unwrap_or_default();
         let header = header
             .into_iter()
             .map(|name| {
                 if name == sort_column {
-                    Cell::from(format!("{name} {}", state.sorting.order.arrow_symbol()))
-                        .style(Style::default().bg(Color::Blue))
+                    Cell::from(format!(
+                        "{name} {}",
+                        state.table.sorting.order.arrow_symbol()
+                    ))
+                    .style(Style::default().bg(Color::Blue))
                 } else {
                     Cell::from(name)
                 }
@@ -35,7 +43,7 @@ impl StatefulWidget for StatsDataWidget {
         let rows: Vec<Row> = rows.into_iter().map(Row::new).collect();
 
         // Count active columns for width constraints
-        let active = state.stats.values().filter(|v| v.active).count();
+        let active = state.table.columns.values().filter(|v| v.active).count();
 
         // Build the constraints. On first load the active will be 0, hence the check.
         let mut constraints = vec![Constraint::Length(STATS_DEFAULT_COL_WIDTH); active];
@@ -115,7 +123,7 @@ impl StatefulWidget for StatsOptionsWidget {
 
         // Create the options rows, e.g. ["[X]", "ERA", "earned run average"]
         let mut options = Vec::new();
-        for (name, stat) in &state.stats {
+        for (name, stat) in &state.table.columns {
             let selected = if stat.active { "[X]" } else { "[ ]" };
             options.push(Row::new(vec![
                 selected.to_string(),
