@@ -1,4 +1,5 @@
 use crate::state::gameday::GamedayPanels;
+use crate::ui::input_popup;
 use tui::layout::{Constraint, Layout, Rect, Size};
 
 pub struct LayoutAreas {
@@ -94,28 +95,8 @@ impl LayoutAreas {
             .to_vec()
     }
 
-    /// Create a centered rectangle of 4 height and 42% width.
+    /// Create a centered rectangle of 4 height and 42% width for the date picker.
     pub fn create_date_picker(area: Rect) -> Rect {
-        let height = 4;
-        let percent_width = 42;
-        let [_, popup, _] = Layout::vertical(
-            [
-                Constraint::Ratio(1, 2),
-                Constraint::Length(height),
-                Constraint::Ratio(1, 2),
-            ]
-            .as_ref(),
-        )
-        .areas(area);
-
-        Layout::horizontal(
-            [
-                Constraint::Percentage((100 - percent_width) / 2),
-                Constraint::Percentage(percent_width),
-                Constraint::Percentage((100 - percent_width) / 2),
-            ]
-            .as_ref(),
-        )
-        .split(popup)[1]
+        input_popup::create_popup(area, 4, 42)
     }
 }

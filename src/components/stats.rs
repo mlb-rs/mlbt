@@ -1,5 +1,6 @@
 use crate::components::constants::lookup_team;
 use crate::components::date_selector::DateSelector;
+use crate::components::search::SearchState;
 use chrono::NaiveDate;
 use indexmap::IndexMap;
 use mlbt_api::client::StatGroup;
@@ -102,6 +103,8 @@ pub struct StatsState {
     pub date_selector: DateSelector,
     /// Visible row count in the data table, updated during render.
     pub visible_rows: usize,
+    /// Player search state.
+    pub search: SearchState,
 }
 
 /// The information for a stat, including all the data values.
@@ -121,14 +124,15 @@ impl Default for StatsState {
             data_state: TableState::default(),
             active_pane: ActivePane::default(),
             stat_type: StatType {
-                group: StatGroup::Pitching,
-                team_player: TeamOrPlayer::Team,
+                group: StatGroup::Hitting,
+                team_player: TeamOrPlayer::Player,
             },
             stats: IndexMap::new(),
             sorting: Sort::default(),
             show_options: true,
             date_selector: DateSelector::default(),
             visible_rows: 0,
+            search: SearchState::default(),
         };
         ss.options_state.select(Some(0));
         ss
@@ -140,6 +144,8 @@ impl StatsState {
         self.stats.clear();
         self.create_table(stats);
         self.data_state.select(Some(0));
+        // Clear search state since the underlying data has changed.
+        self.search.close();
     }
 
     /// Set the date from the validated input string from the date picker.
@@ -178,6 +184,21 @@ impl StatsState {
         }
     }
 
+    /// Run fuzzy matching against the name column and update search.matched_indices.
+    pub fn update_search_matches(&mut self) {
+        let name_key = match self.stat_type.team_player {
+            TeamOrPlayer::Team => TEAM_COLUMN_NAME,
+            TeamOrPlayer::Player => PLAYER_COLUMN_NAME,
+        };
+        let empty = Vec::new();
+        let names = self
+            .stats
+            .get(name_key)
+            .map(|entry| &entry.rows)
+            .unwrap_or(&empty);
+        self.search.update_matches(names);
+    }
+
     /// Create the header and the table rows from the table map. Basically transforms from columnar
     /// to row based, filtering on whether the data is active.
     pub fn generate_table(&self) -> (Vec<String>, Vec<Vec<String>>) {
@@ -193,15 +214,33 @@ impl StatsState {
         if len == 0 {
             return (vec![], vec![vec![]]);
         }
-        let mut rows = vec![Vec::with_capacity(self.stats.len()); len];
+
+        // determine how many rows we need to render
+        let row_count = if self.search.is_filtering() {
+            self.search.matched_indices.len()
+        } else {
+            len
+        };
+
+        let mut rows = vec![Vec::with_capacity(self.stats.len()); row_count];
         let mut header = Vec::with_capacity(self.stats.len());
 
-        // access the data in stored order because of `IndexMap`
+        // access the data in stored order because of `IndexMap` and only clone rows that will be
+        // actually displayed
         for (key, col) in &self.stats {
             if col.active {
                 header.push(key.clone());
-                for (idx, val) in col.rows.iter().enumerate() {
-                    rows[idx].push(val.clone());
+
+                if self.search.is_filtering() {
+                    for (out_idx, &src_idx) in self.search.matched_indices.iter().enumerate() {
+                        if let Some(val) = col.rows.get(src_idx) {
+                            rows[out_idx].push(val.clone());
+                        }
+                    }
+                } else {
+                    for (idx, val) in col.rows.iter().enumerate() {
+                        rows[idx].push(val.clone());
+                    }
                 }
             }
         }
@@ -421,7 +460,11 @@ impl StatsState {
         };
     }
 
+    /// Returns the number of visible data rows, accounting for search filtering.
     fn row_count(&self) -> usize {
+        if self.search.is_filtering() {
+            return self.search.matched_indices.len();
+        }
         self.stats
             .values()
             .next()
