@@ -113,7 +113,7 @@ impl StatefulWidget for StatsOptionsWidget {
             .wrap(Wrap { trim: true })
             .render(stats_rect, buf);
 
-        // options
+        // Create the options rows, e.g. ["[X]", "ERA", "earned run average"]
         let mut options = Vec::new();
         for (name, stat) in &state.stats {
             let selected = if stat.active { "[X]" } else { "[ ]" };

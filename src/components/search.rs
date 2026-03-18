@@ -24,7 +24,7 @@ impl SearchState {
         self.is_open = true;
     }
 
-    /// Cancel search entirely — clears input, matches, and closes.
+    /// Cancel search entirely and clear input + matches.
     pub fn close(&mut self) {
         self.is_open = false;
         self.input.clear();
