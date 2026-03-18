@@ -1,5 +1,5 @@
 use crate::app::{App, DebugState, MenuItem};
-use crate::components::stats::TeamOrPlayer;
+use crate::components::stats::table::TeamOrPlayer;
 use crate::{NetworkRequest, cleanup_terminal};
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};

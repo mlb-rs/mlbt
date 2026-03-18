@@ -1,10 +1,10 @@
 use crate::app::{DebugState, MenuItem};
 use crate::components::schedule::ScheduleState;
 use crate::components::standings::StandingsState;
-use crate::components::stats::StatsState;
 use crate::state::boxscore::BoxscoreState;
 use crate::state::date_input::DateInput;
 use crate::state::gameday::GamedayState;
+use crate::state::stats::StatsState;
 use crate::ui::help::HelpState;
 
 /// A team must be either Home or Away.

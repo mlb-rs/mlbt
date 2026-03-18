@@ -1,20 +1,20 @@
 use crate::components::constants::lookup_team;
-use crate::components::date_selector::DateSelector;
-use crate::components::search::SearchState;
-use chrono::NaiveDate;
 use indexmap::IndexMap;
 use mlbt_api::client::StatGroup;
 use mlbt_api::stats::{HittingStat, PitchingStat, StatSplit, StatsResponse};
 use std::cmp::Ordering;
 use std::string::ToString;
-use tui::widgets::TableState;
+use std::sync::Arc;
 
 /// The width of the first column, which is a longer item like team name.
 pub const STATS_FIRST_COL_WIDTH: u16 = 28;
 /// The width of normal columns.
 pub const STATS_DEFAULT_COL_WIDTH: u16 = 6;
-const PLAYER_COLUMN_NAME: &str = "Player";
-const TEAM_COLUMN_NAME: &str = "Team";
+pub const PLAYER_COLUMN_NAME: &str = "Player";
+pub const TEAM_COLUMN_NAME: &str = "Team";
+
+/// Table data in row oriented form with the first tuple item being the header.
+pub type TableData = (Vec<String>, Vec<Vec<String>>);
 
 /// Stores whether a team/player and pitching/hitting stat should be viewed.
 #[derive(Clone, Copy, Debug)]
@@ -40,13 +40,6 @@ pub enum TeamOrPlayer {
     #[default]
     Team,
     Player,
-}
-
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub enum ActivePane {
-    Data,
-    #[default]
-    Options,
 }
 
 #[derive(Copy, Clone, Debug, Default, Eq, PartialEq)]
@@ -93,34 +86,6 @@ impl Default for Sort {
     }
 }
 
-/// Stores the state for rendering the stats.
-pub struct StatsState {
-    /// TableState for the options sidebar column selection.
-    pub options_state: TableState,
-    /// TableState for the main data table row selection.
-    pub data_state: TableState,
-    /// Which pane is currently focused.
-    pub active_pane: ActivePane,
-    /// Pane that was active before search opened, used to restore on cancel.
-    pub search_previous_pane: Option<ActivePane>,
-    /// The stat type combination of team/player and pitching/hitting.
-    pub stat_type: StatType,
-    /// Stores the data in columnar form. The key is the column name and the value contains the
-    /// data stored as a vector. `IndexMap` is used to store the data in inserted order, which
-    /// enables deterministic access of the data (for transforming to row oriented).
-    pub stats: IndexMap<String, TableEntry>,
-    /// The column and direction used for sorting the stats
-    pub sorting: Sort,
-    /// Whether to display the side bar for toggling stats
-    pub show_options: bool,
-    /// Date selector for viewing stats on a specific date.
-    pub date_selector: DateSelector,
-    /// Visible row count in the data table, updated during render.
-    pub visible_rows: usize,
-    /// Search state for players or teams.
-    pub search: SearchState,
-}
-
 /// The information for a stat, including all the data values.
 pub struct TableEntry {
     /// Longer description of the stat to be displayed in the options toggle pane.
@@ -131,61 +96,38 @@ pub struct TableEntry {
     pub rows: Vec<String>,
 }
 
-impl Default for StatsState {
+/// Table data and cached generation results. Owned by `StatsState`.
+pub struct StatsTable {
+    /// Stores the data in columnar form. The key is the column name and the value contains the
+    /// data stored as a vector. `IndexMap` is used to store the data in inserted order, which
+    /// enables deterministic access of the data (for transforming to row oriented).
+    pub columns: IndexMap<String, TableEntry>,
+    /// The column and direction used for sorting the stats.
+    pub sorting: Sort,
+    /// Cached table data.
+    cache: Option<Arc<TableData>>,
+}
+
+impl Default for StatsTable {
     fn default() -> Self {
-        let mut ss = StatsState {
-            options_state: TableState::default(),
-            data_state: TableState::default(),
-            active_pane: ActivePane::default(),
-            search_previous_pane: None,
-            stat_type: StatType {
-                group: StatGroup::Hitting,
-                team_player: TeamOrPlayer::Player,
-            },
-            stats: IndexMap::new(),
+        Self {
+            columns: IndexMap::new(),
             sorting: Sort::default(),
-            show_options: true,
-            date_selector: DateSelector::default(),
-            visible_rows: 0,
-            search: SearchState::default(),
-        };
-        ss.options_state.select(Some(0));
-        ss
+            cache: None,
+        }
     }
 }
 
-impl StatsState {
-    pub fn update(&mut self, stats: &StatsResponse) {
-        self.stats.clear();
-        self.create_table(stats);
-        self.data_state.select(Some(0));
-        // Clear search state since the underlying data has changed.
-        self.search.close();
-        self.search_previous_pane = None;
+impl StatsTable {
+    pub fn invalidate_cache(&mut self) {
+        self.cache = None;
     }
 
-    /// Set the date from the validated input string from the date picker.
-    pub fn set_date_from_valid_input(&mut self, date: NaiveDate) {
-        self.date_selector.set_date_from_valid_input(date);
-        self.select(Some(0));
-    }
-
-    fn select(&mut self, index: Option<usize>) {
-        match self.active_pane {
-            ActivePane::Data => self.data_state.select(index),
-            ActivePane::Options => self.options_state.select(index),
-        }
-    }
-
-    /// Set the date using Left/Right arrow keys to move a single day at a time.
-    pub fn set_date_with_arrows(&mut self, forward: bool) -> NaiveDate {
-        self.date_selector.set_date_with_arrows(forward)
-    }
-
-    fn create_table(&mut self, stats: &StatsResponse) {
+    pub fn load(&mut self, stats: &StatsResponse, team_player: TeamOrPlayer) {
+        self.columns.clear();
+        self.invalidate_cache();
         for stat in &stats.stats {
             for split in &stat.splits {
-                // if the `player` field exists, then its a Player stat
                 let name = match &split.player {
                     Some(p) => p.full_name.clone(),
                     None => split.team.name.clone(),
@@ -193,66 +135,38 @@ impl StatsState {
                 let team_abbreviation =
                     Some(lookup_team(&split.team.name).abbreviation.to_string());
                 match &split.stat {
-                    StatSplit::Pitching(s) => self.load_pitching_stats(name, team_abbreviation, s),
-                    StatSplit::Hitting(s) => self.load_hitting_stats(name, team_abbreviation, s),
+                    StatSplit::Pitching(s) => {
+                        self.load_pitching_stats(name, team_abbreviation, s, team_player)
+                    }
+                    StatSplit::Hitting(s) => {
+                        self.load_hitting_stats(name, team_abbreviation, s, team_player)
+                    }
                 };
             }
         }
     }
 
-    /// Run fuzzy matching against the name column and update search.matched_indices.
-    pub fn update_search_matches(&mut self) {
-        let name_key = match self.stat_type.team_player {
-            TeamOrPlayer::Team => TEAM_COLUMN_NAME,
-            TeamOrPlayer::Player => PLAYER_COLUMN_NAME,
-        };
-        let empty = Vec::new();
-        let names = self
-            .stats
-            .get(name_key)
-            .map(|entry| &entry.rows)
-            .unwrap_or(&empty);
-        self.search.update_matches(names);
-    }
-
-    /// Open search and force navigation to the data pane while searching.
-    pub fn open_search(&mut self) {
-        if !self.search.is_open {
-            self.search_previous_pane = Some(self.active_pane);
-        }
-        self.active_pane = ActivePane::Data;
-        self.data_state.select(Some(0));
-        self.search.open();
-    }
-
-    /// Submit search results and keep focus on the data pane.
-    pub fn submit_search(&mut self) {
-        self.search.submit();
-        self.search_previous_pane = None;
-        self.active_pane = ActivePane::Data;
-    }
-
-    /// Cancel search and restore the pane that was active before opening search.
-    pub fn cancel_search(&mut self) {
-        self.search.close();
-        if let Some(previous) = self.search_previous_pane.take() {
-            self.active_pane = if previous == ActivePane::Options && !self.show_options {
-                ActivePane::Data
-            } else {
-                previous
-            };
-        }
-    }
-
     /// Create the header and the table rows from the table map. Basically transforms from columnar
     /// to row based, filtering on whether the data is active.
-    pub fn generate_table(&self) -> (Vec<String>, Vec<Vec<String>>) {
-        if self.stats.is_empty() {
+    ///
+    /// NOTE: The cache does not key on `filter`. Callers must call `invalidate_cache()` whenever
+    /// the filter changes (e.g. when search matches are updated or cleared).
+    pub fn generate(&mut self, filter: Option<&[usize]>) -> Arc<TableData> {
+        if let Some(cached) = &self.cache {
+            return cached.clone();
+        }
+        let data = Arc::new(self.rebuild_table(filter));
+        self.cache = Some(data.clone());
+        data
+    }
+
+    fn rebuild_table(&self, filter: Option<&[usize]>) -> TableData {
+        if self.columns.is_empty() {
             return (vec![], vec![vec![]]);
         }
 
         // get the number of rows, which might be zero while data is loading
-        let len = match self.stats.first() {
+        let len = match self.columns.first() {
             Some((_, v)) => v.rows.len(),
             None => 0,
         };
@@ -261,23 +175,22 @@ impl StatsState {
         }
 
         // determine how many rows we need to render
-        let row_count = if self.search.is_filtering() {
-            self.search.matched_indices.len()
-        } else {
-            len
+        let row_count = match filter {
+            Some(indices) => indices.len(),
+            None => len,
         };
 
-        let mut rows = vec![Vec::with_capacity(self.stats.len()); row_count];
-        let mut header = Vec::with_capacity(self.stats.len());
+        let mut rows = vec![Vec::with_capacity(self.columns.len()); row_count];
+        let mut header = Vec::with_capacity(self.columns.len());
 
         // access the data in stored order because of `IndexMap` and only clone rows that will be
         // actually displayed
-        for (key, col) in &self.stats {
+        for (key, col) in &self.columns {
             if col.active {
                 header.push(key.clone());
 
-                if self.search.is_filtering() {
-                    for (out_idx, &src_idx) in self.search.matched_indices.iter().enumerate() {
+                if let Some(indices) = filter {
+                    for (out_idx, &src_idx) in indices.iter().enumerate() {
                         if let Some(val) = col.rows.get(src_idx) {
                             rows[out_idx].push(val.clone());
                         }
@@ -290,8 +203,7 @@ impl StatsState {
             }
         }
 
-        self.sort_table(&mut rows);
-
+        self.sort_rows(&mut rows);
         (header, rows)
     }
 
@@ -301,7 +213,7 @@ impl StatsState {
     where
         T: ToString,
     {
-        self.stats
+        self.columns
             .entry(key.to_string())
             .and_modify(|table_entry| table_entry.rows.push(value.to_string()))
             .or_insert(TableEntry {
@@ -318,8 +230,9 @@ impl StatsState {
         name: String,
         team_abbreviation: Option<String>,
         stat: &PitchingStat,
+        team_player: TeamOrPlayer,
     ) {
-        self.format_name_columns(name, team_abbreviation);
+        self.format_name_columns(name, team_abbreviation, team_player);
         self.table_helper("W", "wins", true, stat.wins);
         self.table_helper("L", "losses", true, stat.losses);
         self.table_helper("ERA", "earned run average", true, &stat.era);
@@ -346,8 +259,9 @@ impl StatsState {
         name: String,
         team_abbreviation: Option<String>,
         stat: &HittingStat,
+        team_player: TeamOrPlayer,
     ) {
-        self.format_name_columns(name, team_abbreviation);
+        self.format_name_columns(name, team_abbreviation, team_player);
         self.table_helper("G", "games played", true, stat.games_played);
         self.table_helper("AB", "at bats", true, stat.at_bats);
         self.table_helper("AVG", "batting avg", true, &stat.avg);
@@ -366,8 +280,13 @@ impl StatsState {
         self.table_helper("CS", "caught stealing", true, stat.caught_stealing);
     }
 
-    fn format_name_columns(&mut self, name: String, team_abbreviation: Option<String>) {
-        match self.stat_type.team_player {
+    fn format_name_columns(
+        &mut self,
+        name: String,
+        team_abbreviation: Option<String>,
+        team_player: TeamOrPlayer,
+    ) {
+        match team_player {
             TeamOrPlayer::Team => {
                 self.table_helper(TEAM_COLUMN_NAME, "", true, name);
             }
@@ -385,7 +304,7 @@ impl StatsState {
     pub fn trim_columns(&mut self, available_width: u16) {
         // Get the indices of active columns
         let mut active: Vec<usize> = self
-            .stats
+            .columns
             .values()
             .enumerate()
             .filter(|(_, v)| v.active)
@@ -398,24 +317,29 @@ impl StatsState {
             - 2; // 2 for left/right borders
 
         // start deactivating columns as needed, from left to right
+        let mut changed = false;
         while column_width >= available_width && !active.is_empty() {
             let key = active.pop().unwrap();
-            if let Some((_, v)) = self.stats.get_index_mut(key) {
+            if let Some((_, v)) = self.columns.get_index_mut(key) {
                 v.active = false;
                 column_width -= STATS_DEFAULT_COL_WIDTH;
+                changed = true;
             }
+        }
+        if changed {
+            self.invalidate_cache();
         }
     }
 
     /// Toggle the visibility of the stat column that is selected.
-    pub fn toggle_stat(&mut self) {
-        let toggled_column_index = self.options_state.selected().unwrap_or_default();
+    pub fn toggle_stat(&mut self, selected_index: usize) {
+        self.invalidate_cache();
         let sort_column_index = self.get_sort_column_index();
 
-        if let Some((_, v)) = self.stats.get_index_mut(toggled_column_index) {
+        if let Some((_, v)) = self.columns.get_index_mut(selected_index) {
             v.active = !v.active;
             // if the column is the sort column and it's toggled off, reset the sorting
-            if sort_column_index.is_some_and(|idx| idx == toggled_column_index) && !v.active {
+            if sort_column_index.is_some_and(|idx| idx == selected_index) && !v.active {
                 self.sorting.column_name = None;
             }
         }
@@ -427,7 +351,7 @@ impl StatsState {
         let sort_column = self.sorting.column_name.as_ref()?;
 
         let mut active_idx = 0;
-        for (column_name, entry) in self.stats.iter() {
+        for (column_name, entry) in self.columns.iter() {
             if column_name == sort_column {
                 return Some(active_idx);
             }
@@ -439,13 +363,11 @@ impl StatsState {
     }
 
     /// Sort the table by this stat.
-    pub fn store_sort_column(&mut self) {
-        let Some(selected_index) = self.options_state.selected() else {
-            return;
-        };
+    pub fn store_sort_column(&mut self, selected_index: usize) {
+        self.invalidate_cache();
 
         // if the stat isn't already active don't sort
-        if let Some((column_name, entry)) = self.stats.get_index(selected_index) {
+        if let Some((column_name, entry)) = self.columns.get_index(selected_index) {
             if !entry.active {
                 return;
             }
@@ -457,7 +379,7 @@ impl StatsState {
     }
 
     /// Sort the rows by the selected stat.
-    fn sort_table(&self, rows: &mut [Vec<String>]) {
+    fn sort_rows(&self, rows: &mut [Vec<String>]) {
         let sort_column_index = self.get_sort_column_index();
         let sort_column_name = self.sorting.column_name.as_ref();
 
@@ -488,126 +410,12 @@ impl StatsState {
         }
     }
 
-    pub fn toggle_options(&mut self) {
-        self.show_options = !self.show_options;
-        if !self.show_options {
-            self.active_pane = ActivePane::Data;
-        }
-    }
-
-    pub fn switch_pane(&mut self) {
-        if !self.show_options {
-            return;
-        }
-        self.active_pane = match self.active_pane {
-            ActivePane::Data => ActivePane::Options,
-            ActivePane::Options => ActivePane::Data,
-        };
-    }
-
-    /// Returns the total number of data rows, ignoring any search filter.
+    /// Returns the total number of data rows.
     pub fn total_row_count(&self) -> usize {
-        self.stats
+        self.columns
             .values()
             .next()
             .map(|entry| entry.rows.len())
             .unwrap_or(0)
-    }
-
-    /// Returns the number of visible data rows, accounting for search filtering.
-    fn row_count(&self) -> usize {
-        if self.search.is_filtering() {
-            return self.search.matched_indices.len();
-        }
-        self.total_row_count()
-    }
-
-    /// Reset data selection to the first visible row for the current view.
-    pub fn reset_data_selection(&mut self) {
-        if self.row_count() > 0 {
-            self.data_state.select(Some(0));
-        } else {
-            self.data_state.select(None);
-        }
-    }
-
-    pub fn next(&mut self) {
-        let len = match self.active_pane {
-            ActivePane::Data => self.row_count(),
-            ActivePane::Options => self.stats.len(),
-        };
-        if len == 0 {
-            return;
-        }
-        let selected = match self.active_pane {
-            ActivePane::Data => self.data_state.selected(),
-            ActivePane::Options => self.options_state.selected(),
-        };
-        let i = match selected {
-            Some(i) => {
-                if i >= len - 1 {
-                    0
-                } else {
-                    i + 1
-                }
-            }
-            None => 0,
-        };
-        self.select(Some(i));
-    }
-
-    pub fn page_down(&mut self) {
-        if self.active_pane != ActivePane::Data {
-            return;
-        }
-        let len = self.row_count();
-        if len == 0 || self.visible_rows == 0 {
-            return;
-        }
-        // The last visible row becomes the first visible row
-        let offset = self.data_state.offset();
-        let last_visible = (offset + self.visible_rows - 1).min(len - 1);
-        *self.data_state.offset_mut() = last_visible;
-        self.data_state.select(Some(last_visible));
-    }
-
-    pub fn page_up(&mut self) {
-        if self.active_pane != ActivePane::Data {
-            return;
-        }
-        let len = self.row_count();
-        if len == 0 || self.visible_rows == 0 {
-            return;
-        }
-        // The first visible row becomes the last visible row
-        let offset = self.data_state.offset();
-        let new_offset = offset.saturating_sub(self.visible_rows - 1);
-        *self.data_state.offset_mut() = new_offset;
-        self.data_state.select(Some(new_offset));
-    }
-
-    pub fn previous(&mut self) {
-        let len = match self.active_pane {
-            ActivePane::Data => self.row_count(),
-            ActivePane::Options => self.stats.len(),
-        };
-        if len == 0 {
-            return;
-        }
-        let selected = match self.active_pane {
-            ActivePane::Data => self.data_state.selected(),
-            ActivePane::Options => self.options_state.selected(),
-        };
-        let i = match selected {
-            Some(i) => {
-                if i == 0 {
-                    len - 1
-                } else {
-                    i - 1
-                }
-            }
-            None => 0,
-        };
-        self.select(Some(i));
     }
 }
