@@ -2,7 +2,7 @@ use tui::backend::Backend;
 use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Modifier, Style};
 use tui::text::Line;
-use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, TableState, Tabs};
+use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, TableState, Tabs, Widget};
 use tui::{Frame, Terminal};
 
 use crate::app::{App, DebugState, MenuItem};
@@ -13,13 +13,14 @@ use crate::ui::date_selector::DateSelectorWidget;
 use crate::ui::gameday::gameday_widget::GamedayWidget;
 use crate::ui::gameday::win_probability::WinProbabilityWidget;
 use crate::ui::help::HelpWidget;
+use crate::ui::input_popup::{InputPopup, popup_cursor_position};
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
 use crate::ui::logs::LogWidget;
 use crate::ui::probable_pitchers::ProbablePitchersWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::standings::StandingsWidget;
-use crate::ui::stats::{STATS_OPTIONS_WIDTH, StatsWidget};
+use crate::ui::stats::{STATS_OPTIONS_WIDTH, StatsDataWidget, StatsOptionsWidget};
 
 static TABS: &[&str; 4] = &["Scoreboard", "Gameday", "Stats", "Standings"];
 
@@ -201,11 +202,8 @@ fn draw_date_picker(f: &mut Frame, rect: Rect, app: &mut App) {
     let chunk = LayoutAreas::create_date_picker(rect);
     f.render_stateful_widget(DateSelectorWidget {}, chunk, &mut app.state.date_input);
 
-    // display cursor
-    f.set_cursor_position((
-        chunk.x + app.state.date_input.text.len() as u16 + 1, // +1 for border
-        chunk.y + 2,                                          // +2 for border and instructions
-    ))
+    let (cx, cy) = popup_cursor_position(chunk, app.state.date_input.text.len() as u16);
+    f.set_cursor_position((cx, cy));
 }
 
 fn draw_gameday(f: &mut Frame, rect: Rect, app: &mut App) {
@@ -220,21 +218,60 @@ fn draw_gameday(f: &mut Frame, rect: Rect, app: &mut App) {
 }
 
 fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
+    // Split horizontally first: data pane (left) and options pane (right)
+    let (data_area, options_area) =
+        if app.state.stats.show_options && rect.width > STATS_OPTIONS_WIDTH {
+            let [data, options] = Layout::horizontal([
+                Constraint::Length(rect.width - STATS_OPTIONS_WIDTH),
+                Constraint::Length(STATS_OPTIONS_WIDTH),
+            ])
+            .areas(rect);
+            (data, Some(options))
+        } else {
+            (rect, None)
+        };
+
+    // If search is open, shrink only the data pane to make room for the search bar
+    let (data_table_area, search_area) = if app.state.stats.search.is_open {
+        let [table, search] =
+            Layout::vertical([Constraint::Fill(1), Constraint::Length(4)]).areas(data_area);
+        (table, Some(search))
+    } else {
+        (data_area, None)
+    };
+
     // TODO by taking into account the width of the options pane I'm basically removing that amount
     // of space for columns. If I didn't, you could select columns that would be covered by the
     // options pane, but then when its disabled would become visible.
-    let width = match app.state.stats.show_options {
-        true => rect.width - STATS_OPTIONS_WIDTH,
-        false => rect.width,
-    };
-    app.state.stats.trim_columns(width);
-    f.render_stateful_widget(
-        StatsWidget {
-            show_options: app.state.stats.show_options,
-        },
-        rect,
-        &mut app.state.stats,
-    );
+    app.state.stats.trim_columns(data_table_area.width);
+    f.render_stateful_widget(StatsDataWidget {}, data_table_area, &mut app.state.stats);
+
+    if let Some(options_area) = options_area {
+        f.render_stateful_widget(StatsOptionsWidget {}, options_area, &mut app.state.stats);
+    }
+
+    if let Some(search_area) = search_area {
+        let title = format!("Search {}", app.state.stats.stat_type.search_label());
+        let total = app.state.stats.total_row_count();
+        let filtered = app.state.stats.search.matched_indices.len();
+        let info = if app.state.stats.search.is_filtering() {
+            format!("{}/{}", filtered, total)
+        } else {
+            format!("{}", total)
+        };
+        InputPopup {
+            title: &title,
+            instructions: "Press Enter to search or Esc to cancel",
+            input_text: &app.state.stats.search.input,
+            border_color: Color::Blue,
+            info: Some(&info),
+        }
+        .render(search_area, f.buffer_mut());
+
+        let (cx, cy) =
+            popup_cursor_position(search_area, app.state.stats.search.input.len() as u16);
+        f.set_cursor_position((cx, cy));
+    }
 }
 
 fn draw_standings(f: &mut Frame, rect: Rect, app: &mut App) {

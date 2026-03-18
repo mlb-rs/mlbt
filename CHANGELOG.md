@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add fuzzy search to the Stats view: [PR 106](https://github.com/mlb-rs/mlbt/pull/106)
 - Add probable pitchers to the Schedule view for upcoming games: [PR 104](https://github.com/mlb-rs/mlbt/pull/104)
 - Add `--version` and `-V` flag to print the version number: [PR 105](https://github.com/mlb-rs/mlbt/pull/105)
 

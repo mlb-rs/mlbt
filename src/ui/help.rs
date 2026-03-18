@@ -5,7 +5,7 @@ use tui::prelude::*;
 use tui::widgets::{Paragraph, Row, Table, TableState};
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
-pub const DOCS: &[&[&str; 2]; 43] = &[
+pub const DOCS: &[&[&str; 2]; 44] = &[
     &["Exit help", "Esc"],
     &["Move down", "j/↓"],
     &["Move up", "k/↑"],
@@ -43,6 +43,7 @@ pub const DOCS: &[&[&str; 2]; 43] = &[
     &["Sort by stat", "s"],
     &["Select date", ":"],
     &["Toggle stat selection", "o"],
+    &["Search", "Ctrl + f"],
     &["Standings", "4"],
     &["Move down", "j/↓"],
     &["Move up", "k/↑"],

@@ -16,14 +16,32 @@ pub async fn handle_key_bindings(
 ) {
     let mut guard = app.lock().await;
     match (guard.state.active_tab, key_event.code, key_event.modifiers) {
-        (_, Char('q'), _) | (_, Char('c'), KeyModifiers::CONTROL) => {
+        // Ctrl+C always quits, even during search
+        (_, Char('c'), KeyModifiers::CONTROL) => {
             cleanup_terminal();
             std::process::exit(0);
         }
+
+        // in search mode capture all keys
+        (MenuItem::Stats, _, _) if guard.state.stats.search.is_open => {
+            handle_search_key(key_event, &mut guard);
+        }
+
+        // regular quit after checking search mode
+        (_, Char('q'), _) => {
+            cleanup_terminal();
+            std::process::exit(0);
+        }
+
         // needs to be before the tab switches to capture number inputs
         (MenuItem::DatePicker, Char(c), _) => {
             guard.state.date_input.is_valid = true; // reset status
             guard.state.date_input.text.push(c);
+        }
+
+        // Ctrl+F opens search in Stats tab, needs to be before `f` handler
+        (MenuItem::Stats, Char('f'), KeyModifiers::CONTROL) => {
+            guard.state.stats.open_search();
         }
 
         (_, Char('f'), _) => guard.toggle_full_screen(),
@@ -220,5 +238,29 @@ async fn handle_date_change(guard: AppGuard<'_>, network_requests: &mpsc::Sender
         MenuItem::Standings => load_standings(guard, network_requests).await,
         MenuItem::Stats => load_stats(guard, network_requests).await,
         _ => {}
+    }
+}
+
+fn handle_search_key(key_event: KeyEvent, guard: &mut AppGuard<'_>) {
+    match (key_event.code, key_event.modifiers) {
+        (Char(c), m) if !m.contains(KeyModifiers::CONTROL) => {
+            guard.state.stats.search.handle_char(c);
+            guard.state.stats.update_search_matches();
+            guard.state.stats.reset_data_selection();
+        }
+        (KeyCode::Backspace, _) => {
+            guard.state.stats.search.handle_backspace();
+            guard.state.stats.update_search_matches();
+            guard.state.stats.reset_data_selection();
+        }
+        (KeyCode::Esc, _) => {
+            guard.state.stats.cancel_search();
+        }
+        (KeyCode::Enter, _) => {
+            guard.state.stats.submit_search();
+        }
+        (KeyCode::Down, _) => guard.state.stats.next(),
+        (KeyCode::Up, _) => guard.state.stats.previous(),
+        _ => {} // swallow all other keys
     }
 }

@@ -1,5 +1,6 @@
 use crate::components::constants::lookup_team;
 use crate::components::date_selector::DateSelector;
+use crate::components::search::SearchState;
 use chrono::NaiveDate;
 use indexmap::IndexMap;
 use mlbt_api::client::StatGroup;
@@ -20,6 +21,18 @@ const TEAM_COLUMN_NAME: &str = "Team";
 pub struct StatType {
     pub group: StatGroup,
     pub team_player: TeamOrPlayer,
+}
+
+impl StatType {
+    pub fn search_label(&self) -> &'static str {
+        match self.team_player {
+            TeamOrPlayer::Team => "teams",
+            TeamOrPlayer::Player => match self.group {
+                StatGroup::Hitting => "hitters",
+                StatGroup::Pitching => "pitchers",
+            },
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -88,6 +101,8 @@ pub struct StatsState {
     pub data_state: TableState,
     /// Which pane is currently focused.
     pub active_pane: ActivePane,
+    /// Pane that was active before search opened, used to restore on cancel.
+    pub search_previous_pane: Option<ActivePane>,
     /// The stat type combination of team/player and pitching/hitting.
     pub stat_type: StatType,
     /// Stores the data in columnar form. The key is the column name and the value contains the
@@ -102,6 +117,8 @@ pub struct StatsState {
     pub date_selector: DateSelector,
     /// Visible row count in the data table, updated during render.
     pub visible_rows: usize,
+    /// Search state for players or teams.
+    pub search: SearchState,
 }
 
 /// The information for a stat, including all the data values.
@@ -120,15 +137,17 @@ impl Default for StatsState {
             options_state: TableState::default(),
             data_state: TableState::default(),
             active_pane: ActivePane::default(),
+            search_previous_pane: None,
             stat_type: StatType {
-                group: StatGroup::Pitching,
-                team_player: TeamOrPlayer::Team,
+                group: StatGroup::Hitting,
+                team_player: TeamOrPlayer::Player,
             },
             stats: IndexMap::new(),
             sorting: Sort::default(),
             show_options: true,
             date_selector: DateSelector::default(),
             visible_rows: 0,
+            search: SearchState::default(),
         };
         ss.options_state.select(Some(0));
         ss
@@ -140,6 +159,9 @@ impl StatsState {
         self.stats.clear();
         self.create_table(stats);
         self.data_state.select(Some(0));
+        // Clear search state since the underlying data has changed.
+        self.search.close();
+        self.search_previous_pane = None;
     }
 
     /// Set the date from the validated input string from the date picker.
@@ -178,6 +200,50 @@ impl StatsState {
         }
     }
 
+    /// Run fuzzy matching against the name column and update search.matched_indices.
+    pub fn update_search_matches(&mut self) {
+        let name_key = match self.stat_type.team_player {
+            TeamOrPlayer::Team => TEAM_COLUMN_NAME,
+            TeamOrPlayer::Player => PLAYER_COLUMN_NAME,
+        };
+        let empty = Vec::new();
+        let names = self
+            .stats
+            .get(name_key)
+            .map(|entry| &entry.rows)
+            .unwrap_or(&empty);
+        self.search.update_matches(names);
+    }
+
+    /// Open search and force navigation to the data pane while searching.
+    pub fn open_search(&mut self) {
+        if !self.search.is_open {
+            self.search_previous_pane = Some(self.active_pane);
+        }
+        self.active_pane = ActivePane::Data;
+        self.data_state.select(Some(0));
+        self.search.open();
+    }
+
+    /// Submit search results and keep focus on the data pane.
+    pub fn submit_search(&mut self) {
+        self.search.submit();
+        self.search_previous_pane = None;
+        self.active_pane = ActivePane::Data;
+    }
+
+    /// Cancel search and restore the pane that was active before opening search.
+    pub fn cancel_search(&mut self) {
+        self.search.close();
+        if let Some(previous) = self.search_previous_pane.take() {
+            self.active_pane = if previous == ActivePane::Options && !self.show_options {
+                ActivePane::Data
+            } else {
+                previous
+            };
+        }
+    }
+
     /// Create the header and the table rows from the table map. Basically transforms from columnar
     /// to row based, filtering on whether the data is active.
     pub fn generate_table(&self) -> (Vec<String>, Vec<Vec<String>>) {
@@ -193,15 +259,33 @@ impl StatsState {
         if len == 0 {
             return (vec![], vec![vec![]]);
         }
-        let mut rows = vec![Vec::with_capacity(self.stats.len()); len];
+
+        // determine how many rows we need to render
+        let row_count = if self.search.is_filtering() {
+            self.search.matched_indices.len()
+        } else {
+            len
+        };
+
+        let mut rows = vec![Vec::with_capacity(self.stats.len()); row_count];
         let mut header = Vec::with_capacity(self.stats.len());
 
-        // access the data in stored order because of `IndexMap`
+        // access the data in stored order because of `IndexMap` and only clone rows that will be
+        // actually displayed
         for (key, col) in &self.stats {
             if col.active {
                 header.push(key.clone());
-                for (idx, val) in col.rows.iter().enumerate() {
-                    rows[idx].push(val.clone());
+
+                if self.search.is_filtering() {
+                    for (out_idx, &src_idx) in self.search.matched_indices.iter().enumerate() {
+                        if let Some(val) = col.rows.get(src_idx) {
+                            rows[out_idx].push(val.clone());
+                        }
+                    }
+                } else {
+                    for (idx, val) in col.rows.iter().enumerate() {
+                        rows[idx].push(val.clone());
+                    }
                 }
             }
         }
@@ -421,12 +505,30 @@ impl StatsState {
         };
     }
 
-    fn row_count(&self) -> usize {
+    /// Returns the total number of data rows, ignoring any search filter.
+    pub fn total_row_count(&self) -> usize {
         self.stats
             .values()
             .next()
             .map(|entry| entry.rows.len())
             .unwrap_or(0)
+    }
+
+    /// Returns the number of visible data rows, accounting for search filtering.
+    fn row_count(&self) -> usize {
+        if self.search.is_filtering() {
+            return self.search.matched_indices.len();
+        }
+        self.total_row_count()
+    }
+
+    /// Reset data selection to the first visible row for the current view.
+    pub fn reset_data_selection(&mut self) {
+        if self.row_count() > 0 {
+            self.data_state.select(Some(0));
+        } else {
+            self.data_state.select(None);
+        }
     }
 
     pub fn next(&mut self) {

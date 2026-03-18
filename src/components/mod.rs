@@ -7,6 +7,7 @@ pub mod game;
 pub mod linescore;
 pub mod probable_pitchers;
 pub mod schedule;
+pub mod search;
 pub mod standings;
 pub mod stats;
 mod util;
