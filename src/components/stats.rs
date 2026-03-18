@@ -101,6 +101,8 @@ pub struct StatsState {
     pub data_state: TableState,
     /// Which pane is currently focused.
     pub active_pane: ActivePane,
+    /// Pane that was active before search opened, used to restore on cancel.
+    pub search_previous_pane: Option<ActivePane>,
     /// The stat type combination of team/player and pitching/hitting.
     pub stat_type: StatType,
     /// Stores the data in columnar form. The key is the column name and the value contains the
@@ -115,7 +117,7 @@ pub struct StatsState {
     pub date_selector: DateSelector,
     /// Visible row count in the data table, updated during render.
     pub visible_rows: usize,
-    /// Player search state.
+    /// Search state for players or teams.
     pub search: SearchState,
 }
 
@@ -135,6 +137,7 @@ impl Default for StatsState {
             options_state: TableState::default(),
             data_state: TableState::default(),
             active_pane: ActivePane::default(),
+            search_previous_pane: None,
             stat_type: StatType {
                 group: StatGroup::Hitting,
                 team_player: TeamOrPlayer::Player,
@@ -158,6 +161,7 @@ impl StatsState {
         self.data_state.select(Some(0));
         // Clear search state since the underlying data has changed.
         self.search.close();
+        self.search_previous_pane = None;
     }
 
     /// Set the date from the validated input string from the date picker.
@@ -209,6 +213,35 @@ impl StatsState {
             .map(|entry| &entry.rows)
             .unwrap_or(&empty);
         self.search.update_matches(names);
+    }
+
+    /// Open search and force navigation to the data pane while searching.
+    pub fn open_search(&mut self) {
+        if !self.search.is_open {
+            self.search_previous_pane = Some(self.active_pane);
+        }
+        self.active_pane = ActivePane::Data;
+        self.data_state.select(Some(0));
+        self.search.open();
+    }
+
+    /// Submit search results and keep focus on the data pane.
+    pub fn submit_search(&mut self) {
+        self.search.submit();
+        self.search_previous_pane = None;
+        self.active_pane = ActivePane::Data;
+    }
+
+    /// Cancel search and restore the pane that was active before opening search.
+    pub fn cancel_search(&mut self) {
+        self.search.close();
+        if let Some(previous) = self.search_previous_pane.take() {
+            self.active_pane = if previous == ActivePane::Options && !self.show_options {
+                ActivePane::Data
+            } else {
+                previous
+            };
+        }
     }
 
     /// Create the header and the table rows from the table map. Basically transforms from columnar
@@ -487,6 +520,15 @@ impl StatsState {
             return self.search.matched_indices.len();
         }
         self.total_row_count()
+    }
+
+    /// Reset data selection to the first visible row for the current view.
+    pub fn reset_data_selection(&mut self) {
+        if self.row_count() > 0 {
+            self.data_state.select(Some(0));
+        } else {
+            self.data_state.select(None);
+        }
     }
 
     pub fn next(&mut self) {

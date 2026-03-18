@@ -41,7 +41,7 @@ pub async fn handle_key_bindings(
 
         // Ctrl+F opens search in Stats tab, needs to be before `f` handler
         (MenuItem::Stats, Char('f'), KeyModifiers::CONTROL) => {
-            guard.state.stats.search.open();
+            guard.state.stats.open_search();
         }
 
         (_, Char('f'), _) => guard.toggle_full_screen(),
@@ -246,19 +246,18 @@ fn handle_search_key(key_event: KeyEvent, guard: &mut AppGuard<'_>) {
         (Char(c), m) if !m.contains(KeyModifiers::CONTROL) => {
             guard.state.stats.search.handle_char(c);
             guard.state.stats.update_search_matches();
-            guard.state.stats.data_state.select(Some(0));
+            guard.state.stats.reset_data_selection();
         }
         (KeyCode::Backspace, _) => {
             guard.state.stats.search.handle_backspace();
             guard.state.stats.update_search_matches();
-            guard.state.stats.data_state.select(Some(0));
+            guard.state.stats.reset_data_selection();
         }
         (KeyCode::Esc, _) => {
-            guard.state.stats.search.close();
-            guard.state.stats.data_state.select(Some(0));
+            guard.state.stats.cancel_search();
         }
         (KeyCode::Enter, _) => {
-            guard.state.stats.search.submit();
+            guard.state.stats.submit_search();
         }
         (KeyCode::Down, _) => guard.state.stats.next(),
         (KeyCode::Up, _) => guard.state.stats.previous(),
