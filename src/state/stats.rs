@@ -6,6 +6,7 @@ use crate::components::stats::table::{
 use chrono::NaiveDate;
 use mlbt_api::client::StatGroup;
 use mlbt_api::stats::StatsResponse;
+use std::sync::Arc;
 use tui::widgets::TableState;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -135,7 +136,7 @@ impl StatsState {
     }
 
     /// Generate the table data, using the cache if available.
-    pub fn generate_table(&self) -> TableData {
+    pub fn generate_table(&mut self) -> Arc<TableData> {
         let filter = if self.search.is_filtering() {
             Some(self.search.matched_indices.as_slice())
         } else {

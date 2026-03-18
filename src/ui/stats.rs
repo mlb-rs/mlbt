@@ -14,7 +14,8 @@ impl StatefulWidget for StatsDataWidget {
     type State = StatsState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        let (header, rows) = state.generate_table();
+        let table = state.generate_table();
+        let (header, rows) = table.as_ref();
 
         // use the sort column to include up/down arrow in the column name
         let sort_column = state
@@ -24,7 +25,7 @@ impl StatefulWidget for StatsDataWidget {
             .as_deref()
             .unwrap_or_default();
         let header = header
-            .into_iter()
+            .iter()
             .map(|name| {
                 if name == sort_column {
                     Cell::from(format!(
@@ -33,14 +34,21 @@ impl StatefulWidget for StatsDataWidget {
                     ))
                     .style(Style::default().bg(Color::Blue))
                 } else {
-                    Cell::from(name)
+                    Cell::from(name.as_str())
                 }
             })
             .collect::<Row>()
             .height(1)
             .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
 
-        let rows: Vec<Row> = rows.into_iter().map(Row::new).collect();
+        let rows: Vec<Row> = rows
+            .iter()
+            .map(|row| {
+                row.iter()
+                    .map(|cell| Cell::from(cell.as_str()))
+                    .collect::<Row>()
+            })
+            .collect();
 
         // Count active columns for width constraints
         let active = state.table.columns.values().filter(|v| v.active).count();
@@ -126,9 +134,9 @@ impl StatefulWidget for StatsOptionsWidget {
         for (name, stat) in &state.table.columns {
             let selected = if stat.active { "[X]" } else { "[ ]" };
             options.push(Row::new(vec![
-                selected.to_string(),
-                name.clone(),
-                stat.description.clone(),
+                selected,
+                name.as_str(),
+                stat.description.as_str(),
             ]));
         }
 

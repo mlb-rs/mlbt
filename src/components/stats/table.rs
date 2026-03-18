@@ -2,9 +2,9 @@ use crate::components::constants::lookup_team;
 use indexmap::IndexMap;
 use mlbt_api::client::StatGroup;
 use mlbt_api::stats::{HittingStat, PitchingStat, StatSplit, StatsResponse};
-use std::cell::RefCell;
 use std::cmp::Ordering;
 use std::string::ToString;
+use std::sync::Arc;
 
 /// The width of the first column, which is a longer item like team name.
 pub const STATS_FIRST_COL_WIDTH: u16 = 28;
@@ -41,6 +41,7 @@ pub enum TeamOrPlayer {
     Team,
     Player,
 }
+
 #[derive(Copy, Clone, Debug, Default, Eq, PartialEq)]
 pub enum Order {
     #[default]
@@ -103,8 +104,8 @@ pub struct StatsTable {
     pub columns: IndexMap<String, TableEntry>,
     /// The column and direction used for sorting the stats.
     pub sorting: Sort,
-    /// Cached table data: (header, rows)
-    cache: RefCell<Option<TableData>>,
+    /// Cached table data.
+    cache: Option<Arc<TableData>>,
 }
 
 impl Default for StatsTable {
@@ -112,14 +113,14 @@ impl Default for StatsTable {
         Self {
             columns: IndexMap::new(),
             sorting: Sort::default(),
-            cache: RefCell::new(None),
+            cache: None,
         }
     }
 }
 
 impl StatsTable {
-    pub fn invalidate_cache(&self) {
-        *self.cache.borrow_mut() = None;
+    pub fn invalidate_cache(&mut self) {
+        self.cache = None;
     }
 
     pub fn load(&mut self, stats: &StatsResponse, team_player: TeamOrPlayer) {
@@ -147,18 +148,21 @@ impl StatsTable {
 
     /// Create the header and the table rows from the table map. Basically transforms from columnar
     /// to row based, filtering on whether the data is active.
-    pub fn generate(&self, filter: Option<&[usize]>) -> TableData {
-        if let Some(cached) = self.cache.borrow().as_ref() {
+    ///
+    /// NOTE: The cache does not key on `filter`. Callers must call `invalidate_cache()` whenever
+    /// the filter changes (e.g. when search matches are updated or cleared).
+    pub fn generate(&mut self, filter: Option<&[usize]>) -> Arc<TableData> {
+        if let Some(cached) = &self.cache {
             return cached.clone();
         }
-        self.rebuild_cache(filter);
-        self.cache.borrow().as_ref().unwrap().clone()
+        let data = Arc::new(self.rebuild_table(filter));
+        self.cache = Some(data.clone());
+        data
     }
 
-    fn rebuild_cache(&self, filter: Option<&[usize]>) {
+    fn rebuild_table(&self, filter: Option<&[usize]>) -> TableData {
         if self.columns.is_empty() {
-            *self.cache.borrow_mut() = Some((vec![], vec![vec![]]));
-            return;
+            return (vec![], vec![vec![]]);
         }
 
         // get the number of rows, which might be zero while data is loading
@@ -167,8 +171,7 @@ impl StatsTable {
             None => 0,
         };
         if len == 0 {
-            *self.cache.borrow_mut() = Some((vec![], vec![vec![]]));
-            return;
+            return (vec![], vec![vec![]]);
         }
 
         // determine how many rows we need to render
@@ -201,8 +204,7 @@ impl StatsTable {
         }
 
         self.sort_rows(&mut rows);
-
-        *self.cache.borrow_mut() = Some((header, rows));
+        (header, rows)
     }
 
     /// Insert stats into the table map. If the key isn't present a new column is created, otherwise
