@@ -46,7 +46,7 @@ impl SearchState {
 
     /// Returns true if the stats table should be filtered.
     pub fn is_filtering(&self) -> bool {
-        !self.matched_indices.is_empty()
+        self.input.len() >= MIN_QUERY_LEN
     }
 
     /// Run fuzzy matching against the given names and populate `matched_indices`.

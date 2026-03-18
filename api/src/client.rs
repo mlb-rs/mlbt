@@ -194,7 +194,7 @@ impl MLBApi {
         let local: DateTime<Local> = Local::now();
         let sort = group.default_sort_stat();
         let mut url = format!(
-            "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=300&sortStat={}&order=desc",
+            "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc",
             self.base_url,
             local.year(),
             group,
@@ -216,14 +216,14 @@ impl MLBApi {
         // Spring training doesn't work well with byDateRange, use season instead.
         let url = match game_type {
             GameType::SpringTraining => format!(
-                "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=300&sortStat={}&order=desc&gameType=S&playerPool=ALL",
+                "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&gameType=S&playerPool=ALL",
                 self.base_url,
                 date.year(),
                 group,
                 sort
             ),
             GameType::RegularSeason => format!(
-                "{}v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=300&sortStat={}&order=desc",
+                "{}v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=3000&sortStat={}&order=desc",
                 self.base_url,
                 date.year(),
                 date.format("%Y-%m-%d"),
