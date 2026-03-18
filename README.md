@@ -146,6 +146,7 @@ docker run -it --rm --name mlbt mlbt:latest
     - [X] player stats
     - [X] team stats
     - [X] sorting
+    - [X] fuzzy search
     - [X] selectable date
 
 - [X] standings
@@ -256,12 +257,16 @@ can be turned on/off with `o`.
 To sort the stats by a column, instead of hitting `Enter` you can press `s`. To
 flip the sort order from ascending to descending or vice versa press `s` again.
 
-| Key     | Description                                            |
-|---------|--------------------------------------------------------|
-| `Enter` | toggle stat column                                     |
-| `s`     | sort by the currently selected column                  |
-| `:`     | activate date picker (see [Date Picker](#date-picker)) |
-| `o`     | toggle stat selection pane                             |
+| Key          | Description                                            |
+|--------------|--------------------------------------------------------|
+| `Enter`      | toggle stat column                                     |
+| `s`          | sort by the currently selected column                  |
+| `:`          | activate date picker (see [Date Picker](#date-picker)) |
+| `o`          | toggle stat selection pane                             |
+| `Ctrl` + `f` | activate fuzzy search                                  |
+
+You can also use `Ctrl` + `f` to fuzzy search for a player or team name. Press
+`Enter` to finish searching or `Esc` to clear the search results.
 
 > If your terminal is too small to display all columns, they will be turned off
 > starting from the right side.
