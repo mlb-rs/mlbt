@@ -6,6 +6,7 @@ use mlbt_api::client::StatGroup;
 use mlbt_api::live::LiveResponse;
 use mlbt_api::player::PeopleResponse;
 use mlbt_api::schedule::ScheduleResponse;
+use mlbt_api::season::GameType;
 use mlbt_api::standings::StandingsResponse;
 use mlbt_api::stats::StatsResponse;
 use mlbt_api::win_probability::WinProbabilityResponse;
@@ -30,6 +31,7 @@ pub enum NetworkRequest {
         player_id: u64,
         group: StatGroup,
         date: NaiveDate,
+        game_type: GameType,
     },
 }
 
@@ -53,6 +55,7 @@ pub enum NetworkResponse {
     },
     PlayerProfileLoaded {
         data: PeopleResponse,
+        game_type: GameType,
     },
     Initialized,
     // TODO pass through errors from API

@@ -27,6 +27,13 @@ pub async fn handle_key_bindings(
         (MenuItem::Stats, KeyCode::Esc, _) if guard.state.stats.has_player_profile() => {
             guard.state.stats.close_player_profile();
         }
+        // Toggle game type (regular season / spring training) in player profile
+        (MenuItem::Stats, Char('s'), _) if guard.state.stats.has_player_profile() => {
+            if let Some(request) = guard.state.stats.toggle_profile_game_type() {
+                drop(guard);
+                let _ = network_requests.send(request).await;
+            }
+        }
         // When player profile is open, swallow all other Stats keys
         (MenuItem::Stats, _, _) if guard.state.stats.has_player_profile() => {}
 
@@ -222,16 +229,9 @@ async fn load_stats(guard: AppGuard<'_>, network_requests: &mpsc::Sender<Network
 }
 
 async fn load_player_profile(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
-    if let Some((player_id, group, date)) = guard.state.stats.player_profile_request() {
+    if let Some(request) = guard.state.stats.player_profile_request() {
         drop(guard);
-
-        let _ = network_requests
-            .send(NetworkRequest::PlayerProfile {
-                player_id,
-                group,
-                date,
-            })
-            .await;
+        let _ = network_requests.send(request).await;
     }
 }
 

@@ -67,8 +67,9 @@ impl NetworkWorker {
                     player_id,
                     group,
                     date,
+                    game_type,
                 } => {
-                    self.handle_load_player_profile(player_id, group, date)
+                    self.handle_load_player_profile(player_id, group, date, game_type)
                         .await
                 }
             };
@@ -135,19 +136,18 @@ impl NetworkWorker {
     }
 
     async fn handle_load_player_profile(
-        &mut self,
+        &self,
         player_id: u64,
         group: StatGroup,
         date: NaiveDate,
+        game_type: mlbt_api::season::GameType,
     ) -> ApiResult<NetworkResponse> {
         debug!("loading player profile for {player_id} ({group}) on {date}");
-        self.ensure_season_info(date).await;
-        let game_type = game_type_for_date(date, self.cached_season_info());
         let data = self
             .client
             .get_player_profile(player_id, group, date.year(), game_type)
             .await?;
-        Ok(NetworkResponse::PlayerProfileLoaded { data })
+        Ok(NetworkResponse::PlayerProfileLoaded { data, game_type })
     }
 
     /// Best-effort initialization that always returns Ok so the app can proceed even if the API

@@ -1,6 +1,7 @@
 use crate::components::constants::lookup_team;
 use crate::state::player_profile::PlayerProfileState;
 use chrono::NaiveDate;
+use mlbt_api::season::GameType;
 use mlbt_api::stats::{Split, StatSplit};
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Table};
@@ -13,6 +14,10 @@ fn format_date(s: &str) -> String {
 }
 
 const STAT_COL_WIDTH: u16 = 6;
+
+fn section_title_style() -> Style {
+    Style::default().bg(Color::Blue).fg(Color::Black)
+}
 
 pub struct PlayerProfileWidget<'a> {
     pub state: &'a mut PlayerProfileState,
@@ -57,10 +62,11 @@ impl<'a> Widget for PlayerProfileWidget<'a> {
             .find_stat_group("season")
             .map(|s| s.splits.len())
             .unwrap_or(0);
+        // With data: title + header + rows. Empty: title + "No data"
         let season_height = if season_splits > 0 {
-            season_splits as u16 + 2 // +2 for section title + header row
+            season_splits as u16 + 2
         } else {
-            0
+            2
         };
 
         let yby_splits = self
@@ -90,9 +96,13 @@ impl<'a> Widget for PlayerProfileWidget<'a> {
 
         self.render_bio(bio_area, buf);
 
-        if let Some(season) = self.state.find_stat_group("season") {
-            self.render_section("Current Season", &season.splits, false, season_area, buf);
-        }
+        let season_title = format!("{} Season", self.state.season_year);
+        let season_splits = self
+            .state
+            .find_stat_group("season")
+            .map(|s| s.splits.as_slice())
+            .unwrap_or(&[]);
+        self.render_section(&season_title, season_splits, false, season_area, buf);
 
         if let Some(yby) = self.state.find_stat_group("yearByYear") {
             let career_totals = self.state.find_stat_group("career").map(|c| &c.splits);
@@ -113,6 +123,13 @@ impl<'a> Widget for PlayerProfileWidget<'a> {
 
 impl PlayerProfileWidget<'_> {
     fn render_bio(&self, area: Rect, buf: &mut Buffer) {
+        // Split bio area: text on left, game type selector on right
+        let [bio_text_area, game_type_area] =
+            Layout::horizontal([Constraint::Fill(1), Constraint::Length(20)]).areas(area);
+
+        self.render_game_type_selector(game_type_area, buf);
+
+        let area = bio_text_area;
         let bio = &self.state.data;
 
         let position = bio
@@ -175,6 +192,24 @@ impl PlayerProfileWidget<'_> {
         Paragraph::new(text).render(area, buf);
     }
 
+    fn render_game_type_selector(&self, area: Rect, buf: &mut Buffer) {
+        let selected = Style::default().fg(Color::Black).bg(Color::Blue);
+        let normal = Style::default().fg(Color::DarkGray);
+
+        let (reg_style, st_style) = match self.state.game_type {
+            GameType::RegularSeason => (selected, normal),
+            GameType::SpringTraining => (normal, selected),
+        };
+
+        let text = vec![
+            Line::from(Span::styled(" Regular Season  ", reg_style)),
+            Line::from(Span::styled(" Spring Training ", st_style)),
+        ];
+        Paragraph::new(text)
+            .alignment(Alignment::Right)
+            .render(area, buf);
+    }
+
     fn render_section(
         &self,
         title: &str,
@@ -183,7 +218,22 @@ impl PlayerProfileWidget<'_> {
         area: Rect,
         buf: &mut Buffer,
     ) {
-        if splits.is_empty() || area.height < 2 {
+        if area.height < 2 {
+            return;
+        }
+        if splits.is_empty() {
+            let [title_area, msg_area] =
+                Layout::vertical([Constraint::Length(1), Constraint::Length(1)]).areas(area);
+            Paragraph::new(Line::from(Span::styled(
+                format!(" {title} "),
+                section_title_style(),
+            )))
+            .render(title_area, buf);
+            Paragraph::new(Span::styled(
+                "  No data",
+                Style::default().fg(Color::DarkGray),
+            ))
+            .render(msg_area, buf);
             return;
         }
         let (header, widths, rows) = self.build_stat_rows(splits, show_year);
@@ -228,39 +278,29 @@ impl PlayerProfileWidget<'_> {
 
         let is_hitting = matches!(&recent[0].stat, StatSplit::Hitting(_));
 
-        let (header, widths) = if is_hitting {
+        let prefix_widths = vec![
+            Constraint::Length(11), // date
+            Constraint::Length(2),  // W/L
+            Constraint::Length(8),  // opp (@ LAD)
+        ];
+        let (header, stat_names) = if is_hitting {
             (
-                vec!["Date", "", "Opp", "AB", "H", "HR", "RBI", "BB", "SO", "AVG"],
                 vec![
-                    Constraint::Length(11), // date
-                    Constraint::Length(2),  // W/L
-                    Constraint::Length(8),  // opp (@ LAD)
-                    Constraint::Length(STAT_COL_WIDTH),
-                    Constraint::Length(STAT_COL_WIDTH),
-                    Constraint::Length(STAT_COL_WIDTH),
-                    Constraint::Length(STAT_COL_WIDTH),
-                    Constraint::Length(STAT_COL_WIDTH),
-                    Constraint::Length(STAT_COL_WIDTH),
-                    Constraint::Length(STAT_COL_WIDTH),
+                    "Date", "", "Opp", "AB", "R", "H", "2B", "3B", "HR", "RBI", "BB", "SO", "SB",
+                    "CS", "AVG",
                 ],
+                15 - 3, // stat columns count
             )
         } else {
             (
-                vec!["Date", "", "Opp", "IP", "H", "R", "ER", "BB", "SO", "ERA"],
                 vec![
-                    Constraint::Length(11),
-                    Constraint::Length(2),
-                    Constraint::Length(8),
-                    Constraint::Length(STAT_COL_WIDTH),
-                    Constraint::Length(STAT_COL_WIDTH),
-                    Constraint::Length(STAT_COL_WIDTH),
-                    Constraint::Length(STAT_COL_WIDTH),
-                    Constraint::Length(STAT_COL_WIDTH),
-                    Constraint::Length(STAT_COL_WIDTH),
-                    Constraint::Length(STAT_COL_WIDTH),
+                    "Date", "", "Opp", "IP", "H", "R", "ER", "HR", "BB", "SO", "ERA",
                 ],
+                11 - 3,
             )
         };
+        let mut widths = prefix_widths;
+        widths.extend(vec![Constraint::Length(STAT_COL_WIDTH); stat_names]);
 
         let rows: Vec<Row> = recent
             .iter()
@@ -282,11 +322,16 @@ impl PlayerProfileWidget<'_> {
                 let stat_cells: Vec<Cell> = match &split.stat {
                     StatSplit::Hitting(s) => vec![
                         Cell::from(s.at_bats.to_string()),
+                        Cell::from(s.runs.to_string()),
                         Cell::from(s.hits.to_string()),
+                        Cell::from(s.doubles.to_string()),
+                        Cell::from(s.triples.to_string()),
                         Cell::from(s.home_runs.to_string()),
                         Cell::from(s.rbi.to_string()),
                         Cell::from(s.base_on_balls.to_string()),
                         Cell::from(s.strike_outs.to_string()),
+                        Cell::from(s.stolen_bases.to_string()),
+                        Cell::from(s.caught_stealing.to_string()),
                         Cell::from(s.avg.clone()),
                     ],
                     StatSplit::Pitching(s) => vec![
@@ -294,6 +339,7 @@ impl PlayerProfileWidget<'_> {
                         Cell::from(s.hits.to_string()),
                         Cell::from(s.runs.to_string()),
                         Cell::from(s.earned_runs.to_string()),
+                        Cell::from(s.home_runs.to_string()),
                         Cell::from(s.base_on_balls.to_string()),
                         Cell::from(s.strike_outs.to_string()),
                         Cell::from(s.era.clone()),
@@ -318,7 +364,7 @@ impl PlayerProfileWidget<'_> {
 
         Paragraph::new(Line::from(Span::styled(
             " Recent Games ",
-            Style::default().bg(Color::Blue).fg(Color::Black),
+            section_title_style(),
         )))
         .render(title_area, buf);
 
@@ -338,7 +384,7 @@ impl PlayerProfileWidget<'_> {
         let (header_names, widths) = if is_hitting {
             let mut names = vec![
                 "G", "AB", "AVG", "OBP", "SLG", "OPS", "R", "H", "2B", "3B", "HR", "RBI", "BB",
-                "SO", "SB",
+                "SO", "SB", "CS",
             ];
             let mut w = vec![Constraint::Length(STAT_COL_WIDTH); names.len()];
             if show_year {
@@ -377,52 +423,54 @@ impl PlayerProfileWidget<'_> {
         let mut cells = Vec::new();
 
         if show_year {
-            cells.push(Cell::from(split.season.clone().unwrap_or_default()));
-            cells.push(Cell::from(
+            cells.push(split.season.clone().unwrap_or_default().into());
+            cells.push(
                 split
                     .team
                     .as_ref()
                     .map(|t| lookup_team(&t.name).abbreviation.to_string())
-                    .unwrap_or_else(|| "---".to_string()),
-            ));
+                    .unwrap_or_else(|| "---".to_string())
+                    .into(),
+            );
         }
 
         match &split.stat {
             StatSplit::Hitting(s) => {
                 cells.extend([
-                    Cell::from(s.games_played.to_string()),
-                    Cell::from(s.at_bats.to_string()),
-                    Cell::from(s.avg.clone()),
-                    Cell::from(s.obp.clone()),
-                    Cell::from(s.slg.clone()),
-                    Cell::from(s.ops.clone()),
-                    Cell::from(s.runs.to_string()),
-                    Cell::from(s.hits.to_string()),
-                    Cell::from(s.doubles.to_string()),
-                    Cell::from(s.triples.to_string()),
-                    Cell::from(s.home_runs.to_string()),
-                    Cell::from(s.rbi.to_string()),
-                    Cell::from(s.base_on_balls.to_string()),
-                    Cell::from(s.strike_outs.to_string()),
-                    Cell::from(s.stolen_bases.to_string()),
+                    s.games_played.to_string().into(),
+                    s.at_bats.to_string().into(),
+                    s.avg.clone().into(),
+                    s.obp.clone().into(),
+                    s.slg.clone().into(),
+                    s.ops.clone().into(),
+                    s.runs.to_string().into(),
+                    s.hits.to_string().into(),
+                    s.doubles.to_string().into(),
+                    s.triples.to_string().into(),
+                    s.home_runs.to_string().into(),
+                    s.rbi.to_string().into(),
+                    s.base_on_balls.to_string().into(),
+                    s.strike_outs.to_string().into(),
+                    s.stolen_bases.to_string().into(),
+                    s.caught_stealing.to_string().into(),
                 ]);
             }
             StatSplit::Pitching(s) => {
                 cells.extend([
-                    Cell::from(s.wins.to_string()),
-                    Cell::from(s.losses.to_string()),
-                    Cell::from(s.era.clone()),
-                    Cell::from(s.games_played.to_string()),
-                    Cell::from(s.games_started.to_string()),
-                    Cell::from(s.saves.to_string()),
-                    Cell::from(s.innings_pitched.clone()),
-                    Cell::from(s.hits.to_string()),
-                    Cell::from(s.runs.to_string()),
-                    Cell::from(s.earned_runs.to_string()),
-                    Cell::from(s.home_runs.to_string()),
-                    Cell::from(s.base_on_balls.to_string()),
-                    Cell::from(s.strike_outs.to_string()),
-                    Cell::from(s.whip.clone()),
+                    s.wins.to_string().into(),
+                    s.losses.to_string().into(),
+                    s.era.clone().into(),
+                    s.games_played.to_string().into(),
+                    s.games_started.to_string().into(),
+                    s.saves.to_string().into(),
+                    s.innings_pitched.clone().into(),
+                    s.hits.to_string().into(),
+                    s.runs.to_string().into(),
+                    s.earned_runs.to_string().into(),
+                    s.home_runs.to_string().into(),
+                    s.base_on_balls.to_string().into(),
+                    s.strike_outs.to_string().into(),
+                    s.whip.clone().into(),
                 ]);
             }
         }
@@ -444,7 +492,7 @@ impl PlayerProfileWidget<'_> {
 
         Paragraph::new(Line::from(Span::styled(
             format!(" {title} "),
-            Style::default().bg(Color::Blue).fg(Color::Black),
+            section_title_style(),
         )))
         .render(title_area, buf);
 
