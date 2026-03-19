@@ -1,4 +1,5 @@
 use crate::live::LiveResponse;
+use crate::player::PeopleResponse;
 use crate::schedule::ScheduleResponse;
 use crate::season::{GameType, SeasonInfo, SeasonsResponse};
 use crate::standings::StandingsResponse;
@@ -121,7 +122,6 @@ impl MLBApi {
         self.get(url).await
     }
 
-    /// Fetch season info from the MLB API for a given year.
     pub async fn get_season_info(&self, year: i32) -> ApiResult<Option<SeasonInfo>> {
         let url = format!("{}v1/seasons/{}?sportId=1", self.base_url, year);
         let resp = self.get::<SeasonsResponse>(url).await?;
@@ -231,6 +231,20 @@ impl MLBApi {
                 sort
             ),
         };
+        self.get(url).await
+    }
+
+    /// Fetch player bio and all stats in a single hydrated call.
+    pub async fn get_player_profile(
+        &self,
+        person_id: u64,
+        group: StatGroup,
+        season: i32,
+    ) -> ApiResult<PeopleResponse> {
+        let url = format!(
+            "{}v1/people/{}?hydrate=currentTeam,stats(group=[{}],type=[season,yearByYear,career,gameLog],season={})",
+            self.base_url, person_id, group, season
+        );
         self.get(url).await
     }
 

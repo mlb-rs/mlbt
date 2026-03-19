@@ -393,4 +393,32 @@ mod tests {
             assert_ne!(resp.stats.len(), 0);
         }
     }
+
+    #[tokio::test]
+    async fn test_player_profile() {
+        let (client, mut server) = generate_mock_client().await;
+
+        for group in [StatGroup::Hitting, StatGroup::Pitching] {
+            let url = format!(
+                "/v1/people/660271?hydrate=currentTeam,stats(group=[{}],type=[season,yearByYear,career,gameLog],season=2025)",
+                group
+            );
+            let m = server
+                .mock("GET", Matcher::Exact(url))
+                .with_status(200)
+                .with_header("content-type", "application/json;charset=UTF-8")
+                .with_body_from_file(format!("./tests/responses/player-profile-{group}.json"))
+                .create();
+
+            let resp = client
+                .get_player_profile(660271, group, 2025)
+                .await
+                .unwrap();
+            m.assert();
+
+            let person = &resp.people[0];
+            assert_eq!(person.full_name, "Shohei Ohtani");
+            assert_eq!(person.stats.len(), 4);
+        }
+    }
 }

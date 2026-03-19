@@ -128,12 +128,16 @@ impl StatsTable {
         self.invalidate_cache();
         for stat in &stats.stats {
             for split in &stat.splits {
+                let team_name = split
+                    .team
+                    .as_ref()
+                    .map(|t| t.name.clone())
+                    .unwrap_or_default();
+                let team_abbreviation = Some(lookup_team(&team_name).abbreviation.to_string());
                 let name = match &split.player {
                     Some(p) => p.full_name.clone(),
-                    None => split.team.name.clone(),
+                    None => team_name,
                 };
-                let team_abbreviation =
-                    Some(lookup_team(&split.team.name).abbreviation.to_string());
                 match &split.stat {
                     StatSplit::Pitching(s) => {
                         self.load_pitching_stats(name, team_abbreviation, s, team_player)
