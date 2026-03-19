@@ -27,6 +27,8 @@ pub async fn handle_key_bindings(
         (MenuItem::Stats, KeyCode::Esc, _) if guard.state.stats.has_player_profile() => {
             guard.state.stats.close_player_profile();
         }
+        // When player profile is open, swallow all other Stats keys
+        (MenuItem::Stats, _, _) if guard.state.stats.has_player_profile() => {}
 
         // in search mode capture all keys
         (MenuItem::Stats, _, _) if guard.state.stats.search.is_open => {

@@ -240,10 +240,15 @@ impl MLBApi {
         person_id: u64,
         group: StatGroup,
         season: i32,
+        game_type: GameType,
     ) -> ApiResult<PeopleResponse> {
+        let game_type_param = match game_type {
+            GameType::SpringTraining => ",gameType=S",
+            GameType::RegularSeason => "",
+        };
         let url = format!(
-            "{}v1/people/{}?hydrate=currentTeam,stats(group=[{}],type=[season,yearByYear,career,gameLog],season={})",
-            self.base_url, person_id, group, season
+            "{}v1/people/{}?hydrate=currentTeam,stats(group=[{}],type=[season,yearByYear,career,gameLog],season={}{})",
+            self.base_url, person_id, group, season, game_type_param
         );
         self.get(url).await
     }

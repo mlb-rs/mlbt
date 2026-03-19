@@ -411,7 +411,7 @@ mod tests {
                 .create();
 
             let resp = client
-                .get_player_profile(660271, group, 2025)
+                .get_player_profile(660271, group, 2025, GameType::RegularSeason)
                 .await
                 .unwrap();
             m.assert();

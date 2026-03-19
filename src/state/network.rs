@@ -135,15 +135,17 @@ impl NetworkWorker {
     }
 
     async fn handle_load_player_profile(
-        &self,
+        &mut self,
         player_id: u64,
         group: StatGroup,
         date: NaiveDate,
     ) -> ApiResult<NetworkResponse> {
         debug!("loading player profile for {player_id} ({group}) on {date}");
+        self.ensure_season_info(date).await;
+        let game_type = game_type_for_date(date, self.cached_season_info());
         let data = self
             .client
-            .get_player_profile(player_id, group, date.year())
+            .get_player_profile(player_id, group, date.year(), game_type)
             .await?;
         Ok(NetworkResponse::PlayerProfileLoaded { data })
     }

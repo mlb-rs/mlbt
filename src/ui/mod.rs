@@ -7,6 +7,7 @@ pub(crate) mod input_popup;
 pub(crate) mod layout;
 pub(crate) mod linescore;
 pub(crate) mod logs;
+pub(crate) mod player_profile;
 pub(crate) mod probable_pitchers;
 pub(crate) mod schedule;
 pub(crate) mod standings;
