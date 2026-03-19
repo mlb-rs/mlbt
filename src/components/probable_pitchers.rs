@@ -1,4 +1,5 @@
 use crate::components::standings::Team;
+use crate::components::util::OptionDisplayExt;
 use mlbt_api::schedule::TeamInfo;
 
 #[derive(Debug, Clone)]
@@ -65,18 +66,15 @@ impl ProbablePitcher {
     }
 
     pub fn to_row_cells(&self, team_name: &str) -> Vec<String> {
-        fn or_dash(opt: Option<impl ToString>) -> String {
-            opt.map(|v| v.to_string()).unwrap_or_else(|| "-".into())
-        }
         vec![
             team_name.to_string(),
             self.name.clone(),
-            or_dash(self.wins),
-            or_dash(self.losses),
-            or_dash(self.era.as_deref()),
-            or_dash(self.innings_pitched.as_deref()),
-            or_dash(self.strike_outs),
-            or_dash(self.base_on_balls),
+            self.wins.display_or("-"),
+            self.losses.display_or("-"),
+            self.era.display_or("-"),
+            self.innings_pitched.display_or("-"),
+            self.strike_outs.display_or("-"),
+            self.base_on_balls.display_or("-"),
         ]
     }
 }

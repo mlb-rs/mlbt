@@ -232,7 +232,7 @@ impl PlayerProfile {
     ) -> (Row<'static>, Vec<Constraint>, Vec<Row<'static>>) {
         let is_hitting = matches!(&splits[0].stat, StatSplit::Hitting(_));
 
-        let mut names: Vec<&str> = if is_hitting {
+        let mut names = if is_hitting {
             HITTING_HEADERS.to_vec()
         } else {
             PITCHING_HEADERS.to_vec()
@@ -263,16 +263,16 @@ impl PlayerProfile {
         let is_hitting = matches!(&recent[0].stat, StatSplit::Hitting(_));
 
         let headers = if is_hitting {
-            GAME_LOG_HITTING_HEADERS
+            GAME_LOG_HITTING_HEADERS.to_vec()
         } else {
-            GAME_LOG_PITCHING_HEADERS
+            GAME_LOG_PITCHING_HEADERS.to_vec()
         };
         let stat_col_count = headers.len() - 3; // subtract prefix columns
         let mut widths: Vec<Constraint> = GAME_LOG_PREFIX_WIDTHS.to_vec();
         widths.extend(vec![Constraint::Length(STAT_COL_WIDTH); stat_col_count]);
 
-        let header = Row::new(headers.iter().map(|h| Cell::from(*h)).collect::<Vec<_>>())
-            .style(Style::default().bold().add_modifier(Modifier::UNDERLINED));
+        let header =
+            Row::new(headers).style(Style::default().bold().add_modifier(Modifier::UNDERLINED));
 
         let rows: Vec<Row> = recent
             .iter()

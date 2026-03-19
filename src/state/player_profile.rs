@@ -69,6 +69,56 @@ impl PlayerProfileState {
         self.scroll_state = self.scroll_state.position(self.scroll_offset as usize);
     }
 
+    /// Calculate the height of each section for layout.
+    pub fn section_heights(&self) -> [u16; 4] {
+        let bio_height = 4;
+
+        let season_splits = self
+            .profile
+            .find_stat_group("season")
+            .map(|s| s.splits.len())
+            .unwrap_or(0);
+        let season_height = if season_splits > 0 {
+            season_splits as u16 + 2 // title + header + rows
+        } else {
+            2 // title + "No data"
+        };
+
+        let yby_splits = self
+            .profile
+            .find_stat_group("yearByYear")
+            .map(|s| s.splits.len())
+            .unwrap_or(0);
+        let career_splits = self
+            .profile
+            .find_stat_group("career")
+            .map(|s| s.splits.len())
+            .unwrap_or(0);
+        let career_height = if yby_splits > 0 {
+            yby_splits as u16 + career_splits as u16 + 2
+        } else {
+            0
+        };
+
+        let game_log_rows = self
+            .profile
+            .find_stat_group("gameLog")
+            .map(|s| s.splits.len().min(15))
+            .unwrap_or(0);
+        let game_log_height = if game_log_rows > 0 {
+            game_log_rows as u16 + 2
+        } else {
+            0
+        };
+
+        [
+            bio_height + 1, // +1 for blank line below section
+            season_height + 1,
+            career_height + 1,
+            game_log_height,
+        ]
+    }
+
     pub fn sync_scrollbar(&mut self) {
         if self.content_height > self.viewport_height {
             self.scroll_state = self

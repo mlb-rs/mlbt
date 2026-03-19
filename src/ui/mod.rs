@@ -10,5 +10,6 @@ pub(crate) mod logs;
 pub(crate) mod player_profile;
 pub(crate) mod probable_pitchers;
 pub(crate) mod schedule;
+pub(crate) mod scroll;
 pub(crate) mod standings;
 pub(crate) mod stats;
