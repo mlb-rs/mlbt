@@ -2,6 +2,7 @@ use crate::components::player_profile::PlayerProfile;
 use mlbt_api::client::StatGroup;
 use mlbt_api::player::PeopleResponse;
 use mlbt_api::season::GameType;
+use tui::widgets::ScrollbarState;
 
 /// State for a single Player Profile view.
 pub struct PlayerProfileState {
@@ -10,6 +11,7 @@ pub struct PlayerProfileState {
     pub game_type: GameType,
     pub season_year: i32,
     pub scroll_offset: u16,
+    pub scroll_state: ScrollbarState,
     pub content_height: u16,
     pub viewport_height: u16,
 }
@@ -30,6 +32,7 @@ impl PlayerProfileState {
             game_type,
             season_year,
             scroll_offset: 0,
+            scroll_state: ScrollbarState::default(),
             content_height: 0,
             viewport_height: 0,
         })
@@ -46,19 +49,32 @@ impl PlayerProfileState {
         let max = self.content_height.saturating_sub(self.viewport_height);
         if self.scroll_offset < max {
             self.scroll_offset += 1;
+            self.scroll_state = self.scroll_state.position(self.scroll_offset as usize);
         }
     }
 
     pub fn scroll_up(&mut self) {
         self.scroll_offset = self.scroll_offset.saturating_sub(1);
+        self.scroll_state = self.scroll_state.position(self.scroll_offset as usize);
     }
 
     pub fn page_down(&mut self) {
         let max = self.content_height.saturating_sub(self.viewport_height);
         self.scroll_offset = (self.scroll_offset + self.viewport_height).min(max);
+        self.scroll_state = self.scroll_state.position(self.scroll_offset as usize);
     }
 
     pub fn page_up(&mut self) {
         self.scroll_offset = self.scroll_offset.saturating_sub(self.viewport_height);
+        self.scroll_state = self.scroll_state.position(self.scroll_offset as usize);
+    }
+
+    pub fn sync_scrollbar(&mut self) {
+        if self.content_height > self.viewport_height {
+            self.scroll_state = self
+                .scroll_state
+                .content_length(self.content_height as usize)
+                .position(self.scroll_offset as usize);
+        }
     }
 }
