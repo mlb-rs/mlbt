@@ -114,7 +114,7 @@ impl StatsState {
         let profile = self.player_profile.as_mut()?;
         profile.toggle_game_type();
         Some(NetworkRequest::PlayerProfile {
-            player_id: profile.player_id,
+            player_id: profile.profile.id,
             group: profile.stat_group,
             date: self.date_selector.date,
             game_type: profile.game_type,

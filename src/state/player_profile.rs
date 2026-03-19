@@ -1,12 +1,11 @@
+use crate::components::player_profile::PlayerProfile;
 use mlbt_api::client::StatGroup;
-use mlbt_api::player::{PeopleResponse, PersonFull};
+use mlbt_api::player::PeopleResponse;
 use mlbt_api::season::GameType;
-use mlbt_api::stats::Stat;
 
 /// State for a single Player Profile view.
 pub struct PlayerProfileState {
-    pub player_id: u64,
-    pub data: PersonFull,
+    pub profile: PlayerProfile,
     pub stat_group: StatGroup,
     pub game_type: GameType,
     pub season_year: i32,
@@ -26,8 +25,7 @@ impl PlayerProfileState {
         // only one player was requested so there should only be one person in the response vec.
         let person = data.people.into_iter().next()?;
         Some(Self {
-            player_id: person.id,
-            data: person,
+            profile: PlayerProfile::from_person(person),
             stat_group,
             game_type,
             season_year,
@@ -62,13 +60,5 @@ impl PlayerProfileState {
 
     pub fn page_up(&mut self) {
         self.scroll_offset = self.scroll_offset.saturating_sub(self.viewport_height);
-    }
-
-    /// Find a specific stat group by type name, e.g. "season" or "yearByYear".
-    pub fn find_stat_group(&self, type_name: &str) -> Option<&Stat> {
-        self.data
-            .stats
-            .iter()
-            .find(|s| s.stat_type.display_name == type_name)
     }
 }

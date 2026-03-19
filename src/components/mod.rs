@@ -5,6 +5,7 @@ pub mod date_selector;
 pub mod debug;
 pub mod game;
 pub mod linescore;
+pub mod player_profile;
 pub mod probable_pitchers;
 pub mod schedule;
 pub mod standings;

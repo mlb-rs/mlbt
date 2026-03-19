@@ -1,5 +1,50 @@
+use chrono::NaiveDate;
 use log::error;
 use tui::style::Color;
+
+/// Display an `Option<T>` as a string, using a default if `None`.
+/// e.g. `bio.height.display_or("-")`
+pub(crate) trait OptionDisplayExt {
+    fn display_or(&self, default: &str) -> String;
+}
+
+impl<T: std::fmt::Display> OptionDisplayExt for Option<T> {
+    fn display_or(&self, default: &str) -> String {
+        self.as_ref()
+            .map(|v| v.to_string())
+            .unwrap_or_else(|| default.to_string())
+    }
+}
+
+/// Map an `Option<T>` through a function, then display as a string with a default if `None`.
+/// e.g. `bio.weight.map_display_or(|w| format!("{w}lb"), "")`
+pub(crate) trait OptionMapDisplayExt<T> {
+    fn map_display_or<U: std::fmt::Display, F: FnOnce(&T) -> U>(
+        &self,
+        f: F,
+        default: &str,
+    ) -> String;
+}
+
+impl<T> OptionMapDisplayExt<T> for Option<T> {
+    fn map_display_or<U: std::fmt::Display, F: FnOnce(&T) -> U>(
+        &self,
+        f: F,
+        default: &str,
+    ) -> String {
+        self.as_ref()
+            .map(f)
+            .map(|v| v.to_string())
+            .unwrap_or_else(|| default.to_string())
+    }
+}
+
+/// Format "YYYY-MM-DD" as "M/D/YYYY", or return the original string if parsing fails.
+pub(crate) fn format_date(s: &str) -> String {
+    NaiveDate::parse_from_str(s, "%Y-%m-%d")
+        .map(|d| d.format("%-m/%-d/%Y").to_string())
+        .unwrap_or_else(|_| s.to_string())
+}
 
 /// Convert a string from the API to a Color::Rgb. The string starts out as:
 /// "rgba(255, 255, 255, 0.55)".
