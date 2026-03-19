@@ -17,25 +17,18 @@ pub async fn handle_key_bindings(
 ) {
     let mut guard = app.lock().await;
     match (guard.state.active_tab, key_event.code, key_event.modifiers) {
-        // Ctrl+C always quits, even during search
+        // Ctrl+C always quits
         (_, Char('c'), KeyModifiers::CONTROL) => {
             cleanup_terminal();
             std::process::exit(0);
         }
 
-        // Escape closes player profile first
-        (MenuItem::Stats, KeyCode::Esc, _) if guard.state.stats.has_player_profile() => {
-            guard.state.stats.close_player_profile();
-        }
-        // Toggle game type (regular season / spring training) in player profile
-        (MenuItem::Stats, Char('s'), _) if guard.state.stats.has_player_profile() => {
-            if let Some(request) = guard.state.stats.toggle_profile_game_type() {
-                drop(guard);
-                let _ = network_requests.send(request).await;
+        // Player profile handles its own keys; unhandled ones fall through to global bindings
+        (MenuItem::Stats, _, _) if guard.state.stats.has_player_profile() => {
+            if !handle_player_profile_key(key_event, &mut guard, network_requests).await {
+                handle_global_key(key_event, guard, network_requests).await;
             }
         }
-        // When player profile is open, swallow all other Stats keys
-        (MenuItem::Stats, _, _) if guard.state.stats.has_player_profile() => {}
 
         // in search mode capture all keys
         (MenuItem::Stats, _, _) if guard.state.stats.search.is_open => {
@@ -57,25 +50,6 @@ pub async fn handle_key_bindings(
         // Ctrl+F opens search in Stats tab, needs to be before `f` handler
         (MenuItem::Stats, Char('f'), KeyModifiers::CONTROL) => {
             guard.state.stats.open_search();
-        }
-
-        (_, Char('f'), _) => guard.toggle_full_screen(),
-        (_, Char('1'), _) => {
-            guard.update_tab(MenuItem::Scoreboard);
-            guard.state.gameday.live(); // reset at bat selection
-            load_scoreboard(guard, network_requests).await;
-        }
-        (_, Char('2'), _) => {
-            guard.update_tab(MenuItem::Gameday);
-            load_game_data(guard, network_requests).await;
-        }
-        (_, Char('3'), _) => {
-            guard.update_tab(MenuItem::Stats);
-            load_stats(guard, network_requests).await;
-        }
-        (_, Char('4'), _) => {
-            guard.update_tab(MenuItem::Standings);
-            load_standings(guard, network_requests).await;
         }
 
         (MenuItem::Scoreboard, Char('J') | KeyCode::Down, KeyModifiers::SHIFT) => {
@@ -191,19 +165,12 @@ pub async fn handle_key_bindings(
         (MenuItem::Scoreboard, Char('h'), _) => guard.state.box_score.set_home_active(),
         (MenuItem::Scoreboard, Char('a'), _) => guard.state.box_score.set_away_active(),
 
-        (_, Char('?'), _) => guard.update_tab(MenuItem::Help),
         (MenuItem::Help, Char('j') | KeyCode::Down, _) => guard.state.help.next(),
         (MenuItem::Help, Char('k') | KeyCode::Up, _) => guard.state.help.previous(),
         (MenuItem::Help, KeyCode::Esc, _) => guard.exit_help(),
-        (_, Char('d'), _) => guard.toggle_debug(),
         (MenuItem::Help, Char('"'), _) => guard.toggle_show_logs(),
-        (_, Char('"'), _) => {
-            if guard.state.debug_state == DebugState::On {
-                guard.toggle_show_logs();
-            }
-        }
 
-        _ => {}
+        _ => handle_global_key(key_event, guard, network_requests).await,
     }
 }
 
@@ -265,6 +232,73 @@ async fn handle_date_change(guard: AppGuard<'_>, network_requests: &mpsc::Sender
         MenuItem::Scoreboard => load_scoreboard(guard, network_requests).await,
         MenuItem::Standings => load_standings(guard, network_requests).await,
         MenuItem::Stats => load_stats(guard, network_requests).await,
+        _ => {}
+    }
+}
+
+/// Returns true if the key was handled by the player profile.
+async fn handle_player_profile_key(
+    key_event: KeyEvent,
+    guard: &mut AppGuard<'_>,
+    network_requests: &mpsc::Sender<NetworkRequest>,
+) -> bool {
+    match (key_event.code, key_event.modifiers) {
+        (KeyCode::Esc, _) => guard.state.stats.close_player_profile(),
+        (Char('s'), _) => {
+            if let Some(request) = guard.state.stats.toggle_profile_game_type() {
+                let _ = network_requests.send(request).await;
+            }
+        }
+        (Char('J'), _) | (KeyCode::Down, KeyModifiers::SHIFT) => {
+            guard.state.stats.profile_page_down();
+        }
+        (Char('K'), _) | (KeyCode::Up, KeyModifiers::SHIFT) => {
+            guard.state.stats.profile_page_up();
+        }
+        (Char('j') | KeyCode::Down, _) => guard.state.stats.profile_scroll_down(),
+        (Char('k') | KeyCode::Up, _) => guard.state.stats.profile_scroll_up(),
+        _ => return false,
+    }
+    true
+}
+
+async fn handle_global_key(
+    key_event: KeyEvent,
+    mut guard: AppGuard<'_>,
+    network_requests: &mpsc::Sender<NetworkRequest>,
+) {
+    match (key_event.code, key_event.modifiers) {
+        (Char('q'), _) => {
+            cleanup_terminal();
+            std::process::exit(0);
+        }
+        (Char('f'), m) if !m.contains(KeyModifiers::CONTROL) => guard.toggle_full_screen(),
+        (Char('1'), _) => {
+            guard.update_tab(MenuItem::Scoreboard);
+            guard.state.gameday.live(); // reset at bat selection
+            load_scoreboard(guard, network_requests).await;
+        }
+        (Char('2'), _) => {
+            guard.update_tab(MenuItem::Gameday);
+            load_game_data(guard, network_requests).await;
+        }
+        (Char('3'), _) => {
+            guard.update_tab(MenuItem::Stats);
+            if !guard.state.stats.has_player_profile() {
+                load_stats(guard, network_requests).await;
+            }
+        }
+        (Char('4'), _) => {
+            guard.update_tab(MenuItem::Standings);
+            load_standings(guard, network_requests).await;
+        }
+        (Char('?'), _) => guard.update_tab(MenuItem::Help),
+        (Char('d'), _) => guard.toggle_debug(),
+        (Char('"'), _) => {
+            if guard.state.debug_state == DebugState::On {
+                guard.toggle_show_logs();
+            }
+        }
         _ => {}
     }
 }

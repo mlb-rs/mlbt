@@ -15,8 +15,8 @@ use tui::widgets::TableState;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub enum ActivePane {
-    Data,
     #[default]
+    Data,
     Options,
 }
 
@@ -65,6 +65,7 @@ impl Default for StatsState {
             player_profile: None,
         };
         ss.options_state.select(Some(0));
+        ss.data_state.select(Some(0));
         ss
     }
 }
@@ -85,6 +86,30 @@ impl StatsState {
 
     pub fn close_player_profile(&mut self) {
         self.player_profile = None;
+    }
+
+    pub fn profile_scroll_down(&mut self) {
+        if let Some(p) = &mut self.player_profile {
+            p.scroll_down();
+        }
+    }
+
+    pub fn profile_scroll_up(&mut self) {
+        if let Some(p) = &mut self.player_profile {
+            p.scroll_up();
+        }
+    }
+
+    pub fn profile_page_down(&mut self) {
+        if let Some(p) = &mut self.player_profile {
+            p.page_down();
+        }
+    }
+
+    pub fn profile_page_up(&mut self) {
+        if let Some(p) = &mut self.player_profile {
+            p.page_up();
+        }
     }
 
     pub fn update_player_profile(&mut self, data: PeopleResponse, game_type: GameType) {
