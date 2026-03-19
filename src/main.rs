@@ -155,6 +155,10 @@ async fn handle_network_response(
             let mut guard = app.lock().await;
             guard.state.stats.update(&stats);
         }
+        NetworkResponse::PlayerProfileLoaded { data } => {
+            let mut guard = app.lock().await;
+            guard.state.stats.update_player_profile(data);
+        }
         NetworkResponse::Initialized => {
             // Teams must be loaded before the schedule so international team names resolve.
             let date = {

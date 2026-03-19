@@ -2,7 +2,9 @@ use crate::components::stats::table::StatType;
 use crate::state::network::LoadingState;
 use chrono::NaiveDate;
 use crossterm::event::KeyEvent;
+use mlbt_api::client::StatGroup;
 use mlbt_api::live::LiveResponse;
+use mlbt_api::player::PeopleResponse;
 use mlbt_api::schedule::ScheduleResponse;
 use mlbt_api::standings::StandingsResponse;
 use mlbt_api::stats::StatsResponse;
@@ -24,6 +26,11 @@ pub enum NetworkRequest {
         date: NaiveDate,
         stat_type: StatType,
     },
+    PlayerProfile {
+        player_id: u64,
+        group: StatGroup,
+        date: NaiveDate,
+    },
 }
 
 #[derive(Debug)]
@@ -43,6 +50,9 @@ pub enum NetworkResponse {
     },
     StatsLoaded {
         stats: StatsResponse,
+    },
+    PlayerProfileLoaded {
+        data: PeopleResponse,
     },
     Initialized,
     // TODO pass through errors from API

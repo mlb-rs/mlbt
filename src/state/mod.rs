@@ -5,5 +5,6 @@ pub mod date_input;
 pub mod gameday;
 pub mod messages;
 pub mod network;
+pub mod player_profile;
 pub mod refresher;
 pub mod stats;

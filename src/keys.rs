@@ -1,5 +1,6 @@
 use crate::app::{App, DebugState, MenuItem};
 use crate::components::stats::table::TeamOrPlayer;
+use crate::state::stats::ActivePane;
 use crate::{NetworkRequest, cleanup_terminal};
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
@@ -20,6 +21,11 @@ pub async fn handle_key_bindings(
         (_, Char('c'), KeyModifiers::CONTROL) => {
             cleanup_terminal();
             std::process::exit(0);
+        }
+
+        // Escape closes player profile first
+        (MenuItem::Stats, KeyCode::Esc, _) if guard.state.stats.has_player_profile() => {
+            guard.state.stats.close_player_profile();
         }
 
         // in search mode capture all keys
@@ -133,7 +139,13 @@ pub async fn handle_key_bindings(
             guard.state.stats.stat_type.team_player = TeamOrPlayer::Team;
             load_stats(guard, network_requests).await;
         }
-        (MenuItem::Stats, KeyCode::Enter, _) => guard.state.stats.toggle_stat(),
+        (MenuItem::Stats, KeyCode::Enter, _) => {
+            if guard.state.stats.active_pane == ActivePane::Options {
+                guard.state.stats.toggle_stat();
+            } else {
+                load_player_profile(guard, network_requests).await;
+            }
+        }
         (MenuItem::Stats, Char('s'), _) => guard.state.stats.store_sort_column(),
         (MenuItem::Stats, KeyCode::Left | KeyCode::Right | KeyCode::Tab, _) => {
             guard.state.stats.switch_pane()
@@ -205,6 +217,20 @@ async fn load_stats(guard: AppGuard<'_>, network_requests: &mpsc::Sender<Network
     let _ = network_requests
         .send(NetworkRequest::Stats { date, stat_type })
         .await;
+}
+
+async fn load_player_profile(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
+    if let Some((player_id, group, date)) = guard.state.stats.player_profile_request() {
+        drop(guard);
+
+        let _ = network_requests
+            .send(NetworkRequest::PlayerProfile {
+                player_id,
+                group,
+                date,
+            })
+            .await;
+    }
 }
 
 async fn load_standings(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {

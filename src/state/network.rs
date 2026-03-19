@@ -3,7 +3,7 @@ use crate::components::stats::table::{StatType, TeamOrPlayer};
 use crate::{NetworkRequest, NetworkResponse};
 use chrono::{Datelike, NaiveDate};
 use log::{debug, error, warn};
-use mlbt_api::client::{ApiResult, MLBApi, MLBApiBuilder};
+use mlbt_api::client::{ApiResult, MLBApi, MLBApiBuilder, StatGroup};
 use mlbt_api::season::{SeasonInfo, game_type_for_date};
 use mlbt_api::teams::SportId;
 use std::sync::Arc;
@@ -62,6 +62,14 @@ impl NetworkWorker {
                 NetworkRequest::Standings { date } => self.handle_load_standings(date).await,
                 NetworkRequest::Stats { date, stat_type } => {
                     self.handle_load_stats(date, stat_type).await
+                }
+                NetworkRequest::PlayerProfile {
+                    player_id,
+                    group,
+                    date,
+                } => {
+                    self.handle_load_player_profile(player_id, group, date)
+                        .await
                 }
             };
             debug!("request complete");
@@ -124,6 +132,20 @@ impl NetworkWorker {
             }
         }?;
         Ok(NetworkResponse::StatsLoaded { stats })
+    }
+
+    async fn handle_load_player_profile(
+        &self,
+        player_id: u64,
+        group: StatGroup,
+        date: NaiveDate,
+    ) -> ApiResult<NetworkResponse> {
+        debug!("loading player profile for {player_id} ({group}) on {date}");
+        let data = self
+            .client
+            .get_player_profile(player_id, group, date.year())
+            .await?;
+        Ok(NetworkResponse::PlayerProfileLoaded { data })
     }
 
     /// Best-effort initialization that always returns Ok so the app can proceed even if the API
