@@ -194,14 +194,14 @@ impl MLBApi {
         let local: DateTime<Local> = Local::now();
         let sort = group.default_sort_stat();
         let mut url = format!(
-            "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc",
+            "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=ALL",
             self.base_url,
             local.year(),
             group,
             sort
         );
         if game_type == GameType::SpringTraining {
-            url.push_str("&gameType=S&playerPool=ALL");
+            url.push_str("&gameType=S");
         }
         self.get(url).await
     }
@@ -213,8 +213,8 @@ impl MLBApi {
         game_type: GameType,
     ) -> ApiResult<StatsResponse> {
         let sort = group.default_sort_stat();
-        // Spring training doesn't work well with byDateRange, use season instead.
         let url = match game_type {
+            // Spring training doesn't work well with byDateRange, use season instead.
             GameType::SpringTraining => format!(
                 "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&gameType=S&playerPool=ALL",
                 self.base_url,
@@ -222,14 +222,29 @@ impl MLBApi {
                 group,
                 sort
             ),
-            GameType::RegularSeason => format!(
-                "{}v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=3000&sortStat={}&order=desc",
-                self.base_url,
-                date.year(),
-                date.format("%Y-%m-%d"),
-                group,
-                sort
-            ),
+            GameType::RegularSeason => {
+                let current_year = Local::now().year();
+                if date.year() < current_year {
+                    // For past seasons use season stats because its way faster, and you can't use
+                    // a date range anyway.
+                    format!(
+                        "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=ALL",
+                        self.base_url,
+                        date.year(),
+                        group,
+                        sort
+                    )
+                } else {
+                    format!(
+                        "{}v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=ALL",
+                        self.base_url,
+                        date.year(),
+                        date.format("%Y-%m-%d"),
+                        group,
+                        sort
+                    )
+                }
+            }
         };
         self.get(url).await
     }
