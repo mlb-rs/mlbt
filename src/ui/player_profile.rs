@@ -24,7 +24,11 @@ impl Widget for PlayerProfileWidget<'_> {
                     Style::default().fg(Color::Black).bg(Color::Blue),
                 ),
                 Span::styled(
-                    format!(" {} ", profile.team.abbreviation),
+                    if profile.is_minor_league {
+                        format!(" {} (MiLB) ", profile.team.abbreviation)
+                    } else {
+                        format!(" {} ", profile.team.abbreviation)
+                    },
                     Style::default().fg(Color::Black).bg(Color::Cyan),
                 ),
             ]));

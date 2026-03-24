@@ -20,10 +20,13 @@ pub struct LeagueRecord {
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdNameLink {
     pub id: u16,
     pub name: String,
     pub link: String,
+    /// Present when the team is a minor-league affiliate, points to the MLB parent org.
+    pub parent_org_id: Option<u16>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]

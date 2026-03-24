@@ -1,4 +1,4 @@
-use crate::components::constants::lookup_team;
+use crate::components::constants::{lookup_team, lookup_team_by_id};
 use crate::components::standings::Team;
 use crate::components::stats::splits::StatSplits;
 use crate::components::util::{OptionDisplayExt, OptionMapDisplayExt, format_date};
@@ -36,28 +36,49 @@ pub struct PlayerProfile {
     pub name: String,
     pub number: String,
     pub team: Team,
+    /// True when the player's current team is a minor-league affiliate.
+    pub is_minor_league: bool,
     pub bio: Vec<Line<'static>>,
     pub splits: StatSplits,
 }
 
 impl PlayerProfile {
     pub fn from_person(person: PersonFull) -> Self {
-        let team_name = person
-            .current_team
-            .as_ref()
-            .map(|t| t.name.as_str())
-            .unwrap_or_default();
-
+        let (team, is_minor_league) = Self::resolve_team(&person);
         let bio = Self::bio_lines(&person);
 
         Self {
             id: person.id,
             name: person.full_name,
             number: person.primary_number.display_or("--"),
-            team: lookup_team(team_name),
+            team,
+            is_minor_league,
             bio,
             splits: StatSplits::from_stats(person.stats),
         }
+    }
+
+    /// Resolve the player's team. If their current team is a minor-league affiliate, look up the
+    /// MLB parent team instead.
+    fn resolve_team(person: &PersonFull) -> (Team, bool) {
+        let current = person.current_team.as_ref();
+        let team_name = current.map(|t| t.name.as_str()).unwrap_or_default();
+        let team = lookup_team(team_name);
+
+        // if lookup succeeded, this is an MLB team
+        if team.id != 0 {
+            return (team, false);
+        }
+
+        // for an unknown team, check if it has a parent org id (which should be a MLB team)
+        if let Some(parent_id) = current.and_then(|t| t.parent_org_id)
+            && let Some(parent) = lookup_team_by_id(parent_id)
+        {
+            return (parent, true);
+        }
+
+        // otherwise fallback to the default team
+        (team, false)
     }
 
     /// Extract the player info and format it into lines to be rendered as a paragraph.

@@ -71,52 +71,70 @@ pub fn lookup_team_or(name: &str, fallback: impl FnOnce() -> Team) -> Team {
     fallback()
 }
 
-/// This maps the full name of a team to its full `Team` struct.
-/// The data is from the `teams` endpoint. Historical and alternate team names are included
-/// here since they won't be returned by the API.
+/// Look up a current MLB team by its numeric id.
+/// Note: Use `lookup_team` if you have the team name.
+pub fn lookup_team_by_id(id: u16) -> Option<Team> {
+    CURRENT_TEAMS.get(&id).copied()
+}
+
+/// Current MLB teams keyed by id. Unlike `TEAM_IDS` which maps names (including historical aliases)
+/// to teams, this map has exactly one entry per current franchise with a unique id.
+#[rustfmt::skip]
+static CURRENT_TEAMS: LazyLock<HashMap<u16, Team>> = LazyLock::new(|| {
+    HashMap::from([
+        (108, Team { id: 108, division_id: 200, name: "Los Angeles Angels", team_name: "Angels", abbreviation: "LAA" }),
+        (109, Team { id: 109, division_id: 203, name: "Arizona Diamondbacks", team_name: "D-backs", abbreviation: "AZ" }),
+        (110, Team { id: 110, division_id: 201, name: "Baltimore Orioles", team_name: "Orioles", abbreviation: "BAL" }),
+        (111, Team { id: 111, division_id: 201, name: "Boston Red Sox", team_name: "Red Sox", abbreviation: "BOS" }),
+        (112, Team { id: 112, division_id: 205, name: "Chicago Cubs", team_name: "Cubs", abbreviation: "CHC" }),
+        (113, Team { id: 113, division_id: 205, name: "Cincinnati Reds", team_name: "Reds", abbreviation: "CIN" }),
+        (114, Team { id: 114, division_id: 202, name: "Cleveland Guardians", team_name: "Guardians", abbreviation: "CLE" }),
+        (115, Team { id: 115, division_id: 203, name: "Colorado Rockies", team_name: "Rockies", abbreviation: "COL" }),
+        (116, Team { id: 116, division_id: 202, name: "Detroit Tigers", team_name: "Tigers", abbreviation: "DET" }),
+        (117, Team { id: 117, division_id: 200, name: "Houston Astros", team_name: "Astros", abbreviation: "HOU" }),
+        (118, Team { id: 118, division_id: 202, name: "Kansas City Royals", team_name: "Royals", abbreviation: "KC" }),
+        (119, Team { id: 119, division_id: 203, name: "Los Angeles Dodgers", team_name: "Dodgers", abbreviation: "LAD" }),
+        (120, Team { id: 120, division_id: 204, name: "Washington Nationals", team_name: "Nationals", abbreviation: "WSH" }),
+        (121, Team { id: 121, division_id: 204, name: "New York Mets", team_name: "Mets", abbreviation: "NYM" }),
+        (133, Team { id: 133, division_id: 200, name: "Athletics", team_name: "Athletics", abbreviation: "ATH" }),
+        (134, Team { id: 134, division_id: 205, name: "Pittsburgh Pirates", team_name: "Pirates", abbreviation: "PIT" }),
+        (135, Team { id: 135, division_id: 203, name: "San Diego Padres", team_name: "Padres", abbreviation: "SD" }),
+        (136, Team { id: 136, division_id: 200, name: "Seattle Mariners", team_name: "Mariners", abbreviation: "SEA" }),
+        (137, Team { id: 137, division_id: 203, name: "San Francisco Giants", team_name: "Giants", abbreviation: "SF" }),
+        (138, Team { id: 138, division_id: 205, name: "St. Louis Cardinals", team_name: "Cardinals", abbreviation: "STL" }),
+        (139, Team { id: 139, division_id: 201, name: "Tampa Bay Rays", team_name: "Rays", abbreviation: "TB" }),
+        (140, Team { id: 140, division_id: 200, name: "Texas Rangers", team_name: "Rangers", abbreviation: "TEX" }),
+        (141, Team { id: 141, division_id: 201, name: "Toronto Blue Jays", team_name: "Blue Jays", abbreviation: "TOR" }),
+        (142, Team { id: 142, division_id: 202, name: "Minnesota Twins", team_name: "Twins", abbreviation: "MIN" }),
+        (143, Team { id: 143, division_id: 204, name: "Philadelphia Phillies", team_name: "Phillies", abbreviation: "PHI" }),
+        (144, Team { id: 144, division_id: 204, name: "Atlanta Braves", team_name: "Braves", abbreviation: "ATL" }),
+        (145, Team { id: 145, division_id: 202, name: "Chicago White Sox", team_name: "White Sox", abbreviation: "CWS" }),
+        (146, Team { id: 146, division_id: 204, name: "Miami Marlins", team_name: "Marlins", abbreviation: "MIA" }),
+        (147, Team { id: 147, division_id: 201, name: "New York Yankees", team_name: "Yankees", abbreviation: "NYY" }),
+        (158, Team { id: 158, division_id: 205, name: "Milwaukee Brewers", team_name: "Brewers", abbreviation: "MIL" }),
+    ])
+});
+
+/// Maps team full names to `Team` structs. Current teams are sourced from `CURRENT_TEAMS`,
+/// then historical and alternate names are added as aliases.
 #[rustfmt::skip]
 pub static TEAM_IDS: LazyLock<HashMap<&'static str, Team>> = LazyLock::new(|| {
     let mut m = HashMap::new();
-    m.insert("Oakland Athletics", Team { id: 133, division_id: 200, name: "Athletics", team_name: "Athletics", abbreviation: "ATH" });
-    m.insert("Athletics", Team { id: 133, division_id: 200, name: "Athletics", team_name: "Athletics", abbreviation: "ATH" });
-    m.insert("Pittsburgh Pirates", Team { id: 134, division_id: 205, name: "Pittsburgh Pirates", team_name: "Pirates", abbreviation: "PIT" });
-    m.insert("San Diego Padres", Team { id: 135, division_id: 203, name: "San Diego Padres", team_name: "Padres", abbreviation: "SD" });
-    m.insert("Seattle Mariners", Team { id: 136, division_id: 200, name: "Seattle Mariners", team_name: "Mariners", abbreviation: "SEA" });
-    m.insert("San Francisco Giants", Team { id: 137, division_id: 203, name: "San Francisco Giants", team_name: "Giants", abbreviation: "SF" });
-    m.insert("St. Louis Cardinals", Team { id: 138, division_id: 205, name: "St. Louis Cardinals", team_name: "Cardinals", abbreviation: "STL" });
-    m.insert("Tampa Bay Rays", Team { id: 139, division_id: 201, name: "Tampa Bay Rays", team_name: "Rays", abbreviation: "TB" });
-    m.insert("Tampa Bay Devil Rays", Team { id: 139, division_id: 201, name: "Tampa Bay Devil Rays", team_name: "Devil Rays", abbreviation: "TB" });
-    m.insert("Texas Rangers", Team { id: 140, division_id: 200, name: "Texas Rangers", team_name: "Rangers", abbreviation: "TEX" });
-    m.insert("Toronto Blue Jays", Team { id: 141, division_id: 201, name: "Toronto Blue Jays", team_name: "Blue Jays", abbreviation: "TOR" });
-    m.insert("Minnesota Twins", Team { id: 142, division_id: 202, name: "Minnesota Twins", team_name: "Twins", abbreviation: "MIN" });
-    m.insert("Philadelphia Phillies", Team { id: 143, division_id: 204, name: "Philadelphia Phillies", team_name: "Phillies", abbreviation: "PHI" });
-    m.insert("Atlanta Braves", Team { id: 144, division_id: 204, name: "Atlanta Braves", team_name: "Braves", abbreviation: "ATL" });
-    m.insert("Chicago White Sox", Team { id: 145, division_id: 202, name: "Chicago White Sox", team_name: "White Sox", abbreviation: "CWS" });
-    m.insert("Florida Marlins", Team { id: 146, division_id: 204, name: "Miami Marlins", team_name: "Marlins", abbreviation: "MIA" });
-    m.insert("Miami Marlins", Team { id: 146, division_id: 204, name: "Miami Marlins", team_name: "Marlins", abbreviation: "MIA" });
-    m.insert("New York Yankees", Team { id: 147, division_id: 201, name: "New York Yankees", team_name: "Yankees", abbreviation: "NYY" });
-    m.insert("Milwaukee Brewers", Team { id: 158, division_id: 205, name: "Milwaukee Brewers", team_name: "Brewers", abbreviation: "MIL" });
-    m.insert("Seattle Pilots", Team { id: 158, division_id: 200, name: "Seattle Pilots", team_name: "Pilots", abbreviation: "SEA" });
-    m.insert("Los Angeles Angels", Team { id: 108, division_id: 200, name: "Los Angeles Angels", team_name: "Angels", abbreviation: "LAA" });
-    m.insert("Anaheim Angels", Team { id: 108, division_id: 200, name: "Anaheim Angels", team_name: "Angels", abbreviation: "ANA" });
-    m.insert("California Angels", Team { id: 108, division_id: 200, name: "California Angels", team_name: "Angels", abbreviation: "CAL" });
-    m.insert("Arizona Diamondbacks", Team { id: 109, division_id: 203, name: "Arizona Diamondbacks", team_name: "D-backs", abbreviation: "AZ" });
-    m.insert("Baltimore Orioles", Team { id: 110, division_id: 201, name: "Baltimore Orioles", team_name: "Orioles", abbreviation: "BAL" });
-    m.insert("Boston Red Sox", Team { id: 111, division_id: 201, name: "Boston Red Sox", team_name: "Red Sox", abbreviation: "BOS" });
-    m.insert("Chicago Cubs", Team { id: 112, division_id: 205, name: "Chicago Cubs", team_name: "Cubs", abbreviation: "CHC" });
-    m.insert("Cincinnati Reds", Team { id: 113, division_id: 205, name: "Cincinnati Reds", team_name: "Reds", abbreviation: "CIN" });
-    m.insert("Cleveland Indians", Team { id: 114, division_id: 202, name: "Cleveland Guardians", team_name: "Guardians", abbreviation: "CLE" });
-    m.insert("Cleveland Guardians", Team { id: 114, division_id: 202, name: "Cleveland Guardians", team_name: "Guardians", abbreviation: "CLE" });
-    m.insert("Colorado Rockies", Team { id: 115, division_id: 203, name: "Colorado Rockies", team_name: "Rockies", abbreviation: "COL" });
-    m.insert("Detroit Tigers", Team { id: 116, division_id: 202, name: "Detroit Tigers", team_name: "Tigers", abbreviation: "DET" });
-    m.insert("Houston Astros", Team { id: 117, division_id: 200, name: "Houston Astros", team_name: "Astros", abbreviation: "HOU" });
-    m.insert("Kansas City Royals", Team { id: 118, division_id: 202, name: "Kansas City Royals", team_name: "Royals", abbreviation: "KC" });
-    m.insert("Los Angeles Dodgers", Team { id: 119, division_id: 203, name: "Los Angeles Dodgers", team_name: "Dodgers", abbreviation: "LAD" });
-    m.insert("Washington Nationals", Team { id: 120, division_id: 204, name: "Washington Nationals", team_name: "Nationals", abbreviation: "WSH" });
-    m.insert("Montreal Expos", Team { id: 120, division_id: 204, name: "Montreal Expos", team_name: "Expos", abbreviation: "MON" });
-    m.insert("New York Mets", Team { id: 121, division_id: 204, name: "New York Mets", team_name: "Mets", abbreviation: "NYM" });
+    // insert current teams keyed by their full name.
+    for team in CURRENT_TEAMS.values() {
+        m.insert(team.name, *team);
+    }
+    // all-Star teams
     m.insert("American League All-Stars", Team { id: 159, division_id: 103, name: "American League All-Stars", team_name: "AL All-Stars", abbreviation: "AL" });
     m.insert("National League All-Stars", Team { id: 160, division_id: 104, name: "National League All-Stars", team_name: "NL All-Stars", abbreviation: "NL" });
+    // historical and alternate team names
+    m.insert("Oakland Athletics", *CURRENT_TEAMS.get(&133).unwrap());
+    m.insert("Tampa Bay Devil Rays", Team { id: 139, division_id: 201, name: "Tampa Bay Devil Rays", team_name: "Devil Rays", abbreviation: "TB" });
+    m.insert("Florida Marlins", Team { id: 146, division_id: 204, name: "Miami Marlins", team_name: "Marlins", abbreviation: "MIA" });
+    m.insert("Anaheim Angels", Team { id: 108, division_id: 200, name: "Anaheim Angels", team_name: "Angels", abbreviation: "ANA" });
+    m.insert("California Angels", Team { id: 108, division_id: 200, name: "California Angels", team_name: "Angels", abbreviation: "CAL" });
+    m.insert("Cleveland Indians", Team { id: 114, division_id: 202, name: "Cleveland Guardians", team_name: "Guardians", abbreviation: "CLE" });
+    m.insert("Montreal Expos", Team { id: 120, division_id: 204, name: "Montreal Expos", team_name: "Expos", abbreviation: "MON" });
     // pre 1969 teams didn't have divisions so just setting it to `0`
     m.insert("Houston Colt 45's", Team { id: 117, division_id: 0, name: "Houston Colt 45's", team_name: "Colt 45's", abbreviation: "HOU" });
     m.insert("Kansas City Athletics", Team { id: 133, division_id: 0, name: "Kansas City Athletics", team_name: "Athletics", abbreviation: "KCA" });
@@ -124,6 +142,7 @@ pub static TEAM_IDS: LazyLock<HashMap<&'static str, Team>> = LazyLock::new(|| {
     m.insert("Milwaukee Braves", Team { id: 144, division_id: 0, name: "Milwaukee Braves", team_name: "Braves", abbreviation: "MIL" });
     m.insert("Cincinnati Redlegs", Team { id: 113, division_id: 0, name: "Cincinnati Redlegs", team_name: "Redlegs", abbreviation: "CIN" });
     m.insert("Philadelphia Athletics", Team { id: 133, division_id: 0, name: "Philadelphia Athletics", team_name: "Athletics", abbreviation: "PHA" });
+    m.insert("Seattle Pilots", Team { id: 158, division_id: 200, name: "Seattle Pilots", team_name: "Pilots", abbreviation: "SEA" });
     m.insert("Brooklyn Dodgers", Team { id: 119, division_id: 0, name: "Brooklyn Dodgers", team_name: "Dodgers", abbreviation: "BRO" });
     m.insert("New York Giants", Team { id: 137, division_id: 0, name: "New York Giants", team_name: "Giants", abbreviation: "NYG" });
     m.insert("Boston Braves", Team { id: 144, division_id: 0, name: "Boston Braves", team_name: "Braves", abbreviation: "BSN" });
