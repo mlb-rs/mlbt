@@ -1,4 +1,4 @@
-use crate::components::player_profile::PlayerProfile;
+use crate::components::stats::player_profile::PlayerProfile;
 use mlbt_api::client::StatGroup;
 use mlbt_api::player::PeopleResponse;
 use mlbt_api::season::GameType;
@@ -71,40 +71,22 @@ impl PlayerProfileState {
 
     /// Calculate the height of each section for layout.
     pub fn section_heights(&self) -> [u16; 4] {
-        let bio_height = 4;
+        let bio_height = self.profile.bio.len() as u16;
+        let splits = &self.profile.splits;
 
-        let season_splits = self
-            .profile
-            .find_stat_group("season")
-            .map(|s| s.splits.len())
-            .unwrap_or(0);
-        let season_height = if season_splits > 0 {
-            season_splits as u16 + 2 // title + header + rows
+        let season_height = if !splits.season.is_empty() {
+            splits.season.len() as u16 + 2 // title + header + rows
         } else {
             2 // title + "No data"
         };
 
-        let yby_splits = self
-            .profile
-            .find_stat_group("yearByYear")
-            .map(|s| s.splits.len())
-            .unwrap_or(0);
-        let career_splits = self
-            .profile
-            .find_stat_group("career")
-            .map(|s| s.splits.len())
-            .unwrap_or(0);
-        let career_height = if yby_splits > 0 {
-            yby_splits as u16 + career_splits as u16 + 2
+        let career_height = if !splits.year_by_year.is_empty() {
+            splits.year_by_year.len() as u16 + splits.career.len() as u16 + 2
         } else {
             0
         };
 
-        let game_log_rows = self
-            .profile
-            .find_stat_group("gameLog")
-            .map(|s| s.splits.len().min(15))
-            .unwrap_or(0);
+        let game_log_rows = splits.game_log.len();
         let game_log_height = if game_log_rows > 0 {
             game_log_rows as u16 + 2
         } else {

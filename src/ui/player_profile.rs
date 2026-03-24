@@ -1,4 +1,4 @@
-use crate::components::player_profile::PlayerProfile;
+use crate::components::stats::player_profile::PlayerProfile;
 use crate::state::player_profile::PlayerProfileState;
 use crate::ui::scroll::{ScrollParams, adjust_area_for_scroll, render_scrollbar};
 use mlbt_api::season::GameType;
@@ -10,7 +10,7 @@ pub struct PlayerProfileWidget<'a> {
     pub state: &'a mut PlayerProfileState,
 }
 
-impl<'a> Widget for PlayerProfileWidget<'a> {
+impl Widget for PlayerProfileWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let profile = &self.state.profile;
 
@@ -92,7 +92,7 @@ impl PlayerProfileWidget<'_> {
             Layout::horizontal([Constraint::Fill(1), Constraint::Length(20)]).areas(area);
 
         self.render_game_type_selector(game_type_area, buf);
-        Paragraph::new(self.state.profile.bio_lines())
+        Paragraph::new(self.state.profile.bio.clone())
             .scroll((scroll, 0))
             .render(bio_text_area, buf);
     }
@@ -116,22 +116,21 @@ impl PlayerProfileWidget<'_> {
 
     fn render_season(&self, area: Rect, skip: u16, buf: &mut Buffer) {
         let title = format!("{} Season", self.state.season_year);
-        let splits = self
-            .state
-            .profile
-            .find_stat_group("season")
-            .map(|s| s.splits.as_slice())
-            .unwrap_or(&[]);
+        let splits = &self.state.profile.splits.season;
         render_stat_table(&title, splits, None, false, area, skip, buf);
     }
 
     fn render_career(&self, area: Rect, skip: u16, buf: &mut Buffer) {
-        let profile = &self.state.profile;
-        if let Some(yby) = profile.find_stat_group("yearByYear") {
-            let career_totals = profile.find_stat_group("career").map(|c| &c.splits);
+        let splits = &self.state.profile.splits;
+        if !splits.year_by_year.is_empty() {
+            let career_totals = if splits.career.is_empty() {
+                None
+            } else {
+                Some(&splits.career)
+            };
             render_stat_table(
                 "Career Stats",
-                &yby.splits,
+                &splits.year_by_year,
                 career_totals,
                 true,
                 area,
@@ -142,8 +141,9 @@ impl PlayerProfileWidget<'_> {
     }
 
     fn render_game_log(&self, area: Rect, skip: u16, buf: &mut Buffer) {
-        if let Some(game_log) = self.state.profile.find_stat_group("gameLog") {
-            let (header, widths, rows) = PlayerProfile::build_game_log_rows(&game_log.splits);
+        let splits = &self.state.profile.splits.game_log;
+        if !splits.is_empty() {
+            let (header, widths, rows) = PlayerProfile::build_game_log_rows(splits);
             render_table_with_title("Recent Games", header, widths, rows, area, skip, buf);
         }
     }
@@ -188,11 +188,11 @@ fn render_stat_table(
 }
 
 /// Render a titled table, handling scroll clipping of the title row.
-fn render_table_with_title(
+fn render_table_with_title<'a>(
     title: &str,
-    header: Row<'static>,
+    header: Row<'a>,
     widths: Vec<Constraint>,
-    rows: Vec<Row<'static>>,
+    rows: Vec<Row<'a>>,
     area: Rect,
     skip: u16,
     buf: &mut Buffer,

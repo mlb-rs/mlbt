@@ -1,11 +1,11 @@
 use crate::components::constants::lookup_team;
 use crate::components::standings::Team;
+use crate::components::stats::splits::StatSplits;
 use crate::components::util::{OptionDisplayExt, OptionMapDisplayExt, format_date};
 use mlbt_api::player::PersonFull;
-use mlbt_api::stats::{Split, Stat, StatSplit};
+use mlbt_api::stats::{Split, StatSplit};
 use tui::layout::Constraint;
-use tui::prelude::{Modifier, Style};
-use tui::text::Line;
+use tui::prelude::{Line, Modifier, Style};
 use tui::widgets::{Cell, Row};
 
 const STAT_COL_WIDTH: u16 = 6;
@@ -36,17 +36,8 @@ pub struct PlayerProfile {
     pub name: String,
     pub number: String,
     pub team: Team,
-    pub position: String,
-    pub bats: String,
-    pub throws: String,
-    pub height: String,
-    pub weight: String,
-    pub age: String,
-    pub birth_date: String,
-    pub birthplace: String,
-    pub draft_year: String,
-    pub mlb_debut: String,
-    pub stats: Vec<Stat>,
+    pub bio: Vec<Line<'static>>,
+    pub splits: StatSplits,
 }
 
 impl PlayerProfile {
@@ -57,6 +48,33 @@ impl PlayerProfile {
             .map(|t| t.name.as_str())
             .unwrap_or_default();
 
+        let bio = Self::bio_lines(&person);
+
+        Self {
+            id: person.id,
+            name: person.full_name,
+            number: person.primary_number.display_or("--"),
+            team: lookup_team(team_name),
+            bio,
+            splits: StatSplits::from_stats(person.stats),
+        }
+    }
+
+    /// Extract the player info and format it into lines to be rendered as a paragraph.
+    fn bio_lines(person: &PersonFull) -> Vec<Line<'static>> {
+        let position = person
+            .primary_position
+            .as_ref()
+            .map(|p| &p.abbreviation)
+            .display_or("-");
+        let bats = person.bat_side.as_ref().map(|s| &s.code).display_or("-");
+        let throws = person.pitch_hand.as_ref().map(|s| &s.code).display_or("-");
+
+        let height = person.height.display_or("-");
+        let weight = person.weight.map_display_or(|w| format!("{w}lb"), "");
+        let age = person.current_age.display_or("-");
+
+        let birth_date = person.birth_date.map_display_or(|d| format_date(d), "---");
         let birthplace = [
             person.birth_city.as_deref(),
             person.birth_state_province.as_deref(),
@@ -67,52 +85,21 @@ impl PlayerProfile {
         .collect::<Vec<_>>()
         .join(", ");
 
-        Self {
-            id: person.id,
-            name: person.full_name,
-            number: person.primary_number.display_or("--"),
-            team: lookup_team(team_name),
-            position: person
-                .primary_position
-                .as_ref()
-                .map(|p| &p.abbreviation)
-                .display_or("-"),
-            bats: person.bat_side.as_ref().map(|s| &s.code).display_or("-"),
-            throws: person.pitch_hand.as_ref().map(|s| &s.code).display_or("-"),
-            height: person.height.display_or("-"),
-            weight: person.weight.map_display_or(|w| format!("{w}lb"), ""),
-            age: person.current_age.display_or("-"),
-            birth_date: person.birth_date.map_display_or(|d| format_date(d), "---"),
-            birthplace,
-            // TODO fetch draft details (round, pick, team, college) from /draft endpoint
-            draft_year: person.draft_year.display_or("---"),
-            mlb_debut: person
-                .mlb_debut_date
-                .map_display_or(|d| format_date(d), "---"),
-            stats: person.stats,
-        }
-    }
+        // TODO fetch draft details (round, pick, team, college) from /draft endpoint
+        let draft_year = person.draft_year.display_or("---");
+        let mlb_debut = person
+            .mlb_debut_date
+            .map_display_or(|d| format_date(d), "---");
 
-    pub fn bio_lines(&self) -> Vec<Line<'_>> {
         vec![
-            Line::from(format!(
-                "{} | {}/{} | {} {} | Age: {}",
-                self.position, self.bats, self.throws, self.height, self.weight, self.age
-            )),
-            Line::from(format!("Born: {} in {}", self.birth_date, self.birthplace)),
-            Line::from(format!("Drafted: {}", self.draft_year)),
-            Line::from(format!("MLB Debut: {}", self.mlb_debut)),
+            format!("{position} | {bats}/{throws} | {height} {weight} | Age: {age}").into(),
+            format!("Born: {birth_date} in {birthplace}").into(),
+            format!("Drafted: {draft_year}").into(),
+            format!("MLB Debut: {mlb_debut}").into(),
         ]
     }
 
-    /// Find a specific stat group by type name, e.g. "season" or "yearByYear".
-    pub fn find_stat_group(&self, type_name: &str) -> Option<&Stat> {
-        self.stats
-            .iter()
-            .find(|s| s.stat_type.display_name == type_name)
-    }
-
-    pub fn split_to_cells(split: &Split, show_year: bool) -> Vec<Cell<'static>> {
+    fn split_to_cells(split: &Split, show_year: bool) -> Vec<Cell<'_>> {
         let mut cells = Vec::new();
 
         if show_year {
@@ -130,10 +117,10 @@ impl PlayerProfile {
                 cells.extend([
                     s.games_played.to_string().into(),
                     s.at_bats.to_string().into(),
-                    s.avg.clone().into(),
-                    s.obp.clone().into(),
-                    s.slg.clone().into(),
-                    s.ops.clone().into(),
+                    s.avg.as_str().into(),
+                    s.obp.as_str().into(),
+                    s.slg.as_str().into(),
+                    s.ops.as_str().into(),
                     s.runs.to_string().into(),
                     s.hits.to_string().into(),
                     s.doubles.to_string().into(),
@@ -150,25 +137,25 @@ impl PlayerProfile {
                 cells.extend([
                     s.wins.to_string().into(),
                     s.losses.to_string().into(),
-                    s.era.clone().into(),
+                    s.era.as_str().into(),
                     s.games_played.to_string().into(),
                     s.games_started.to_string().into(),
                     s.saves.to_string().into(),
-                    s.innings_pitched.clone().into(),
+                    s.innings_pitched.as_str().into(),
                     s.hits.to_string().into(),
                     s.runs.to_string().into(),
                     s.earned_runs.to_string().into(),
                     s.home_runs.to_string().into(),
                     s.base_on_balls.to_string().into(),
                     s.strike_outs.to_string().into(),
-                    s.whip.clone().into(),
+                    s.whip.as_str().into(),
                 ]);
             }
         }
         cells
     }
 
-    pub fn game_log_cells(split: &Split) -> Vec<Cell<'static>> {
+    fn game_log_cells(split: &Split) -> Vec<Cell<'_>> {
         let date = split.date.map_display_or(|d| format_date(d), "");
         let opp = split
             .opponent
@@ -180,11 +167,7 @@ impl PlayerProfile {
         };
         let result = if split.is_win == Some(true) { "W" } else { "L" };
 
-        let mut cells: Vec<Cell> = vec![
-            date.into(),
-            result.to_string().into(),
-            format!("{prefix} {opp}").into(),
-        ];
+        let mut cells = vec![date.into(), result.into(), format!("{prefix} {opp}").into()];
 
         match &split.stat {
             StatSplit::Hitting(s) => {
@@ -200,27 +183,27 @@ impl PlayerProfile {
                     s.strike_outs.to_string().into(),
                     s.stolen_bases.to_string().into(),
                     s.caught_stealing.to_string().into(),
-                    s.avg.clone().into(),
+                    s.avg.as_str().into(),
                 ]);
             }
             StatSplit::Pitching(s) => {
                 cells.extend([
-                    s.innings_pitched.clone().into(),
+                    s.innings_pitched.as_str().into(),
                     s.hits.to_string().into(),
                     s.runs.to_string().into(),
                     s.earned_runs.to_string().into(),
                     s.home_runs.to_string().into(),
                     s.base_on_balls.to_string().into(),
                     s.strike_outs.to_string().into(),
-                    s.era.clone().into(),
+                    s.era.as_str().into(),
                 ]);
             }
         }
         cells
     }
 
-    pub fn career_total_cells(split: &Split) -> Vec<Cell<'static>> {
-        let mut cells: Vec<Cell> = vec!["".into(), "TOT".into()];
+    pub fn career_total_cells(split: &Split) -> Vec<Cell<'_>> {
+        let mut cells = vec!["".into(), "TOT".into()];
         cells.extend(Self::split_to_cells(split, false));
         cells
     }
@@ -229,25 +212,28 @@ impl PlayerProfile {
     pub fn build_stat_rows(
         splits: &[Split],
         show_year: bool,
-    ) -> (Row<'static>, Vec<Constraint>, Vec<Row<'static>>) {
-        let is_hitting = matches!(&splits[0].stat, StatSplit::Hitting(_));
-
-        let mut names = if is_hitting {
-            HITTING_HEADERS.to_vec()
+    ) -> (Row<'_>, Vec<Constraint>, Vec<Row<'_>>) {
+        let headers = if matches!(&splits[0].stat, StatSplit::Hitting(_)) {
+            HITTING_HEADERS
         } else {
-            PITCHING_HEADERS.to_vec()
+            PITCHING_HEADERS
         };
-        let mut widths = vec![Constraint::Length(STAT_COL_WIDTH); names.len()];
+
+        let mut names = Vec::with_capacity(headers.len() + 2);
+        let mut widths = Vec::with_capacity(headers.len() + 2);
 
         if show_year {
-            names.splice(0..0, vec!["Year", "Team"]);
-            widths.splice(0..0, vec![Constraint::Length(6), Constraint::Length(5)]);
+            names.extend_from_slice(&["Year", "Team"]);
+            widths.extend([Constraint::Length(6), Constraint::Length(5)]);
         }
+
+        names.extend_from_slice(headers);
+        widths.resize(names.len(), Constraint::Length(STAT_COL_WIDTH));
 
         let header =
             Row::new(names).style(Style::default().bold().add_modifier(Modifier::UNDERLINED));
 
-        let rows: Vec<Row> = splits
+        let rows = splits
             .iter()
             .map(|split| Row::new(Self::split_to_cells(split, show_year)))
             .collect();
@@ -256,26 +242,22 @@ impl PlayerProfile {
     }
 
     /// Build header row, column widths, and data rows for the game log table.
-    pub fn build_game_log_rows(
-        splits: &[Split],
-    ) -> (Row<'static>, Vec<Constraint>, Vec<Row<'static>>) {
-        let recent: Vec<&Split> = splits.iter().rev().take(15).collect();
-        let is_hitting = matches!(&recent[0].stat, StatSplit::Hitting(_));
-
-        let headers = if is_hitting {
-            GAME_LOG_HITTING_HEADERS.to_vec()
+    pub fn build_game_log_rows(splits: &[Split]) -> (Row<'_>, Vec<Constraint>, Vec<Row<'_>>) {
+        let headers = if matches!(&splits[0].stat, StatSplit::Hitting(_)) {
+            GAME_LOG_HITTING_HEADERS
         } else {
-            GAME_LOG_PITCHING_HEADERS.to_vec()
+            GAME_LOG_PITCHING_HEADERS
         };
-        let stat_col_count = headers.len() - 3; // subtract prefix columns
-        let mut widths: Vec<Constraint> = GAME_LOG_PREFIX_WIDTHS.to_vec();
-        widths.extend(vec![Constraint::Length(STAT_COL_WIDTH); stat_col_count]);
+        let mut widths = Vec::with_capacity(headers.len());
+        widths.extend_from_slice(GAME_LOG_PREFIX_WIDTHS);
+        widths.resize(headers.len(), Constraint::Length(STAT_COL_WIDTH));
 
-        let header =
-            Row::new(headers).style(Style::default().bold().add_modifier(Modifier::UNDERLINED));
+        let header = Row::new(headers.to_vec())
+            .style(Style::default().bold().add_modifier(Modifier::UNDERLINED));
 
-        let rows: Vec<Row> = recent
+        let rows = splits
             .iter()
+            .rev()
             .map(|split| Row::new(Self::game_log_cells(split)))
             .collect();
 
