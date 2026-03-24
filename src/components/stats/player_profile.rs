@@ -165,7 +165,12 @@ impl PlayerProfile {
         } else {
             "@"
         };
-        let result = if split.is_win == Some(true) { "W" } else { "L" };
+        // whether the team won/lost, not the pitcher's game decision
+        let result = match split.is_win {
+            Some(true) => "W",
+            Some(false) => "L",
+            None => "-",
+        };
 
         let mut cells = vec![date.into(), result.into(), format!("{prefix} {opp}").into()];
 
@@ -212,8 +217,9 @@ impl PlayerProfile {
     pub fn build_stat_rows(
         splits: &[Split],
         show_year: bool,
-    ) -> (Row<'_>, Vec<Constraint>, Vec<Row<'_>>) {
-        let headers = if matches!(&splits[0].stat, StatSplit::Hitting(_)) {
+    ) -> Option<(Row<'_>, Vec<Constraint>, Vec<Row<'_>>)> {
+        let first = splits.first()?;
+        let headers = if matches!(&first.stat, StatSplit::Hitting(_)) {
             HITTING_HEADERS
         } else {
             PITCHING_HEADERS
@@ -238,12 +244,15 @@ impl PlayerProfile {
             .map(|split| Row::new(Self::split_to_cells(split, show_year)))
             .collect();
 
-        (header, widths, rows)
+        Some((header, widths, rows))
     }
 
     /// Build header row, column widths, and data rows for the game log table.
-    pub fn build_game_log_rows(splits: &[Split]) -> (Row<'_>, Vec<Constraint>, Vec<Row<'_>>) {
-        let headers = if matches!(&splits[0].stat, StatSplit::Hitting(_)) {
+    pub fn build_game_log_rows(
+        splits: &[Split],
+    ) -> Option<(Row<'_>, Vec<Constraint>, Vec<Row<'_>>)> {
+        let first = splits.first()?;
+        let headers = if matches!(&first.stat, StatSplit::Hitting(_)) {
             GAME_LOG_HITTING_HEADERS
         } else {
             GAME_LOG_PITCHING_HEADERS
@@ -261,6 +270,6 @@ impl PlayerProfile {
             .map(|split| Row::new(Self::game_log_cells(split)))
             .collect();
 
-        (header, widths, rows)
+        Some((header, widths, rows))
     }
 }

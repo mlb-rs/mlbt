@@ -142,8 +142,7 @@ impl PlayerProfileWidget<'_> {
 
     fn render_game_log(&self, area: Rect, skip: u16, buf: &mut Buffer) {
         let splits = &self.state.profile.splits.game_log;
-        if !splits.is_empty() {
-            let (header, widths, rows) = PlayerProfile::build_game_log_rows(splits);
+        if let Some((header, widths, rows)) = PlayerProfile::build_game_log_rows(splits) {
             render_table_with_title("Recent Games", header, widths, rows, area, skip, buf);
         }
     }
@@ -176,15 +175,14 @@ fn render_stat_table(
         return;
     }
 
-    let (header, widths, mut rows) = PlayerProfile::build_stat_rows(splits, show_year);
-    if let Some(career_splits) = career {
-        for split in career_splits {
+    if let Some((header, widths, mut rows)) = PlayerProfile::build_stat_rows(splits, show_year) {
+        if let Some(total) = career.and_then(|c| c.first()) {
             rows.push(
-                Row::new(PlayerProfile::career_total_cells(split)).style(Style::default().bold()),
+                Row::new(PlayerProfile::career_total_cells(total)).style(Style::default().bold()),
             );
         }
+        render_table_with_title(title, header, widths, rows, area, skip, buf);
     }
-    render_table_with_title(title, header, widths, rows, area, skip, buf);
 }
 
 /// Render a titled table, handling scroll clipping of the title row.
