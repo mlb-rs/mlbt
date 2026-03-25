@@ -15,7 +15,7 @@ impl StatefulWidget for StatsDataWidget {
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let table = state.generate_table();
-        let (header, rows) = table.as_ref();
+        let (header, _, rows) = table.as_ref();
 
         // use the sort column to include up/down arrow in the column name
         let sort_column = state

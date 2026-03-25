@@ -17,6 +17,7 @@ use crate::ui::input_popup::{InputPopup, popup_cursor_position};
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
 use crate::ui::logs::LogWidget;
+use crate::ui::player_profile::PlayerProfileWidget;
 use crate::ui::probable_pitchers::ProbablePitchersWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::standings::StandingsWidget;
@@ -218,6 +219,11 @@ fn draw_gameday(f: &mut Frame, rect: Rect, app: &mut App) {
 }
 
 fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
+    if let Some(profile) = &mut app.state.stats.player_profile {
+        PlayerProfileWidget { state: profile }.render(rect, f.buffer_mut());
+        return;
+    }
+
     // Split horizontally first: data pane (left) and options pane (right)
     let (data_area, options_area) =
         if app.state.stats.show_options && rect.width > STATS_OPTIONS_WIDTH {

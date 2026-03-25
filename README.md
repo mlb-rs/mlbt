@@ -130,6 +130,8 @@ docker run -it --rm --name mlbt mlbt:latest
 - [X] scoreboard and box score
     - [X] sorted by favorite team
     - [X] selectable date
+    - [X] full box score
+    - [X] probable pitchers for upcoming games
     - [X] win probability graph
 
 - [X] gameday
@@ -137,16 +139,16 @@ docker run -it --rm --name mlbt mlbt:latest
     - [X] batter strike zone with heat map coloring
     - [X] selectable at bats (view the pitches and outcome of any at bat in the
       game)
-    - [X] hit stats (exit velocity, launch angle, distance)
-    - [X] ABS challenge information for 2026+ games (review status, player that
-      challenged)
-    - [X] win probability per at bat
+    - [X] hit stats: exit velocity, launch angle, distance
+    - [X] ABS challenge information for 2026+ games
+    - [X] win probability change per at bat
 
 - [X] pitching and hitting stats
     - [X] player stats
+    - [X] player profiles with historical stats
     - [X] team stats
     - [X] sorting
-    - [X] fuzzy search
+    - [X] fuzzy search for players and teams
     - [X] selectable date
 
 - [X] standings
@@ -207,12 +209,12 @@ toggled on and off using:
 
 To view different at bats in the game, use:
 
-| Key       | Description                                  |
-|-----------|----------------------------------------------|
-| `j` / `↓` | move to previous play                        |
-| `k` / `↑` | move to next play                            |
-| `l`       | move to the "live" play, or latest available |
-| `s`       | move to first play of the game               |
+| Key       | Description                                    |
+|-----------|------------------------------------------------|
+| `j` / `↓` | move to previous at bat                        |
+| `k` / `↑` | move to next at bat                            |
+| `l`       | move to the "live" at bat, or latest available |
+| `s`       | move to first at bat of the game               |
 
 To interact with the box score, use:
 
@@ -227,18 +229,18 @@ To interact with the box score, use:
 
 Press `3` to activate this tab.
 
-Use `←`/`→`/`Tab` to switch focus between the stats table and the options pane.
-When the stats table is focused, `j`/`k` scroll through rows. When the options
-pane is focused, `j`/`k` navigate stat columns for toggling and sorting. You can
-also use `Shift` + `j`/`k` to page through the stats table.
+Inside the stats tab there are two panes: *stats table* and *options*. The stats
+table is used for selecting players/teams and searching. The options pane is
+used for sorting the stats and toggling columns on/off.
 
-| Key                 | Description                                 |
-|---------------------|---------------------------------------------|
-| `←` / `→` / `Tab`   | switch between stats table and options pane |
-| `j` / `↓`           | move down in active pane                    |
-| `k` / `↑`           | move up in active pane                      |
-| `Shift` + `j` / `↓` | page down in stats table                    |
-| `Shift` + `k` / `↑` | page up in stats table                      |
+| Key                 | Description                                            |
+|---------------------|--------------------------------------------------------|
+| `←` / `→` / `Tab`   | switch between stats table and options pane            |
+| `j` / `↓`           | move down in active pane                               |
+| `k` / `↑`           | move up in active pane                                 |
+| `Shift` + `j` / `↓` | page down in stats table                               |
+| `Shift` + `k` / `↑` | page up in stats table                                 |
+| `:`                 | activate date picker (see [Date Picker](#date-picker)) |
 
 You can switch between `pitching` and `hitting` stats and filter based on `team`
 or `player` using:
@@ -250,23 +252,47 @@ or `player` using:
 | `t` | team        |
 | `l` | player      |
 
+#### Search and Player Profiles
+
+You can fuzzy search for a player or team in the stats table using:
+
+| Key          | Description                |
+|--------------|----------------------------|
+| `Ctrl` + `f` | activate fuzzy search      |
+| `Enter`      | finish fuzzy search        |
+| `Esc`        | clear fuzzy search results |
+
+While the stats table is active, you can view a player profile for the
+currently selected player with `Enter`.
+
+Use `s` to toggle the category (e.g. regular season or spring training). If the
+player profile doesn't fit on the screen, you can scroll down and up using `j`
+and `k`.
+
+| Key       | Description              |
+|-----------|--------------------------|
+| `Enter`   | open player profile      |
+| `Esc`     | clear player profile     |
+| `s`       | toggle stat category     |
+| `j` / `↓` | scroll down player stats |
+| `k` / `↑` | scroll up player stats   |
+
+> Only players (not teams) can be selected at this time.
+
+#### Stats Options
+
+The stats options pane can be turned on/off with `o`.
+
 Within each stat group (pitching or hitting) you can toggle the display of
-individual stat columns by selecting the stat with `Enter`. This selection pane
-can be turned on/off with `o`.
+individual stat columns by selecting the stat with `Enter`. To sort the stats by
+a column, you can press `s`. To flip the sort order from ascending to descending
+or vice versa press `s` again.
 
-To sort the stats by a column, instead of hitting `Enter` you can press `s`. To
-flip the sort order from ascending to descending or vice versa press `s` again.
-
-| Key          | Description                                            |
-|--------------|--------------------------------------------------------|
-| `Enter`      | toggle stat column                                     |
-| `s`          | sort by the currently selected column                  |
-| `:`          | activate date picker (see [Date Picker](#date-picker)) |
-| `o`          | toggle stat selection pane                             |
-| `Ctrl` + `f` | activate fuzzy search                                  |
-
-You can also use `Ctrl` + `f` to fuzzy search for a player or team name. Press
-`Enter` to finish searching or `Esc` to clear the search results.
+| Key     | Description                           |
+|---------|---------------------------------------|
+| `Enter` | toggle stat column                    |
+| `s`     | sort by the currently selected column |
+| `o`     | toggle options pane                   |
 
 > If your terminal is too small to display all columns, they will be turned off
 > starting from the right side.

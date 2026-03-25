@@ -3,16 +3,20 @@ use crate::components::stats::search::SearchState;
 use crate::components::stats::table::{
     PLAYER_COLUMN_NAME, StatType, StatsTable, TEAM_COLUMN_NAME, TableData, TeamOrPlayer,
 };
-use chrono::NaiveDate;
+use crate::state::messages::NetworkRequest;
+use crate::state::player_profile::PlayerProfileState;
+use chrono::{Datelike, NaiveDate};
 use mlbt_api::client::StatGroup;
+use mlbt_api::player::PeopleResponse;
+use mlbt_api::season::GameType;
 use mlbt_api::stats::StatsResponse;
 use std::sync::Arc;
 use tui::widgets::TableState;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub enum ActivePane {
-    Data,
     #[default]
+    Data,
     Options,
 }
 
@@ -38,6 +42,8 @@ pub struct StatsState {
     pub visible_rows: usize,
     /// Search state for players or teams.
     pub search: SearchState,
+    /// Active player profile view. When Some, renders full-page replacing the stats table.
+    pub player_profile: Option<PlayerProfileState>,
 }
 
 impl Default for StatsState {
@@ -56,19 +62,88 @@ impl Default for StatsState {
             date_selector: DateSelector::default(),
             visible_rows: 0,
             search: SearchState::default(),
+            player_profile: None,
         };
         ss.options_state.select(Some(0));
+        ss.data_state.select(Some(0));
         ss
     }
 }
 
 impl StatsState {
     pub fn update(&mut self, stats: &StatsResponse) {
+        self.player_profile = None;
         self.table.load(stats, self.stat_type.team_player);
         self.data_state.select(Some(0));
         // Clear search state since the underlying data has changed.
         self.search.close();
         self.search_previous_pane = None;
+    }
+
+    pub fn has_player_profile(&self) -> bool {
+        self.player_profile.is_some()
+    }
+
+    pub fn close_player_profile(&mut self) {
+        self.player_profile = None;
+    }
+
+    pub fn profile_scroll_down(&mut self) {
+        if let Some(p) = &mut self.player_profile {
+            p.scroll_down();
+        }
+    }
+
+    pub fn profile_scroll_up(&mut self) {
+        if let Some(p) = &mut self.player_profile {
+            p.scroll_up();
+        }
+    }
+
+    pub fn profile_page_down(&mut self) {
+        if let Some(p) = &mut self.player_profile {
+            p.page_down();
+        }
+    }
+
+    pub fn profile_page_up(&mut self) {
+        if let Some(p) = &mut self.player_profile {
+            p.page_up();
+        }
+    }
+
+    pub fn update_player_profile(&mut self, data: PeopleResponse, game_type: GameType) {
+        let season_year = self.date_selector.date.year();
+        self.player_profile =
+            PlayerProfileState::from_response(data, self.stat_type.group, game_type, season_year);
+    }
+
+    /// Returns the info needed to load a player profile for the currently selected row.
+    /// Returns None if in team mode or no row is selected.
+    pub fn player_profile_request(&self) -> Option<NetworkRequest> {
+        // TODO support team profiles
+        if self.stat_type.team_player != TeamOrPlayer::Player {
+            return None;
+        }
+        let player_id = self.get_selected_id()?;
+        Some(NetworkRequest::PlayerProfile {
+            player_id,
+            group: self.stat_type.group,
+            date: self.date_selector.date,
+            game_type: GameType::RegularSeason,
+        })
+    }
+
+    /// Returns a request to reload the current profile with a toggled game type.
+    pub fn toggle_profile_game_type(&mut self) -> Option<NetworkRequest> {
+        let profile = self.player_profile.as_mut()?;
+        profile.toggle_game_type();
+        Some(NetworkRequest::PlayerProfile {
+            player_id: profile.profile.id,
+            group: profile.stat_group,
+            date: self.date_selector.date,
+            game_type: profile.game_type,
+        })
     }
 
     /// Set the date from the validated input string from the date picker.
@@ -175,6 +250,13 @@ impl StatsState {
             return;
         };
         self.table.store_sort_column(idx);
+    }
+
+    /// Get the player or team id for the currently selected row.
+    pub fn get_selected_id(&self) -> Option<u64> {
+        let selected = self.data_state.selected()?;
+        let (_, ids, _) = self.table.cached()?.as_ref();
+        ids.get(selected).copied()
     }
 
     /// Returns the total number of data rows, ignoring any search filter.

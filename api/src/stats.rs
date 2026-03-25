@@ -12,7 +12,8 @@ pub struct Stat {
     #[serde(rename = "type")]
     pub stat_type: DisplayName,
     pub group: DisplayName,
-    pub total_splits: u16,
+    #[serde(default)]
+    pub total_splits: Option<u16>,
     pub splits: Vec<Split>,
 }
 
@@ -25,10 +26,22 @@ pub struct DisplayName {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Split {
-    season: Option<String>,
+    pub season: Option<String>,
     pub stat: StatSplit,
-    pub team: IdNameLink,
+    pub team: Option<IdNameLink>,
     pub player: Option<Player>,
+    // Game log fields (only present on gameLog splits):
+    pub date: Option<String>,
+    pub is_home: Option<bool>,
+    pub is_win: Option<bool>,
+    pub opponent: Option<IdNameLink>,
+    pub game: Option<GameRef>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GameRef {
+    pub game_pk: u64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -36,8 +49,8 @@ pub struct Split {
 pub struct Player {
     pub id: u64,
     pub full_name: String,
-    pub first_name: String,
-    pub last_name: String,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
 }
 
 /// StatSplit stores the two options for deserializing a Split.

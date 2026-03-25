@@ -1,4 +1,5 @@
 use crate::live::LiveResponse;
+use crate::player::PeopleResponse;
 use crate::schedule::ScheduleResponse;
 use crate::season::{GameType, SeasonInfo, SeasonsResponse};
 use crate::standings::StandingsResponse;
@@ -49,7 +50,7 @@ impl ApiError {
 /// The available stat groups. These are taken from the "meta" endpoint:
 /// https://statsapi.mlb.com/api/v1/statGroups
 /// I only need to use Hitting and Pitching for now.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum StatGroup {
     Hitting,
     Pitching,
@@ -121,7 +122,6 @@ impl MLBApi {
         self.get(url).await
     }
 
-    /// Fetch season info from the MLB API for a given year.
     pub async fn get_season_info(&self, year: i32) -> ApiResult<Option<SeasonInfo>> {
         let url = format!("{}v1/seasons/{}?sportId=1", self.base_url, year);
         let resp = self.get::<SeasonsResponse>(url).await?;
@@ -194,14 +194,14 @@ impl MLBApi {
         let local: DateTime<Local> = Local::now();
         let sort = group.default_sort_stat();
         let mut url = format!(
-            "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc",
+            "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=ALL",
             self.base_url,
             local.year(),
             group,
             sort
         );
         if game_type == GameType::SpringTraining {
-            url.push_str("&gameType=S&playerPool=ALL");
+            url.push_str("&gameType=S");
         }
         self.get(url).await
     }
@@ -213,8 +213,8 @@ impl MLBApi {
         game_type: GameType,
     ) -> ApiResult<StatsResponse> {
         let sort = group.default_sort_stat();
-        // Spring training doesn't work well with byDateRange, use season instead.
         let url = match game_type {
+            // Spring training doesn't work well with byDateRange, use season instead.
             GameType::SpringTraining => format!(
                 "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&gameType=S&playerPool=ALL",
                 self.base_url,
@@ -222,15 +222,49 @@ impl MLBApi {
                 group,
                 sort
             ),
-            GameType::RegularSeason => format!(
-                "{}v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=3000&sortStat={}&order=desc",
-                self.base_url,
-                date.year(),
-                date.format("%Y-%m-%d"),
-                group,
-                sort
-            ),
+            GameType::RegularSeason => {
+                let current_year = Local::now().year();
+                if date.year() < current_year {
+                    // For past seasons use season stats because its way faster, and you can't use
+                    // a date range anyway.
+                    format!(
+                        "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=ALL",
+                        self.base_url,
+                        date.year(),
+                        group,
+                        sort
+                    )
+                } else {
+                    format!(
+                        "{}v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=ALL",
+                        self.base_url,
+                        date.year(),
+                        date.format("%Y-%m-%d"),
+                        group,
+                        sort
+                    )
+                }
+            }
         };
+        self.get(url).await
+    }
+
+    /// Fetch player bio and all stats in a single hydrated call.
+    pub async fn get_player_profile(
+        &self,
+        person_id: u64,
+        group: StatGroup,
+        season: i32,
+        game_type: GameType,
+    ) -> ApiResult<PeopleResponse> {
+        let game_type_param = match game_type {
+            GameType::SpringTraining => ",gameType=S",
+            GameType::RegularSeason => "",
+        };
+        let url = format!(
+            "{}v1/people/{}?hydrate=currentTeam,draft,stats(group=[{}],type=[season,yearByYear,career,gameLog],season={}{})",
+            self.base_url, person_id, group, season, game_type_param
+        );
         self.get(url).await
     }
 

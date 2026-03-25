@@ -210,7 +210,7 @@ mod tests {
         let local: DateTime<Local> = Local::now();
         for group in [StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!(
-                "/v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc",
+                "/v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=ALL",
                 local.year(),
                 group,
                 group.default_sort_stat()
@@ -234,13 +234,44 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_player_stats_on_date() {
+    async fn test_player_stats_on_date_past_season() {
         let (client, mut server) = generate_mock_client().await;
         let date: NaiveDate = NaiveDate::from_ymd_opt(2025, 5, 20).unwrap();
 
         for group in [StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!(
-                "/v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=3000&sortStat={}&order=desc",
+                "/v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=ALL",
+                date.year(),
+                group,
+                group.default_sort_stat()
+            );
+
+            let m = server
+                .mock("GET", Matcher::Exact(url))
+                .with_status(200)
+                .with_header("content-type", "application/json;charset=UTF-8")
+                .with_body_from_file(format!("./tests/responses/player-stats-{group}-date.json"))
+                .create();
+
+            let resp = client
+                .get_player_stats_on_date(group, date, GameType::RegularSeason)
+                .await
+                .unwrap();
+            m.assert(); // assert mock was called
+            assert_ne!(resp.stats.len(), 0);
+            assert_eq!(resp.stats[0].group.display_name, group.to_string());
+        }
+    }
+
+    #[tokio::test]
+    async fn test_player_stats_on_date_current_season() {
+        let (client, mut server) = generate_mock_client().await;
+        let local: DateTime<Local> = Local::now();
+        let date: NaiveDate = NaiveDate::from_ymd_opt(local.year(), 5, 20).unwrap();
+
+        for group in [StatGroup::Hitting, StatGroup::Pitching] {
+            let url = format!(
+                "/v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=ALL",
                 date.year(),
                 date.format("%Y-%m-%d"),
                 group,
@@ -391,6 +422,40 @@ mod tests {
                 .unwrap();
             m.assert();
             assert_ne!(resp.stats.len(), 0);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_player_profile() {
+        let (client, mut server) = generate_mock_client().await;
+
+        for group in [StatGroup::Hitting, StatGroup::Pitching] {
+            let url = format!(
+                "/v1/people/660271?hydrate=currentTeam,draft,stats(group=[{}],type=[season,yearByYear,career,gameLog],season=2025)",
+                group
+            );
+            let m = server
+                .mock("GET", Matcher::Exact(url))
+                .with_status(200)
+                .with_header("content-type", "application/json;charset=UTF-8")
+                .with_body_from_file(format!("./tests/responses/player-profile-{group}.json"))
+                .create();
+
+            let resp = client
+                .get_player_profile(660271, group, 2025, GameType::RegularSeason)
+                .await
+                .unwrap();
+            m.assert();
+
+            let person = &resp.people[0];
+            if group == StatGroup::Pitching {
+                assert_eq!(person.full_name, "Shohei Ohtani");
+                assert!(person.drafts.as_ref().is_none());
+            } else {
+                assert_eq!(person.full_name, "Paul Goldschmidt");
+                assert_eq!(person.drafts.as_ref().unwrap().len(), 2);
+            }
+            assert_eq!(person.stats.len(), 4);
         }
     }
 }

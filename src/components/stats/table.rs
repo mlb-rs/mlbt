@@ -13,8 +13,9 @@ pub const STATS_DEFAULT_COL_WIDTH: u16 = 6;
 pub const PLAYER_COLUMN_NAME: &str = "Player";
 pub const TEAM_COLUMN_NAME: &str = "Team";
 
-/// Table data in row oriented form with the first tuple item being the header.
-pub type TableData = (Vec<String>, Vec<Vec<String>>);
+/// Table data in row oriented form: (header, ids, rows).
+/// `ids` are the player/team id for each row.
+pub type TableData = (Vec<String>, Vec<u64>, Vec<Vec<String>>);
 
 /// Stores whether a team/player and pitching/hitting stat should be viewed.
 #[derive(Clone, Copy, Debug)]
@@ -35,7 +36,7 @@ impl StatType {
     }
 }
 
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub enum TeamOrPlayer {
     #[default]
     Team,
@@ -106,6 +107,8 @@ pub struct StatsTable {
     pub sorting: Sort,
     /// Cached table data.
     cache: Option<Arc<TableData>>,
+    /// Row ids (player or team) parallel to the columnar data.
+    row_ids: Vec<u64>,
 }
 
 impl Default for StatsTable {
@@ -114,6 +117,7 @@ impl Default for StatsTable {
             columns: IndexMap::new(),
             sorting: Sort::default(),
             cache: None,
+            row_ids: Vec::new(),
         }
     }
 }
@@ -123,17 +127,28 @@ impl StatsTable {
         self.cache = None;
     }
 
+    pub fn cached(&self) -> Option<&Arc<TableData>> {
+        self.cache.as_ref()
+    }
+
     pub fn load(&mut self, stats: &StatsResponse, team_player: TeamOrPlayer) {
         self.columns.clear();
+        self.row_ids.clear();
         self.invalidate_cache();
         for stat in &stats.stats {
             for split in &stat.splits {
-                let name = match &split.player {
-                    Some(p) => p.full_name.clone(),
-                    None => split.team.name.clone(),
+                let team_name = split
+                    .team
+                    .as_ref()
+                    .map(|t| t.name.clone())
+                    .unwrap_or_default();
+                let team = lookup_team(&team_name);
+                let team_abbreviation = Some(team.abbreviation.to_string());
+                let (name, id) = match &split.player {
+                    Some(p) => (p.full_name.clone(), p.id),
+                    None => (team_name, team.id as u64),
                 };
-                let team_abbreviation =
-                    Some(lookup_team(&split.team.name).abbreviation.to_string());
+                self.row_ids.push(id);
                 match &split.stat {
                     StatSplit::Pitching(s) => {
                         self.load_pitching_stats(name, team_abbreviation, s, team_player)
@@ -162,7 +177,7 @@ impl StatsTable {
 
     fn rebuild_table(&self, filter: Option<&[usize]>) -> TableData {
         if self.columns.is_empty() {
-            return (vec![], vec![vec![]]);
+            return (vec![], vec![], vec![vec![]]);
         }
 
         // get the number of rows, which might be zero while data is loading
@@ -171,7 +186,7 @@ impl StatsTable {
             None => 0,
         };
         if len == 0 {
-            return (vec![], vec![vec![]]);
+            return (vec![], vec![], vec![vec![]]);
         }
 
         // determine how many rows we need to render
@@ -182,6 +197,15 @@ impl StatsTable {
 
         let mut rows = vec![Vec::with_capacity(self.columns.len()); row_count];
         let mut header = Vec::with_capacity(self.columns.len());
+
+        // build ids parallel to rows, applying the same filter
+        let mut ids: Vec<u64> = match filter {
+            Some(indices) => indices
+                .iter()
+                .filter_map(|&i| self.row_ids.get(i).copied())
+                .collect(),
+            None => self.row_ids.clone(),
+        };
 
         // access the data in stored order because of `IndexMap` and only clone rows that will be
         // actually displayed
@@ -203,8 +227,8 @@ impl StatsTable {
             }
         }
 
-        self.sort_rows(&mut rows);
-        (header, rows)
+        self.sort_rows(&mut rows, &mut ids);
+        (header, ids, rows)
     }
 
     /// Insert stats into the table map. If the key isn't present a new column is created, otherwise
@@ -378,16 +402,17 @@ impl StatsTable {
         }
     }
 
-    /// Sort the rows by the selected stat.
-    fn sort_rows(&self, rows: &mut [Vec<String>]) {
+    /// Sort rows and ids together by the selected stat.
+    fn sort_rows(&self, rows: &mut Vec<Vec<String>>, ids: &mut Vec<u64>) {
         let sort_column_index = self.get_sort_column_index();
         let sort_column_name = self.sorting.column_name.as_ref();
 
         if let (Some(sort_column_index), Some(sort_column)) = (sort_column_index, sort_column_name)
         {
-            rows.sort_by(|a, b| {
-                let a = a.get(sort_column_index);
-                let b = b.get(sort_column_index);
+            let mut ordering: Vec<usize> = (0..rows.len()).collect();
+            ordering.sort_by(|&a, &b| {
+                let a = rows[a].get(sort_column_index);
+                let b = rows[b].get(sort_column_index);
                 if let (Some(a), Some(b)) = (a, b) {
                     // if the column is a name don't try to convert to float
                     if sort_column == TEAM_COLUMN_NAME || sort_column == PLAYER_COLUMN_NAME {
@@ -407,6 +432,9 @@ impl StatsTable {
                     Ordering::Equal
                 }
             });
+
+            *rows = ordering.iter().map(|&i| rows[i].clone()).collect();
+            *ids = ordering.iter().map(|&i| ids[i]).collect();
         }
     }
 

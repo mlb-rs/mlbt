@@ -1,6 +1,7 @@
 pub mod boxscore;
 pub mod client;
 pub mod live;
+pub mod player;
 pub mod plays;
 pub mod schedule;
 pub mod season;
