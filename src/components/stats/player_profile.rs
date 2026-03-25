@@ -112,12 +112,20 @@ impl PlayerProfile {
             .mlb_debut_date
             .map_display_or(|d| format_date(d), "---");
 
-        vec![
+        let mut bio = vec![
             format!("{position} | {bats}/{throws} | {height} {weight} | Age: {age}").into(),
             format!("Born: {birth_date} in {birthplace}").into(),
             format!("Drafted: {draft_year}").into(),
             format!("MLB Debut: {mlb_debut}").into(),
-        ]
+        ];
+
+        // TODO fetch IL info from the api with hydration=rosterEntries
+        if let Some(active) = person.active {
+            let status = if active { "Active" } else { "Inactive" };
+            bio.push(format!("Status: {status}").into());
+        };
+
+        bio
     }
 
     fn split_to_cells(split: &Split, show_year: bool) -> Vec<Cell<'_>> {
