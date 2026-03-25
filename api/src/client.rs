@@ -50,7 +50,7 @@ impl ApiError {
 /// The available stat groups. These are taken from the "meta" endpoint:
 /// https://statsapi.mlb.com/api/v1/statGroups
 /// I only need to use Hitting and Pitching for now.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum StatGroup {
     Hitting,
     Pitching,
@@ -262,7 +262,7 @@ impl MLBApi {
             GameType::RegularSeason => "",
         };
         let url = format!(
-            "{}v1/people/{}?hydrate=currentTeam,stats(group=[{}],type=[season,yearByYear,career,gameLog],season={}{})",
+            "{}v1/people/{}?hydrate=currentTeam,draft,stats(group=[{}],type=[season,yearByYear,career,gameLog],season={}{})",
             self.base_url, person_id, group, season, game_type_param
         );
         self.get(url).await

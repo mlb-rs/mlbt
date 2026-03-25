@@ -431,7 +431,7 @@ mod tests {
 
         for group in [StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!(
-                "/v1/people/660271?hydrate=currentTeam,stats(group=[{}],type=[season,yearByYear,career,gameLog],season=2025)",
+                "/v1/people/660271?hydrate=currentTeam,draft,stats(group=[{}],type=[season,yearByYear,career,gameLog],season=2025)",
                 group
             );
             let m = server
@@ -448,7 +448,13 @@ mod tests {
             m.assert();
 
             let person = &resp.people[0];
-            assert_eq!(person.full_name, "Shohei Ohtani");
+            if group == StatGroup::Pitching {
+                assert_eq!(person.full_name, "Shohei Ohtani");
+                assert!(person.drafts.as_ref().is_none());
+            } else {
+                assert_eq!(person.full_name, "Paul Goldschmidt");
+                assert_eq!(person.drafts.as_ref().unwrap().len(), 2);
+            }
             assert_eq!(person.stats.len(), 4);
         }
     }

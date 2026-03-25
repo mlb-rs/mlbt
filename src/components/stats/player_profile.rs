@@ -106,8 +106,20 @@ impl PlayerProfile {
         .collect::<Vec<_>>()
         .join(", ");
 
-        // TODO fetch draft details (round, pick, team, college) from /draft endpoint
         let draft_year = person.draft_year.display_or("---");
+        let mut draft = format!("Drafted: {draft_year}");
+        // find draft details for the player's draft year, if any
+        if let Some(info) = person
+            .drafts
+            .as_deref()
+            .and_then(|drafts| drafts.iter().find(|d| d.year == draft_year))
+        {
+            draft.push_str(&format!(
+                ", {}, Round: {}, Overall Pick: {}",
+                info.team.name, info.pick_round, info.pick_number
+            ));
+        }
+
         let mlb_debut = person
             .mlb_debut_date
             .map_display_or(|d| format_date(d), "---");
@@ -115,7 +127,7 @@ impl PlayerProfile {
         let mut bio = vec![
             format!("{position} | {bats}/{throws} | {height} {weight} | Age: {age}").into(),
             format!("Born: {birth_date} in {birthplace}").into(),
-            format!("Drafted: {draft_year}").into(),
+            draft.into(),
             format!("MLB Debut: {mlb_debut}").into(),
         ];
 
