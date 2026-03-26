@@ -1,3 +1,4 @@
+use crate::app::MenuItem;
 use crate::components::banner::BANNER;
 use crate::config::ConfigFile;
 use tui::layout::{Alignment, Constraint, Flex, Layout};
@@ -5,13 +6,14 @@ use tui::prelude::*;
 use tui::widgets::{Paragraph, Row, Table, TableState};
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
-pub const DOCS: &[&[&str; 2]; 51] = &[
+pub const GENERAL_DOCS: &[&[&str; 2]; 5] = &[
     &["Exit help", "Esc"],
     &["Move down", "j/↓"],
     &["Move up", "k/↑"],
     &["Quit", "q"],
     &["Full screen", "f"],
-    // scoreboard
+];
+pub const SCOREBOARD_DOCS: &[&[&str; 2]; 9] = &[
     &["Scoreboard", "1"],
     &["Move down", "j/↓"],
     &["Move up", "k/↑"],
@@ -21,7 +23,8 @@ pub const DOCS: &[&[&str; 2]; 51] = &[
     &["Scroll boxscore down", "Shift + j/↓"],
     &["Scroll boxscore up", "Shift + k/↑"],
     &["Toggle win probability", "w"],
-    // gameday
+];
+pub const GAMEDAY_DOCS: &[&[&str; 2]; 12] = &[
     &["Gameday", "2"],
     &["Toggle game info", "i"],
     &["Toggle pitches", "p"],
@@ -34,7 +37,8 @@ pub const DOCS: &[&[&str; 2]; 51] = &[
     &["Move up at bat", "k/↑"],
     &["Go to live at bat", "l"],
     &["Go to first at bat", "s"],
-    // stats
+];
+pub const STATS_DOCS: &[&[&str; 2]; 20] = &[
     &["Stats", "3"],
     &["Switch hitting/pitching", "h/p"],
     &["Switch team/player", "t/l"],
@@ -55,7 +59,8 @@ pub const DOCS: &[&[&str; 2]; 51] = &[
     &[" Toggle category", "s"],
     &[" Scroll down", "j/↓"],
     &[" Scroll up", "k/↑"],
-    // standings
+];
+pub const STANDINGS_DOCS: &[&[&str; 2]; 5] = &[
     &["Standings", "4"],
     &["Move down", "j/↓"],
     &["Move up", "k/↑"],
@@ -98,7 +103,9 @@ impl HelpState {
     }
 }
 
-pub struct HelpWidget {}
+pub struct HelpWidget {
+    pub active_tab: MenuItem,
+}
 
 impl StatefulWidget for HelpWidget {
     type State = TableState;
@@ -128,7 +135,8 @@ impl StatefulWidget for HelpWidget {
             .bottom_margin(0)
             .style(header_style);
 
-        let rows = DOCS
+        let docs = build_docs(self.active_tab);
+        let rows = docs
             .iter()
             .map(|d| format_row(d))
             .map(|item| match item.row_type {
@@ -168,4 +176,31 @@ impl StatefulWidget for HelpWidget {
         .alignment(Alignment::Center)
         .render(banner, buf);
     }
+}
+
+/// Build the docs so that the order is: general, active tab, other tabs.
+fn build_docs(active_tab: MenuItem) -> Vec<&'static [&'static str; 2]> {
+    let mut docs = GENERAL_DOCS.to_vec();
+
+    // default order
+    let sections = [
+        (MenuItem::Scoreboard, SCOREBOARD_DOCS as &[_]),
+        (MenuItem::Gameday, GAMEDAY_DOCS as &[_]),
+        (MenuItem::Stats, STATS_DOCS as &[_]),
+        (MenuItem::Standings, STANDINGS_DOCS as &[_]),
+    ];
+
+    // put the active tab docs at the top
+    if let Some((_, active_section)) = sections.iter().find(|(tab, _)| *tab == active_tab) {
+        docs.extend_from_slice(active_section);
+    }
+
+    // add remaining docs
+    for (tab, section_docs) in sections {
+        if tab != active_tab {
+            docs.extend_from_slice(section_docs);
+        }
+    }
+
+    docs
 }
