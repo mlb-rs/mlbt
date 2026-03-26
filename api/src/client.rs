@@ -4,6 +4,7 @@ use crate::schedule::ScheduleResponse;
 use crate::season::{GameType, SeasonInfo, SeasonsResponse};
 use crate::standings::StandingsResponse;
 use crate::stats::StatsResponse;
+use crate::team::{RosterResponse, RosterType, TransactionsResponse};
 use crate::teams::{SportId, TeamsResponse};
 use crate::win_probability::WinProbabilityResponse;
 use std::fmt;
@@ -264,6 +265,47 @@ impl MLBApi {
         let url = format!(
             "{}v1/people/{}?hydrate=currentTeam,draft,stats(group=[{}],type=[season,yearByYear,career,gameLog],season={}{})",
             self.base_url, person_id, group, season, game_type_param
+        );
+        self.get(url).await
+    }
+
+    pub async fn get_team_schedule(
+        &self,
+        team_id: u16,
+        season: i32,
+    ) -> ApiResult<ScheduleResponse> {
+        let url = format!(
+            "{}v1/schedule?teamId={}&season={}&sportId=1",
+            self.base_url, team_id, season
+        );
+        self.get(url).await
+    }
+
+    pub async fn get_team_roster(
+        &self,
+        team_id: u16,
+        season: i32,
+        roster_type: RosterType,
+    ) -> ApiResult<RosterResponse> {
+        let url = format!(
+            "{}v1/teams/{}/roster/{}?season={}&hydrate=person",
+            self.base_url, team_id, roster_type, season
+        );
+        self.get(url).await
+    }
+
+    pub async fn get_team_transactions(
+        &self,
+        team_id: u16,
+        start_date: NaiveDate,
+        end_date: NaiveDate,
+    ) -> ApiResult<TransactionsResponse> {
+        let url = format!(
+            "{}v1/transactions?teamId={}&startDate={}&endDate={}",
+            self.base_url,
+            team_id,
+            start_date.format("%m/%d/%Y"),
+            end_date.format("%m/%d/%Y"),
         );
         self.get(url).await
     }

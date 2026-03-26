@@ -1,6 +1,7 @@
 use chrono::NaiveDate;
 use mlbt_api::client::{MLBApi, MLBApiBuilder, StatGroup};
 use mlbt_api::season::GameType;
+use mlbt_api::team::RosterType;
 use mlbt_api::teams::SportId;
 use mockito::{Matcher, ServerGuard};
 use std::time::Duration;
@@ -423,6 +424,104 @@ mod tests {
             m.assert();
             assert_ne!(resp.stats.len(), 0);
         }
+    }
+
+    #[tokio::test]
+    async fn test_team_schedule() {
+        let (client, mut server) = generate_mock_client().await;
+
+        let m = server
+            .mock(
+                "GET",
+                Matcher::Exact("/v1/schedule?teamId=134&season=2025&sportId=1".to_string()),
+            )
+            .with_status(200)
+            .with_header("content-type", "application/json;charset=UTF-8")
+            .with_body_from_file("./tests/responses/team-schedule.json")
+            .create();
+
+        let resp = client.get_team_schedule(134, 2025).await.unwrap();
+        m.assert();
+        assert_eq!(resp.total_games, 194);
+        assert!(!resp.dates.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_team_roster_active() {
+        let (client, mut server) = generate_mock_client().await;
+
+        let m = server
+            .mock(
+                "GET",
+                Matcher::Exact(
+                    "/v1/teams/134/roster/active?season=2025&hydrate=person".to_string(),
+                ),
+            )
+            .with_status(200)
+            .with_header("content-type", "application/json;charset=UTF-8")
+            .with_body_from_file("./tests/responses/team-roster-active.json")
+            .create();
+
+        let resp = client
+            .get_team_roster(134, 2025, RosterType::Active)
+            .await
+            .unwrap();
+        m.assert();
+        assert!(!resp.roster.is_empty());
+        // Verify hydrated person data is present
+        let first = &resp.roster[0];
+        assert!(!first.person.full_name.is_empty());
+        assert!(!first.status.code.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_team_roster_40man() {
+        let (client, mut server) = generate_mock_client().await;
+
+        let m = server
+            .mock(
+                "GET",
+                Matcher::Exact("/v1/teams/134/roster/40Man?season=2025&hydrate=person".to_string()),
+            )
+            .with_status(200)
+            .with_header("content-type", "application/json;charset=UTF-8")
+            .with_body_from_file("./tests/responses/team-roster-40man.json")
+            .create();
+
+        let resp = client
+            .get_team_roster(134, 2025, RosterType::FortyMan)
+            .await
+            .unwrap();
+        m.assert();
+        assert!(!resp.roster.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_team_transactions() {
+        let (client, mut server) = generate_mock_client().await;
+
+        let start = NaiveDate::from_ymd_opt(2025, 3, 12).unwrap();
+        let end = NaiveDate::from_ymd_opt(2025, 3, 26).unwrap();
+
+        let m = server
+            .mock(
+                "GET",
+                Matcher::Exact(
+                    "/v1/transactions?teamId=134&startDate=03/12/2025&endDate=03/26/2025"
+                        .to_string(),
+                ),
+            )
+            .with_status(200)
+            .with_header("content-type", "application/json;charset=UTF-8")
+            .with_body_from_file("./tests/responses/team-transactions.json")
+            .create();
+
+        let resp = client.get_team_transactions(134, start, end).await.unwrap();
+        m.assert();
+        assert!(!resp.transactions.is_empty());
+        // verify transaction fields are populated
+        let first = &resp.transactions[0];
+        assert!(first.description.is_some());
     }
 
     #[tokio::test]
