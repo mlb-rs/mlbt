@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add probable pitchers to the Schedule view for upcoming games: [PR 104](https://github.com/mlb-rs/mlbt/pull/104)
 - Add `--version` and `-V` flag to print the version number: [PR 105](https://github.com/mlb-rs/mlbt/pull/105)
 
+### Changed
+
+- Change help page to show the active tab docs at the top: [PR 111](https://github.com/mlb-rs/mlbt/pull/111)
+
 ## [0.1.1] - 2026-03-03
 
 ### Added

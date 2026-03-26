@@ -2,7 +2,7 @@ use tui::backend::Backend;
 use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Modifier, Style};
 use tui::text::Line;
-use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, TableState, Tabs, Widget};
+use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, Tabs, Widget};
 use tui::{Frame, Terminal};
 
 use crate::app::{App, DebugState, MenuItem};
@@ -58,9 +58,7 @@ where
                 MenuItem::Gameday => draw_gameday(f, main_layout.main, app),
                 MenuItem::Stats => draw_stats(f, main_layout.main, app),
                 MenuItem::Standings => draw_standings(f, main_layout.main, app),
-                MenuItem::Help => {
-                    draw_help(f, f.area(), app.state.show_logs, &mut app.state.help.state)
-                }
+                MenuItem::Help => draw_help(f, f.area(), app),
             }
             if app.state.debug_state == DebugState::On {
                 let mut dbi = DebugInfo::new();
@@ -300,15 +298,22 @@ fn draw_win_probability(f: &mut Frame, rect: Rect, app: &mut App) {
     }
 }
 
-fn draw_help(f: &mut Frame, rect: Rect, show_logs: bool, help_state: &mut TableState) {
+fn draw_help(f: &mut Frame, rect: Rect, app: &mut App) {
     f.render_widget(Clear, rect);
 
-    if show_logs {
+    if app.state.show_logs {
         draw_border(f, rect, Color::White);
         f.render_widget(LogWidget {}, rect);
         return;
     }
 
     draw_border(f, rect, Color::White);
-    f.render_stateful_widget(HelpWidget {}, rect, help_state);
+    f.render_stateful_widget(
+        HelpWidget {
+            // use previous tab because help has been set to active at this point
+            active_tab: app.state.previous_tab,
+        },
+        rect,
+        &mut app.state.help.state,
+    );
 }
