@@ -1,3 +1,4 @@
+use crate::components::constants::lookup_team_by_id;
 use crate::components::date_selector::DateSelector;
 use crate::components::stats::search::SearchState;
 use crate::components::stats::table::{
@@ -5,11 +6,15 @@ use crate::components::stats::table::{
 };
 use crate::state::messages::NetworkRequest;
 use crate::state::player_profile::PlayerProfileState;
+use crate::state::team_page::TeamPageState;
 use chrono::{Datelike, NaiveDate};
+use chrono_tz::Tz;
 use mlbt_api::client::StatGroup;
 use mlbt_api::player::PeopleResponse;
+use mlbt_api::schedule::ScheduleResponse;
 use mlbt_api::season::GameType;
 use mlbt_api::stats::StatsResponse;
+use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
 use std::sync::Arc;
 use tui::widgets::TableState;
 
@@ -44,6 +49,8 @@ pub struct StatsState {
     pub search: SearchState,
     /// Active player profile view. When Some, renders full-page replacing the stats table.
     pub player_profile: Option<PlayerProfileState>,
+    /// Active team page view. When Some, renders full-page replacing the stats table.
+    pub team_page: Option<TeamPageState>,
 }
 
 impl Default for StatsState {
@@ -63,6 +70,7 @@ impl Default for StatsState {
             visible_rows: 0,
             search: SearchState::default(),
             player_profile: None,
+            team_page: None,
         };
         ss.options_state.select(Some(0));
         ss.data_state.select(Some(0));
@@ -86,6 +94,53 @@ impl StatsState {
 
     pub fn close_player_profile(&mut self) {
         self.player_profile = None;
+    }
+
+    pub fn has_team_page(&self) -> bool {
+        self.team_page.is_some()
+    }
+
+    pub fn close_team_page(&mut self) {
+        self.team_page = None;
+    }
+
+    pub fn update_team_page(
+        &mut self,
+        team_id: u16,
+        date: NaiveDate,
+        schedule: ScheduleResponse,
+        roster: RosterResponse,
+        transactions: TransactionsResponse,
+        tz: Tz,
+    ) {
+        let team = lookup_team_by_id(team_id).unwrap_or_default();
+        self.team_page = Some(TeamPageState::from_response(
+            team,
+            date,
+            schedule,
+            roster,
+            transactions,
+            tz,
+        ));
+    }
+
+    pub fn update_team_roster(
+        &mut self,
+        team_id: u16,
+        roster: RosterResponse,
+        roster_type: RosterType,
+    ) {
+        if let Some(tp) = &mut self.team_page
+            && tp.team.id == team_id
+        {
+            tp.update_roster(roster, roster_type);
+        }
+    }
+
+    pub fn update_team_player_profile(&mut self, data: PeopleResponse, game_type: GameType) {
+        if let Some(tp) = &mut self.team_page {
+            tp.update_player_profile(data, game_type);
+        }
     }
 
     pub fn profile_scroll_down(&mut self) {
@@ -118,12 +173,14 @@ impl StatsState {
             PlayerProfileState::from_response(data, self.stat_type.group, game_type, season_year);
     }
 
-    /// Returns the info needed to load a player profile for the currently selected row.
-    /// Returns None if in team mode or no row is selected.
+    /// Returns the info needed to load a player profile or team page for the selected row.
     pub fn player_profile_request(&self) -> Option<NetworkRequest> {
-        // TODO support team profiles
-        if self.stat_type.team_player != TeamOrPlayer::Player {
-            return None;
+        if self.stat_type.team_player == TeamOrPlayer::Team {
+            let team_id = self.get_selected_id()? as u16;
+            return Some(NetworkRequest::TeamPage {
+                team_id,
+                date: self.date_selector.date,
+            });
         }
         let player_id = self.get_selected_id()?;
         Some(NetworkRequest::PlayerProfile {

@@ -22,6 +22,7 @@ use crate::ui::probable_pitchers::ProbablePitchersWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::standings::StandingsWidget;
 use crate::ui::stats::{STATS_OPTIONS_WIDTH, StatsDataWidget, StatsOptionsWidget};
+use crate::ui::team_page::TeamPageWidget;
 
 static TABS: &[&str; 4] = &["Scoreboard", "Gameday", "Stats", "Standings"];
 
@@ -217,6 +218,14 @@ fn draw_gameday(f: &mut Frame, rect: Rect, app: &mut App) {
 }
 
 fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
+    if let Some(tp) = &mut app.state.stats.team_page {
+        if let Some(profile) = &mut tp.player_profile {
+            PlayerProfileWidget { state: profile }.render(rect, f.buffer_mut());
+            return;
+        }
+        TeamPageWidget { state: tp }.render(rect, f.buffer_mut());
+        return;
+    }
     if let Some(profile) = &mut app.state.stats.player_profile {
         PlayerProfileWidget { state: profile }.render(rect, f.buffer_mut());
         return;
@@ -279,6 +288,14 @@ fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
 }
 
 fn draw_standings(f: &mut Frame, rect: Rect, app: &mut App) {
+    if let Some(tp) = &mut app.state.standings.team_page {
+        if let Some(profile) = &mut tp.player_profile {
+            PlayerProfileWidget { state: profile }.render(rect, f.buffer_mut());
+            return;
+        }
+        TeamPageWidget { state: tp }.render(rect, f.buffer_mut());
+        return;
+    }
     f.render_stateful_widget(StandingsWidget {}, rect, &mut app.state.standings);
 }
 

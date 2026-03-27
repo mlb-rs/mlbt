@@ -5,6 +5,7 @@ use chrono::{Datelike, NaiveDate};
 use log::{debug, error, warn};
 use mlbt_api::client::{ApiResult, MLBApi, MLBApiBuilder, StatGroup};
 use mlbt_api::season::{SeasonInfo, game_type_for_date};
+use mlbt_api::team::RosterType;
 use mlbt_api::teams::SportId;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -70,6 +71,17 @@ impl NetworkWorker {
                     game_type,
                 } => {
                     self.handle_load_player_profile(player_id, group, date, game_type)
+                        .await
+                }
+                NetworkRequest::TeamPage { team_id, date } => {
+                    self.handle_load_team_page(team_id, date).await
+                }
+                NetworkRequest::TeamRoster {
+                    team_id,
+                    season,
+                    roster_type,
+                } => {
+                    self.handle_load_team_roster(team_id, season, roster_type)
                         .await
                 }
             };
@@ -148,6 +160,46 @@ impl NetworkWorker {
             .get_player_profile(player_id, group, date.year(), game_type)
             .await?;
         Ok(NetworkResponse::PlayerProfileLoaded { data, game_type })
+    }
+
+    async fn handle_load_team_page(
+        &self,
+        team_id: u16,
+        date: NaiveDate,
+    ) -> ApiResult<NetworkResponse> {
+        debug!("loading team page for team {team_id} on {date}");
+        let (schedule, roster, transactions) = tokio::try_join!(
+            self.client.get_team_schedule(team_id, date.year()),
+            self.client
+                .get_team_roster(team_id, date.year(), RosterType::Active),
+            self.client
+                .get_team_transactions(team_id, date - chrono::Duration::days(14), date),
+        )?;
+        Ok(NetworkResponse::TeamPageLoaded {
+            team_id,
+            date,
+            schedule,
+            roster,
+            transactions,
+        })
+    }
+
+    async fn handle_load_team_roster(
+        &self,
+        team_id: u16,
+        season: i32,
+        roster_type: RosterType,
+    ) -> ApiResult<NetworkResponse> {
+        debug!("loading {roster_type} roster for team {team_id} in {season} season");
+        let roster = self
+            .client
+            .get_team_roster(team_id, season, roster_type)
+            .await?;
+        Ok(NetworkResponse::TeamRosterLoaded {
+            team_id,
+            roster,
+            roster_type,
+        })
     }
 
     /// Best-effort initialization that always returns Ok so the app can proceed even if the API
