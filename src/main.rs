@@ -6,7 +6,7 @@ mod keys;
 mod state;
 mod ui;
 
-use crate::app::{App, MenuItem};
+use crate::app::App;
 use crate::state::messages::{NetworkRequest, NetworkResponse, UiEvent};
 use crate::state::network::{LoadingState, NetworkWorker};
 use crate::state::refresher::PeriodicRefresher;
@@ -157,19 +157,7 @@ async fn handle_network_response(
         }
         NetworkResponse::PlayerProfileLoaded { data, game_type } => {
             let mut guard = app.lock().await;
-            if guard.state.standings.has_team_page() {
-                guard
-                    .state
-                    .standings
-                    .update_team_player_profile(data, game_type);
-            } else if guard.state.stats.has_team_page() {
-                guard
-                    .state
-                    .stats
-                    .update_team_player_profile(data, game_type);
-            } else {
-                guard.state.stats.update_player_profile(data, game_type);
-            }
+            guard.update_player_profile(data, game_type);
         }
         NetworkResponse::TeamPageLoaded {
             team_id,
@@ -179,30 +167,7 @@ async fn handle_network_response(
             transactions,
         } => {
             let mut guard = app.lock().await;
-            let tz = guard.settings.timezone;
-            match guard.state.active_tab {
-                MenuItem::Standings => {
-                    guard.state.standings.update_team_page(
-                        team_id,
-                        date,
-                        schedule,
-                        roster,
-                        transactions,
-                        tz,
-                    );
-                }
-                MenuItem::Stats => {
-                    guard.state.stats.update_team_page(
-                        team_id,
-                        date,
-                        schedule,
-                        roster,
-                        transactions,
-                        tz,
-                    );
-                }
-                _ => {}
-            }
+            guard.update_team_page(team_id, date, schedule, roster, transactions);
         }
         NetworkResponse::TeamRosterLoaded {
             team_id,
@@ -210,17 +175,7 @@ async fn handle_network_response(
             roster_type,
         } => {
             let mut guard = app.lock().await;
-            if guard.state.standings.has_team_page() {
-                guard
-                    .state
-                    .standings
-                    .update_team_roster(team_id, roster, roster_type);
-            } else {
-                guard
-                    .state
-                    .stats
-                    .update_team_roster(team_id, roster, roster_type);
-            }
+            guard.update_team_roster(team_id, roster, roster_type);
         }
         NetworkResponse::Initialized => {
             // Teams must be loaded before the schedule so international team names resolve.

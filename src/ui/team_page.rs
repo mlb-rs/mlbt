@@ -3,7 +3,7 @@ use mlbt_api::team::RosterType;
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Table};
 
-const ROSTER_HEADER: &[&str] = &["Player", "Pos", "B/T", "Ht", "Wt", "DOB"];
+const ROSTER_HEADER: &[&str] = &["Pos", "B/T", "Ht", "Wt", "DOB"];
 
 pub struct TeamPageWidget<'a> {
     pub state: &'a mut TeamPageState,
@@ -64,20 +64,6 @@ impl Widget for TeamPageWidget<'_> {
     }
 }
 
-/// Render a horizontal divider line with a section title.
-fn render_section_divider(area: Rect, title: &str, is_active: bool, buf: &mut Buffer) {
-    let title_style = if is_active {
-        Style::default().fg(Color::Black).bg(Color::Blue)
-    } else {
-        Style::default()
-    };
-    let block = Block::default()
-        .borders(Borders::TOP)
-        .border_type(BorderType::Rounded)
-        .title_top(Line::from(Span::styled(format!(" {title} "), title_style)).centered());
-    block.render(area, buf);
-}
-
 impl TeamPageWidget<'_> {
     fn render_roster(
         &mut self,
@@ -86,20 +72,9 @@ impl TeamPageWidget<'_> {
         roster_type: RosterType,
         buf: &mut Buffer,
     ) {
-        if area.height < 2 {
+        if area.height < 1 {
             return;
         }
-
-        let roster_label = match roster_type {
-            RosterType::Active => "Active",
-            RosterType::FortyMan => "40-Man",
-        };
-        let title = format!("Roster ({roster_label})");
-
-        let [title_area, table_area] =
-            Layout::vertical([Constraint::Length(1), Constraint::Fill(1)]).areas(area);
-
-        render_section_divider(title_area, &title, active == TeamSection::Roster, buf);
 
         let roster = &self.state.roster;
         if roster.is_empty() {
@@ -107,13 +82,18 @@ impl TeamPageWidget<'_> {
                 "  No roster data",
                 Style::default().fg(Color::DarkGray),
             ))
-            .render(table_area, buf);
+            .render(area, buf);
             return;
         }
 
         let is_40man = roster_type == RosterType::FortyMan;
+        let roster_label = match roster_type {
+            RosterType::Active => "Roster (active)",
+            RosterType::FortyMan => "Roster (40 man)",
+        };
 
-        let mut header_cells: Vec<Cell> = ROSTER_HEADER.iter().map(|h| Cell::from(*h)).collect();
+        let mut header_cells: Vec<Cell> = vec![Cell::from(roster_label)];
+        header_cells.extend(ROSTER_HEADER.iter().map(|h| Cell::from(*h)));
         let mut widths = vec![
             Constraint::Length(26), // ## Name
             Constraint::Length(4),  // Pos
@@ -165,29 +145,18 @@ impl TeamPageWidget<'_> {
             rows.push(Row::new(cells));
         }
 
-        let highlight_style = if active == TeamSection::Roster {
-            Style::default().bg(Color::Blue).fg(Color::Black)
-        } else {
-            Style::default()
-        };
-
         let table = Table::new(rows, widths)
             .header(header)
-            .row_highlight_style(highlight_style)
+            .row_highlight_style(highlight_style(active, TeamSection::Roster))
             .column_spacing(1);
 
-        StatefulWidget::render(table, table_area, buf, &mut self.state.roster_selection);
+        StatefulWidget::render(table, area, buf, &mut self.state.roster_selection);
     }
 
     fn render_schedule(&mut self, area: Rect, active: TeamSection, buf: &mut Buffer) {
-        if area.height < 2 {
+        if area.height < 1 {
             return;
         }
-
-        let [title_area, table_area] =
-            Layout::vertical([Constraint::Length(1), Constraint::Fill(1)]).areas(area);
-
-        render_section_divider(title_area, "Schedule", active == TeamSection::Schedule, buf);
 
         let games = &self.state.schedule;
         if games.is_empty() {
@@ -195,7 +164,7 @@ impl TeamPageWidget<'_> {
                 "  No schedule data",
                 Style::default().fg(Color::DarkGray),
             ))
-            .render(table_area, buf);
+            .render(area, buf);
             return;
         }
 
@@ -206,6 +175,13 @@ impl TeamPageWidget<'_> {
             Constraint::Length(9), // Opponent
             Constraint::Fill(1),   // Time/Score
         ];
+
+        let header = Row::new(vec![
+            Cell::from("Schedule"),
+            Cell::default(),
+            Cell::default(),
+        ])
+        .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
 
         let rows: Vec<Row> = games
             .iter()
@@ -227,17 +203,12 @@ impl TeamPageWidget<'_> {
             })
             .collect();
 
-        let highlight_style = if active == TeamSection::Schedule {
-            Style::default().bg(Color::Blue).fg(Color::Black)
-        } else {
-            Style::default()
-        };
-
         let table = Table::new(rows, widths)
-            .column_spacing(1)
-            .row_highlight_style(highlight_style);
+            .header(header)
+            .row_highlight_style(highlight_style(active, TeamSection::Schedule))
+            .column_spacing(1);
 
-        StatefulWidget::render(table, table_area, buf, &mut self.state.schedule_selection);
+        StatefulWidget::render(table, area, buf, &mut self.state.schedule_selection);
     }
 
     fn render_transactions(
@@ -245,21 +216,30 @@ impl TeamPageWidget<'_> {
         transactions: &[crate::components::team_page::TransactionRow],
         buf: &mut Buffer,
     ) {
-        if area.height < 2 {
+        if area.height < 1 {
             return;
         }
 
-        let [title_area, table_area] =
+        let [header_area, body_area] =
             Layout::vertical([Constraint::Length(1), Constraint::Fill(1)]).areas(area);
 
-        render_section_divider(title_area, "Transactions", false, buf);
+        let padded = format!(
+            "{:<width$}",
+            "Transactions",
+            width = header_area.width as usize
+        );
+        Line::from(Span::styled(
+            padded,
+            Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED),
+        ))
+        .render(header_area, buf);
 
         if transactions.is_empty() {
             Paragraph::new(Span::styled(
                 "  No recent transactions",
                 Style::default().fg(Color::DarkGray),
             ))
-            .render(table_area, buf);
+            .render(body_area, buf);
             return;
         }
 
@@ -278,7 +258,7 @@ impl TeamPageWidget<'_> {
 
         Paragraph::new(lines)
             .wrap(tui::widgets::Wrap { trim: false })
-            .render(table_area, buf);
+            .render(body_area, buf);
     }
 }
 
@@ -289,5 +269,14 @@ fn il_status_style(code: &str) -> Style {
         "D60" => Style::default().fg(Color::Red),
         "RM" => Style::default().fg(Color::DarkGray),
         _ => Style::default(),
+    }
+}
+
+/// Style for the selected row in the roster and schedule tables.
+fn highlight_style(active: TeamSection, desired: TeamSection) -> Style {
+    if active == desired {
+        Style::default().bg(Color::Blue).fg(Color::Black)
+    } else {
+        Style::default()
     }
 }

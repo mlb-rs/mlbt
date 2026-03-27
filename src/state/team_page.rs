@@ -57,6 +57,8 @@ fn build_roster_row_map(roster: &[RosterRow]) -> (usize, HashSet<usize>, Vec<Opt
 }
 
 impl TeamPageState {
+    const PAGE_SIZE: usize = 10;
+
     pub fn from_response(
         team: Team,
         date: chrono::NaiveDate,
@@ -130,11 +132,15 @@ impl TeamPageState {
         if len == 0 {
             return;
         }
-        let mut i = (self.selection() + 1) % len;
+        let start = self.selection();
+        let mut i = if start >= len - 1 { 0 } else { start + 1 };
         if self.active_section == TeamSection::Roster && self.roster_header_rows.contains(&i) {
-            i = (i + 1) % len;
+            i = if i >= len - 1 { 0 } else { i + 1 };
         }
         self.set_selection(i);
+        if i < start {
+            self.reset_active_table_state(i);
+        }
     }
 
     pub fn previous(&mut self) {
@@ -142,12 +148,15 @@ impl TeamPageState {
         if len == 0 {
             return;
         }
-        let current = self.selection();
-        let mut i = if current == 0 { len - 1 } else { current - 1 };
+        let start = self.selection();
+        let mut i = if start == 0 { len - 1 } else { start - 1 };
         if self.active_section == TeamSection::Roster && self.roster_header_rows.contains(&i) {
             i = if i == 0 { len - 1 } else { i - 1 };
         }
         self.set_selection(i);
+        if i > start {
+            self.reset_active_table_state(i);
+        }
     }
 
     fn active_len(&self) -> usize {
@@ -156,8 +165,6 @@ impl TeamPageState {
             TeamSection::Schedule => self.schedule.len(),
         }
     }
-
-    const PAGE_SIZE: usize = 10;
 
     pub fn page_down(&mut self) {
         for _ in 0..Self::PAGE_SIZE {
@@ -195,15 +202,21 @@ impl TeamPageState {
         }
     }
 
+    /// Reset the active table state and re-select, clearing the scroll offset.
+    fn reset_active_table_state(&mut self, idx: usize) {
+        let state = match self.active_section {
+            TeamSection::Roster => &mut self.roster_selection,
+            TeamSection::Schedule => &mut self.schedule_selection,
+        };
+        *state = TableState::default();
+        state.select(Some(idx));
+    }
+
     /// Get the `RosterRow` for the currently selected table row.
     fn selected_roster_row(&self) -> Option<&RosterRow> {
         let table_idx = self.roster_selection.selected()?;
         let roster_idx = self.roster_row_map.get(table_idx).copied().flatten()?;
         self.roster.get(roster_idx)
-    }
-
-    pub fn selected_player_id(&self) -> Option<u64> {
-        self.selected_roster_row().map(|r| r.player_id)
     }
 
     pub fn player_profile_request(&self, date: chrono::NaiveDate) -> Option<NetworkRequest> {
@@ -219,15 +232,16 @@ impl TeamPageState {
         })
     }
 
-    pub fn roster_toggle_request(&self, roster_type: RosterType) -> Option<NetworkRequest> {
-        if self.roster_type == roster_type {
-            return None;
-        }
-        Some(NetworkRequest::TeamRoster {
+    pub fn roster_toggle_request(&self) -> NetworkRequest {
+        let roster_type = match self.roster_type {
+            RosterType::Active => RosterType::FortyMan,
+            RosterType::FortyMan => RosterType::Active,
+        };
+        NetworkRequest::TeamRoster {
             team_id: self.team.id,
             season: self.date.year(),
             roster_type,
-        })
+        }
     }
 
     pub fn update_player_profile(
@@ -245,10 +259,6 @@ impl TeamPageState {
 
     pub fn has_player_profile(&self) -> bool {
         self.player_profile.is_some()
-    }
-
-    pub fn close_player_profile(&mut self) {
-        self.player_profile = None;
     }
 }
 
@@ -350,5 +360,31 @@ mod tests {
         s.set_selection(3);
         s.page_up();
         assert_eq!(s.selection(), 1);
+    }
+
+    #[test]
+    fn next_wrap_resets_offset() {
+        // table: [header(0), A(1), header(2), B(3)]
+        let mut s = nav_state(&[PositionGroup::Pitcher, PositionGroup::Catcher], 0);
+        // simulate having scrolled down
+        *s.roster_selection.offset_mut() = 2;
+        s.set_selection(3);
+
+        // wrap from last row back to first
+        s.next();
+        assert_eq!(s.selection(), 1);
+        assert_eq!(*s.roster_selection.offset_mut(), 0);
+    }
+
+    #[test]
+    fn previous_wrap_resets_offset() {
+        // table: [header(0), A(1), header(2), B(3)]
+        let mut s = nav_state(&[PositionGroup::Pitcher, PositionGroup::Catcher], 0);
+        assert_eq!(s.selection(), 1);
+
+        // wrap from first row to last
+        s.previous();
+        assert_eq!(s.selection(), 3);
+        assert_eq!(*s.roster_selection.offset_mut(), 0);
     }
 }

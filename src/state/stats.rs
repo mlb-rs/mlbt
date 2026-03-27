@@ -92,16 +92,21 @@ impl StatsState {
         self.player_profile.is_some()
     }
 
-    pub fn close_player_profile(&mut self) {
-        self.player_profile = None;
-    }
-
     pub fn has_team_page(&self) -> bool {
         self.team_page.is_some()
     }
 
-    pub fn close_team_page(&mut self) {
-        self.team_page = None;
+    /// Close the top layer overlay (player profile or team page).
+    pub fn close_overlay(&mut self) {
+        if let Some(tp) = &mut self.team_page {
+            if tp.player_profile.is_some() {
+                tp.player_profile = None;
+            } else {
+                self.team_page = None;
+            }
+        } else {
+            self.player_profile = None;
+        }
     }
 
     pub fn update_team_page(
@@ -143,38 +148,14 @@ impl StatsState {
         }
     }
 
-    pub fn profile_scroll_down(&mut self) {
-        if let Some(p) = &mut self.player_profile {
-            p.scroll_down();
-        }
-    }
-
-    pub fn profile_scroll_up(&mut self) {
-        if let Some(p) = &mut self.player_profile {
-            p.scroll_up();
-        }
-    }
-
-    pub fn profile_page_down(&mut self) {
-        if let Some(p) = &mut self.player_profile {
-            p.page_down();
-        }
-    }
-
-    pub fn profile_page_up(&mut self) {
-        if let Some(p) = &mut self.player_profile {
-            p.page_up();
-        }
-    }
-
     pub fn update_player_profile(&mut self, data: PeopleResponse, game_type: GameType) {
         let season_year = self.date_selector.date.year();
         self.player_profile =
             PlayerProfileState::from_response(data, self.stat_type.group, game_type, season_year);
     }
 
-    /// Returns the info needed to load a player profile or team page for the selected row.
-    pub fn player_profile_request(&self) -> Option<NetworkRequest> {
+    /// Returns the request to open the selected row (player profile or team page).
+    pub fn open_selected_request(&self) -> Option<NetworkRequest> {
         if self.stat_type.team_player == TeamOrPlayer::Team {
             let team_id = self.get_selected_id()? as u16;
             return Some(NetworkRequest::TeamPage {
@@ -188,18 +169,6 @@ impl StatsState {
             group: self.stat_type.group,
             date: self.date_selector.date,
             game_type: GameType::RegularSeason,
-        })
-    }
-
-    /// Returns a request to reload the current profile with a toggled game type.
-    pub fn toggle_profile_game_type(&mut self) -> Option<NetworkRequest> {
-        let profile = self.player_profile.as_mut()?;
-        profile.toggle_game_type();
-        Some(NetworkRequest::PlayerProfile {
-            player_id: profile.profile.id,
-            group: profile.stat_group,
-            date: self.date_selector.date,
-            game_type: profile.game_type,
         })
     }
 

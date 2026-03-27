@@ -5,7 +5,6 @@ use crate::{NetworkRequest, cleanup_terminal};
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use mlbt_api::client::StatGroup;
-use mlbt_api::team::RosterType;
 use std::sync::Arc;
 use tokio::sync::{Mutex, MutexGuard, mpsc};
 
@@ -25,22 +24,51 @@ pub async fn handle_key_bindings(
         }
 
         // Team page from standings
+        (MenuItem::Standings, KeyCode::Esc, _) if guard.state.standings.has_team_page() => {
+            guard.close_overlay();
+        }
         (MenuItem::Standings, _, _) if guard.state.standings.has_team_page() => {
-            if !handle_standings_team_page_key(key_event, &mut guard, network_requests).await {
+            let handled = handle_team_page_key(
+                key_event,
+                &mut guard.state.standings.team_page,
+                network_requests,
+            )
+            .await;
+            if !handled {
                 handle_global_key(key_event, guard, network_requests).await;
             }
         }
 
         // Team page from stats
+        (MenuItem::Stats, KeyCode::Esc, _) if guard.state.stats.has_team_page() => {
+            guard.close_overlay();
+        }
         (MenuItem::Stats, _, _) if guard.state.stats.has_team_page() => {
-            if !handle_stats_team_page_key(key_event, &mut guard, network_requests).await {
+            let handled = handle_team_page_key(
+                key_event,
+                &mut guard.state.stats.team_page,
+                network_requests,
+            )
+            .await;
+            if !handled {
                 handle_global_key(key_event, guard, network_requests).await;
             }
         }
 
         // Player profile handles its own keys; unhandled ones fall through to global bindings
+        (MenuItem::Stats, KeyCode::Esc, _) if guard.state.stats.has_player_profile() => {
+            guard.close_overlay();
+        }
         (MenuItem::Stats, _, _) if guard.state.stats.has_player_profile() => {
-            if !handle_player_profile_key(key_event, &mut guard, network_requests).await {
+            let date = guard.state.stats.date_selector.date;
+            let handled = handle_profile_key(
+                key_event,
+                &mut guard.state.stats.player_profile,
+                date,
+                network_requests,
+            )
+            .await;
+            if !handled {
                 handle_global_key(key_event, guard, network_requests).await;
             }
         }
@@ -141,7 +169,7 @@ pub async fn handle_key_bindings(
             if guard.state.stats.active_pane == ActivePane::Options {
                 guard.state.stats.toggle_stat();
             } else {
-                load_player_profile(guard, network_requests).await;
+                open_stats_selection(guard, network_requests).await;
             }
         }
         (MenuItem::Stats, Char('s'), _) => guard.state.stats.store_sort_column(),
@@ -213,8 +241,11 @@ async fn load_stats(guard: AppGuard<'_>, network_requests: &mpsc::Sender<Network
         .await;
 }
 
-async fn load_player_profile(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
-    if let Some(request) = guard.state.stats.player_profile_request() {
+async fn open_stats_selection(
+    guard: AppGuard<'_>,
+    network_requests: &mpsc::Sender<NetworkRequest>,
+) {
+    if let Some(request) = guard.state.stats.open_selected_request() {
         drop(guard);
         let _ = network_requests.send(request).await;
     }
@@ -254,27 +285,26 @@ async fn handle_date_change(guard: AppGuard<'_>, network_requests: &mpsc::Sender
     }
 }
 
-/// Returns true if the key was handled by the player profile.
-async fn handle_player_profile_key(
+/// Handle player profile key bindings shared across Stats tab and team page contexts.
+/// Returns true if the key was consumed.
+async fn handle_profile_key(
     key_event: KeyEvent,
-    guard: &mut AppGuard<'_>,
+    profile: &mut Option<crate::state::player_profile::PlayerProfileState>,
+    date: chrono::NaiveDate,
     network_requests: &mpsc::Sender<NetworkRequest>,
 ) -> bool {
+    let Some(p) = profile.as_mut() else {
+        return false;
+    };
     match (key_event.code, key_event.modifiers) {
-        (KeyCode::Esc, _) => guard.state.stats.close_player_profile(),
         (Char('s'), _) => {
-            if let Some(request) = guard.state.stats.toggle_profile_game_type() {
-                let _ = network_requests.send(request).await;
-            }
+            let req = p.game_type_toggle_request(date);
+            let _ = network_requests.send(req).await;
         }
-        (Char('J'), _) | (KeyCode::Down, KeyModifiers::SHIFT) => {
-            guard.state.stats.profile_page_down();
-        }
-        (Char('K'), _) | (KeyCode::Up, KeyModifiers::SHIFT) => {
-            guard.state.stats.profile_page_up();
-        }
-        (Char('j') | KeyCode::Down, _) => guard.state.stats.profile_scroll_down(),
-        (Char('k') | KeyCode::Up, _) => guard.state.stats.profile_scroll_up(),
+        (Char('J'), _) | (KeyCode::Down, KeyModifiers::SHIFT) => p.page_down(),
+        (Char('K'), _) | (KeyCode::Up, KeyModifiers::SHIFT) => p.page_up(),
+        (Char('j') | KeyCode::Down, _) => p.scroll_down(),
+        (Char('k') | KeyCode::Up, _) => p.scroll_up(),
         _ => return false,
     }
     true
@@ -321,81 +351,35 @@ async fn handle_global_key(
     }
 }
 
-async fn handle_standings_team_page_key(
-    key_event: KeyEvent,
-    guard: &mut AppGuard<'_>,
-    network_requests: &mpsc::Sender<NetworkRequest>,
-) -> bool {
-    let date = guard.state.standings.date_selector.date;
-    let tp = guard.state.standings.team_page.as_mut().unwrap();
-    if key_event.code == KeyCode::Esc && !tp.has_player_profile() {
-        guard.state.standings.close_team_page();
-        return true;
-    }
-    handle_team_page_key(key_event, tp, date, network_requests).await
-}
-
-async fn handle_stats_team_page_key(
-    key_event: KeyEvent,
-    guard: &mut AppGuard<'_>,
-    network_requests: &mpsc::Sender<NetworkRequest>,
-) -> bool {
-    let date = guard.state.stats.date_selector.date;
-    let tp = guard.state.stats.team_page.as_mut().unwrap();
-    if key_event.code == KeyCode::Esc && !tp.has_player_profile() {
-        guard.state.stats.close_team_page();
-        return true;
-    }
-    handle_team_page_key(key_event, tp, date, network_requests).await
-}
-
 async fn handle_team_page_key(
     key_event: KeyEvent,
-    tp: &mut crate::state::team_page::TeamPageState,
-    date: chrono::NaiveDate,
+    team_page: &mut Option<crate::state::team_page::TeamPageState>,
     network_requests: &mpsc::Sender<NetworkRequest>,
 ) -> bool {
+    let Some(tp) = team_page.as_mut() else {
+        return false;
+    };
+
     if tp.has_player_profile() {
-        return handle_nested_player_profile_key(key_event, tp);
+        return handle_profile_key(key_event, &mut tp.player_profile, tp.date, network_requests)
+            .await;
     }
 
     match (key_event.code, key_event.modifiers) {
-        (KeyCode::Tab, _) => tp.toggle_section(),
+        (KeyCode::Left | KeyCode::Right | KeyCode::Tab, _) => tp.toggle_section(),
         (Char('J'), _) | (KeyCode::Down, KeyModifiers::SHIFT) => tp.page_down(),
         (Char('K'), _) | (KeyCode::Up, KeyModifiers::SHIFT) => tp.page_up(),
         (Char('j') | KeyCode::Down, _) => tp.next(),
         (Char('k') | KeyCode::Up, _) => tp.previous(),
-        (Char('a'), _) => {
-            if let Some(req) = tp.roster_toggle_request(RosterType::Active) {
-                let _ = network_requests.send(req).await;
-            }
-        }
-        (Char('f'), _) => {
-            if let Some(req) = tp.roster_toggle_request(RosterType::FortyMan) {
-                let _ = network_requests.send(req).await;
-            }
+        (Char('r'), _) => {
+            let req = tp.roster_toggle_request();
+            let _ = network_requests.send(req).await;
         }
         (KeyCode::Enter, _) => {
-            if let Some(req) = tp.player_profile_request(date) {
+            if let Some(req) = tp.player_profile_request(tp.date) {
                 let _ = network_requests.send(req).await;
             }
         }
-        _ => return false,
-    }
-    true
-}
-
-fn handle_nested_player_profile_key(
-    key_event: KeyEvent,
-    tp: &mut crate::state::team_page::TeamPageState,
-) -> bool {
-    let profile = tp.player_profile.as_mut().unwrap();
-    match (key_event.code, key_event.modifiers) {
-        (KeyCode::Esc, _) => tp.close_player_profile(),
-        (Char('J'), _) | (KeyCode::Down, KeyModifiers::SHIFT) => profile.page_down(),
-        (Char('K'), _) | (KeyCode::Up, KeyModifiers::SHIFT) => profile.page_up(),
-        (Char('j') | KeyCode::Down, _) => profile.scroll_down(),
-        (Char('k') | KeyCode::Up, _) => profile.scroll_up(),
         _ => return false,
     }
     true

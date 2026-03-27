@@ -249,8 +249,16 @@ impl StandingsState {
         self.team_page.is_some()
     }
 
-    pub fn close_team_page(&mut self) {
-        self.team_page = None;
+    /// Close the top layer overlay. If the overlay is a player profile, close it. Otherwise,
+    /// close the team page.
+    pub fn close_overlay(&mut self) {
+        if let Some(tp) = &mut self.team_page {
+            if tp.player_profile.is_some() {
+                tp.player_profile = None;
+            } else {
+                self.team_page = None;
+            }
+        }
     }
 
     pub fn update_team_page(
