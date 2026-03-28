@@ -1,9 +1,19 @@
+use crate::components::team_page::TeamGame;
 use crate::state::team_page::{TeamPageState, TeamSection};
+use chrono::{Datelike, NaiveDate};
 use mlbt_api::team::RosterType;
+use time::{Date, Month};
 use tui::prelude::*;
+use tui::widgets::calendar::{CalendarEventStore, Monthly};
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Table};
 
 const ROSTER_HEADER: &[&str] = &["Pos", "B/T", "Ht", "Wt", "DOB"];
+
+const TITLE_STYLE: Style = Style::new().bold().underlined();
+const HOME_STYLE: Style = Style::new().fg(Color::Green);
+const AWAY_STYLE: Style = Style::new().fg(Color::Blue);
+const TODAY_STYLE: Style = Style::new().fg(Color::Yellow).bold();
+const PAST_STYLE: Style = Style::new().fg(Color::DarkGray);
 
 pub struct TeamPageWidget<'a> {
     pub state: &'a mut TeamPageState,
@@ -107,8 +117,7 @@ impl TeamPageWidget<'_> {
             widths.push(Constraint::Fill(1));
         }
 
-        let header = Row::new(header_cells)
-            .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
+        let header = Row::new(header_cells).style(TITLE_STYLE);
 
         let mut rows: Vec<Row> = Vec::new();
         let mut current_group = None;
@@ -153,9 +162,57 @@ impl TeamPageWidget<'_> {
         StatefulWidget::render(table, area, buf, &mut self.state.roster_selection);
     }
 
+    fn render_calendar(&self, area: Rect, buf: &mut Buffer) {
+        let selected_date = self
+            .state
+            .schedule_selection
+            .selected()
+            .and_then(|i| self.state.schedule.get(i))
+            .map(|g| g.date)
+            .unwrap_or(self.state.date);
+
+        let selected_month = (selected_date.year(), selected_date.month());
+        let mut events = CalendarEventStore::default();
+        for game in &self.state.schedule {
+            if (game.date.year(), game.date.month()) != selected_month {
+                continue;
+            }
+            let style = if game.is_home { HOME_STYLE } else { AWAY_STYLE };
+            events.add(chrono_to_time(game.date), style);
+        }
+        events.add(chrono_to_time(self.state.date), TODAY_STYLE);
+
+        let cal = Monthly::new(chrono_to_time(selected_date), events)
+            .show_weekdays_header(Style::default())
+            .default_style(PAST_STYLE);
+        let cal_width = cal.width();
+        let pad_left = area.width.saturating_sub(cal_width) / 2;
+        let centered = Rect {
+            x: area.x + pad_left.saturating_sub(1),
+            width: cal_width,
+            ..area
+        };
+        cal.render(centered, buf);
+    }
+
     fn render_schedule(&mut self, area: Rect, active: TeamSection, buf: &mut Buffer) {
         if area.height < 1 {
             return;
+        }
+
+        let cal_height = if self.state.show_calendar { 7 } else { 0 };
+        let [header_area, cal_area, list_area] = Layout::vertical([
+            Constraint::Length(1),
+            Constraint::Length(cal_height),
+            Constraint::Fill(1),
+        ])
+        .areas(area);
+
+        let padded = format!("{:<width$}", "Schedule", width = header_area.width as usize);
+        Line::from(Span::styled(padded, TITLE_STYLE)).render(header_area, buf);
+
+        if self.state.show_calendar {
+            self.render_calendar(cal_area, buf);
         }
 
         let games = &self.state.schedule;
@@ -164,11 +221,9 @@ impl TeamPageWidget<'_> {
                 "  No schedule data",
                 Style::default().fg(Color::DarkGray),
             ))
-            .render(area, buf);
+            .render(list_area, buf);
             return;
         }
-
-        let today_idx = self.state.today_schedule_idx;
 
         let widths = [
             Constraint::Length(8), // Date
@@ -176,39 +231,23 @@ impl TeamPageWidget<'_> {
             Constraint::Fill(1),   // Time/Score
         ];
 
-        let header = Row::new(vec![
-            Cell::from("Schedule"),
-            Cell::default(),
-            Cell::default(),
-        ])
-        .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
-
         let rows: Vec<Row> = games
             .iter()
-            .enumerate()
-            .map(|(i, g)| {
-                let style = if i == today_idx {
-                    Style::default().fg(Color::Green)
-                } else if g.is_past {
-                    Style::default().fg(Color::DarkGray)
-                } else {
-                    Style::default()
-                };
+            .map(|g| {
+                let (date_style, text_style) = style_schedule_game(self.state.date, g);
                 Row::new(vec![
-                    Cell::from(g.date_display.as_str()),
-                    Cell::from(g.opponent.as_str()),
-                    Cell::from(g.time_or_score.as_str()),
+                    Cell::from(Span::styled(g.date_display.as_str(), date_style)),
+                    Cell::from(Span::styled(g.opponent.as_str(), text_style)),
+                    Cell::from(Span::styled(g.time_or_score.as_str(), text_style)),
                 ])
-                .style(style)
             })
             .collect();
 
         let table = Table::new(rows, widths)
-            .header(header)
             .row_highlight_style(highlight_style(active, TeamSection::Schedule))
             .column_spacing(1);
 
-        StatefulWidget::render(table, area, buf, &mut self.state.schedule_selection);
+        StatefulWidget::render(table, list_area, buf, &mut self.state.schedule_selection);
     }
 
     fn render_transactions(
@@ -228,11 +267,7 @@ impl TeamPageWidget<'_> {
             "Transactions",
             width = header_area.width as usize
         );
-        Line::from(Span::styled(
-            padded,
-            Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED),
-        ))
-        .render(header_area, buf);
+        Line::from(Span::styled(padded, TITLE_STYLE)).render(header_area, buf);
 
         if transactions.is_empty() {
             Paragraph::new(Span::styled(
@@ -279,4 +314,28 @@ fn highlight_style(active: TeamSection, desired: TeamSection) -> Style {
     } else {
         Style::default()
     }
+}
+
+/// Style for the calendar day and list text of a game in the schedule.
+fn style_schedule_game(today: NaiveDate, g: &TeamGame) -> (Style, Style) {
+    let date_style = if g.date == today {
+        TODAY_STYLE
+    } else if g.is_past {
+        PAST_STYLE
+    } else if g.is_home {
+        HOME_STYLE
+    } else {
+        AWAY_STYLE
+    };
+    let text_style = if g.is_past {
+        PAST_STYLE
+    } else {
+        Style::default()
+    };
+    (date_style, text_style)
+}
+
+fn chrono_to_time(d: NaiveDate) -> Date {
+    let month = Month::try_from(d.month() as u8).unwrap();
+    Date::from_calendar_date(d.year(), month, d.day() as u8).unwrap()
 }

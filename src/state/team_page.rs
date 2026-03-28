@@ -22,7 +22,6 @@ pub struct TeamPageState {
     pub date: chrono::NaiveDate,
     pub schedule: Vec<TeamGame>,
     pub schedule_selection: TableState,
-    pub today_schedule_idx: usize,
     pub roster: Vec<RosterRow>,
     pub roster_type: RosterType,
     pub transactions: Vec<TransactionRow>,
@@ -34,6 +33,7 @@ pub struct TeamPageState {
     /// table row index -> roster vec index, None for group headers
     pub roster_row_map: Vec<Option<usize>>,
     pub player_profile: Option<PlayerProfileState>,
+    pub show_calendar: bool,
 }
 
 /// Build the mapping from table row indices to roster indices.
@@ -92,7 +92,6 @@ impl TeamPageState {
             date,
             schedule,
             schedule_selection,
-            today_schedule_idx: today_idx,
             roster,
             roster_type: RosterType::Active,
             transactions,
@@ -102,6 +101,7 @@ impl TeamPageState {
             roster_header_rows,
             roster_row_map,
             player_profile: None,
+            show_calendar: true,
         }
     }
 
@@ -125,6 +125,10 @@ impl TeamPageState {
             TeamSection::Roster => TeamSection::Schedule,
             TeamSection::Schedule => TeamSection::Roster,
         };
+    }
+
+    pub fn toggle_calendar(&mut self) {
+        self.show_calendar = !self.show_calendar;
     }
 
     pub fn next(&mut self) {
@@ -312,7 +316,6 @@ mod tests {
                 schedule_len
             ],
             schedule_selection,
-            today_schedule_idx: 0,
             roster,
             roster_type: RosterType::Active,
             transactions: vec![],
@@ -322,6 +325,7 @@ mod tests {
             roster_header_rows: headers,
             roster_row_map: map,
             player_profile: None,
+            show_calendar: true,
         }
     }
 

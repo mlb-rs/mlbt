@@ -371,6 +371,7 @@ async fn handle_team_page_key(
         (Char('K'), _) | (KeyCode::Up, KeyModifiers::SHIFT) => tp.page_up(),
         (Char('j') | KeyCode::Down, _) => tp.next(),
         (Char('k') | KeyCode::Up, _) => tp.previous(),
+        (Char('c'), _) => tp.toggle_calendar(),
         (Char('r'), _) => {
             let req = tp.roster_toggle_request();
             let _ = network_requests.send(req).await;

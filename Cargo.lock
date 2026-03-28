@@ -1419,6 +1419,7 @@ dependencies = [
  "nucleo-matcher",
  "ratatui",
  "serde",
+ "time",
  "tokio",
  "toml",
  "tui-logger",
