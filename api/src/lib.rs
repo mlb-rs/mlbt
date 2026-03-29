@@ -7,5 +7,6 @@ pub mod schedule;
 pub mod season;
 pub mod standings;
 pub mod stats;
+pub mod team;
 pub mod teams;
 pub mod win_probability;

@@ -1,7 +1,13 @@
-use crate::components::constants::{DIVISION_ORDERS, DIVISIONS, lookup_team};
+use crate::components::constants::{DIVISION_ORDERS, DIVISIONS, lookup_team, lookup_team_by_id};
 use crate::components::date_selector::DateSelector;
+use crate::state::team_page::TeamPageState;
 use chrono::NaiveDate;
+use chrono_tz::Tz;
+use mlbt_api::player::PeopleResponse;
+use mlbt_api::schedule::ScheduleResponse;
+use mlbt_api::season::GameType;
 use mlbt_api::standings::{RecordElement, StandingsResponse, TeamRecord};
+use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
 use std::collections::HashSet;
 use std::string::ToString;
 use tui::prelude::{Color, Stylize};
@@ -25,6 +31,7 @@ pub struct StandingsState {
     pub view_mode: ViewMode,
     /// Used to skip selecting division names in the table.
     division_row_indices: HashSet<usize>,
+    pub team_page: Option<TeamPageState>,
 }
 
 /// Groups teams into their divisions.
@@ -115,6 +122,7 @@ impl Default for StandingsState {
             view_mode: ViewMode::ByDivision,
             division_row_indices: HashSet::new(),
             favorite_team: None,
+            team_page: None,
         }
     }
 }
@@ -235,6 +243,61 @@ impl StandingsState {
         };
 
         self.state.select(idx);
+    }
+
+    pub fn has_team_page(&self) -> bool {
+        self.team_page.is_some()
+    }
+
+    /// Close the top layer overlay. If the overlay is a player profile, close it. Otherwise,
+    /// close the team page.
+    pub fn close_overlay(&mut self) {
+        if let Some(tp) = &mut self.team_page {
+            if tp.player_profile.is_some() {
+                tp.player_profile = None;
+            } else {
+                self.team_page = None;
+            }
+        }
+    }
+
+    pub fn update_team_page(
+        &mut self,
+        team_id: u16,
+        date: NaiveDate,
+        schedule: ScheduleResponse,
+        roster: RosterResponse,
+        transactions: TransactionsResponse,
+        tz: Tz,
+    ) {
+        let team = lookup_team_by_id(team_id).unwrap_or_default();
+        self.team_page = Some(TeamPageState::from_response(
+            team,
+            date,
+            schedule,
+            roster,
+            transactions,
+            tz,
+        ));
+    }
+
+    pub fn update_team_roster(
+        &mut self,
+        team_id: u16,
+        roster: RosterResponse,
+        roster_type: RosterType,
+    ) {
+        if let Some(tp) = &mut self.team_page
+            && tp.team.id == team_id
+        {
+            tp.update_roster(roster, roster_type);
+        }
+    }
+
+    pub fn update_team_player_profile(&mut self, data: PeopleResponse, game_type: GameType) {
+        if let Some(tp) = &mut self.team_page {
+            tp.update_player_profile(data, game_type);
+        }
     }
 
     pub fn get_selected(&self) -> u16 {

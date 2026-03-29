@@ -1,4 +1,5 @@
 use crate::components::stats::player_profile::PlayerProfile;
+use crate::state::messages::NetworkRequest;
 use mlbt_api::client::StatGroup;
 use mlbt_api::player::PeopleResponse;
 use mlbt_api::season::GameType;
@@ -38,11 +39,17 @@ impl PlayerProfileState {
         })
     }
 
-    pub fn toggle_game_type(&mut self) {
-        self.game_type = match self.game_type {
+    pub fn game_type_toggle_request(&self, date: chrono::NaiveDate) -> NetworkRequest {
+        let game_type = match self.game_type {
             GameType::RegularSeason => GameType::SpringTraining,
             GameType::SpringTraining => GameType::RegularSeason,
         };
+        NetworkRequest::PlayerProfile {
+            player_id: self.profile.id,
+            group: self.stat_group,
+            date,
+            game_type,
+        }
     }
 
     pub fn scroll_down(&mut self) {

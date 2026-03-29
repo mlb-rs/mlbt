@@ -1,0 +1,561 @@
+{
+  "copyright": "Copyright 2026 MLB Advanced Media, L.P.  Use of any content on this page acknowledges agreement to the terms posted here http://gdx.mlb.com/components/copyright.txt",
+  "transactions": [
+    {
+      "id": 819995,
+      "person": {
+        "id": 815074,
+        "fullName": "Derek Berg",
+        "link": "/api/v1/people/815074"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-13",
+      "effectiveDate": "2025-03-13",
+      "resolutionDate": "2025-03-13",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "C Derek Berg assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 820266,
+      "person": {
+        "id": 682775,
+        "fullName": "Kervin Pichardo",
+        "link": "/api/v1/people/682775"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-14",
+      "effectiveDate": "2025-03-14",
+      "resolutionDate": "2025-03-14",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "SS Kervin Pichardo assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 820373,
+      "person": {
+        "id": 701177,
+        "fullName": "Nick Cimillo",
+        "link": "/api/v1/people/701177"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-15",
+      "effectiveDate": "2025-03-15",
+      "resolutionDate": "2025-03-15",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "1B Nick Cimillo assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 820535,
+      "person": {
+        "id": 800197,
+        "fullName": "Richard Ramirez",
+        "link": "/api/v1/people/800197"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-16",
+      "effectiveDate": "2025-03-16",
+      "resolutionDate": "2025-03-16",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "C Richard Ramirez assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 820534,
+      "person": {
+        "id": 827620,
+        "fullName": "Jake Shirk",
+        "link": "/api/v1/people/827620"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-16",
+      "effectiveDate": "2025-03-16",
+      "resolutionDate": "2025-03-16",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "RHP Jake Shirk assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 820536,
+      "person": {
+        "id": 703154,
+        "fullName": "Yordany De Los Santos",
+        "link": "/api/v1/people/703154"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-16",
+      "effectiveDate": "2025-03-16",
+      "resolutionDate": "2025-03-16",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "SS Yordany De Los Santos assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 820538,
+      "person": {
+        "id": 687493,
+        "fullName": "Luke Brown",
+        "link": "/api/v1/people/687493"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-16",
+      "effectiveDate": "2025-03-16",
+      "resolutionDate": "2025-03-16",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "RF Luke Brown assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 820631,
+      "person": {
+        "id": 800615,
+        "fullName": "Luke Scherrer",
+        "link": "/api/v1/people/800615"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-17",
+      "effectiveDate": "2025-03-17",
+      "resolutionDate": "2025-03-17",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "C Luke Scherrer assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 820634,
+      "person": {
+        "id": 696142,
+        "fullName": "Will Taylor",
+        "link": "/api/v1/people/696142"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-17",
+      "effectiveDate": "2025-03-17",
+      "resolutionDate": "2025-03-17",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "CF Will Taylor assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 820636,
+      "person": {
+        "id": 694991,
+        "fullName": "Mitch Jebb",
+        "link": "/api/v1/people/694991"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-17",
+      "effectiveDate": "2025-03-17",
+      "resolutionDate": "2025-03-17",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "SS Mitch Jebb assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 820633,
+      "person": {
+        "id": 693418,
+        "fullName": "Solomon Maguire",
+        "link": "/api/v1/people/693418"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-17",
+      "effectiveDate": "2025-03-17",
+      "resolutionDate": "2025-03-17",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "RF Solomon Maguire assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 820635,
+      "person": {
+        "id": 700344,
+        "fullName": "Alessandro Ercolani",
+        "link": "/api/v1/people/700344"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-17",
+      "effectiveDate": "2025-03-17",
+      "resolutionDate": "2025-03-17",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "RHP Alessandro Ercolani assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 820632,
+      "person": {
+        "id": 686981,
+        "fullName": "Brenden Dixon",
+        "link": "/api/v1/people/686981"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-17",
+      "effectiveDate": "2025-03-17",
+      "resolutionDate": "2025-03-17",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "3B Brenden Dixon assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 820716,
+      "person": {
+        "id": 695013,
+        "fullName": "Kalae Harrison",
+        "link": "/api/v1/people/695013"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-18",
+      "effectiveDate": "2025-03-18",
+      "resolutionDate": "2025-03-18",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "3B Kalae Harrison assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 820743,
+      "person": {
+        "id": 641511,
+        "fullName": "Jason Delay",
+        "link": "/api/v1/people/641511"
+      },
+      "fromTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "toTeam": {
+        "id": 484,
+        "name": "Indianapolis Indians",
+        "link": "/api/v1/teams/484"
+      },
+      "date": "2025-03-18",
+      "effectiveDate": "2025-03-18",
+      "typeCode": "OPT",
+      "typeDesc": "Optioned",
+      "description": "Pittsburgh Pirates optioned C Jason Delay to Indianapolis Indians."
+    },
+    {
+      "id": 820833,
+      "person": {
+        "id": 670250,
+        "fullName": "Eli Wilson",
+        "link": "/api/v1/people/670250"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-19",
+      "effectiveDate": "2025-03-19",
+      "resolutionDate": "2025-03-19",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "C Eli Wilson assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 821397,
+      "person": {
+        "id": 677673,
+        "fullName": "Imanol Vargas",
+        "link": "/api/v1/people/677673"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-21",
+      "effectiveDate": "2025-03-21",
+      "resolutionDate": "2025-03-21",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "OF Imanol Vargas assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 821398,
+      "person": {
+        "id": 699014,
+        "fullName": "Eddy Rodriguez",
+        "link": "/api/v1/people/699014"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-21",
+      "effectiveDate": "2025-03-21",
+      "resolutionDate": "2025-03-21",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "LF Eddy Rodriguez assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 821466,
+      "person": {
+        "id": 691926,
+        "fullName": "Jeral Toledo",
+        "link": "/api/v1/people/691926"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-22",
+      "effectiveDate": "2025-03-22",
+      "resolutionDate": "2025-03-22",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "2B Jeral Toledo assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 821523,
+      "person": {
+        "id": 641943,
+        "fullName": "Joshua Palacios",
+        "link": "/api/v1/people/641943"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-22",
+      "effectiveDate": "2025-03-22",
+      "resolutionDate": "2025-03-22",
+      "typeCode": "DES",
+      "typeDesc": "Designated for Assignment",
+      "description": "Pittsburgh Pirates designated RF Joshua Palacios for assignment."
+    },
+    {
+      "id": 821518,
+      "person": {
+        "id": 680779,
+        "fullName": "Henry Davis",
+        "link": "/api/v1/people/680779"
+      },
+      "fromTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "toTeam": {
+        "id": 484,
+        "name": "Indianapolis Indians",
+        "link": "/api/v1/teams/484"
+      },
+      "date": "2025-03-22",
+      "effectiveDate": "2025-03-22",
+      "typeCode": "OPT",
+      "typeDesc": "Optioned",
+      "description": "Pittsburgh Pirates optioned C Henry Davis to Indianapolis Indians."
+    },
+    {
+      "id": 821520,
+      "person": {
+        "id": 694377,
+        "fullName": "Nick Yorke",
+        "link": "/api/v1/people/694377"
+      },
+      "fromTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "toTeam": {
+        "id": 484,
+        "name": "Indianapolis Indians",
+        "link": "/api/v1/teams/484"
+      },
+      "date": "2025-03-22",
+      "effectiveDate": "2025-03-22",
+      "typeCode": "OPT",
+      "typeDesc": "Optioned",
+      "description": "Pittsburgh Pirates optioned 2B Nick Yorke to Indianapolis Indians."
+    },
+    {
+      "id": 821519,
+      "person": {
+        "id": 695257,
+        "fullName": "Billy Cook",
+        "link": "/api/v1/people/695257"
+      },
+      "fromTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "toTeam": {
+        "id": 484,
+        "name": "Indianapolis Indians",
+        "link": "/api/v1/teams/484"
+      },
+      "date": "2025-03-22",
+      "effectiveDate": "2025-03-22",
+      "typeCode": "OPT",
+      "typeDesc": "Optioned",
+      "description": "Pittsburgh Pirates optioned 1B Billy Cook to Indianapolis Indians."
+    },
+    {
+      "id": 821522,
+      "person": {
+        "id": 676702,
+        "fullName": "Hunter Stratton",
+        "link": "/api/v1/people/676702"
+      },
+      "fromTeam": {
+        "id": 484,
+        "name": "Indianapolis Indians",
+        "link": "/api/v1/teams/484"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-22",
+      "effectiveDate": "2025-03-22",
+      "typeCode": "SE",
+      "typeDesc": "Selected",
+      "description": "Pittsburgh Pirates selected the contract of RHP Hunter Stratton from Indianapolis Indians."
+    },
+    {
+      "id": 821539,
+      "person": {
+        "id": 690107,
+        "fullName": "Jackson Glenn",
+        "link": "/api/v1/people/690107"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-23",
+      "effectiveDate": "2025-03-23",
+      "resolutionDate": "2025-03-23",
+      "typeCode": "ASG",
+      "typeDesc": "Assigned",
+      "description": "3B Jackson Glenn assigned to Pittsburgh Pirates."
+    },
+    {
+      "id": 821733,
+      "person": {
+        "id": 693312,
+        "fullName": "Kyle Nicolas",
+        "link": "/api/v1/people/693312"
+      },
+      "fromTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "toTeam": {
+        "id": 484,
+        "name": "Indianapolis Indians",
+        "link": "/api/v1/teams/484"
+      },
+      "date": "2025-03-23",
+      "effectiveDate": "2025-03-23",
+      "typeCode": "OPT",
+      "typeDesc": "Optioned",
+      "description": "Pittsburgh Pirates optioned RHP Kyle Nicolas to Indianapolis Indians."
+    },
+    {
+      "id": 822159,
+      "person": {
+        "id": 664875,
+        "fullName": "Justin Lawrence",
+        "link": "/api/v1/people/664875"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-26",
+      "effectiveDate": "2025-03-26",
+      "resolutionDate": "2025-03-26",
+      "typeCode": "NUM",
+      "typeDesc": "Number Change",
+      "description": "RHP Justin Lawrence changed number to 61."
+    },
+    {
+      "id": 822160,
+      "person": {
+        "id": 571760,
+        "fullName": "Andrew Heaney",
+        "link": "/api/v1/people/571760"
+      },
+      "toTeam": {
+        "id": 134,
+        "name": "Pittsburgh Pirates",
+        "link": "/api/v1/teams/134"
+      },
+      "date": "2025-03-26",
+      "effectiveDate": "2025-03-26",
+      "resolutionDate": "2025-03-26",
+      "typeCode": "NUM",
+      "typeDesc": "Number Change",
+      "description": "LHP Andrew Heaney changed number to 45."
+    }
+  ]
+}

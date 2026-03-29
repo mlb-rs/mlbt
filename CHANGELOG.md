@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add team page, [PR 112](https://github.com/mlb-rs/mlbt/pull/112):
+  - select team from Stats or Standings view
+  - team roster (active and 40 man)
+  - schedule
+  - recent transactions
 - Add player profile page, [PR 109](https://github.com/mlb-rs/mlbt/pull/109):
   - select player from Stats view
   - player bio

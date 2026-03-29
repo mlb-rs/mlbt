@@ -1,8 +1,11 @@
 use crate::state::app_settings::AppSettings;
 use crate::state::app_state::AppState;
-use chrono::{ParseError, Utc};
+use chrono::{NaiveDate, ParseError, Utc};
 use mlbt_api::live::LiveResponse;
+use mlbt_api::player::PeopleResponse;
 use mlbt_api::schedule::ScheduleResponse;
+use mlbt_api::season::GameType;
+use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
 use mlbt_api::win_probability::WinProbabilityResponse;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
@@ -111,6 +114,11 @@ impl App {
         self.state.active_tab = next;
         self.state.debug_state = DebugState::Off;
 
+        // reset help state when switching tabs but not when its opened/closed on same tab
+        if next != MenuItem::Help {
+            self.state.help.reset();
+        }
+
         // reset standings selection when switching tabs but not when date picker is opened
         if next != MenuItem::DatePicker && self.state.previous_tab == MenuItem::Standings {
             self.state.standings.reset_selection();
@@ -173,5 +181,85 @@ impl App {
 
     pub fn toggle_full_screen(&mut self) {
         self.settings.full_screen = !self.settings.full_screen;
+    }
+
+    pub fn update_player_profile(&mut self, data: PeopleResponse, game_type: GameType) {
+        match self.state.active_tab {
+            MenuItem::Standings if self.state.standings.has_team_page() => {
+                self.state
+                    .standings
+                    .update_team_player_profile(data, game_type);
+            }
+            MenuItem::Stats if self.state.stats.has_team_page() => {
+                self.state.stats.update_team_player_profile(data, game_type);
+            }
+            MenuItem::Stats => {
+                self.state.stats.update_player_profile(data, game_type);
+            }
+            _ => {}
+        }
+    }
+
+    pub fn update_team_page(
+        &mut self,
+        team_id: u16,
+        date: NaiveDate,
+        schedule: ScheduleResponse,
+        roster: RosterResponse,
+        transactions: TransactionsResponse,
+    ) {
+        let tz = self.settings.timezone;
+        match self.state.active_tab {
+            MenuItem::Standings => {
+                self.state.standings.update_team_page(
+                    team_id,
+                    date,
+                    schedule,
+                    roster,
+                    transactions,
+                    tz,
+                );
+            }
+            MenuItem::Stats => {
+                self.state.stats.update_team_page(
+                    team_id,
+                    date,
+                    schedule,
+                    roster,
+                    transactions,
+                    tz,
+                );
+            }
+            _ => {}
+        }
+    }
+
+    pub fn close_overlay(&mut self) {
+        match self.state.active_tab {
+            MenuItem::Standings => self.state.standings.close_overlay(),
+            MenuItem::Stats => self.state.stats.close_overlay(),
+            _ => {}
+        }
+    }
+
+    pub fn update_team_roster(
+        &mut self,
+        team_id: u16,
+        roster: RosterResponse,
+        roster_type: RosterType,
+    ) {
+        match self.state.active_tab {
+            MenuItem::Standings => {
+                self.state
+                    .standings
+                    .update_team_roster(team_id, roster, roster_type);
+            }
+            MenuItem::Stats => {
+                self.state
+                    .stats
+                    .update_team_roster(team_id, roster, roster_type);
+            }
+            _ => {}
+        }
     }
 }

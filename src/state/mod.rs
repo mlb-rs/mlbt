@@ -8,3 +8,4 @@ pub mod network;
 pub mod player_profile;
 pub mod refresher;
 pub mod stats;
+pub mod team_page;

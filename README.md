@@ -24,6 +24,8 @@ Check scores, standings, and stats. Even watch a live game using Gameday!
     - [Gameday](#gameday)
     - [Stats](#stats)
     - [Standings](#standings)
+    - [Team Page](#team-page)
+    - [Player Profile](#player-profile)
     - [Date Picker](#date-picker)
     - [Help](#help)
 - [Config](#config)
@@ -145,7 +147,6 @@ docker run -it --rm --name mlbt mlbt:latest
 
 - [X] pitching and hitting stats
     - [X] player stats
-    - [X] player profiles with historical stats
     - [X] team stats
     - [X] sorting
     - [X] fuzzy search for players and teams
@@ -155,6 +156,16 @@ docker run -it --rm --name mlbt mlbt:latest
     - [X] sorted by favorite team
     - [X] selectable date
     - [X] division/league view
+
+- [X] player profile
+    - [X] player bio
+    - [X] career stats
+    - [X] recent games
+
+- [X] team page
+    - [X] roster (active and 40-man)
+    - [X] schedule with calendar view
+    - [X] transactions
 
 - [X] configuration
     - [X] favorite team
@@ -252,7 +263,7 @@ or `player` using:
 | `t` | team        |
 | `l` | player      |
 
-#### Search and Player Profiles
+#### Search
 
 You can fuzzy search for a player or team in the stats table using:
 
@@ -262,22 +273,8 @@ You can fuzzy search for a player or team in the stats table using:
 | `Enter`      | finish fuzzy search        |
 | `Esc`        | clear fuzzy search results |
 
-While the stats table is active, you can view a player profile for the
-currently selected player with `Enter`.
-
-Use `s` to toggle the category (e.g. regular season or spring training). If the
-player profile doesn't fit on the screen, you can scroll down and up using `j`
-and `k`.
-
-| Key       | Description              |
-|-----------|--------------------------|
-| `Enter`   | open player profile      |
-| `Esc`     | clear player profile     |
-| `s`       | toggle stat category     |
-| `j` / `↓` | scroll down player stats |
-| `k` / `↑` | scroll up player stats   |
-
-> Only players (not teams) can be selected at this time.
+While the stats table is active, press `Enter` to view a
+[player profile](#player-profile) or a [team page](#team-page).
 
 #### Stats Options
 
@@ -305,8 +302,42 @@ Press `4` to activate this tab.
 |-----------|--------------------------------------------------------|
 | `j` / `↓` | move down                                              |
 | `k` / `↑` | move up                                                |
+| `Enter`   | view [team page](#team-page)                           |
 | `:`       | activate date picker (see [Date Picker](#date-picker)) |
 | `l`       | toggle division/league view                            |
+
+### Player Profile
+
+The player profile shows a player's career stats and recent games. It can be
+opened from [Stats](#stats) or from a [team page](#team-page) roster by pressing
+`Enter`.
+
+| Key                 | Description          |
+|---------------------|----------------------|
+| `s`                 | toggle stat category |
+| `j` / `↓`           | scroll down          |
+| `k` / `↑`           | scroll up            |
+| `Shift` + `j` / `↓` | page down            |
+| `Shift` + `k` / `↑` | page up              |
+| `Esc`               | close profile        |
+
+### Team Page
+
+The team page shows a team's roster, schedule, and recent transactions. It can
+be opened from [Standings](#standings) or from [Stats](#stats) by pressing
+`Enter`.
+
+| Key                 | Description                                        |
+|---------------------|----------------------------------------------------|
+| `←` / `→` / `Tab`   | switch section                                     |
+| `j` / `↓`           | move down                                          |
+| `k` / `↑`           | move up                                            |
+| `Shift` + `j` / `↓` | page down                                          |
+| `Shift` + `k` / `↑` | page up                                            |
+| `c`                 | toggle calendar                                    |
+| `r`                 | toggle roster type                                 |
+| `Enter`             | view [player profile](#player-profile) from roster |
+| `Esc`               | close team page                                    |
 
 ### Date Picker
 
@@ -327,12 +358,14 @@ the `left`/`right` arrow keys, and press `Enter`.
 
 Press `?` from any tab to open the help page.
 
-| Key       | Description    |
-|-----------|----------------|
-| `j` / `↓` | move down      |
-| `k` / `↑` | move up        |
-| `Esc`     | close help box |
-| `"`       | display logs   |
+| Key                 | Description    |
+|---------------------|----------------|
+| `j` / `↓`           | move down      |
+| `k` / `↑`           | move up        |
+| `Shift` + `j` / `↓` | page down      |
+| `Shift` + `k` / `↑` | page up        |
+| `Esc`               | close help box |
+| `"`                 | display logs   |
 
 ## Config
 
