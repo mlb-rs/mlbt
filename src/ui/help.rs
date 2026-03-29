@@ -6,14 +6,16 @@ use tui::prelude::*;
 use tui::widgets::{Paragraph, Row, Table, TableState};
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
-pub const GENERAL_DOCS: &[&[&str; 2]; 5] = &[
+const GENERAL_DOCS: &[&[&str; 2]; 7] = &[
     &["Exit help", "Esc"],
     &["Move down", "j/↓"],
     &["Move up", "k/↑"],
+    &["Page down", "Shift + j/↓"],
+    &["Page up", "Shift + k/↑"],
     &["Quit", "q"],
     &["Full screen", "f"],
 ];
-pub const SCOREBOARD_DOCS: &[&[&str; 2]; 9] = &[
+const SCOREBOARD_DOCS: &[&[&str; 2]; 9] = &[
     &["Scoreboard", "1"],
     &["Move down", "j/↓"],
     &["Move up", "k/↑"],
@@ -24,7 +26,7 @@ pub const SCOREBOARD_DOCS: &[&[&str; 2]; 9] = &[
     &["Scroll boxscore up", "Shift + k/↑"],
     &["Toggle win probability", "w"],
 ];
-pub const GAMEDAY_DOCS: &[&[&str; 2]; 12] = &[
+const GAMEDAY_DOCS: &[&[&str; 2]; 12] = &[
     &["Gameday", "2"],
     &["Toggle game info", "i"],
     &["Toggle pitches", "p"],
@@ -38,34 +40,52 @@ pub const GAMEDAY_DOCS: &[&[&str; 2]; 12] = &[
     &["Go to live at bat", "l"],
     &["Go to first at bat", "s"],
 ];
-pub const STATS_DOCS: &[&[&str; 2]; 20] = &[
+const STATS_DOCS: &[&[&str; 2]; 16] = &[
     &["Stats", "3"],
     &["Switch hitting/pitching", "h/p"],
     &["Switch team/player", "t/l"],
     &["Switch pane", "←/→/Tab"],
     &["Move down", "j/↓"],
     &["Move up", "k/↑"],
-    &["Page down (stats only)", "Shift + j/↓"],
-    &["Page up (stats only)", "Shift + k/↑"],
+    &["Page down", "Shift + j/↓"],
+    &["Page up", "Shift + k/↑"],
+    &["View player/team", "Enter"],
     &["Select date", ":"],
+    &["Search", " "],
+    &[" Fuzzy search", "Ctrl + f"],
     &["Options", " "],
     &[" Toggle stat", "Enter"],
     &[" Sort by stat", "s"],
     &[" Toggle options pane", "o"],
-    &["Player Profile", " "],
-    &[" Search", "Ctrl + f"],
-    &[" View player", "Enter"],
-    &[" Hide player", "Esc"],
-    &[" Toggle category", "s"],
-    &[" Scroll down", "j/↓"],
-    &[" Scroll up", "k/↑"],
 ];
-pub const STANDINGS_DOCS: &[&[&str; 2]; 5] = &[
+const STANDINGS_DOCS: &[&[&str; 2]; 6] = &[
     &["Standings", "4"],
     &["Move down", "j/↓"],
     &["Move up", "k/↑"],
+    &["View team", "Enter"],
     &["Select date", ":"],
     &["Toggle division/league", "l"],
+];
+const TEAM_PAGE_DOCS: &[&[&str; 2]; 10] = &[
+    &["Team Page", " "],
+    &[" Switch section", "←/→/Tab"],
+    &[" Move down", "j/↓"],
+    &[" Move up", "k/↑"],
+    &[" Page down", "Shift + j/↓"],
+    &[" Page up", "Shift + k/↑"],
+    &[" Toggle calendar", "c"],
+    &[" Toggle roster type", "r"],
+    &[" View player", "Enter"],
+    &[" Close team page", "Esc"],
+];
+const PLAYER_PROFILE_DOCS: &[&[&str; 2]; 7] = &[
+    &["Player Profile", " "],
+    &[" Toggle category", "s"],
+    &[" Scroll down", "j/↓"],
+    &[" Scroll up", "k/↑"],
+    &[" Page down", "Shift + j/↓"],
+    &[" Page up", "Shift + k/↑"],
+    &[" Close profile", "Esc"],
 ];
 
 #[derive(Clone, Copy, Eq, PartialEq)]
@@ -100,6 +120,18 @@ impl HelpState {
 
     pub fn previous(&mut self) {
         self.state.scroll_up_by(1);
+    }
+
+    pub fn page_down(&mut self) {
+        self.state.scroll_down_by(10);
+    }
+
+    pub fn page_up(&mut self) {
+        self.state.scroll_up_by(10);
+    }
+
+    pub fn reset(&mut self) {
+        self.state.select(Some(0));
     }
 }
 
@@ -179,26 +211,44 @@ impl StatefulWidget for HelpWidget {
 }
 
 /// Build the docs so that the order is: general, active tab, other tabs.
+/// Team Page and Player Profile docs are inserted once: after Stats when Stats is active,
+/// otherwise after Standings.
 fn build_docs(active_tab: MenuItem) -> Vec<&'static [&'static str; 2]> {
     let mut docs = GENERAL_DOCS.to_vec();
 
-    // default order
-    let sections = [
-        (MenuItem::Scoreboard, SCOREBOARD_DOCS as &[_]),
-        (MenuItem::Gameday, GAMEDAY_DOCS as &[_]),
-        (MenuItem::Stats, STATS_DOCS as &[_]),
-        (MenuItem::Standings, STANDINGS_DOCS as &[_]),
-    ];
-
-    // put the active tab docs at the top
-    if let Some((_, active_section)) = sections.iter().find(|(tab, _)| *tab == active_tab) {
-        docs.extend_from_slice(active_section);
-    }
-
-    // add remaining docs
-    for (tab, section_docs) in sections {
-        if tab != active_tab {
-            docs.extend_from_slice(section_docs);
+    match active_tab {
+        MenuItem::Gameday => {
+            docs.extend_from_slice(GAMEDAY_DOCS);
+            docs.extend_from_slice(SCOREBOARD_DOCS);
+            docs.extend_from_slice(STATS_DOCS);
+            docs.extend_from_slice(STANDINGS_DOCS);
+            docs.extend_from_slice(TEAM_PAGE_DOCS);
+            docs.extend_from_slice(PLAYER_PROFILE_DOCS);
+        }
+        MenuItem::Stats => {
+            docs.extend_from_slice(STATS_DOCS);
+            docs.extend_from_slice(TEAM_PAGE_DOCS);
+            docs.extend_from_slice(PLAYER_PROFILE_DOCS);
+            docs.extend_from_slice(SCOREBOARD_DOCS);
+            docs.extend_from_slice(GAMEDAY_DOCS);
+            docs.extend_from_slice(STANDINGS_DOCS);
+        }
+        MenuItem::Standings => {
+            docs.extend_from_slice(STANDINGS_DOCS);
+            docs.extend_from_slice(TEAM_PAGE_DOCS);
+            docs.extend_from_slice(PLAYER_PROFILE_DOCS);
+            docs.extend_from_slice(SCOREBOARD_DOCS);
+            docs.extend_from_slice(GAMEDAY_DOCS);
+            docs.extend_from_slice(STATS_DOCS);
+        }
+        // everything else the uses default order
+        _ => {
+            docs.extend_from_slice(SCOREBOARD_DOCS);
+            docs.extend_from_slice(GAMEDAY_DOCS);
+            docs.extend_from_slice(STATS_DOCS);
+            docs.extend_from_slice(STANDINGS_DOCS);
+            docs.extend_from_slice(TEAM_PAGE_DOCS);
+            docs.extend_from_slice(PLAYER_PROFILE_DOCS);
         }
     }
 

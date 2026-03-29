@@ -114,6 +114,11 @@ impl App {
         self.state.active_tab = next;
         self.state.debug_state = DebugState::Off;
 
+        // reset help state when switching tabs but not when its opened/closed on same tab
+        if next != MenuItem::Help {
+            self.state.help.reset();
+        }
+
         // reset standings selection when switching tabs but not when date picker is opened
         if next != MenuItem::DatePicker && self.state.previous_tab == MenuItem::Standings {
             self.state.standings.reset_selection();

@@ -181,14 +181,7 @@ pub async fn handle_key_bindings(
         (MenuItem::Standings, Char('j') | KeyCode::Down, _) => guard.state.standings.next(),
         (MenuItem::Standings, Char('k') | KeyCode::Up, _) => guard.state.standings.previous(),
         (MenuItem::Standings, Char('l'), _) => guard.state.standings.toggle_view_mode(),
-        (MenuItem::Standings, KeyCode::Enter, _) => {
-            let team_id = guard.state.standings.get_selected();
-            let date = guard.state.standings.date_selector.date;
-            drop(guard);
-            let _ = network_requests
-                .send(NetworkRequest::TeamPage { team_id, date })
-                .await;
-        }
+        (MenuItem::Standings, KeyCode::Enter, _) => load_team(guard, network_requests).await,
         (MenuItem::Standings, Char(':'), _) => guard.update_tab(MenuItem::DatePicker),
 
         (MenuItem::Gameday, Char('i'), _) => guard.state.gameday.toggle_info(),
@@ -211,6 +204,12 @@ pub async fn handle_key_bindings(
         (MenuItem::Scoreboard, Char('h'), _) => guard.state.box_score.set_home_active(),
         (MenuItem::Scoreboard, Char('a'), _) => guard.state.box_score.set_away_active(),
 
+        (MenuItem::Help, Char('J'), _) | (MenuItem::Help, KeyCode::Down, KeyModifiers::SHIFT) => {
+            guard.state.help.page_down()
+        }
+        (MenuItem::Help, Char('K'), _) | (MenuItem::Help, KeyCode::Up, KeyModifiers::SHIFT) => {
+            guard.state.help.page_up()
+        }
         (MenuItem::Help, Char('j') | KeyCode::Down, _) => guard.state.help.next(),
         (MenuItem::Help, Char('k') | KeyCode::Up, _) => guard.state.help.previous(),
         (MenuItem::Help, KeyCode::Esc, _) => guard.exit_help(),
@@ -218,6 +217,16 @@ pub async fn handle_key_bindings(
 
         _ => handle_global_key(key_event, guard, network_requests).await,
     }
+}
+
+async fn load_team(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
+    let team_id = guard.state.standings.get_selected();
+    let date = guard.state.standings.date_selector.date;
+    drop(guard);
+
+    let _ = network_requests
+        .send(NetworkRequest::TeamPage { team_id, date })
+        .await;
 }
 
 async fn load_game_data(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
