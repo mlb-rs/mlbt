@@ -126,11 +126,19 @@ impl TeamPageState {
         self.roster_selection.select(first);
     }
 
-    pub fn toggle_section(&mut self) {
+    pub fn next_section(&mut self) {
         self.active_section = match self.active_section {
             TeamSection::Roster => TeamSection::Schedule,
             TeamSection::Schedule => TeamSection::Transactions,
             TeamSection::Transactions => TeamSection::Roster,
+        };
+    }
+
+    pub fn previous_section(&mut self) {
+        self.active_section = match self.active_section {
+            TeamSection::Roster => TeamSection::Transactions,
+            TeamSection::Schedule => TeamSection::Roster,
+            TeamSection::Transactions => TeamSection::Schedule,
         };
     }
 
@@ -241,7 +249,7 @@ impl TeamPageState {
         self.roster.get(roster_idx)
     }
 
-    pub fn player_profile_request(&self, date: chrono::NaiveDate) -> Option<NetworkRequest> {
+    pub fn player_profile_request(&self) -> Option<NetworkRequest> {
         if self.active_section != TeamSection::Roster {
             return None;
         }
@@ -249,7 +257,7 @@ impl TeamPageState {
         Some(NetworkRequest::PlayerProfile {
             player_id: row.player_id,
             group: row.position_group.stat_group(),
-            date,
+            date: self.date,
             game_type: GameType::RegularSeason,
         })
     }
@@ -505,14 +513,18 @@ mod tests {
     }
 
     #[test]
-    fn toggle_section_cycles_all_three() {
+    fn section_cycles() {
         let mut s = nav_state(&[], 0);
         assert_eq!(s.active_section, TeamSection::Roster);
-        s.toggle_section();
+        s.next_section();
         assert_eq!(s.active_section, TeamSection::Schedule);
-        s.toggle_section();
+        s.next_section();
         assert_eq!(s.active_section, TeamSection::Transactions);
-        s.toggle_section();
+        s.next_section();
         assert_eq!(s.active_section, TeamSection::Roster);
+        s.previous_section();
+        assert_eq!(s.active_section, TeamSection::Transactions);
+        s.previous_section();
+        assert_eq!(s.active_section, TeamSection::Schedule);
     }
 }

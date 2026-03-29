@@ -78,7 +78,13 @@ impl TeamGame {
                     } else {
                         (away_score, home_score)
                     };
-                    let result = if team_score > opp_score { "W" } else { "L" };
+                    let result = if team_score > opp_score {
+                        "W"
+                    } else if team_score == opp_score {
+                        "T"
+                    } else {
+                        "L"
+                    };
                     format!("{team_score}-{opp_score} {result}")
                 } else {
                     format_game_time(&game.game_date, tz)

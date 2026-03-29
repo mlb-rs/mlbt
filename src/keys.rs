@@ -375,7 +375,8 @@ async fn handle_team_page_key(
     }
 
     match (key_event.code, key_event.modifiers) {
-        (KeyCode::Left | KeyCode::Right | KeyCode::Tab, _) => tp.toggle_section(),
+        (KeyCode::Right | KeyCode::Tab, _) => tp.next_section(),
+        (KeyCode::Left, _) => tp.previous_section(),
         (Char('J'), _) | (KeyCode::Down, KeyModifiers::SHIFT) => tp.page_down(),
         (Char('K'), _) | (KeyCode::Up, KeyModifiers::SHIFT) => tp.page_up(),
         (Char('j') | KeyCode::Down, _) => tp.next(),
@@ -386,7 +387,7 @@ async fn handle_team_page_key(
             let _ = network_requests.send(req).await;
         }
         (KeyCode::Enter, _) => {
-            if let Some(req) = tp.player_profile_request(tp.date) {
+            if let Some(req) = tp.player_profile_request() {
                 let _ = network_requests.send(req).await;
             }
         }

@@ -241,7 +241,7 @@ fn build_docs(active_tab: MenuItem) -> Vec<&'static [&'static str; 2]> {
             docs.extend_from_slice(GAMEDAY_DOCS);
             docs.extend_from_slice(STATS_DOCS);
         }
-        // everything else the uses default order
+        // everything else uses the default order
         _ => {
             docs.extend_from_slice(SCOREBOARD_DOCS);
             docs.extend_from_slice(GAMEDAY_DOCS);
