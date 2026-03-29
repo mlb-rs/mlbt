@@ -10,9 +10,9 @@ use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Ta
 const ROSTER_HEADER: &[&str] = &["Pos", "B/T", "Ht", "Wt", "DOB"];
 
 const TITLE_STYLE: Style = Style::new().bold().underlined();
-const HOME_STYLE: Style = Style::new().fg(Color::Green);
-const AWAY_STYLE: Style = Style::new().fg(Color::Blue);
-const TODAY_STYLE: Style = Style::new().fg(Color::Yellow).bold();
+const HOME_STYLE: Style = Style::new().fg(Color::Blue);
+const AWAY_STYLE: Style = Style::new().fg(Color::White);
+const TODAY_STYLE: Style = Style::new().fg(Color::Green).bold();
 const PAST_STYLE: Style = Style::new().fg(Color::DarkGray);
 
 pub struct TeamPageWidget<'a> {
@@ -70,7 +70,7 @@ impl Widget for TeamPageWidget<'_> {
 
         self.render_roster(left, active, roster_type, buf);
         self.render_schedule(right, active, buf);
-        Self::render_transactions(bottom, &self.state.transactions, buf);
+        self.render_transactions(bottom, active, buf);
     }
 }
 
@@ -250,11 +250,7 @@ impl TeamPageWidget<'_> {
         StatefulWidget::render(table, list_area, buf, &mut self.state.schedule_selection);
     }
 
-    fn render_transactions(
-        area: Rect,
-        transactions: &[crate::components::team_page::TransactionRow],
-        buf: &mut Buffer,
-    ) {
+    fn render_transactions(&mut self, area: Rect, active: TeamSection, buf: &mut Buffer) {
         if area.height < 1 {
             return;
         }
@@ -269,7 +265,7 @@ impl TeamPageWidget<'_> {
         );
         Line::from(Span::styled(padded, TITLE_STYLE)).render(header_area, buf);
 
-        if transactions.is_empty() {
+        if self.state.transactions.is_empty() {
             Paragraph::new(Span::styled(
                 "  No recent transactions",
                 Style::default().fg(Color::DarkGray),
@@ -278,21 +274,37 @@ impl TeamPageWidget<'_> {
             return;
         }
 
-        let lines: Vec<Line> = transactions
+        // update scroll before building lines to avoid borrow conflict
+        let is_active = active == TeamSection::Transactions;
+        if is_active {
+            self.state
+                .update_transaction_scroll(body_area.width, body_area.height);
+        }
+
+        let selected = self.state.selected_transaction;
+        let highlight_style = highlight_style(active, TeamSection::Transactions);
+        let date_width = TeamPageState::TRANSACTION_DATE_WIDTH;
+        let lines: Vec<Line> = self
+            .state
+            .transactions
             .iter()
-            .map(|t| {
+            .enumerate()
+            .map(|(i, t)| {
+                let (date_style, text_style) = if is_active && i == selected {
+                    (highlight_style, highlight_style)
+                } else {
+                    (Style::default().fg(Color::DarkGray), Style::default())
+                };
                 Line::from(vec![
-                    Span::styled(
-                        format!("{:<8}", t.date),
-                        Style::default().fg(Color::DarkGray),
-                    ),
-                    Span::raw(&t.description),
+                    Span::styled(format!("{:<date_width$}", t.date), date_style),
+                    Span::styled(&t.description, text_style),
                 ])
             })
             .collect();
 
         Paragraph::new(lines)
             .wrap(tui::widgets::Wrap { trim: false })
+            .scroll((self.state.transaction_scroll, 0))
             .render(body_area, buf);
     }
 }

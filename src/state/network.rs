@@ -173,7 +173,7 @@ impl NetworkWorker {
             self.client
                 .get_team_roster(team_id, date.year(), RosterType::Active),
             self.client
-                .get_team_transactions(team_id, date - chrono::Duration::days(14), date),
+                .get_team_transactions(team_id, date - chrono::Duration::days(30), date),
         )?;
         Ok(NetworkResponse::TeamPageLoaded {
             team_id,

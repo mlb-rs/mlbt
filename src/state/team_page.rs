@@ -15,6 +15,7 @@ use tui::widgets::TableState;
 pub enum TeamSection {
     Roster,
     Schedule,
+    Transactions,
 }
 
 pub struct TeamPageState {
@@ -25,6 +26,8 @@ pub struct TeamPageState {
     pub roster: Vec<RosterRow>,
     pub roster_type: RosterType,
     pub transactions: Vec<TransactionRow>,
+    pub selected_transaction: usize,
+    pub transaction_scroll: u16,
     pub active_section: TeamSection,
     pub roster_selection: TableState,
     /// includes group header rows
@@ -58,6 +61,7 @@ fn build_roster_row_map(roster: &[RosterRow]) -> (usize, HashSet<usize>, Vec<Opt
 
 impl TeamPageState {
     const PAGE_SIZE: usize = 10;
+    pub const TRANSACTION_DATE_WIDTH: usize = 8;
 
     pub fn from_response(
         team: Team,
@@ -95,6 +99,8 @@ impl TeamPageState {
             roster,
             roster_type: RosterType::Active,
             transactions,
+            selected_transaction: 0,
+            transaction_scroll: 0,
             active_section: TeamSection::Roster,
             roster_selection,
             roster_table_len,
@@ -123,7 +129,8 @@ impl TeamPageState {
     pub fn toggle_section(&mut self) {
         self.active_section = match self.active_section {
             TeamSection::Roster => TeamSection::Schedule,
-            TeamSection::Schedule => TeamSection::Roster,
+            TeamSection::Schedule => TeamSection::Transactions,
+            TeamSection::Transactions => TeamSection::Roster,
         };
     }
 
@@ -167,6 +174,7 @@ impl TeamPageState {
         match self.active_section {
             TeamSection::Roster => self.roster_table_len,
             TeamSection::Schedule => self.schedule.len(),
+            TeamSection::Transactions => self.transactions.len(),
         }
     }
 
@@ -196,6 +204,7 @@ impl TeamPageState {
         match self.active_section {
             TeamSection::Roster => self.roster_selection.selected().unwrap_or(0),
             TeamSection::Schedule => self.schedule_selection.selected().unwrap_or(0),
+            TeamSection::Transactions => self.selected_transaction,
         }
     }
 
@@ -203,17 +212,26 @@ impl TeamPageState {
         match self.active_section {
             TeamSection::Roster => self.roster_selection.select(Some(idx)),
             TeamSection::Schedule => self.schedule_selection.select(Some(idx)),
+            TeamSection::Transactions => self.selected_transaction = idx,
         }
     }
 
     /// Reset the active table state and re-select, clearing the scroll offset.
     fn reset_active_table_state(&mut self, idx: usize) {
-        let state = match self.active_section {
-            TeamSection::Roster => &mut self.roster_selection,
-            TeamSection::Schedule => &mut self.schedule_selection,
-        };
-        *state = TableState::default();
-        state.select(Some(idx));
+        match self.active_section {
+            TeamSection::Roster => {
+                self.roster_selection = TableState::default();
+                self.roster_selection.select(Some(idx));
+            }
+            TeamSection::Schedule => {
+                self.schedule_selection = TableState::default();
+                self.schedule_selection.select(Some(idx));
+            }
+            TeamSection::Transactions => {
+                self.selected_transaction = idx;
+                self.transaction_scroll = 0;
+            }
+        }
     }
 
     /// Get the `RosterRow` for the currently selected table row.
@@ -263,6 +281,43 @@ impl TeamPageState {
 
     pub fn has_player_profile(&self) -> bool {
         self.player_profile.is_some()
+    }
+
+    /// Update the transaction section scroll offset to keep the selected transaction visible.
+    pub fn update_transaction_scroll(&mut self, area_width: u16, area_height: u16) {
+        let selected = self.selected_transaction;
+        let widths = self.transaction_line_widths();
+        if selected >= widths.len() {
+            return;
+        }
+
+        // estimate how many visual lines each transaction occupies after wrap, then find the visual
+        // line where the selected transaction starts
+        let width = area_width.max(1) as usize;
+        let wrapped_height = |line_width: usize| -> usize { line_width.div_ceil(width).max(1) };
+        let sel_start: usize = widths[..selected].iter().map(|&w| wrapped_height(w)).sum();
+        let sel_height = wrapped_height(widths[selected]);
+
+        // adjust scroll just enough to keep the selected transaction in view
+        let scroll = self.transaction_scroll as usize;
+        let visible = area_height as usize;
+        self.transaction_scroll = if sel_start < scroll {
+            // scrolled past it — snap up
+            sel_start
+        } else if sel_start + sel_height > scroll + visible {
+            // below viewport — snap down
+            (sel_start + sel_height).saturating_sub(visible)
+        } else {
+            // already visible — no change
+            scroll
+        } as u16;
+    }
+
+    fn transaction_line_widths(&self) -> Vec<usize> {
+        self.transactions
+            .iter()
+            .map(|t| Self::TRANSACTION_DATE_WIDTH + t.description.len())
+            .collect()
     }
 }
 
@@ -319,6 +374,8 @@ mod tests {
             roster,
             roster_type: RosterType::Active,
             transactions: vec![],
+            selected_transaction: 0,
+            transaction_scroll: 0,
             active_section: TeamSection::Roster,
             roster_selection,
             roster_table_len: len,
@@ -390,5 +447,72 @@ mod tests {
         s.previous();
         assert_eq!(s.selection(), 3);
         assert_eq!(*s.roster_selection.offset_mut(), 0);
+    }
+
+    /// Build a transaction state with descriptions of the given lengths.
+    /// Line width = TRANSACTION_DATE_WIDTH + description length.
+    fn make_transaction_state(desc_lens: &[usize]) -> TeamPageState {
+        let mut s = nav_state(&[], 0);
+        s.active_section = TeamSection::Transactions;
+        s.transactions = desc_lens
+            .iter()
+            .map(|&len| TransactionRow {
+                date: String::new(),
+                description: "x".repeat(len),
+            })
+            .collect();
+        s
+    }
+
+    #[test]
+    fn transaction_scroll_down() {
+        // 5 lines, each 8+12=20 wide, area 40 wide x 3 tall — no wrapping
+        let mut s = make_transaction_state(&[12; 5]);
+        s.selected_transaction = 4;
+        s.update_transaction_scroll(40, 3);
+        assert_eq!(s.transaction_scroll, 2);
+    }
+
+    #[test]
+    fn transaction_scroll_up() {
+        let mut s = make_transaction_state(&[12; 5]);
+        s.selected_transaction = 1;
+        s.transaction_scroll = 3;
+        s.update_transaction_scroll(40, 3);
+        assert_eq!(s.transaction_scroll, 1);
+    }
+
+    #[test]
+    fn transaction_scroll_no_change_when_visible() {
+        let mut s = make_transaction_state(&[12; 5]);
+        s.selected_transaction = 2;
+        s.transaction_scroll = 1;
+        s.update_transaction_scroll(40, 3);
+        // sel_start=2, scroll=1, visible=[1,2,3] — already visible
+        assert_eq!(s.transaction_scroll, 1);
+    }
+
+    #[test]
+    fn transaction_scroll_with_wrapping_lines() {
+        // line 0: 8+72=80 wide in 40-col area -> 2 visual lines
+        // line 1: 8+12=20 -> 1 visual line
+        // line 2: 8+12=20 -> 1 visual line
+        let mut s = make_transaction_state(&[72, 12, 12]);
+        s.selected_transaction = 2;
+        s.update_transaction_scroll(40, 3);
+        // sel_start = 2+1 = 3, sel_height = 1, visible = 3
+        assert_eq!(s.transaction_scroll, 1);
+    }
+
+    #[test]
+    fn toggle_section_cycles_all_three() {
+        let mut s = nav_state(&[], 0);
+        assert_eq!(s.active_section, TeamSection::Roster);
+        s.toggle_section();
+        assert_eq!(s.active_section, TeamSection::Schedule);
+        s.toggle_section();
+        assert_eq!(s.active_section, TeamSection::Transactions);
+        s.toggle_section();
+        assert_eq!(s.active_section, TeamSection::Roster);
     }
 }
