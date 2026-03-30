@@ -39,26 +39,6 @@ pub struct TeamPageState {
     pub show_calendar: bool,
 }
 
-/// Build the mapping from table row indices to roster indices.
-/// Returns (total_row_count, header_row_indices, row_map).
-fn build_roster_row_map(roster: &[RosterRow]) -> (usize, HashSet<usize>, Vec<Option<usize>>) {
-    let mut header_rows = HashSet::new();
-    let mut row_map = Vec::new();
-    let mut current_group = None;
-
-    for (roster_idx, row) in roster.iter().enumerate() {
-        if current_group != Some(row.position_group) {
-            current_group = Some(row.position_group);
-            header_rows.insert(row_map.len());
-            row_map.push(None); // group header
-        }
-        row_map.push(Some(roster_idx));
-    }
-
-    let total = row_map.len();
-    (total, header_rows, row_map)
-}
-
 impl TeamPageState {
     const PAGE_SIZE: usize = 10;
     pub const TRANSACTION_DATE_WIDTH: usize = 8;
@@ -71,7 +51,7 @@ impl TeamPageState {
         transactions: TransactionsResponse,
         tz: Tz,
     ) -> Self {
-        let schedule = TeamGame::from_schedule(schedule, team.id, tz);
+        let schedule = TeamGame::from_schedule(schedule, team.id, date, tz);
         let roster = RosterRow::from_roster(roster);
         let transactions = TransactionRow::from_transactions(transactions);
         let (roster_table_len, roster_header_rows, roster_row_map) = build_roster_row_map(&roster);
@@ -327,6 +307,26 @@ impl TeamPageState {
             .map(|t| Self::TRANSACTION_DATE_WIDTH + t.description.len())
             .collect()
     }
+}
+
+/// Build the mapping from table row indices to roster indices.
+/// Returns (total_row_count, header_row_indices, row_map).
+fn build_roster_row_map(roster: &[RosterRow]) -> (usize, HashSet<usize>, Vec<Option<usize>>) {
+    let mut header_rows = HashSet::new();
+    let mut row_map = Vec::new();
+    let mut current_group = None;
+
+    for (roster_idx, row) in roster.iter().enumerate() {
+        if current_group != Some(row.position_group) {
+            current_group = Some(row.position_group);
+            header_rows.insert(row_map.len());
+            row_map.push(None); // group header
+        }
+        row_map.push(Some(roster_idx));
+    }
+
+    let total = row_map.len();
+    (total, header_rows, row_map)
 }
 
 #[cfg(test)]
