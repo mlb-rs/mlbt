@@ -4,15 +4,15 @@
 [![dependency status](https://deps.rs/repo/github/mlb-rs/mlbt/status.svg)](https://deps.rs/repo/github/mlb-rs/mlbt)
 [![Built With Ratatui](https://ratatui.rs/built-with-ratatui/badge.svg)](https://ratatui.rs/)
 
-A terminal user interface for the MLB Statcast API, written in Rust.
-
-Check scores, standings, and stats. Even watch a live game using Gameday!
+mlb.com in your terminal. Gameday, scores, stats, standings, teams, and player
+profiles. Powered by MLB's Stats API, check today's games or dig through decades
+of historical information. Go beyond the broadcast and nerd out with win
+probability, leverage index, exit velo, and more.
 
 <img src="https://github.com/user-attachments/assets/1c11e22b-df11-46df-8774-5783b77def84" alt="Demo showing the Schedule, Gameday, Stats, and Standings."/>
 
 ## Table of Contents
 
-- [What](#what)
 - [Installation](#installation)
     - [Cargo](#cargo)
     - [Homebrew](#homebrew)
@@ -32,26 +32,6 @@ Check scores, standings, and stats. Even watch a live game using Gameday!
 - [Shout out](#shout-out)
 - [Copyright Notice](#copyright-notice)
 - [License](#license)
-
-## What
-
-The MLB Statcast API is a publicly available (see its [license](#license)
-information below) REST API that you can query to get back almost any
-information about a baseball game, past or present. If you've ever watched a
-baseball game on TV you've seen the data the API passes around in action. Two
-prime examples are the pitch/strike zone overlay, and home run stats (like
-distance and launch angle). This is accomplished by MLB's sophisticated Statcast
-vision system, which is implemented in every Major League ballpark.
-
-This TUI is an interface for the API, with the intention of providing a light
-weight way to consume baseball data. See the [features](#features) listed below
-for more details.
-
-A TUI and baseball data make a pretty natural combination, at least compared to
-other sports. The Gameday view allows you to "watch" a live game by polling the
-API every 10 seconds. This matches the poll rate at which the official Gameday,
-found [here](https://www.mlb.com/scores), operates at. The goal with the TUI
-version is to mimic the official version as closely as possible.
 
 ## Installation
 
@@ -102,7 +82,7 @@ macOS, Linux, and Windows binaries are available on the
 
 ### Docker
 
-`mlbt` [publishes docker images on ghcr](https://github.com/mlb-rs/mlbt/pkgs/container/mlbt).
+`mlbt` publishes docker images on [ghcr](https://github.com/mlb-rs/mlbt/pkgs/container/mlbt).
 
 ```bash
 docker run -it --rm --name mlbt ghcr.io/mlb-rs/mlbt
@@ -112,10 +92,10 @@ docker run -it --rm --name mlbt ghcr.io/mlb-rs/mlbt
 You can execute individual releases explicitly.
 
 ```bash
-docker run -it --rm --name mlbt ghcr.io/mlb-rs/mlbt:v0.0.18
+docker run -it --rm --name mlbt ghcr.io/mlb-rs/mlbt:v0.2.0
 ```
 
-Alternately build the `mlbt` image with:
+Alternatively build the `mlbt` image with:
 
 ```bash
 docker build -t mlbt .
@@ -129,47 +109,46 @@ docker run -it --rm --name mlbt mlbt:latest
 
 ## Features
 
-- [X] scoreboard and box score
-    - [X] sorted by favorite team
-    - [X] selectable date
-    - [X] full box score
-    - [X] probable pitchers for upcoming games
-    - [X] win probability graph
+- scoreboard and box score
+    - sorted by favorite team
+    - full box score
+    - probable pitchers for upcoming games
+    - win probability graph
+    - selectable date
 
-- [X] gameday
-    - [X] pitch display
-    - [X] batter strike zone with heat map coloring
-    - [X] selectable at bats (view the pitches and outcome of any at bat in the
-      game)
-    - [X] hit stats: exit velocity, launch angle, distance
-    - [X] ABS challenge information for 2026+ games
-    - [X] win probability change per at bat
+- gameday
+    - pitch display
+    - batter strike zone with heat map coloring
+    - selectable at bats (view the pitches and outcome of any at bat in the game)
+    - hit stats: exit velocity, launch angle, distance
+    - ABS challenge information for 2026+ games
+    - leverage index and win probability change per at bat
 
-- [X] pitching and hitting stats
-    - [X] player stats
-    - [X] team stats
-    - [X] sorting
-    - [X] fuzzy search for players and teams
-    - [X] selectable date
+- pitching and hitting stats
+    - player stats
+    - team stats
+    - sorting
+    - fuzzy search for players and teams
+    - selectable date
 
-- [X] standings
-    - [X] sorted by favorite team
-    - [X] selectable date
-    - [X] division/league view
+- standings
+    - sorted by favorite team
+    - division/league view
+    - selectable date
 
-- [X] player profile
-    - [X] player bio
-    - [X] career stats
-    - [X] recent games
+- team page
+    - roster (active and 40-man)
+    - schedule with calendar view
+    - recent transactions
 
-- [X] team page
-    - [X] roster (active and 40-man)
-    - [X] schedule with calendar view
-    - [X] transactions
+- player profile
+    - player bio
+    - career stats
+    - recent games
 
-- [X] configuration
-    - [X] favorite team
-    - [X] time zone
+- configuration
+    - favorite team
+    - time zone
 
 ## Usage
 
@@ -381,8 +360,8 @@ directory. For a user named `Alice` this would be:
 ### Available settings
 
 - `favorite_team`: This will make that team always show up first in the schedule
-  if they have a game that day.
-  See [here](https://github.com/mlb-rs/mlbt/blob/main/src/components/constants.rs#L37)
+  if they have a game that day and be highlighted in the standings.
+  See [here](https://github.com/mlb-rs/mlbt/blob/main/src/components/constants.rs#L83)
   for options (note: use the full name and not the short name).
 - `timezone`: This will change the time zone of the start time for the games in
   the schedule. The default is `US/Pacific`. Some common options are:
@@ -403,7 +382,7 @@ directory. For a user named `Alice` this would be:
 # See https://github.com/mlb-rs/mlbt#config for options
 favorite_team = "Chicago Cubs"
 timezone = "US/Pacific"
-log_levl = "error"
+log_level = "error"
 ```
 
 ## Shout out
