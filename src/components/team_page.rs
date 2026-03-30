@@ -37,7 +37,12 @@ pub struct TransactionRow {
 }
 
 impl TeamGame {
-    pub fn from_schedule(response: ScheduleResponse, team_id: u16, tz: Tz) -> Vec<TeamGame> {
+    pub fn from_schedule(
+        response: ScheduleResponse,
+        team_id: u16,
+        date: NaiveDate,
+        tz: Tz,
+    ) -> Vec<TeamGame> {
         let mut games = Vec::new();
         for date_entry in response.dates {
             let Some(date_games) = date_entry.games else {
@@ -61,16 +66,17 @@ impl TeamGame {
                     format!("@ {abbr}")
                 };
 
-                let date =
+                let game_date =
                     NaiveDate::parse_from_str(&game.official_date, "%Y-%m-%d").unwrap_or_default();
                 let date_display = format_short_date(&game.official_date);
 
-                let is_past = matches!(
+                let is_final = matches!(
                     game.status.abstract_game_state,
                     Some(AbstractGameState::Final)
                 );
+                let is_past = is_final && game_date < date;
 
-                let time_or_score = if is_past {
+                let time_or_score = if is_final {
                     let home_score = game.teams.home.score.unwrap_or(0);
                     let away_score = game.teams.away.score.unwrap_or(0);
                     let (team_score, opp_score) = if is_home {
@@ -91,7 +97,7 @@ impl TeamGame {
                 };
 
                 games.push(TeamGame {
-                    date,
+                    date: game_date,
                     date_display,
                     opponent,
                     time_or_score,
