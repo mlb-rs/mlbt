@@ -1,6 +1,6 @@
 use crate::components::constants::{lookup_team, lookup_team_by_id};
 use crate::components::standings::Team;
-use crate::components::stats::splits::StatSplits;
+use crate::components::stats::splits::{RecentSplit, RecentStats, StatSplits};
 use crate::components::util::{OptionDisplayExt, OptionMapDisplayExt, format_date};
 use mlbt_api::player::PersonFull;
 use mlbt_api::stats::{Split, StatSplit};
@@ -28,6 +28,13 @@ const GAME_LOG_PREFIX_WIDTHS: &[Constraint] = &[
     Constraint::Length(2),  // W/L
     Constraint::Length(8),  // opp (@ CHC)
 ];
+const SPLITS_HITTING_HEADERS: &[&str] = &[
+    "Duration", "AB", "R", "H", "HR", "RBI", "BB", "SO", "SB", "AVG", "OBP", "SLG",
+];
+const SPLITS_PITCHING_HEADERS: &[&str] = &[
+    "Duration", "W", "L", "ERA", "G", "GS", "SV", "IP", "H", "ER", "BB", "SO", "WHIP",
+];
+const SPLITS_DURATION_WIDTH: u16 = 16;
 
 /// Player profile data for display. All fields are resolved from the API's optional fields with
 /// sensible defaults.
@@ -309,6 +316,81 @@ impl PlayerProfile {
             .iter()
             .rev()
             .map(|split| Row::new(Self::game_log_cells(split)))
+            .collect();
+
+        Some((header, widths, rows))
+    }
+
+    /// Build header row, column widths, and data rows for the recent splits table.
+    pub fn build_splits_rows(
+        recent_splits: &[RecentSplit],
+        is_hitting: bool,
+    ) -> Option<(Row<'_>, Vec<Constraint>, Vec<Row<'_>>)> {
+        if !recent_splits.iter().any(|s| s.stat.is_some()) {
+            return None;
+        }
+
+        let headers = if is_hitting {
+            SPLITS_HITTING_HEADERS
+        } else {
+            SPLITS_PITCHING_HEADERS
+        };
+
+        let mut widths = vec![Constraint::Length(SPLITS_DURATION_WIDTH)];
+        widths.resize(headers.len(), Constraint::Length(STAT_COL_WIDTH));
+
+        let header = Row::new(headers.to_vec())
+            .style(Style::default().bold().add_modifier(Modifier::UNDERLINED));
+
+        let rows = recent_splits
+            .iter()
+            .map(|split| {
+                let mut cells: Vec<Cell> = vec![split.label.into()];
+                match &split.stat {
+                    Some(RecentStats::Hitting(s)) => {
+                        cells.extend([
+                            s.ab.to_string().into(),
+                            s.r.to_string().into(),
+                            s.h.to_string().into(),
+                            s.hr.to_string().into(),
+                            s.rbi.to_string().into(),
+                            s.bb.to_string().into(),
+                            s.so.to_string().into(),
+                            s.sb.to_string().into(),
+                            s.avg.as_str().into(),
+                            s.obp.as_str().into(),
+                            s.slg.as_str().into(),
+                        ]);
+                    }
+                    Some(RecentStats::Pitching(s)) => {
+                        cells.extend([
+                            s.w.to_string().into(),
+                            s.l.to_string().into(),
+                            s.era.as_str().into(),
+                            s.g.to_string().into(),
+                            s.gs.to_string().into(),
+                            s.sv.to_string().into(),
+                            s.ip.as_str().into(),
+                            s.h.to_string().into(),
+                            s.er.to_string().into(),
+                            s.bb.to_string().into(),
+                            s.so.to_string().into(),
+                            s.whip.as_str().into(),
+                        ]);
+                    }
+                    None => {
+                        let dashes: &[&str] = if is_hitting {
+                            &["-", "-", "-", "-", "-", "-", "-", "-", "---", "---", "---"]
+                        } else {
+                            &[
+                                "-", "-", "---", "-", "-", "-", "---", "-", "-", "-", "-", "---",
+                            ]
+                        };
+                        cells.extend(dashes.iter().map(|&s| Cell::from(s)));
+                    }
+                }
+                Row::new(cells)
+            })
             .collect();
 
         Some((header, widths, rows))

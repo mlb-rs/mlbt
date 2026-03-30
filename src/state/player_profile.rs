@@ -77,7 +77,7 @@ impl PlayerProfileState {
     }
 
     /// Calculate the height of each section for layout.
-    pub fn section_heights(&self) -> [u16; 4] {
+    pub fn section_heights(&self) -> [u16; 5] {
         let bio_height = self.profile.bio.len() as u16;
         let splits = &self.profile.splits;
 
@@ -85,6 +85,12 @@ impl PlayerProfileState {
             splits.season.len() as u16 + 2 // title + header + rows
         } else {
             2 // title + "No data"
+        };
+
+        let recent_splits_height = if splits.recent_splits.iter().any(|s| s.stat.is_some()) {
+            5 // title + header + 3 rows
+        } else {
+            0
         };
 
         let career_height = if !splits.year_by_year.is_empty() {
@@ -103,6 +109,7 @@ impl PlayerProfileState {
         [
             bio_height + 1, // +1 for blank line below section
             season_height + 1,
+            recent_splits_height + 1,
             career_height + 1,
             game_log_height,
         ]

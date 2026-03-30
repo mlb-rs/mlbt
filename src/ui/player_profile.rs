@@ -1,6 +1,7 @@
 use crate::components::stats::player_profile::PlayerProfile;
 use crate::state::player_profile::PlayerProfileState;
 use crate::ui::scroll::{ScrollParams, adjust_area_for_scroll, render_scrollbar};
+use mlbt_api::client::StatGroup;
 use mlbt_api::season::GameType;
 use mlbt_api::stats::Split;
 use tui::prelude::*;
@@ -45,11 +46,17 @@ impl Widget for PlayerProfileWidget<'_> {
         self.state.viewport_height = inner.height;
 
         if total_content_height <= inner.height {
-            let [bio_area, season_area, career_area, gamelog_area] =
-                Layout::vertical(section_heights).areas(inner);
+            let [
+                bio_area,
+                season_area,
+                splits_area,
+                career_area,
+                gamelog_area,
+            ] = Layout::vertical(section_heights).areas(inner);
 
             self.render_bio(bio_area, 0, buf);
             self.render_season(season_area, 0, buf);
+            self.render_splits(splits_area, 0, buf);
             self.render_career(career_area, 0, buf);
             self.render_game_log(gamelog_area, 0, buf);
             return;
@@ -63,8 +70,13 @@ impl Widget for PlayerProfileWidget<'_> {
             height: total_content_height,
         };
 
-        let [bio_area, season_area, career_area, gamelog_area] =
-            Layout::vertical(section_heights).areas(virtual_area);
+        let [
+            bio_area,
+            season_area,
+            splits_area,
+            career_area,
+            gamelog_area,
+        ] = Layout::vertical(section_heights).areas(virtual_area);
 
         let params = ScrollParams {
             scroll_offset: self.state.scroll_offset as i32,
@@ -77,6 +89,9 @@ impl Widget for PlayerProfileWidget<'_> {
         }
         if let Some((area, skip)) = adjust_area_for_scroll(season_area, params) {
             self.render_season(area, skip, buf);
+        }
+        if let Some((area, skip)) = adjust_area_for_scroll(splits_area, params) {
+            self.render_splits(area, skip, buf);
         }
         if let Some((area, skip)) = adjust_area_for_scroll(career_area, params) {
             self.render_career(area, skip, buf);
@@ -141,6 +156,16 @@ impl PlayerProfileWidget<'_> {
                 skip,
                 buf,
             );
+        }
+    }
+
+    fn render_splits(&self, area: Rect, skip: u16, buf: &mut Buffer) {
+        let recent_splits = &self.state.profile.splits.recent_splits;
+        let is_hitting = matches!(self.state.stat_group, StatGroup::Hitting);
+        if let Some((header, widths, rows)) =
+            PlayerProfile::build_splits_rows(recent_splits, is_hitting)
+        {
+            render_table_with_title("Splits", header, widths, rows, area, skip, buf);
         }
     }
 
