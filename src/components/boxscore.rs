@@ -10,6 +10,18 @@ use tui::widgets::Cell;
 
 const SECONDARY_COLOR: Color = Color::DarkGray;
 
+pub(crate) fn avg_color(avg: &str) -> Option<Color> {
+    avg.parse::<f64>().ok().map(|v| {
+        if v >= 0.300 {
+            Color::Green
+        } else if v < 0.100 {
+            Color::Red
+        } else {
+            Color::White
+        }
+    })
+}
+
 #[derive(Default)]
 pub struct Boxscore {
     home_batting: Vec<BatterBoxscore>,
@@ -131,7 +143,8 @@ impl BatterBoxscore {
             Cell::from(self.walks.to_string()).fg(color),
             Cell::from(self.strike_outs.to_string()).fg(color),
             Cell::from(self.left_on.to_string()).fg(color),
-            Cell::from(self.batting_average.to_string()).fg(color),
+            Cell::from(self.batting_average.to_string())
+                .fg(avg_color(&self.batting_average).unwrap_or(color)),
         ]
     }
 }

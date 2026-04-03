@@ -1,3 +1,4 @@
+use crate::components::boxscore::avg_color;
 use crate::components::constants::{lookup_team, lookup_team_by_id};
 use crate::components::standings::Team;
 use crate::components::stats::splits::{RecentSplit, RecentStats, StatSplits};
@@ -5,7 +6,8 @@ use crate::components::util::{OptionDisplayExt, OptionMapDisplayExt, format_date
 use mlbt_api::player::PersonFull;
 use mlbt_api::stats::{Split, StatSplit};
 use tui::layout::Constraint;
-use tui::prelude::{Line, Modifier, Style};
+use tui::prelude::{Line, Modifier, Style, Stylize};
+use tui::style::Color;
 use tui::widgets::{Cell, Row};
 
 const STAT_COL_WIDTH: u16 = 6;
@@ -165,7 +167,7 @@ impl PlayerProfile {
                 cells.extend([
                     s.games_played.to_string().into(),
                     s.at_bats.to_string().into(),
-                    s.avg.as_str().into(),
+                    Cell::from(s.avg.as_str()).fg(avg_color(s.avg.as_str()).unwrap_or(Color::White)),
                     s.obp.as_str().into(),
                     s.slg.as_str().into(),
                     s.ops.as_str().into(),
@@ -236,7 +238,7 @@ impl PlayerProfile {
                     s.strike_outs.to_string().into(),
                     s.stolen_bases.to_string().into(),
                     s.caught_stealing.to_string().into(),
-                    s.avg.as_str().into(),
+                    Cell::from(s.avg.as_str()).fg(avg_color(s.avg.as_str()).unwrap_or(Color::White)),
                 ]);
             }
             StatSplit::Pitching(s) => {
@@ -357,7 +359,7 @@ impl PlayerProfile {
                             s.bb.to_string().into(),
                             s.so.to_string().into(),
                             s.sb.to_string().into(),
-                            s.avg.as_str().into(),
+                            Cell::from(s.avg.as_str()).fg(avg_color(s.avg.as_str()).unwrap_or(Color::White)),
                             s.obp.as_str().into(),
                             s.slg.as_str().into(),
                         ]);

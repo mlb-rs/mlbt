@@ -1,3 +1,4 @@
+use crate::components::boxscore::avg_color;
 use crate::components::stats::table::TeamOrPlayer;
 use crate::components::stats::{STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH};
 use crate::state::stats::{ActivePane, StatsState};
@@ -15,7 +16,7 @@ impl StatefulWidget for StatsDataWidget {
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let table = state.generate_table();
-        let (header, _, rows) = table.as_ref();
+        let (col_names, _, rows) = table.as_ref();
 
         // use the sort column to include up/down arrow in the column name
         let sort_column = state
@@ -24,7 +25,7 @@ impl StatefulWidget for StatsDataWidget {
             .column_name
             .as_deref()
             .unwrap_or_default();
-        let header = header
+        let header = col_names
             .iter()
             .map(|name| {
                 if name == sort_column {
@@ -44,8 +45,17 @@ impl StatefulWidget for StatsDataWidget {
         let rows: Vec<Row> = rows
             .iter()
             .map(|row| {
-                row.iter()
-                    .map(|cell| Cell::from(cell.as_str()))
+                col_names
+                    .iter()
+                    .zip(row.iter())
+                    .map(|(col_name, cell)| {
+                        if col_name == "AVG" {
+                            Cell::from(cell.as_str())
+                                .fg(avg_color(cell).unwrap_or(Color::White))
+                        } else {
+                            Cell::from(cell.as_str())
+                        }
+                    })
                     .collect::<Row>()
             })
             .collect();
