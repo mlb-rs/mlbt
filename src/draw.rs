@@ -186,6 +186,7 @@ fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App) {
         LineScoreWidget {
             active: app.state.box_score.active_team,
             linescore: &app.state.gameday.game.linescore,
+            show_colors: app.state.show_colors,
         },
         chunks[0],
     );
@@ -193,6 +194,7 @@ fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App) {
         TeamBatterBoxscoreWidget {
             active: app.state.box_score.active_team,
             state: &mut app.state.box_score,
+            show_colors: app.state.show_colors,
         },
         chunks[1],
     );
@@ -212,6 +214,7 @@ fn draw_gameday(f: &mut Frame, rect: Rect, app: &mut App) {
             active: app.state.box_score.active_team,
             state: &app.state.gameday,
             boxscore_state: &mut app.state.box_score,
+            show_colors: app.state.show_colors,
         },
         rect,
     );
@@ -220,14 +223,14 @@ fn draw_gameday(f: &mut Frame, rect: Rect, app: &mut App) {
 fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
     if let Some(tp) = &mut app.state.stats.team_page {
         if let Some(profile) = &mut tp.player_profile {
-            PlayerProfileWidget { state: profile }.render(rect, f.buffer_mut());
+            PlayerProfileWidget { state: profile, show_colors: app.state.show_colors }.render(rect, f.buffer_mut());
             return;
         }
         TeamPageWidget { state: tp }.render(rect, f.buffer_mut());
         return;
     }
     if let Some(profile) = &mut app.state.stats.player_profile {
-        PlayerProfileWidget { state: profile }.render(rect, f.buffer_mut());
+        PlayerProfileWidget { state: profile, show_colors: app.state.show_colors }.render(rect, f.buffer_mut());
         return;
     }
 
@@ -257,7 +260,7 @@ fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
     // of space for columns. If I didn't, you could select columns that would be covered by the
     // options pane, but then when its disabled would become visible.
     app.state.stats.table.trim_columns(data_table_area.width);
-    f.render_stateful_widget(StatsDataWidget {}, data_table_area, &mut app.state.stats);
+    f.render_stateful_widget(StatsDataWidget { show_colors: app.state.show_colors }, data_table_area, &mut app.state.stats);
 
     if let Some(options_area) = options_area {
         f.render_stateful_widget(StatsOptionsWidget {}, options_area, &mut app.state.stats);
@@ -290,13 +293,13 @@ fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
 fn draw_standings(f: &mut Frame, rect: Rect, app: &mut App) {
     if let Some(tp) = &mut app.state.standings.team_page {
         if let Some(profile) = &mut tp.player_profile {
-            PlayerProfileWidget { state: profile }.render(rect, f.buffer_mut());
+            PlayerProfileWidget { state: profile, show_colors: app.state.show_colors }.render(rect, f.buffer_mut());
             return;
         }
         TeamPageWidget { state: tp }.render(rect, f.buffer_mut());
         return;
     }
-    f.render_stateful_widget(StandingsWidget {}, rect, &mut app.state.standings);
+    f.render_stateful_widget(StandingsWidget { show_colors: app.state.show_colors }, rect, &mut app.state.standings);
 }
 
 fn draw_win_probability(f: &mut Frame, rect: Rect, app: &mut App) {

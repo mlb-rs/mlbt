@@ -1,3 +1,4 @@
+use crate::components::boxscore::win_pct_color;
 use crate::components::constants::{DIVISION_ORDERS, DIVISIONS, lookup_team, lookup_team_by_id};
 use crate::components::date_selector::DateSelector;
 use crate::state::team_page::TeamPageState;
@@ -467,17 +468,22 @@ impl Standing {
         }
     }
 
-    pub fn to_cells(&self) -> Vec<Cell<'_>> {
+    pub fn to_cells(&self, show_colors: bool) -> Vec<Cell<'_>> {
         let (prefix, rdiff_color) = match self.run_differential.signum() {
             1 => ("+", Color::Green),
             -1 => ("", Color::Red),
             _ => ("", Color::White),
         };
+        let pct_color = if show_colors {
+            win_pct_color(&self.winning_percentage).unwrap_or(Color::White)
+        } else {
+            Color::White
+        };
         vec![
             self.team.name.to_string().into(),
             self.wins.to_string().into(),
             self.losses.to_string().into(),
-            self.winning_percentage.clone().into(),
+            Cell::from(self.winning_percentage.clone()).fg(pct_color),
             self.games_back.clone().into(),
             self.wild_card_games_back.clone().into(),
             self.last_10.clone().into(),

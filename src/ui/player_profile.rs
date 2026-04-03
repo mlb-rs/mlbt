@@ -9,6 +9,7 @@ use tui::widgets::{Block, BorderType, Borders, Padding, Paragraph, Row, Table};
 
 pub struct PlayerProfileWidget<'a> {
     pub state: &'a mut PlayerProfileState,
+    pub show_colors: bool,
 }
 
 impl Widget for PlayerProfileWidget<'_> {
@@ -136,7 +137,7 @@ impl PlayerProfileWidget<'_> {
     fn render_season(&self, area: Rect, skip: u16, buf: &mut Buffer) {
         let title = format!("{} Season", self.state.season_year);
         let splits = &self.state.profile.splits.season;
-        render_stat_table(&title, splits, None, false, area, skip, buf);
+        render_stat_table(&title, splits, None, false, self.show_colors, area, skip, buf);
     }
 
     fn render_career(&self, area: Rect, skip: u16, buf: &mut Buffer) {
@@ -152,6 +153,7 @@ impl PlayerProfileWidget<'_> {
                 &splits.year_by_year,
                 career_totals,
                 true,
+                self.show_colors,
                 area,
                 skip,
                 buf,
@@ -163,7 +165,7 @@ impl PlayerProfileWidget<'_> {
         let recent_splits = &self.state.profile.splits.recent_splits;
         let is_hitting = matches!(self.state.stat_group, StatGroup::Hitting);
         if let Some((header, widths, rows)) =
-            PlayerProfile::build_splits_rows(recent_splits, is_hitting)
+            PlayerProfile::build_splits_rows(recent_splits, is_hitting, self.show_colors)
         {
             render_table_with_title("Splits", header, widths, rows, area, skip, buf);
         }
@@ -171,7 +173,7 @@ impl PlayerProfileWidget<'_> {
 
     fn render_game_log(&self, area: Rect, skip: u16, buf: &mut Buffer) {
         let splits = &self.state.profile.splits.game_log;
-        if let Some((header, widths, rows)) = PlayerProfile::build_game_log_rows(splits) {
+        if let Some((header, widths, rows)) = PlayerProfile::build_game_log_rows(splits, self.show_colors) {
             render_table_with_title("Recent Games", header, widths, rows, area, skip, buf);
         }
     }
@@ -183,6 +185,7 @@ fn render_stat_table(
     splits: &[Split],
     career: Option<&Vec<Split>>,
     show_year: bool,
+    show_colors: bool,
     area: Rect,
     skip: u16,
     buf: &mut Buffer,
@@ -204,10 +207,10 @@ fn render_stat_table(
         return;
     }
 
-    if let Some((header, widths, mut rows)) = PlayerProfile::build_stat_rows(splits, show_year) {
+    if let Some((header, widths, mut rows)) = PlayerProfile::build_stat_rows(splits, show_year, show_colors) {
         if let Some(total) = career.and_then(|c| c.first()) {
             rows.push(
-                Row::new(PlayerProfile::career_total_cells(total)).style(Style::default().bold()),
+                Row::new(PlayerProfile::career_total_cells(total, show_colors)).style(Style::default().bold()),
             );
         }
         render_table_with_title(title, header, widths, rows, area, skip, buf);

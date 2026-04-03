@@ -15,12 +15,12 @@ pub enum HomeOrAway {
     Away = 1,
 }
 
-#[derive(Default)]
 pub struct AppState {
     pub active_tab: MenuItem,
     pub previous_tab: MenuItem,
     pub debug_state: DebugState,
     pub show_logs: bool,
+    pub show_colors: bool,
     pub date_input: DateInput,
     pub schedule: ScheduleState,
     pub gameday: GamedayState,
@@ -28,4 +28,23 @@ pub struct AppState {
     pub standings: StandingsState,
     pub stats: StatsState,
     pub help: HelpState,
+}
+
+impl Default for AppState {
+    fn default() -> Self {
+        AppState {
+            show_colors: true,
+            active_tab: Default::default(),
+            previous_tab: Default::default(),
+            debug_state: Default::default(),
+            show_logs: Default::default(),
+            date_input: Default::default(),
+            schedule: Default::default(),
+            gameday: Default::default(),
+            box_score: Default::default(),
+            standings: Default::default(),
+            stats: Default::default(),
+            help: Default::default(),
+        }
+    }
 }

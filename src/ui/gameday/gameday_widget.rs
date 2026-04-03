@@ -16,6 +16,7 @@ pub struct GamedayWidget<'a> {
     pub state: &'a GamedayState,
     pub boxscore_state: &'a mut BoxscoreState,
     pub active: HomeOrAway,
+    pub show_colors: bool,
 }
 
 impl Widget for GamedayWidget<'_> {
@@ -33,12 +34,14 @@ impl Widget for GamedayWidget<'_> {
             let linescore_widget = LineScoreWidget {
                 active: self.active,
                 linescore: &self.state.game.linescore,
+                show_colors: self.show_colors,
             };
             Widget::render(linescore_widget, chunks[0], buf);
 
             let boxscore_widget = TeamBatterBoxscoreWidget {
                 active: self.active,
                 state: self.boxscore_state,
+                show_colors: self.show_colors,
             };
             Widget::render(boxscore_widget, chunks[1], buf);
         }

@@ -33,6 +33,7 @@ const PITCHING_HEADER: &[&str] = &["pitcher", "ip", "h", "r", "er", "bb", "k", "
 pub struct TeamBatterBoxscoreWidget<'a> {
     pub active: HomeOrAway,
     pub state: &'a mut BoxscoreState,
+    pub show_colors: bool,
 }
 
 impl Widget for TeamBatterBoxscoreWidget<'_> {
@@ -73,7 +74,7 @@ impl TeamBatterBoxscoreWidget<'_> {
         if let Some((visible_boxscore, _)) = adjust_area_for_scroll(boxscore_area, params) {
             Widget::render(
                 create_table(
-                    self.state.get_batting_rows(self.active),
+                    self.state.get_batting_rows(self.active, self.show_colors),
                     &BATTER_WIDTHS,
                     BATTING_HEADER,
                     scroll_offset as usize,
@@ -96,7 +97,7 @@ impl TeamBatterBoxscoreWidget<'_> {
                 .saturating_sub(notes_height + 1); // +1 for space
             Widget::render(
                 create_table(
-                    self.state.get_pitching_rows(self.active),
+                    self.state.get_pitching_rows(self.active, self.show_colors),
                     &PITCHER_WIDTHS,
                     PITCHING_HEADER,
                     offset as usize,
@@ -124,7 +125,7 @@ impl TeamBatterBoxscoreWidget<'_> {
 
         Widget::render(
             create_table(
-                self.state.get_batting_rows(self.active),
+                self.state.get_batting_rows(self.active, self.show_colors),
                 &BATTER_WIDTHS,
                 BATTING_HEADER,
                 0,
@@ -139,7 +140,7 @@ impl TeamBatterBoxscoreWidget<'_> {
 
         Widget::render(
             create_table(
-                self.state.get_pitching_rows(self.active),
+                self.state.get_pitching_rows(self.active, self.show_colors),
                 &PITCHER_WIDTHS,
                 PITCHING_HEADER,
                 0,

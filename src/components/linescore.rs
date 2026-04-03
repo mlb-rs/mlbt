@@ -2,6 +2,7 @@ use mlbt_api::live::LiveResponse;
 
 use crate::components::standings::Team;
 use crate::state::app_state::HomeOrAway;
+use tui::prelude::Stylize;
 use tui::style::{Color, Modifier, Style};
 use tui::text::Span;
 use tui::widgets::Cell;
@@ -91,7 +92,7 @@ impl LineScoreLine {
         line
     }
 
-    pub fn create_score_vec(&self, active: HomeOrAway) -> Vec<Cell<'_>> {
+    pub fn create_score_vec(&self, active: HomeOrAway, show_colors: bool) -> Vec<Cell<'_>> {
         let mut row = vec![];
         // Display a blue background if the team is active
         let team = match active == self.team {
@@ -103,10 +104,18 @@ impl LineScoreLine {
         };
         row.push(Cell::from(team));
 
+        let dim = |v: u8| {
+            if show_colors && v == 0 {
+                Color::DarkGray
+            } else {
+                Color::White
+            }
+        };
+
         let scores = self
             .inning_score
             .iter()
-            .map(|s| Cell::from(s.to_string()))
+            .map(|&s| Cell::from(s.to_string()).fg(dim(s)))
             .collect::<Vec<_>>();
         row.extend(scores);
 
@@ -118,10 +127,10 @@ impl LineScoreLine {
         // add the runs, hits, and errors to the end
         row.push(Cell::from(Span::styled(
             self.runs.to_string(),
-            Style::default().add_modifier(Modifier::BOLD),
+            Style::default().fg(dim(self.runs)).add_modifier(Modifier::BOLD),
         )));
-        row.push(Cell::from(self.hits.to_string()));
-        row.push(Cell::from(self.errors.to_string()));
+        row.push(Cell::from(self.hits.to_string()).fg(dim(self.hits)));
+        row.push(Cell::from(self.errors.to_string()).fg(dim(self.errors)));
         row
     }
 

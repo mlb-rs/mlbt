@@ -10,9 +10,23 @@ use tui::widgets::Cell;
 
 const SECONDARY_COLOR: Color = Color::DarkGray;
 
+pub(crate) fn win_pct_color(pct: &str) -> Option<Color> {
+    pct.parse::<f64>().ok().map(|v| {
+        if v == 0.0 {
+            Color::DarkGray
+        } else if v >= 0.500 {
+            Color::Green
+        } else {
+            Color::Red
+        }
+    })
+}
+
 pub(crate) fn avg_color(avg: &str) -> Option<Color> {
     avg.parse::<f64>().ok().map(|v| {
-        if v >= 0.300 {
+        if v == 0.0 {
+            Color::DarkGray
+        } else if v >= 0.300 {
             Color::Green
         } else if v < 0.100 {
             Color::Red
@@ -113,7 +127,7 @@ impl BatterBoxscore {
         }
     }
 
-    pub fn to_cells(&self) -> Vec<Cell<'_>> {
+    pub fn to_cells(&self, show_colors: bool) -> Vec<Cell<'_>> {
         let note = self.note.as_deref().unwrap_or_default();
         let prefix = match self.is_substitute {
             true => "  ".to_string(),
@@ -134,17 +148,23 @@ impl BatterBoxscore {
             )
         };
 
+        let avg_col = if show_colors {
+            avg_color(&self.batting_average).unwrap_or(color)
+        } else {
+            color
+        };
+        let dim = |v: u16| if show_colors && v == 0 { Color::DarkGray } else { color };
+
         vec![
             Cell::from(name),
-            Cell::from(self.at_bats.to_string()).fg(color),
-            Cell::from(self.runs.to_string()).fg(color),
-            Cell::from(self.hits.to_string()).fg(color),
-            Cell::from(self.rbis.to_string()).fg(color),
-            Cell::from(self.walks.to_string()).fg(color),
-            Cell::from(self.strike_outs.to_string()).fg(color),
-            Cell::from(self.left_on.to_string()).fg(color),
-            Cell::from(self.batting_average.to_string())
-                .fg(avg_color(&self.batting_average).unwrap_or(color)),
+            Cell::from(self.at_bats.to_string()).fg(dim(self.at_bats)),
+            Cell::from(self.runs.to_string()).fg(dim(self.runs)),
+            Cell::from(self.hits.to_string()).fg(dim(self.hits)),
+            Cell::from(self.rbis.to_string()).fg(dim(self.rbis)),
+            Cell::from(self.walks.to_string()).fg(dim(self.walks)),
+            Cell::from(self.strike_outs.to_string()).fg(dim(self.strike_outs)),
+            Cell::from(self.left_on.to_string()).fg(dim(self.left_on)),
+            Cell::from(self.batting_average.to_string()).fg(avg_col),
         ]
     }
 }
@@ -182,7 +202,7 @@ impl PitcherBoxscore {
         }
     }
 
-    pub fn to_cells(&self) -> Vec<Cell<'_>> {
+    pub fn to_cells(&self, show_colors: bool) -> Vec<Cell<'_>> {
         let note = self.note.as_deref().unwrap_or_default();
         let (name, color) = if self.name == "Totals" {
             (
@@ -201,15 +221,17 @@ impl PitcherBoxscore {
             (self.name.clone().into(), Color::White)
         };
 
+        let dim = |v: u8| if show_colors && v == 0 { Color::DarkGray } else { color };
+
         vec![
             Cell::from(name),
             Cell::from(self.innings_pitched.clone()).fg(color),
-            Cell::from(self.hits.to_string()).fg(color),
-            Cell::from(self.runs.to_string()).fg(color),
-            Cell::from(self.earned_runs.to_string()).fg(color),
-            Cell::from(self.walks.to_string()).fg(color),
-            Cell::from(self.strikeouts.to_string()).fg(color),
-            Cell::from(self.home_runs.to_string()).fg(color),
+            Cell::from(self.hits.to_string()).fg(dim(self.hits)),
+            Cell::from(self.runs.to_string()).fg(dim(self.runs)),
+            Cell::from(self.earned_runs.to_string()).fg(dim(self.earned_runs)),
+            Cell::from(self.walks.to_string()).fg(dim(self.walks)),
+            Cell::from(self.strikeouts.to_string()).fg(dim(self.strikeouts)),
+            Cell::from(self.home_runs.to_string()).fg(dim(self.home_runs)),
             Cell::from(self.era.clone()).fg(color),
         ]
     }
@@ -370,10 +392,11 @@ impl Boxscore {
     pub fn to_batting_table_rows<'a>(
         &'a self,
         active: HomeOrAway,
-    ) -> impl Iterator<Item = Vec<Cell<'a>>> + 'a {
+        show_colors: bool,
+    ) -> Box<dyn Iterator<Item = Vec<Cell<'a>>> + 'a> {
         match active {
-            HomeOrAway::Home => self.home_batting.iter().map(BatterBoxscore::to_cells),
-            HomeOrAway::Away => self.away_batting.iter().map(BatterBoxscore::to_cells),
+            HomeOrAway::Home => Box::new(self.home_batting.iter().map(move |b| b.to_cells(show_colors))),
+            HomeOrAway::Away => Box::new(self.away_batting.iter().map(move |b| b.to_cells(show_colors))),
         }
     }
 
@@ -387,10 +410,11 @@ impl Boxscore {
     pub fn to_pitching_table_rows<'a>(
         &'a self,
         active: HomeOrAway,
-    ) -> impl Iterator<Item = Vec<Cell<'a>>> + 'a {
+        show_colors: bool,
+    ) -> Box<dyn Iterator<Item = Vec<Cell<'a>>> + 'a> {
         match active {
-            HomeOrAway::Home => self.home_pitching.iter().map(PitcherBoxscore::to_cells),
-            HomeOrAway::Away => self.away_pitching.iter().map(PitcherBoxscore::to_cells),
+            HomeOrAway::Home => Box::new(self.home_pitching.iter().map(move |p| p.to_cells(show_colors))),
+            HomeOrAway::Away => Box::new(self.away_pitching.iter().map(move |p| p.to_cells(show_colors))),
         }
     }
 
