@@ -168,7 +168,8 @@ impl PlayerProfile {
                     s.games_played.to_string().into(),
                     s.at_bats.to_string().into(),
                     if show_colors {
-                        Cell::from(s.avg.as_str()).fg(avg_color(s.avg.as_str()).unwrap_or(Color::White))
+                        Cell::from(s.avg.as_str())
+                            .fg(avg_color(s.avg.as_str()).unwrap_or(Color::White))
                     } else {
                         s.avg.as_str().into()
                     },
@@ -243,7 +244,8 @@ impl PlayerProfile {
                     s.stolen_bases.to_string().into(),
                     s.caught_stealing.to_string().into(),
                     if show_colors {
-                        Cell::from(s.avg.as_str()).fg(avg_color(s.avg.as_str()).unwrap_or(Color::White))
+                        Cell::from(s.avg.as_str())
+                            .fg(avg_color(s.avg.as_str()).unwrap_or(Color::White))
                     } else {
                         s.avg.as_str().into()
                     },
@@ -371,7 +373,8 @@ impl PlayerProfile {
                             s.so.to_string().into(),
                             s.sb.to_string().into(),
                             if show_colors {
-                                Cell::from(s.avg.as_str()).fg(avg_color(s.avg.as_str()).unwrap_or(Color::White))
+                                Cell::from(s.avg.as_str())
+                                    .fg(avg_color(s.avg.as_str()).unwrap_or(Color::White))
                             } else {
                                 s.avg.as_str().into()
                             },

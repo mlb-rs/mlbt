@@ -137,7 +137,7 @@ impl PlayerProfileWidget<'_> {
     fn render_season(&self, area: Rect, skip: u16, buf: &mut Buffer) {
         let title = format!("{} Season", self.state.season_year);
         let splits = &self.state.profile.splits.season;
-        render_stat_table(&title, splits, None, false, self.show_colors, area, skip, buf);
+        self.render_stat_table(&title, splits, None, false, area, skip, buf);
     }
 
     fn render_career(&self, area: Rect, skip: u16, buf: &mut Buffer) {
@@ -148,12 +148,11 @@ impl PlayerProfileWidget<'_> {
             } else {
                 Some(&splits.career)
             };
-            render_stat_table(
+            self.render_stat_table(
                 "Career Stats",
                 &splits.year_by_year,
                 career_totals,
                 true,
-                self.show_colors,
                 area,
                 skip,
                 buf,
@@ -173,47 +172,52 @@ impl PlayerProfileWidget<'_> {
 
     fn render_game_log(&self, area: Rect, skip: u16, buf: &mut Buffer) {
         let splits = &self.state.profile.splits.game_log;
-        if let Some((header, widths, rows)) = PlayerProfile::build_game_log_rows(splits, self.show_colors) {
+        if let Some((header, widths, rows)) =
+            PlayerProfile::build_game_log_rows(splits, self.show_colors)
+        {
             render_table_with_title("Recent Games", header, widths, rows, area, skip, buf);
         }
     }
-}
 
-/// Render a stat section with a title, header, data rows, and optional career totals.
-fn render_stat_table(
-    title: &str,
-    splits: &[Split],
-    career: Option<&Vec<Split>>,
-    show_year: bool,
-    show_colors: bool,
-    area: Rect,
-    skip: u16,
-    buf: &mut Buffer,
-) {
-    if area.height < 2 {
-        return;
-    }
-    if splits.is_empty() {
-        if skip == 0 {
-            let [title_area, msg_area] =
-                Layout::vertical([Constraint::Length(1), Constraint::Length(1)]).areas(area);
-            render_section_title(title, title_area, buf);
-            Paragraph::new(Span::styled(
-                "  No data",
-                Style::default().fg(Color::DarkGray),
-            ))
-            .render(msg_area, buf);
+    #[allow(clippy::too_many_arguments)]
+    fn render_stat_table(
+        &self,
+        title: &str,
+        splits: &[Split],
+        career: Option<&Vec<Split>>,
+        show_year: bool,
+        area: Rect,
+        skip: u16,
+        buf: &mut Buffer,
+    ) {
+        if area.height < 2 {
+            return;
         }
-        return;
-    }
+        if splits.is_empty() {
+            if skip == 0 {
+                let [title_area, msg_area] =
+                    Layout::vertical([Constraint::Length(1), Constraint::Length(1)]).areas(area);
+                render_section_title(title, title_area, buf);
+                Paragraph::new(Span::styled(
+                    "  No data",
+                    Style::default().fg(Color::DarkGray),
+                ))
+                .render(msg_area, buf);
+            }
+            return;
+        }
 
-    if let Some((header, widths, mut rows)) = PlayerProfile::build_stat_rows(splits, show_year, show_colors) {
-        if let Some(total) = career.and_then(|c| c.first()) {
-            rows.push(
-                Row::new(PlayerProfile::career_total_cells(total, show_colors)).style(Style::default().bold()),
-            );
+        if let Some((header, widths, mut rows)) =
+            PlayerProfile::build_stat_rows(splits, show_year, self.show_colors)
+        {
+            if let Some(total) = career.and_then(|c| c.first()) {
+                rows.push(
+                    Row::new(PlayerProfile::career_total_cells(total, self.show_colors))
+                        .style(Style::default().bold()),
+                );
+            }
+            render_table_with_title(title, header, widths, rows, area, skip, buf);
         }
-        render_table_with_title(title, header, widths, rows, area, skip, buf);
     }
 }
 

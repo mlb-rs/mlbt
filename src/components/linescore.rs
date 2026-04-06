@@ -127,7 +127,9 @@ impl LineScoreLine {
         // add the runs, hits, and errors to the end
         row.push(Cell::from(Span::styled(
             self.runs.to_string(),
-            Style::default().fg(dim(self.runs)).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(dim(self.runs))
+                .add_modifier(Modifier::BOLD),
         )));
         row.push(Cell::from(self.hits.to_string()).fg(dim(self.hits)));
         row.push(Cell::from(self.errors.to_string()).fg(dim(self.errors)));

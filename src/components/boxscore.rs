@@ -153,7 +153,13 @@ impl BatterBoxscore {
         } else {
             color
         };
-        let dim = |v: u16| if show_colors && v == 0 { Color::DarkGray } else { color };
+        let dim = |v: u16| {
+            if show_colors && v == 0 {
+                Color::DarkGray
+            } else {
+                color
+            }
+        };
 
         vec![
             Cell::from(name),
@@ -221,7 +227,13 @@ impl PitcherBoxscore {
             (self.name.clone().into(), Color::White)
         };
 
-        let dim = |v: u8| if show_colors && v == 0 { Color::DarkGray } else { color };
+        let dim = |v: u8| {
+            if show_colors && v == 0 {
+                Color::DarkGray
+            } else {
+                color
+            }
+        };
 
         vec![
             Cell::from(name),
@@ -395,8 +407,16 @@ impl Boxscore {
         show_colors: bool,
     ) -> Box<dyn Iterator<Item = Vec<Cell<'a>>> + 'a> {
         match active {
-            HomeOrAway::Home => Box::new(self.home_batting.iter().map(move |b| b.to_cells(show_colors))),
-            HomeOrAway::Away => Box::new(self.away_batting.iter().map(move |b| b.to_cells(show_colors))),
+            HomeOrAway::Home => Box::new(
+                self.home_batting
+                    .iter()
+                    .map(move |b| b.to_cells(show_colors)),
+            ),
+            HomeOrAway::Away => Box::new(
+                self.away_batting
+                    .iter()
+                    .map(move |b| b.to_cells(show_colors)),
+            ),
         }
     }
 
@@ -413,8 +433,16 @@ impl Boxscore {
         show_colors: bool,
     ) -> Box<dyn Iterator<Item = Vec<Cell<'a>>> + 'a> {
         match active {
-            HomeOrAway::Home => Box::new(self.home_pitching.iter().map(move |p| p.to_cells(show_colors))),
-            HomeOrAway::Away => Box::new(self.away_pitching.iter().map(move |p| p.to_cells(show_colors))),
+            HomeOrAway::Home => Box::new(
+                self.home_pitching
+                    .iter()
+                    .map(move |p| p.to_cells(show_colors)),
+            ),
+            HomeOrAway::Away => Box::new(
+                self.away_pitching
+                    .iter()
+                    .map(move |p| p.to_cells(show_colors)),
+            ),
         }
     }
 

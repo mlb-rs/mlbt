@@ -52,8 +52,7 @@ impl StatefulWidget for StatsDataWidget {
                     .zip(row.iter())
                     .map(|(col_name, cell)| {
                         if self.show_colors && col_name == "AVG" {
-                            Cell::from(cell.as_str())
-                                .fg(avg_color(cell).unwrap_or(Color::White))
+                            Cell::from(cell.as_str()).fg(avg_color(cell).unwrap_or(Color::White))
                         } else if self.show_colors && cell == "0" {
                             Cell::from(cell.as_str()).fg(Color::DarkGray)
                         } else {
