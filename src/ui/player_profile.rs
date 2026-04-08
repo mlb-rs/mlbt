@@ -176,7 +176,6 @@ impl PlayerProfileWidget<'_> {
         }
     }
 
-    #[allow(clippy::too_many_arguments)]
     fn render_stat_table(
         &self,
         title: &str,

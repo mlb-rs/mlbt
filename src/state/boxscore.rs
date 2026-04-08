@@ -165,14 +165,14 @@ impl BoxscoreState {
     pub fn get_batting_rows<'a>(
         &'a self,
         team: HomeOrAway,
-    ) -> impl Iterator<Item = Vec<Cell<'a>>> + 'a {
+    ) -> Box<dyn Iterator<Item = Vec<Cell<'a>>> + 'a> {
         self.boxscore.to_batting_table_rows(team)
     }
 
     pub fn get_pitching_rows<'a>(
         &'a self,
         team: HomeOrAway,
-    ) -> impl Iterator<Item = Vec<Cell<'a>>> + 'a {
+    ) -> Box<dyn Iterator<Item = Vec<Cell<'a>>> + 'a> {
         self.boxscore.to_pitching_table_rows(team)
     }
 

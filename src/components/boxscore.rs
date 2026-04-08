@@ -1,5 +1,5 @@
 use crate::components::game::player::Player;
-use crate::components::util::DimColor;
+use crate::components::util::{DimColor, avg_color, era_color};
 use crate::state::app_state::HomeOrAway;
 use mlbt_api::boxscore::{LabelValue, Player as ApiPlayer, Team};
 use mlbt_api::live::LiveResponse;
@@ -133,7 +133,7 @@ impl BatterBoxscore {
             Cell::from(self.strike_outs.to_string()).fg(self.strike_outs.dim_or(color)),
             Cell::from(self.left_on.to_string()).fg(self.left_on.dim_or(color)),
             Cell::from(self.batting_average.as_str())
-                .fg(self.batting_average.as_str().dim_or(color)),
+                .fg(avg_color(&self.batting_average).unwrap_or(color)),
         ]
     }
 }
@@ -199,7 +199,7 @@ impl PitcherBoxscore {
             Cell::from(self.walks.to_string()).fg(self.walks.dim_or(color)),
             Cell::from(self.strikeouts.to_string()).fg(self.strikeouts.dim_or(color)),
             Cell::from(self.home_runs.to_string()).fg(self.home_runs.dim_or(color)),
-            Cell::from(self.era.clone()).fg(color),
+            Cell::from(self.era.clone()).fg(era_color(&self.era).unwrap_or(color)),
         ]
     }
 }
@@ -359,12 +359,11 @@ impl Boxscore {
     pub fn to_batting_table_rows<'a>(
         &'a self,
         active: HomeOrAway,
-    ) -> impl Iterator<Item = Vec<Cell<'a>>> + 'a {
-        let batting = match active {
-            HomeOrAway::Home => self.home_batting.as_slice(),
-            HomeOrAway::Away => self.away_batting.as_slice(),
-        };
-        batting.iter().map(|b| b.to_cells())
+    ) -> Box<dyn Iterator<Item = Vec<Cell<'a>>> + 'a> {
+        match active {
+            HomeOrAway::Home => Box::new(self.home_batting.iter().map(BatterBoxscore::to_cells)),
+            HomeOrAway::Away => Box::new(self.away_batting.iter().map(BatterBoxscore::to_cells)),
+        }
     }
 
     pub fn count_batting_table_rows(&self, active: HomeOrAway) -> usize {
@@ -377,12 +376,11 @@ impl Boxscore {
     pub fn to_pitching_table_rows<'a>(
         &'a self,
         active: HomeOrAway,
-    ) -> impl Iterator<Item = Vec<Cell<'a>>> + 'a {
-        let pitching = match active {
-            HomeOrAway::Home => self.home_pitching.as_slice(),
-            HomeOrAway::Away => self.away_pitching.as_slice(),
-        };
-        pitching.iter().map(|p| p.to_cells())
+    ) -> Box<dyn Iterator<Item = Vec<Cell<'a>>> + 'a> {
+        match active {
+            HomeOrAway::Home => Box::new(self.home_pitching.iter().map(PitcherBoxscore::to_cells)),
+            HomeOrAway::Away => Box::new(self.away_pitching.iter().map(PitcherBoxscore::to_cells)),
+        }
     }
 
     pub fn count_pitching_table_rows(&self, active: HomeOrAway) -> usize {
