@@ -1,6 +1,6 @@
-use crate::components::boxscore::win_pct_color;
 use crate::components::constants::{DIVISION_ORDERS, DIVISIONS, lookup_team, lookup_team_by_id};
 use crate::components::date_selector::DateSelector;
+use crate::components::util::win_pct_color;
 use crate::state::team_page::TeamPageState;
 use chrono::NaiveDate;
 use chrono_tz::Tz;

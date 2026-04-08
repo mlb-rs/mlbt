@@ -1,7 +1,7 @@
-use crate::components::boxscore::avg_color;
 use crate::components::constants::{lookup_team, lookup_team_by_id};
 use crate::components::standings::Team;
 use crate::components::stats::splits::{RecentSplit, RecentStats, StatSplits};
+use crate::components::util::avg_color;
 use crate::components::util::{OptionDisplayExt, OptionMapDisplayExt, format_date};
 use mlbt_api::player::PersonFull;
 use mlbt_api::stats::{Split, StatSplit};

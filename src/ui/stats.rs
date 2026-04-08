@@ -1,6 +1,6 @@
-use crate::components::boxscore::avg_color;
 use crate::components::stats::table::TeamOrPlayer;
 use crate::components::stats::{STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH};
+use crate::components::util::avg_color;
 use crate::state::stats::{ActivePane, StatsState};
 use mlbt_api::client::StatGroup;
 use tui::prelude::*;

@@ -46,6 +46,34 @@ pub(crate) fn format_date(s: &str) -> String {
         .unwrap_or_else(|_| s.to_string())
 }
 
+/// Color for a batting average stat string.
+pub(crate) fn avg_color(avg: &str) -> Option<Color> {
+    avg.parse::<f64>().ok().map(|v| {
+        if v == 0.0 {
+            Color::DarkGray
+        } else if v >= 0.300 {
+            Color::Green
+        } else if v < 0.100 {
+            Color::Red
+        } else {
+            Color::White
+        }
+    })
+}
+
+/// Color for a winning-percentage stat string.
+pub(crate) fn win_pct_color(pct: &str) -> Option<Color> {
+    pct.parse::<f64>().ok().map(|v| {
+        if v == 0.0 {
+            Color::DarkGray
+        } else if v >= 0.500 {
+            Color::Green
+        } else {
+            Color::Red
+        }
+    })
+}
+
 /// Convert a string from the API to a Color::Rgb. The string starts out as:
 /// "rgba(255, 255, 255, 0.55)".
 pub(crate) fn convert_color(s: String) -> Color {
