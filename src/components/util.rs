@@ -46,17 +46,18 @@ pub(crate) fn format_date(s: &str) -> String {
         .unwrap_or_else(|_| s.to_string())
 }
 
-/// Color for a batting average stat string.
+/// Color for a batting average stat string. Returns `None` for mid-range averages
+/// (.100–.299) so call sites can fall back to their own contextual color.
 pub(crate) fn avg_color(avg: &str) -> Option<Color> {
-    avg.parse::<f64>().ok().map(|v| {
+    avg.parse::<f64>().ok().and_then(|v| {
         if v == 0.0 {
-            Color::DarkGray
+            Some(Color::DarkGray)
         } else if v >= 0.300 {
-            Color::Green
+            Some(Color::Green)
         } else if v < 0.100 {
-            Color::Red
+            Some(Color::Red)
         } else {
-            Color::White
+            None
         }
     })
 }
