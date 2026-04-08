@@ -1,5 +1,5 @@
 use crate::components::game::player::Player;
-use crate::components::util::{DimColor, avg_color};
+use crate::components::util::DimColor;
 use crate::state::app_state::HomeOrAway;
 use mlbt_api::boxscore::{LabelValue, Player as ApiPlayer, Team};
 use mlbt_api::live::LiveResponse;
@@ -123,8 +123,6 @@ impl BatterBoxscore {
             )
         };
 
-        let avg_col = avg_color(&self.batting_average).unwrap_or(color);
-
         vec![
             Cell::from(name),
             Cell::from(self.at_bats.to_string()).fg(self.at_bats.dim_or(color)),
@@ -134,7 +132,8 @@ impl BatterBoxscore {
             Cell::from(self.walks.to_string()).fg(self.walks.dim_or(color)),
             Cell::from(self.strike_outs.to_string()).fg(self.strike_outs.dim_or(color)),
             Cell::from(self.left_on.to_string()).fg(self.left_on.dim_or(color)),
-            Cell::from(self.batting_average.to_string()).fg(avg_col),
+            Cell::from(self.batting_average.as_str())
+                .fg(self.batting_average.as_str().dim_or(color)),
         ]
     }
 }
