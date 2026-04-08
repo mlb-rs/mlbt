@@ -388,11 +388,12 @@ impl Boxscore {
     pub fn to_batting_table_rows<'a>(
         &'a self,
         active: HomeOrAway,
-    ) -> Box<dyn Iterator<Item = Vec<Cell<'a>>> + 'a> {
-        match active {
-            HomeOrAway::Home => Box::new(self.home_batting.iter().map(BatterBoxscore::to_cells)),
-            HomeOrAway::Away => Box::new(self.away_batting.iter().map(BatterBoxscore::to_cells)),
-        }
+    ) -> impl Iterator<Item = Vec<Cell<'a>>> + 'a {
+        let batting = match active {
+            HomeOrAway::Home => self.home_batting.as_slice(),
+            HomeOrAway::Away => self.away_batting.as_slice(),
+        };
+        batting.iter().map(|b| b.to_cells())
     }
 
     pub fn count_batting_table_rows(&self, active: HomeOrAway) -> usize {
@@ -405,11 +406,12 @@ impl Boxscore {
     pub fn to_pitching_table_rows<'a>(
         &'a self,
         active: HomeOrAway,
-    ) -> Box<dyn Iterator<Item = Vec<Cell<'a>>> + 'a> {
-        match active {
-            HomeOrAway::Home => Box::new(self.home_pitching.iter().map(PitcherBoxscore::to_cells)),
-            HomeOrAway::Away => Box::new(self.away_pitching.iter().map(PitcherBoxscore::to_cells)),
-        }
+    ) -> impl Iterator<Item = Vec<Cell<'a>>> + 'a {
+        let pitching = match active {
+            HomeOrAway::Home => self.home_pitching.as_slice(),
+            HomeOrAway::Away => self.away_pitching.as_slice(),
+        };
+        pitching.iter().map(|p| p.to_cells())
     }
 
     pub fn count_pitching_table_rows(&self, active: HomeOrAway) -> usize {
