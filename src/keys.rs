@@ -350,9 +350,6 @@ async fn handle_global_key(
             load_standings(guard, network_requests).await;
         }
         (Char('?'), _) => guard.update_tab(MenuItem::Help),
-        (Char('c'), KeyModifiers::NONE) => {
-            guard.state.show_colors = !guard.state.show_colors;
-        }
         (Char('d'), _) => guard.toggle_debug(),
         (Char('"'), _) => {
             if guard.state.debug_state == DebugState::On {

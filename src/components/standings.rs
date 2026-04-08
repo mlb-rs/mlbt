@@ -468,17 +468,13 @@ impl Standing {
         }
     }
 
-    pub fn to_cells(&self, show_colors: bool) -> Vec<Cell<'_>> {
+    pub fn to_cells(&self) -> Vec<Cell<'_>> {
         let (prefix, rdiff_color) = match self.run_differential.signum() {
             1 => ("+", Color::Green),
             -1 => ("", Color::Red),
             _ => ("", Color::White),
         };
-        let pct_color = if show_colors {
-            win_pct_color(&self.winning_percentage).unwrap_or(Color::White)
-        } else {
-            Color::White
-        };
+        let pct_color = win_pct_color(&self.winning_percentage).unwrap_or(Color::White);
         vec![
             self.team.name.to_string().into(),
             self.wins.to_string().into(),

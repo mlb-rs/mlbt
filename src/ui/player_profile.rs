@@ -9,7 +9,6 @@ use tui::widgets::{Block, BorderType, Borders, Padding, Paragraph, Row, Table};
 
 pub struct PlayerProfileWidget<'a> {
     pub state: &'a mut PlayerProfileState,
-    pub show_colors: bool,
 }
 
 impl Widget for PlayerProfileWidget<'_> {
@@ -164,7 +163,7 @@ impl PlayerProfileWidget<'_> {
         let recent_splits = &self.state.profile.splits.recent_splits;
         let is_hitting = matches!(self.state.stat_group, StatGroup::Hitting);
         if let Some((header, widths, rows)) =
-            PlayerProfile::build_splits_rows(recent_splits, is_hitting, self.show_colors)
+            PlayerProfile::build_splits_rows(recent_splits, is_hitting)
         {
             render_table_with_title("Splits", header, widths, rows, area, skip, buf);
         }
@@ -172,9 +171,7 @@ impl PlayerProfileWidget<'_> {
 
     fn render_game_log(&self, area: Rect, skip: u16, buf: &mut Buffer) {
         let splits = &self.state.profile.splits.game_log;
-        if let Some((header, widths, rows)) =
-            PlayerProfile::build_game_log_rows(splits, self.show_colors)
-        {
+        if let Some((header, widths, rows)) = PlayerProfile::build_game_log_rows(splits) {
             render_table_with_title("Recent Games", header, widths, rows, area, skip, buf);
         }
     }
@@ -207,12 +204,11 @@ impl PlayerProfileWidget<'_> {
             return;
         }
 
-        if let Some((header, widths, mut rows)) =
-            PlayerProfile::build_stat_rows(splits, show_year, self.show_colors)
+        if let Some((header, widths, mut rows)) = PlayerProfile::build_stat_rows(splits, show_year)
         {
             if let Some(total) = career.and_then(|c| c.first()) {
                 rows.push(
-                    Row::new(PlayerProfile::career_total_cells(total, self.show_colors))
+                    Row::new(PlayerProfile::career_total_cells(total))
                         .style(Style::default().bold()),
                 );
             }

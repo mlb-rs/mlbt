@@ -92,7 +92,7 @@ impl LineScoreLine {
         line
     }
 
-    pub fn create_score_vec(&self, active: HomeOrAway, show_colors: bool) -> Vec<Cell<'_>> {
+    pub fn create_score_vec(&self, active: HomeOrAway) -> Vec<Cell<'_>> {
         let mut row = vec![];
         // Display a blue background if the team is active
         let team = match active == self.team {
@@ -104,18 +104,17 @@ impl LineScoreLine {
         };
         row.push(Cell::from(team));
 
-        let dim = |v: u8| {
-            if show_colors && v == 0 {
-                Color::DarkGray
-            } else {
-                Color::White
-            }
-        };
-
         let scores = self
             .inning_score
             .iter()
-            .map(|&s| Cell::from(s.to_string()).fg(dim(s)))
+            .map(|&s| {
+                let color = if s == 0 {
+                    Color::DarkGray
+                } else {
+                    Color::White
+                };
+                Cell::from(s.to_string()).fg(color)
+            })
             .collect::<Vec<_>>();
         row.extend(scores);
 

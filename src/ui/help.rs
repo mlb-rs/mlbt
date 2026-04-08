@@ -6,7 +6,7 @@ use tui::prelude::*;
 use tui::widgets::{Paragraph, Row, Table, TableState};
 
 const HEADER: &[&str; 2] = &["Description", "Key"];
-const GENERAL_DOCS: &[&[&str; 2]; 8] = &[
+const GENERAL_DOCS: &[&[&str; 2]; 7] = &[
     &["Exit help", "Esc"],
     &["Move down", "j/↓"],
     &["Move up", "k/↑"],
@@ -14,7 +14,6 @@ const GENERAL_DOCS: &[&[&str; 2]; 8] = &[
     &["Page up", "Shift + k/↑"],
     &["Quit", "q"],
     &["Full screen", "f"],
-    &["Toggle colors", "c"],
 ];
 const SCOREBOARD_DOCS: &[&[&str; 2]; 9] = &[
     &["Scoreboard", "1"],

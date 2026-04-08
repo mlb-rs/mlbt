@@ -9,9 +9,7 @@ use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Ta
 pub const STATS_OPTIONS_WIDTH: u16 = 36;
 
 /// Renders the stats data table (left pane).
-pub struct StatsDataWidget {
-    pub show_colors: bool,
-}
+pub struct StatsDataWidget {}
 
 impl StatefulWidget for StatsDataWidget {
     type State = StatsState;
@@ -51,9 +49,9 @@ impl StatefulWidget for StatsDataWidget {
                     .iter()
                     .zip(row.iter())
                     .map(|(col_name, cell)| {
-                        if self.show_colors && col_name == "AVG" {
+                        if col_name == "AVG" {
                             Cell::from(cell.as_str()).fg(avg_color(cell).unwrap_or(Color::White))
-                        } else if self.show_colors && cell == "0" {
+                        } else if cell == "0" {
                             Cell::from(cell.as_str()).fg(Color::DarkGray)
                         } else {
                             Cell::from(cell.as_str())

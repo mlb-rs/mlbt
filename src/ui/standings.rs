@@ -23,9 +23,7 @@ const WIDTHS: [Constraint; 14] = [
     Constraint::Length(8),
 ];
 
-pub struct StandingsWidget {
-    pub show_colors: bool,
-}
+pub struct StandingsWidget {}
 
 impl StatefulWidget for StandingsWidget {
     type State = StandingsState;
@@ -48,14 +46,14 @@ impl StatefulWidget for StandingsWidget {
                     rows.push(division);
                     // then add all the teams in the division
                     for s in &d.standings {
-                        rows.push(Row::new(s.to_cells(self.show_colors)).height(1))
+                        rows.push(Row::new(s.to_cells()).height(1))
                     }
                 }
             }
             ViewMode::Overall => {
                 // Show all teams sorted by record without division headers
                 for t in &state.league_standings {
-                    rows.push(Row::new(t.to_cells(self.show_colors)).height(1));
+                    rows.push(Row::new(t.to_cells()).height(1));
                 }
             }
         }

@@ -127,7 +127,7 @@ impl BatterBoxscore {
         }
     }
 
-    pub fn to_cells(&self, show_colors: bool) -> Vec<Cell<'_>> {
+    pub fn to_cells(&self) -> Vec<Cell<'_>> {
         let note = self.note.as_deref().unwrap_or_default();
         let prefix = match self.is_substitute {
             true => "  ".to_string(),
@@ -148,18 +148,8 @@ impl BatterBoxscore {
             )
         };
 
-        let avg_col = if show_colors {
-            avg_color(&self.batting_average).unwrap_or(color)
-        } else {
-            color
-        };
-        let dim = |v: u16| {
-            if show_colors && v == 0 {
-                Color::DarkGray
-            } else {
-                color
-            }
-        };
+        let avg_col = avg_color(&self.batting_average).unwrap_or(color);
+        let dim = |v: u16| if v == 0 { Color::DarkGray } else { color };
 
         vec![
             Cell::from(name),
@@ -208,7 +198,7 @@ impl PitcherBoxscore {
         }
     }
 
-    pub fn to_cells(&self, show_colors: bool) -> Vec<Cell<'_>> {
+    pub fn to_cells(&self) -> Vec<Cell<'_>> {
         let note = self.note.as_deref().unwrap_or_default();
         let (name, color) = if self.name == "Totals" {
             (
@@ -227,13 +217,7 @@ impl PitcherBoxscore {
             (self.name.clone().into(), Color::White)
         };
 
-        let dim = |v: u8| {
-            if show_colors && v == 0 {
-                Color::DarkGray
-            } else {
-                color
-            }
-        };
+        let dim = |v: u8| if v == 0 { Color::DarkGray } else { color };
 
         vec![
             Cell::from(name),
@@ -404,19 +388,10 @@ impl Boxscore {
     pub fn to_batting_table_rows<'a>(
         &'a self,
         active: HomeOrAway,
-        show_colors: bool,
     ) -> Box<dyn Iterator<Item = Vec<Cell<'a>>> + 'a> {
         match active {
-            HomeOrAway::Home => Box::new(
-                self.home_batting
-                    .iter()
-                    .map(move |b| b.to_cells(show_colors)),
-            ),
-            HomeOrAway::Away => Box::new(
-                self.away_batting
-                    .iter()
-                    .map(move |b| b.to_cells(show_colors)),
-            ),
+            HomeOrAway::Home => Box::new(self.home_batting.iter().map(BatterBoxscore::to_cells)),
+            HomeOrAway::Away => Box::new(self.away_batting.iter().map(BatterBoxscore::to_cells)),
         }
     }
 
@@ -430,19 +405,10 @@ impl Boxscore {
     pub fn to_pitching_table_rows<'a>(
         &'a self,
         active: HomeOrAway,
-        show_colors: bool,
     ) -> Box<dyn Iterator<Item = Vec<Cell<'a>>> + 'a> {
         match active {
-            HomeOrAway::Home => Box::new(
-                self.home_pitching
-                    .iter()
-                    .map(move |p| p.to_cells(show_colors)),
-            ),
-            HomeOrAway::Away => Box::new(
-                self.away_pitching
-                    .iter()
-                    .map(move |p| p.to_cells(show_colors)),
-            ),
+            HomeOrAway::Home => Box::new(self.home_pitching.iter().map(PitcherBoxscore::to_cells)),
+            HomeOrAway::Away => Box::new(self.away_pitching.iter().map(PitcherBoxscore::to_cells)),
         }
     }
 

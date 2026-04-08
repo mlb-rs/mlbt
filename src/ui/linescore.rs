@@ -13,7 +13,6 @@ use tui::{
 pub struct LineScoreWidget<'a> {
     pub active: HomeOrAway,
     pub linescore: &'a LineScore,
-    pub show_colors: bool,
 }
 
 impl Widget for LineScoreWidget<'_> {
@@ -35,16 +34,8 @@ impl Widget for LineScoreWidget<'_> {
 
         let t = Table::new(
             vec![
-                Row::new(
-                    self.linescore
-                        .away
-                        .create_score_vec(self.active, self.show_colors),
-                ),
-                Row::new(
-                    self.linescore
-                        .home
-                        .create_score_vec(self.active, self.show_colors),
-                ),
+                Row::new(self.linescore.away.create_score_vec(self.active)),
+                Row::new(self.linescore.home.create_score_vec(self.active)),
             ],
             widths.as_slice(),
         )

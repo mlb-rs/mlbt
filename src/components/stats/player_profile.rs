@@ -149,7 +149,7 @@ impl PlayerProfile {
         bio
     }
 
-    fn split_to_cells(split: &Split, show_year: bool, show_colors: bool) -> Vec<Cell<'_>> {
+    fn split_to_cells(split: &Split, show_year: bool) -> Vec<Cell<'_>> {
         let mut cells = Vec::new();
 
         if show_year {
@@ -167,12 +167,8 @@ impl PlayerProfile {
                 cells.extend([
                     s.games_played.to_string().into(),
                     s.at_bats.to_string().into(),
-                    if show_colors {
-                        Cell::from(s.avg.as_str())
-                            .fg(avg_color(s.avg.as_str()).unwrap_or(Color::White))
-                    } else {
-                        s.avg.as_str().into()
-                    },
+                    Cell::from(s.avg.as_str())
+                        .fg(avg_color(s.avg.as_str()).unwrap_or(Color::White)),
                     s.obp.as_str().into(),
                     s.slg.as_str().into(),
                     s.ops.as_str().into(),
@@ -210,7 +206,7 @@ impl PlayerProfile {
         cells
     }
 
-    fn game_log_cells(split: &Split, show_colors: bool) -> Vec<Cell<'_>> {
+    fn game_log_cells(split: &Split) -> Vec<Cell<'_>> {
         let date = split.date.map_display_or(|d| format_date(d), "");
         let opp = split
             .opponent
@@ -243,12 +239,8 @@ impl PlayerProfile {
                     s.strike_outs.to_string().into(),
                     s.stolen_bases.to_string().into(),
                     s.caught_stealing.to_string().into(),
-                    if show_colors {
-                        Cell::from(s.avg.as_str())
-                            .fg(avg_color(s.avg.as_str()).unwrap_or(Color::White))
-                    } else {
-                        s.avg.as_str().into()
-                    },
+                    Cell::from(s.avg.as_str())
+                        .fg(avg_color(s.avg.as_str()).unwrap_or(Color::White)),
                 ]);
             }
             StatSplit::Pitching(s) => {
@@ -267,9 +259,9 @@ impl PlayerProfile {
         cells
     }
 
-    pub fn career_total_cells(split: &Split, show_colors: bool) -> Vec<Cell<'_>> {
+    pub fn career_total_cells(split: &Split) -> Vec<Cell<'_>> {
         let mut cells = vec!["".into(), "TOT".into()];
-        cells.extend(Self::split_to_cells(split, false, show_colors));
+        cells.extend(Self::split_to_cells(split, false));
         cells
     }
 
@@ -277,7 +269,6 @@ impl PlayerProfile {
     pub fn build_stat_rows(
         splits: &[Split],
         show_year: bool,
-        show_colors: bool,
     ) -> Option<(Row<'_>, Vec<Constraint>, Vec<Row<'_>>)> {
         let first = splits.first()?;
         let headers = if matches!(&first.stat, StatSplit::Hitting(_)) {
@@ -302,7 +293,7 @@ impl PlayerProfile {
 
         let rows = splits
             .iter()
-            .map(|split| Row::new(Self::split_to_cells(split, show_year, show_colors)))
+            .map(|split| Row::new(Self::split_to_cells(split, show_year)))
             .collect();
 
         Some((header, widths, rows))
@@ -311,7 +302,6 @@ impl PlayerProfile {
     /// Build header row, column widths, and data rows for the game log table.
     pub fn build_game_log_rows(
         splits: &[Split],
-        show_colors: bool,
     ) -> Option<(Row<'_>, Vec<Constraint>, Vec<Row<'_>>)> {
         let first = splits.first()?;
         let headers = if matches!(&first.stat, StatSplit::Hitting(_)) {
@@ -329,7 +319,7 @@ impl PlayerProfile {
         let rows = splits
             .iter()
             .rev()
-            .map(|split| Row::new(Self::game_log_cells(split, show_colors)))
+            .map(|split| Row::new(Self::game_log_cells(split)))
             .collect();
 
         Some((header, widths, rows))
@@ -339,7 +329,6 @@ impl PlayerProfile {
     pub fn build_splits_rows(
         recent_splits: &[RecentSplit],
         is_hitting: bool,
-        show_colors: bool,
     ) -> Option<(Row<'_>, Vec<Constraint>, Vec<Row<'_>>)> {
         if !recent_splits.iter().any(|s| s.stat.is_some()) {
             return None;
@@ -372,12 +361,8 @@ impl PlayerProfile {
                             s.bb.to_string().into(),
                             s.so.to_string().into(),
                             s.sb.to_string().into(),
-                            if show_colors {
-                                Cell::from(s.avg.as_str())
-                                    .fg(avg_color(s.avg.as_str()).unwrap_or(Color::White))
-                            } else {
-                                s.avg.as_str().into()
-                            },
+                            Cell::from(s.avg.as_str())
+                                .fg(avg_color(s.avg.as_str()).unwrap_or(Color::White)),
                             s.obp.as_str().into(),
                             s.slg.as_str().into(),
                         ]);
