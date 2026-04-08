@@ -2,6 +2,33 @@ use chrono::NaiveDate;
 use log::error;
 use tui::style::Color;
 
+/// Returns `Color::DarkGray` when the value is zero, otherwise the given fallback color.
+/// e.g. `self.hits.dim_or(color)`
+pub(crate) trait DimColor {
+    fn dim_or(&self, fallback: Color) -> Color;
+}
+
+macro_rules! impl_dim_color_int {
+    ($($t:ty),*) => {
+        $(impl DimColor for $t {
+            fn dim_or(&self, fallback: Color) -> Color {
+                if *self == 0 { Color::DarkGray } else { fallback }
+            }
+        })*
+    };
+}
+impl_dim_color_int!(u8, u16);
+
+impl DimColor for str {
+    fn dim_or(&self, fallback: Color) -> Color {
+        if self == "0" {
+            Color::DarkGray
+        } else {
+            fallback
+        }
+    }
+}
+
 /// Display an `Option<T>` as a string, using a default if `None`.
 /// e.g. `bio.height.display_or("-")`
 pub(crate) trait OptionDisplayExt {

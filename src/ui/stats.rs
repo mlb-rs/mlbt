@@ -1,6 +1,6 @@
 use crate::components::stats::table::TeamOrPlayer;
 use crate::components::stats::{STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH};
-use crate::components::util::avg_color;
+use crate::components::util::{DimColor, avg_color};
 use crate::state::stats::{ActivePane, StatsState};
 use mlbt_api::client::StatGroup;
 use tui::prelude::*;
@@ -51,10 +51,8 @@ impl StatefulWidget for StatsDataWidget {
                     .map(|(col_name, cell)| {
                         if col_name == "AVG" {
                             Cell::from(cell.as_str()).fg(avg_color(cell).unwrap_or(Color::White))
-                        } else if cell == "0" {
-                            Cell::from(cell.as_str()).fg(Color::DarkGray)
                         } else {
-                            Cell::from(cell.as_str())
+                            Cell::from(cell.as_str()).fg(cell.as_str().dim_or(Color::White))
                         }
                     })
                     .collect::<Row>()
