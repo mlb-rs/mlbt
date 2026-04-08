@@ -73,6 +73,20 @@ pub(crate) fn format_date(s: &str) -> String {
         .unwrap_or_else(|_| s.to_string())
 }
 
+/// Color for an ERA stat string. Returns `None` for average range (3.00–4.99) so
+/// call sites can fall back to their own contextual color.
+pub(crate) fn era_color(era: &str) -> Option<Color> {
+    era.parse::<f64>().ok().and_then(|v| {
+        if v <= 3.00 {
+            Some(Color::Green)
+        } else if v >= 5.00 {
+            Some(Color::Red)
+        } else {
+            None
+        }
+    })
+}
+
 /// Color for a batting average stat string. Returns `None` for mid-range averages
 /// (.100–.299) so call sites can fall back to their own contextual color.
 pub(crate) fn avg_color(avg: &str) -> Option<Color> {

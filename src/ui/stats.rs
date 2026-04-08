@@ -1,6 +1,6 @@
 use crate::components::stats::table::TeamOrPlayer;
 use crate::components::stats::{STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH};
-use crate::components::util::{DimColor, avg_color};
+use crate::components::util::{DimColor, avg_color, era_color};
 use crate::state::stats::{ActivePane, StatsState};
 use mlbt_api::client::StatGroup;
 use tui::prelude::*;
@@ -16,7 +16,17 @@ impl StatefulWidget for StatsDataWidget {
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let table = state.generate_table();
-        let (col_names, _, rows) = table.as_ref();
+        let (header, _, rows) = table.as_ref();
+
+        let mut avg_idx = None;
+        let mut era_idx = None;
+        for (i, name) in header.iter().enumerate() {
+            match name.as_str() {
+                "AVG" => avg_idx = Some(i),
+                "ERA" => era_idx = Some(i),
+                _ => {}
+            }
+        }
 
         // use the sort column to include up/down arrow in the column name
         let sort_column = state
@@ -25,7 +35,7 @@ impl StatefulWidget for StatsDataWidget {
             .column_name
             .as_deref()
             .unwrap_or_default();
-        let header = col_names
+        let header = header
             .iter()
             .map(|name| {
                 if name == sort_column {
@@ -45,15 +55,17 @@ impl StatefulWidget for StatsDataWidget {
         let rows: Vec<Row> = rows
             .iter()
             .map(|row| {
-                col_names
-                    .iter()
-                    .zip(row.iter())
-                    .map(|(col_name, cell)| {
-                        if col_name == "AVG" {
-                            Cell::from(cell.as_str()).fg(avg_color(cell).unwrap_or(Color::White))
+                row.iter()
+                    .enumerate()
+                    .map(|(i, cell)| {
+                        let color = if Some(i) == avg_idx {
+                            avg_color(cell).unwrap_or(Color::White)
+                        } else if Some(i) == era_idx {
+                            era_color(cell).unwrap_or(Color::White)
                         } else {
-                            Cell::from(cell.as_str()).fg(cell.as_str().dim_or(Color::White))
-                        }
+                            cell.as_str().dim_or(Color::White)
+                        };
+                        Cell::from(cell.as_str()).fg(color)
                     })
                     .collect::<Row>()
             })

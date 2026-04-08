@@ -1,8 +1,9 @@
 use crate::components::constants::{lookup_team, lookup_team_by_id};
 use crate::components::standings::Team;
 use crate::components::stats::splits::{RecentSplit, RecentStats, StatSplits};
-use crate::components::util::avg_color;
-use crate::components::util::{OptionDisplayExt, OptionMapDisplayExt, format_date};
+use crate::components::util::{
+    OptionDisplayExt, OptionMapDisplayExt, avg_color, era_color, format_date,
+};
 use mlbt_api::player::PersonFull;
 use mlbt_api::stats::{Split, StatSplit};
 use tui::layout::Constraint;
@@ -188,7 +189,8 @@ impl PlayerProfile {
                 cells.extend([
                     s.wins.to_string().into(),
                     s.losses.to_string().into(),
-                    s.era.as_str().into(),
+                    Cell::from(s.era.as_str())
+                        .fg(era_color(s.era.as_str()).unwrap_or(Color::White)),
                     s.games_played.to_string().into(),
                     s.games_started.to_string().into(),
                     s.saves.to_string().into(),
@@ -252,7 +254,8 @@ impl PlayerProfile {
                     s.home_runs.to_string().into(),
                     s.base_on_balls.to_string().into(),
                     s.strike_outs.to_string().into(),
-                    s.era.as_str().into(),
+                    Cell::from(s.era.as_str())
+                        .fg(era_color(s.era.as_str()).unwrap_or(Color::White)),
                 ]);
             }
         }
@@ -371,7 +374,8 @@ impl PlayerProfile {
                         cells.extend([
                             s.w.to_string().into(),
                             s.l.to_string().into(),
-                            s.era.as_str().into(),
+                            Cell::from(s.era.as_str())
+                                .fg(era_color(s.era.as_str()).unwrap_or(Color::White)),
                             s.g.to_string().into(),
                             s.gs.to_string().into(),
                             s.sv.to_string().into(),
