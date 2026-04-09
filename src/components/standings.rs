@@ -475,6 +475,11 @@ impl Standing {
             _ => ("", Color::White),
         };
         let pct_color = win_pct_color(&self.winning_percentage).unwrap_or(Color::White);
+        let streak_color = match self.streak.chars().next() {
+            Some('W') => Color::Green,
+            Some('L') => Color::Red,
+            _ => Color::White,
+        };
         vec![
             self.team.name.to_string().into(),
             self.wins.to_string().into(),
@@ -483,7 +488,7 @@ impl Standing {
             self.games_back.clone().into(),
             self.wild_card_games_back.clone().into(),
             self.last_10.clone().into(),
-            self.streak.clone().into(),
+            Cell::from(self.streak.clone()).fg(streak_color),
             self.runs_scored.to_string().into(),
             self.runs_allowed.to_string().into(),
             Cell::from(format!("{}{}", prefix, self.run_differential)).fg(rdiff_color),
