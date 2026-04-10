@@ -177,6 +177,7 @@ impl PlayerProfileWidget<'_> {
     }
 }
 
+/// Render a stat section with a title, header, data rows, and optional career totals.
 fn render_stat_table(
     title: &str,
     splits: &[Split],
