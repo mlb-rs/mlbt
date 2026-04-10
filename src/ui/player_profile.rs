@@ -175,7 +175,6 @@ impl PlayerProfileWidget<'_> {
             render_table_with_title("Recent Games", header, widths, rows, area, skip, buf);
         }
     }
-
 }
 
 fn render_stat_table(
@@ -207,8 +206,7 @@ fn render_stat_table(
     if let Some((header, widths, mut rows)) = PlayerProfile::build_stat_rows(splits, show_year) {
         if let Some(total) = career.and_then(|c| c.first()) {
             rows.push(
-                Row::new(PlayerProfile::career_total_cells(total))
-                    .style(Style::default().bold()),
+                Row::new(PlayerProfile::career_total_cells(total)).style(Style::default().bold()),
             );
         }
         render_table_with_title(title, header, widths, rows, area, skip, buf);
