@@ -1,7 +1,9 @@
 use mlbt_api::live::LiveResponse;
 
 use crate::components::standings::Team;
+use crate::components::util::DimColor;
 use crate::state::app_state::HomeOrAway;
+use tui::prelude::Stylize;
 use tui::style::{Color, Modifier, Style};
 use tui::text::Span;
 use tui::widgets::Cell;
@@ -106,7 +108,7 @@ impl LineScoreLine {
         let scores = self
             .inning_score
             .iter()
-            .map(|s| Cell::from(s.to_string()))
+            .map(|&s| Cell::from(s.to_string()).fg(s.dim_or(Color::White)))
             .collect::<Vec<_>>();
         row.extend(scores);
 
@@ -115,7 +117,7 @@ impl LineScoreLine {
             row.push(Cell::from("-"))
         }
 
-        // add the runs, hits, and errors to the end
+        // add the runs, hits, and errors to the end (always white)
         row.push(Cell::from(Span::styled(
             self.runs.to_string(),
             Style::default().add_modifier(Modifier::BOLD),

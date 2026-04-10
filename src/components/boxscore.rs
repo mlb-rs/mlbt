@@ -1,4 +1,5 @@
 use crate::components::game::player::Player;
+use crate::components::util::{DimColor, avg_color, era_color};
 use crate::state::app_state::HomeOrAway;
 use mlbt_api::boxscore::{LabelValue, Player as ApiPlayer, Team};
 use mlbt_api::live::LiveResponse;
@@ -124,14 +125,15 @@ impl BatterBoxscore {
 
         vec![
             Cell::from(name),
-            Cell::from(self.at_bats.to_string()).fg(color),
-            Cell::from(self.runs.to_string()).fg(color),
-            Cell::from(self.hits.to_string()).fg(color),
-            Cell::from(self.rbis.to_string()).fg(color),
-            Cell::from(self.walks.to_string()).fg(color),
-            Cell::from(self.strike_outs.to_string()).fg(color),
-            Cell::from(self.left_on.to_string()).fg(color),
-            Cell::from(self.batting_average.to_string()).fg(color),
+            Cell::from(self.at_bats.to_string()).fg(self.at_bats.dim_or(color)),
+            Cell::from(self.runs.to_string()).fg(self.runs.dim_or(color)),
+            Cell::from(self.hits.to_string()).fg(self.hits.dim_or(color)),
+            Cell::from(self.rbis.to_string()).fg(self.rbis.dim_or(color)),
+            Cell::from(self.walks.to_string()).fg(self.walks.dim_or(color)),
+            Cell::from(self.strike_outs.to_string()).fg(self.strike_outs.dim_or(color)),
+            Cell::from(self.left_on.to_string()).fg(self.left_on.dim_or(color)),
+            Cell::from(self.batting_average.as_str())
+                .fg(avg_color(&self.batting_average).unwrap_or(color)),
         ]
     }
 }
@@ -191,13 +193,13 @@ impl PitcherBoxscore {
         vec![
             Cell::from(name),
             Cell::from(self.innings_pitched.clone()).fg(color),
-            Cell::from(self.hits.to_string()).fg(color),
-            Cell::from(self.runs.to_string()).fg(color),
-            Cell::from(self.earned_runs.to_string()).fg(color),
-            Cell::from(self.walks.to_string()).fg(color),
-            Cell::from(self.strikeouts.to_string()).fg(color),
-            Cell::from(self.home_runs.to_string()).fg(color),
-            Cell::from(self.era.clone()).fg(color),
+            Cell::from(self.hits.to_string()).fg(self.hits.dim_or(color)),
+            Cell::from(self.runs.to_string()).fg(self.runs.dim_or(color)),
+            Cell::from(self.earned_runs.to_string()).fg(self.earned_runs.dim_or(color)),
+            Cell::from(self.walks.to_string()).fg(self.walks.dim_or(color)),
+            Cell::from(self.strikeouts.to_string()).fg(self.strikeouts.dim_or(color)),
+            Cell::from(self.home_runs.to_string()).fg(self.home_runs.dim_or(color)),
+            Cell::from(self.era.clone()).fg(era_color(&self.era).unwrap_or(color)),
         ]
     }
 }

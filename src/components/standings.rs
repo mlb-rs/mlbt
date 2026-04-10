@@ -1,5 +1,6 @@
 use crate::components::constants::{DIVISION_ORDERS, DIVISIONS, lookup_team, lookup_team_by_id};
 use crate::components::date_selector::DateSelector;
+use crate::components::util::win_pct_color;
 use crate::state::team_page::TeamPageState;
 use chrono::NaiveDate;
 use chrono_tz::Tz;
@@ -473,15 +474,21 @@ impl Standing {
             -1 => ("", Color::Red),
             _ => ("", Color::White),
         };
+        let pct_color = win_pct_color(&self.winning_percentage).unwrap_or(Color::White);
+        let streak_color = match self.streak.chars().next() {
+            Some('W') => Color::Green,
+            Some('L') => Color::Red,
+            _ => Color::White,
+        };
         vec![
             self.team.name.to_string().into(),
             self.wins.to_string().into(),
             self.losses.to_string().into(),
-            self.winning_percentage.clone().into(),
+            Cell::from(self.winning_percentage.clone()).fg(pct_color),
             self.games_back.clone().into(),
             self.wild_card_games_back.clone().into(),
             self.last_10.clone().into(),
-            self.streak.clone().into(),
+            Cell::from(self.streak.clone()).fg(streak_color),
             self.runs_scored.to_string().into(),
             self.runs_allowed.to_string().into(),
             Cell::from(format!("{}{}", prefix, self.run_differential)).fg(rdiff_color),
