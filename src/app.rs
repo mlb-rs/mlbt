@@ -7,6 +7,7 @@ use mlbt_api::schedule::ScheduleResponse;
 use mlbt_api::season::GameType;
 use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
 use mlbt_api::win_probability::WinProbabilityResponse;
+use std::sync::Arc;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub enum MenuItem {
@@ -183,7 +184,7 @@ impl App {
         self.settings.full_screen = !self.settings.full_screen;
     }
 
-    pub fn update_player_profile(&mut self, data: PeopleResponse, game_type: GameType) {
+    pub fn update_player_profile(&mut self, data: Arc<PeopleResponse>, game_type: GameType) {
         match self.state.active_tab {
             MenuItem::Standings if self.state.standings.has_team_page() => {
                 self.state
@@ -204,9 +205,9 @@ impl App {
         &mut self,
         team_id: u16,
         date: NaiveDate,
-        schedule: ScheduleResponse,
-        roster: RosterResponse,
-        transactions: TransactionsResponse,
+        schedule: &ScheduleResponse,
+        roster: &RosterResponse,
+        transactions: &TransactionsResponse,
     ) {
         let tz = self.settings.timezone;
         match self.state.active_tab {
@@ -245,7 +246,7 @@ impl App {
     pub fn update_team_roster(
         &mut self,
         team_id: u16,
-        roster: RosterResponse,
+        roster: &RosterResponse,
         roster_type: RosterType,
     ) {
         match self.state.active_tab {

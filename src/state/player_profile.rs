@@ -3,6 +3,7 @@ use crate::state::messages::NetworkRequest;
 use mlbt_api::client::StatGroup;
 use mlbt_api::player::PeopleResponse;
 use mlbt_api::season::GameType;
+use std::sync::Arc;
 use tui::widgets::ScrollbarState;
 
 /// State for a single Player Profile view.
@@ -19,13 +20,17 @@ pub struct PlayerProfileState {
 
 impl PlayerProfileState {
     /// Create from an api response. Returns None if the response has no player data.
+    ///
+    /// Takes `Arc<PeopleResponse>` and unwraps to get ownership. Player profiles are not cached,
+    /// so the Arc refcount should always be 1 here.
     pub fn from_response(
-        data: PeopleResponse,
+        data: Arc<PeopleResponse>,
         stat_group: StatGroup,
         game_type: GameType,
         season_year: i32,
     ) -> Option<Self> {
         // only one player was requested so there should only be one person in the response vec.
+        let data = Arc::try_unwrap(data).ok()?;
         let person = data.people.into_iter().next()?;
         Some(Self {
             profile: PlayerProfile::from_person(person),

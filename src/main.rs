@@ -167,7 +167,7 @@ async fn handle_network_response(
             transactions,
         } => {
             let mut guard = app.lock().await;
-            guard.update_team_page(team_id, date, schedule, roster, transactions);
+            guard.update_team_page(team_id, date, &schedule, &roster, &transactions);
         }
         NetworkResponse::TeamRosterLoaded {
             team_id,
@@ -175,7 +175,7 @@ async fn handle_network_response(
             roster_type,
         } => {
             let mut guard = app.lock().await;
-            guard.update_team_roster(team_id, roster, roster_type);
+            guard.update_team_roster(team_id, &roster, roster_type);
         }
         NetworkResponse::Initialized => {
             // Teams must be loaded before the schedule so international team names resolve.

@@ -11,6 +11,7 @@ use mlbt_api::standings::{RecordElement, StandingsResponse, TeamRecord};
 use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
 use std::collections::HashSet;
 use std::string::ToString;
+use std::sync::Arc;
 use tui::prelude::{Color, Stylize};
 use tui::widgets::{Cell, TableState};
 
@@ -266,9 +267,9 @@ impl StandingsState {
         &mut self,
         team_id: u16,
         date: NaiveDate,
-        schedule: ScheduleResponse,
-        roster: RosterResponse,
-        transactions: TransactionsResponse,
+        schedule: &ScheduleResponse,
+        roster: &RosterResponse,
+        transactions: &TransactionsResponse,
         tz: Tz,
     ) {
         let team = lookup_team_by_id(team_id).unwrap_or_default();
@@ -285,7 +286,7 @@ impl StandingsState {
     pub fn update_team_roster(
         &mut self,
         team_id: u16,
-        roster: RosterResponse,
+        roster: &RosterResponse,
         roster_type: RosterType,
     ) {
         if let Some(tp) = &mut self.team_page
@@ -295,7 +296,7 @@ impl StandingsState {
         }
     }
 
-    pub fn update_team_player_profile(&mut self, data: PeopleResponse, game_type: GameType) {
+    pub fn update_team_player_profile(&mut self, data: Arc<PeopleResponse>, game_type: GameType) {
         if let Some(tp) = &mut self.team_page {
             tp.update_player_profile(data, game_type);
         }

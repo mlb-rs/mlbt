@@ -15,8 +15,9 @@ impl PeriodicRefresher {
 
     pub async fn run(self, app: std::sync::Arc<tokio::sync::Mutex<App>>) {
         let mut live_interval = interval(Duration::from_secs(10)); // Live data every 10s
-        let mut schedule_interval = interval(Duration::from_secs(60)); // Schedule every minute
+        let mut schedule_interval = interval(Duration::from_secs(30)); // Schedule every 30s
         let mut standings_interval = interval(Duration::from_secs(1800)); // Standings every 30 minutes
+        let mut stats_interval = interval(Duration::from_secs(1800)); // Stats every 30 minutes
 
         loop {
             tokio::select! {
@@ -56,6 +57,18 @@ impl PeriodicRefresher {
 
                     if active_tab == MenuItem::Standings {
                         let _ = self.network_requests.send(NetworkRequest::Standings { date }).await;
+                    }
+                }
+
+                // Stats updates (low frequency)
+                _ = stats_interval.tick() => {
+                    let (active_tab, date, stat_type) = {
+                        let app = app.lock().await;
+                        (app.state.active_tab, app.state.stats.date_selector.date, app.state.stats.stat_type)
+                    };
+
+                    if active_tab == MenuItem::Stats {
+                        let _ = self.network_requests.send(NetworkRequest::Stats { date, stat_type }).await;
                     }
                 }
             }

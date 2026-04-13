@@ -1,5 +1,6 @@
 use crate::components::constants::register_teams;
 use crate::components::stats::table::{StatType, TeamOrPlayer};
+use crate::state::cache::NetworkCache;
 use crate::{NetworkRequest, NetworkResponse};
 use chrono::{Datelike, NaiveDate};
 use log::{debug, error, warn};
@@ -37,6 +38,7 @@ pub struct NetworkWorker {
     is_loading: Arc<AtomicBool>,
     /// Cached season info, keyed by year.
     season_info: Option<(i32, SeasonInfo)>,
+    cache: NetworkCache,
 }
 
 impl NetworkWorker {
@@ -50,11 +52,24 @@ impl NetworkWorker {
             responses,
             is_loading: Arc::new(AtomicBool::new(false)),
             season_info: None,
+            cache: NetworkCache::new(),
         }
     }
 
     pub async fn run(mut self) {
         while let Some(request) = self.requests.recv().await {
+            // Check cache before making API calls
+            let cache_key = NetworkCache::key_for(&request);
+            if let Some(key) = cache_key.as_ref()
+                && let Some(cached) = self.cache.get(key)
+            {
+                if let Err(e) = self.responses.send(cached).await {
+                    error!("Failed to send cached response: {e}");
+                    break;
+                }
+                continue;
+            }
+
             self.start_loading_animation().await;
             let result = match request {
                 NetworkRequest::Initialize => self.handle_initialize().await,
@@ -88,19 +103,31 @@ impl NetworkWorker {
             debug!("request complete");
             self.stop_loading_animation(result.is_ok()).await;
 
+            // Cache successful responses
+            if let Ok(ref response) = result
+                && let Some(key) = cache_key
+            {
+                self.cache.insert(key, response.clone());
+            }
+
             let response =
                 result.unwrap_or_else(|err| NetworkResponse::Error { message: err.log() });
             if let Err(e) = self.responses.send(response).await {
                 error!("Failed to send network response: {e}");
                 break;
             }
+
+            // TODO use tokio::select! to handle prune
+            self.cache.prune();
         }
     }
 
     async fn handle_load_schedule(&self, date: NaiveDate) -> ApiResult<NetworkResponse> {
         debug!("loading schedule for {date}");
         let schedule = self.client.get_schedule_date(date).await?;
-        Ok(NetworkResponse::ScheduleLoaded { schedule })
+        Ok(NetworkResponse::ScheduleLoaded {
+            schedule: Arc::new(schedule),
+        })
     }
 
     async fn handle_load_game_data(&self, game_id: u64) -> ApiResult<NetworkResponse> {
@@ -110,8 +137,8 @@ impl NetworkWorker {
             self.client.get_win_probability(game_id),
         );
         Ok(NetworkResponse::GameDataLoaded {
-            game: Box::new(game?),
-            win_probability: wp?,
+            game: Arc::new(game?),
+            win_probability: Arc::new(wp?),
         })
     }
 
@@ -120,7 +147,9 @@ impl NetworkWorker {
         self.ensure_season_info(date).await;
         let game_type = game_type_for_date(date, self.cached_season_info());
         let standings = self.client.get_standings(date, game_type).await?;
-        Ok(NetworkResponse::StandingsLoaded { standings })
+        Ok(NetworkResponse::StandingsLoaded {
+            standings: Arc::new(standings),
+        })
     }
 
     async fn handle_load_stats(
@@ -144,7 +173,9 @@ impl NetworkWorker {
                     .await
             }
         }?;
-        Ok(NetworkResponse::StatsLoaded { stats })
+        Ok(NetworkResponse::StatsLoaded {
+            stats: Arc::new(stats),
+        })
     }
 
     async fn handle_load_player_profile(
@@ -159,7 +190,10 @@ impl NetworkWorker {
             .client
             .get_player_profile(player_id, group, date.year(), game_type)
             .await?;
-        Ok(NetworkResponse::PlayerProfileLoaded { data, game_type })
+        Ok(NetworkResponse::PlayerProfileLoaded {
+            data: Arc::new(data),
+            game_type,
+        })
     }
 
     async fn handle_load_team_page(
@@ -178,9 +212,9 @@ impl NetworkWorker {
         Ok(NetworkResponse::TeamPageLoaded {
             team_id,
             date,
-            schedule,
-            roster,
-            transactions,
+            schedule: Arc::new(schedule),
+            roster: Arc::new(roster),
+            transactions: Arc::new(transactions),
         })
     }
 
@@ -197,7 +231,7 @@ impl NetworkWorker {
             .await?;
         Ok(NetworkResponse::TeamRosterLoaded {
             team_id,
-            roster,
+            roster: Arc::new(roster),
             roster_type,
         })
     }

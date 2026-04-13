@@ -18,7 +18,7 @@ pub const TEAM_COLUMN_NAME: &str = "Team";
 pub type TableData = (Vec<String>, Vec<u64>, Vec<Vec<String>>);
 
 /// Stores whether a team/player and pitching/hitting stat should be viewed.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct StatType {
     pub group: StatGroup,
     pub team_player: TeamOrPlayer,
@@ -36,7 +36,7 @@ impl StatType {
     }
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub enum TeamOrPlayer {
     #[default]
     Team,

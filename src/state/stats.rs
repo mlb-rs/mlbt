@@ -114,9 +114,9 @@ impl StatsState {
         &mut self,
         team_id: u16,
         date: NaiveDate,
-        schedule: ScheduleResponse,
-        roster: RosterResponse,
-        transactions: TransactionsResponse,
+        schedule: &ScheduleResponse,
+        roster: &RosterResponse,
+        transactions: &TransactionsResponse,
         tz: Tz,
     ) {
         let team = lookup_team_by_id(team_id).unwrap_or_default();
@@ -133,7 +133,7 @@ impl StatsState {
     pub fn update_team_roster(
         &mut self,
         team_id: u16,
-        roster: RosterResponse,
+        roster: &RosterResponse,
         roster_type: RosterType,
     ) {
         if let Some(tp) = &mut self.team_page
@@ -143,13 +143,13 @@ impl StatsState {
         }
     }
 
-    pub fn update_team_player_profile(&mut self, data: PeopleResponse, game_type: GameType) {
+    pub fn update_team_player_profile(&mut self, data: Arc<PeopleResponse>, game_type: GameType) {
         if let Some(tp) = &mut self.team_page {
             tp.update_player_profile(data, game_type);
         }
     }
 
-    pub fn update_player_profile(&mut self, data: PeopleResponse, game_type: GameType) {
+    pub fn update_player_profile(&mut self, data: Arc<PeopleResponse>, game_type: GameType) {
         let season_year = self.date_selector.date.year();
         self.player_profile =
             PlayerProfileState::from_response(data, self.stat_type.group, game_type, season_year);

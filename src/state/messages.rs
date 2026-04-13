@@ -11,6 +11,7 @@ use mlbt_api::standings::StandingsResponse;
 use mlbt_api::stats::StatsResponse;
 use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
 use mlbt_api::win_probability::WinProbabilityResponse;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub enum NetworkRequest {
@@ -45,38 +46,38 @@ pub enum NetworkRequest {
     },
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum NetworkResponse {
     LoadingStateChanged {
         loading_state: LoadingState,
     },
     ScheduleLoaded {
-        schedule: ScheduleResponse,
+        schedule: Arc<ScheduleResponse>,
     },
     GameDataLoaded {
-        game: Box<LiveResponse>,
-        win_probability: WinProbabilityResponse,
+        game: Arc<LiveResponse>,
+        win_probability: Arc<WinProbabilityResponse>,
     },
     StandingsLoaded {
-        standings: StandingsResponse,
+        standings: Arc<StandingsResponse>,
     },
     StatsLoaded {
-        stats: StatsResponse,
+        stats: Arc<StatsResponse>,
     },
     PlayerProfileLoaded {
-        data: PeopleResponse,
+        data: Arc<PeopleResponse>,
         game_type: GameType,
     },
     TeamPageLoaded {
         team_id: u16,
         date: NaiveDate,
-        schedule: ScheduleResponse,
-        roster: RosterResponse,
-        transactions: TransactionsResponse,
+        schedule: Arc<ScheduleResponse>,
+        roster: Arc<RosterResponse>,
+        transactions: Arc<TransactionsResponse>,
     },
     TeamRosterLoaded {
         team_id: u16,
-        roster: RosterResponse,
+        roster: Arc<RosterResponse>,
         roster_type: RosterType,
     },
     Initialized,
