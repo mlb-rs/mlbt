@@ -7,6 +7,7 @@ use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Table, Wrap};
 
 pub const STATS_OPTIONS_WIDTH: u16 = 36;
+const HIGHLIGHT_STYLE: Style = Style::new().bg(Color::Blue).fg(Color::Black);
 
 /// Renders the stats data table (left pane).
 pub struct StatsDataWidget {}
@@ -96,7 +97,7 @@ impl StatefulWidget for StatsDataWidget {
                     )),
             );
         if state.active_pane == ActivePane::Data {
-            t = t.row_highlight_style(Style::default().bg(Color::Blue).fg(Color::Black));
+            t = t.row_highlight_style(HIGHLIGHT_STYLE);
         }
 
         // borders (2) + header (1) = 3 rows of overhead
@@ -113,20 +114,18 @@ impl StatefulWidget for StatsOptionsWidget {
     type State = StatsState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
-
         let [stats_rect, options_rect] =
             Layout::vertical([Constraint::Length(4), Constraint::Percentage(100)]).areas(area);
 
         // hitting | pitching
         // team | player
         let (hitting_style, pitching_style) = match state.stat_type.group {
-            StatGroup::Pitching => (Style::default(), selected_style),
-            StatGroup::Hitting => (selected_style, Style::default()),
+            StatGroup::Pitching => (Style::default(), HIGHLIGHT_STYLE),
+            StatGroup::Hitting => (HIGHLIGHT_STYLE, Style::default()),
         };
         let (team_style, player_style) = match state.stat_type.team_player {
-            TeamOrPlayer::Player => (Style::default(), selected_style),
-            TeamOrPlayer::Team => (selected_style, Style::default()),
+            TeamOrPlayer::Player => (Style::default(), HIGHLIGHT_STYLE),
+            TeamOrPlayer::Team => (HIGHLIGHT_STYLE, Style::default()),
         };
         let text = vec![
             Line::from(vec![
@@ -173,7 +172,7 @@ impl StatefulWidget for StatsOptionsWidget {
                 .border_type(BorderType::Rounded),
         );
         if state.active_pane == ActivePane::Options {
-            t = t.row_highlight_style(selected_style);
+            t = t.row_highlight_style(HIGHLIGHT_STYLE);
         }
         StatefulWidget::render(t, options_rect, buf, &mut state.options_state);
     }

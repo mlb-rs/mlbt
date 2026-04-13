@@ -83,6 +83,7 @@ impl StatsState {
         self.player_profile = None;
         self.table.load(stats, self.stat_type.team_player);
         self.data_state.select(Some(0));
+        self.options_state.select(Some(0));
         // Clear search state since the underlying data has changed.
         self.search.close();
         self.search_previous_pane = None;
