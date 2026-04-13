@@ -52,8 +52,7 @@ cargo install mlbt
 ### Homebrew
 
 ```bash
-brew tap mlb-rs/mlbt
-brew install mlbt
+brew install mlb-rs/mlbt/mlbt
 ```
 
 To update to the latest version:
