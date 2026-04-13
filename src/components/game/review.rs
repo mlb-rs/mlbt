@@ -8,7 +8,7 @@ pub struct ReviewDetails {
     pub in_progress: bool,
     // pub review_type: String, // TODO not sure what this is yet
     /// Team that initiated the review.
-    pub challenge_team_id: u16,
+    pub challenge_team_id: Option<u16>,
     /// Player that initiated the review, if any.
     pub player_id: Option<PlayerId>,
 }
@@ -27,13 +27,15 @@ impl From<&mlbt_api::plays::ReviewDetails> for ReviewDetails {
 
 impl ReviewDetails {
     fn team_abbreviation<'a>(&self, home_team: &'a Team, away_team: &'a Team) -> Option<&'a str> {
-        if self.challenge_team_id == home_team.id {
-            Some(home_team.abbreviation)
-        } else if self.challenge_team_id == away_team.id {
-            Some(away_team.abbreviation)
-        } else {
-            None
-        }
+        self.challenge_team_id.and_then(|id| {
+            if id == home_team.id {
+                Some(home_team.abbreviation)
+            } else if id == away_team.id {
+                Some(away_team.abbreviation)
+            } else {
+                None
+            }
+        })
     }
 
     fn player_name(&self, player_map: &PlayerMap) -> Option<String> {
@@ -144,7 +146,7 @@ mod tests {
         ReviewDetails {
             is_overturned: overturned,
             in_progress,
-            challenge_team_id: team_id,
+            challenge_team_id: Some(team_id),
             player_id,
         }
     }

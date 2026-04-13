@@ -100,7 +100,7 @@ pub struct ReviewDetails {
     pub is_overturned: bool,
     pub in_progress: bool,
     pub review_type: String,
-    pub challenge_team_id: u16,
+    pub challenge_team_id: Option<u16>,
     pub player: Option<Person>,
 }
 
