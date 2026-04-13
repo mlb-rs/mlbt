@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add color highlighting to stats. Thanks @nuotsu! [PR 118](https://github.com/mlb-rs/mlbt/pull/118)
 
+### Fixed
+
+- Fix Stats page option pane selection: [PR 119](https://github.com/mlb-rs/mlbt/pull/119)
+
 ## [0.2.0] - 2026-03-30
 
 ### Added
