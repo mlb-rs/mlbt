@@ -1,7 +1,7 @@
 use crate::components::constants::register_teams;
 use crate::components::stats::table::{StatType, TeamOrPlayer};
 use crate::state::cache::NetworkCache;
-use crate::{NetworkRequest, NetworkResponse};
+use crate::state::messages::{NetworkRequest, NetworkResponse, RefreshableRequest};
 use chrono::{Datelike, NaiveDate};
 use log::{debug, error, warn};
 use mlbt_api::client::{ApiResult, MLBApi, MLBApiBuilder, StatGroup};
@@ -33,7 +33,7 @@ impl Default for LoadingState {
 
 pub struct NetworkWorker {
     client: MLBApi,
-    requests: mpsc::Receiver<NetworkRequest>,
+    requests: mpsc::Receiver<RefreshableRequest>,
     responses: mpsc::Sender<NetworkResponse>,
     is_loading: Arc<AtomicBool>,
     /// Cached season info, keyed by year.
@@ -43,7 +43,7 @@ pub struct NetworkWorker {
 
 impl NetworkWorker {
     pub fn new(
-        requests: mpsc::Receiver<NetworkRequest>,
+        requests: mpsc::Receiver<RefreshableRequest>,
         responses: mpsc::Sender<NetworkResponse>,
     ) -> Self {
         Self {
@@ -57,9 +57,18 @@ impl NetworkWorker {
     }
 
     pub async fn run(mut self) {
-        while let Some(request) = self.requests.recv().await {
-            // Check cache before making API calls
+        while let Some(refreshable) = self.requests.recv().await {
+            let request = refreshable.request;
             let cache_key = NetworkCache::key_for(&request);
+
+            // Force refresh invalidates so the cache check below misses
+            if refreshable.force_refresh
+                && let Some(key) = cache_key.as_ref()
+            {
+                self.cache.invalidate(key);
+            }
+
+            // Check cache before making API calls
             if let Some(key) = cache_key.as_ref()
                 && let Some(cached) = self.cache.get(key)
             {

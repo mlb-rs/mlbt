@@ -1,15 +1,15 @@
-use crate::NetworkRequest;
 use crate::app::{App, MenuItem};
+use crate::state::messages::{NetworkRequest, RefreshableRequest};
 use std::time::Duration;
 use tokio::sync::mpsc;
 use tokio::time::interval;
 
 pub struct PeriodicRefresher {
-    network_requests: mpsc::Sender<NetworkRequest>,
+    network_requests: mpsc::Sender<RefreshableRequest>,
 }
 
 impl PeriodicRefresher {
-    pub fn new(network_requests: mpsc::Sender<NetworkRequest>) -> Self {
+    pub fn new(network_requests: mpsc::Sender<RefreshableRequest>) -> Self {
         Self { network_requests }
     }
 
@@ -29,7 +29,7 @@ impl PeriodicRefresher {
                     };
 
                     if active_tab == MenuItem::Gameday && game_id > 0 {
-                        let _ = self.network_requests.send(NetworkRequest::GameData { game_id }).await;
+                        let _ = self.network_requests.send(NetworkRequest::GameData { game_id }.into()).await;
                     }
                 }
 
@@ -41,9 +41,9 @@ impl PeriodicRefresher {
                     };
 
                     if active_tab == MenuItem::Scoreboard {
-                        let _ = self.network_requests.send(NetworkRequest::Schedule { date }).await;
+                        let _ = self.network_requests.send(NetworkRequest::Schedule { date }.into()).await;
                         if game_id > 0 {
-                            let _ = self.network_requests.send(NetworkRequest::GameData { game_id }).await;
+                            let _ = self.network_requests.send(NetworkRequest::GameData { game_id }.into()).await;
                         }
                     }
                 }
@@ -56,7 +56,7 @@ impl PeriodicRefresher {
                     };
 
                     if active_tab == MenuItem::Standings {
-                        let _ = self.network_requests.send(NetworkRequest::Standings { date }).await;
+                        let _ = self.network_requests.send(NetworkRequest::Standings { date }.into()).await;
                     }
                 }
 
@@ -68,7 +68,7 @@ impl PeriodicRefresher {
                     };
 
                     if active_tab == MenuItem::Stats {
-                        let _ = self.network_requests.send(NetworkRequest::Stats { date, stat_type }).await;
+                        let _ = self.network_requests.send(NetworkRequest::Stats { date, stat_type }.into()).await;
                     }
                 }
             }

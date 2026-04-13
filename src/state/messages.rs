@@ -13,7 +13,7 @@ use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
 use mlbt_api::win_probability::WinProbabilityResponse;
 use std::sync::Arc;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum NetworkRequest {
     Initialize,
     Schedule {
@@ -44,6 +44,31 @@ pub enum NetworkRequest {
         season: i32,
         roster_type: RosterType,
     },
+}
+
+/// Wrapper that pairs a request with a force_refresh flag for the cache layer.
+#[derive(Debug, Copy, Clone)]
+pub struct RefreshableRequest {
+    pub request: NetworkRequest,
+    pub force_refresh: bool,
+}
+
+impl RefreshableRequest {
+    pub fn force(request: NetworkRequest) -> Self {
+        Self {
+            request,
+            force_refresh: true,
+        }
+    }
+}
+
+impl From<NetworkRequest> for RefreshableRequest {
+    fn from(request: NetworkRequest) -> Self {
+        Self {
+            request,
+            force_refresh: false,
+        }
+    }
 }
 
 #[derive(Clone, Debug)]

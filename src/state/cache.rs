@@ -96,10 +96,19 @@ impl NetworkCache {
         }
     }
 
-    /// Default TTL for a cache key.
-    fn default_ttl(key: &CacheKey) -> Duration {
+    /// TTL for a cache key. Final games get an extended TTL since their data is static.
+    fn ttl_for(&self, key: &CacheKey) -> Duration {
         match key {
-            CacheKey::GameData { .. } => Duration::from_secs(10),
+            CacheKey::GameData { game_id } => {
+                if matches!(
+                    self.game_states.get(game_id),
+                    Some((AbstractGameState::Final, _))
+                ) {
+                    FINAL_GAME_TTL
+                } else {
+                    Duration::from_secs(10)
+                }
+            }
             CacheKey::Schedule { .. } => Duration::from_secs(30),
             CacheKey::Standings { .. } => Duration::from_secs(1800),
             CacheKey::Stats { .. } => Duration::from_secs(1800),
@@ -127,7 +136,7 @@ impl NetworkCache {
             CacheKey::Schedule { date } => Some(*date),
             _ => None,
         };
-        let ttl = Self::default_ttl(&key);
+        let ttl = self.ttl_for(&key);
         self.entries.insert(
             key,
             CacheEntry {
@@ -141,6 +150,11 @@ impl NetworkCache {
         {
             self.update_game_states(date, schedule);
         }
+    }
+
+    /// Remove a cache entry, forcing the next request to fetch from the API.
+    pub fn invalidate(&mut self, key: &CacheKey) {
+        self.entries.remove(key);
     }
 
     /// Remove cache entries and game states older than `PRUNE_AGE`.
