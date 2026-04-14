@@ -347,33 +347,35 @@ Press `?` from any tab to open the help page.
 
 ## Config
 
-You can configure the TUI with the toml file located at your users' home
-directory. For a user named `Alice` this would be:
+The TUI can be configured two ways:
 
-- Linux:   `/home/alice/.config/mlbt/mlbt.toml`
-- Windows: `C:\Users\Alice\AppData\Roaming\mlbt\mlbt.toml`
-- macOS:   `/Users/Alice/Library/Application Support/mlbt/mlbt.toml`
+1. **TUI editor** (recommended): open the help page with `?`, press `Tab` to
+   focus the settings panel on the right, and use `j/k` to pick a field. Press
+   `Enter` to open the picker and then `Enter` again to save the setting.
+2. **Manually editing the config file**: edit the toml file directly. Useful for
+   timezones outside the curated options in the TUI.
 
-> You can see the path for your user in the `Help` page.
+The config file is located at:
+
+- Linux:   `~/.config/mlbt/mlbt.toml`
+- Windows: `~\AppData\Roaming\mlbt\mlbt.toml`
+- macOS:   `~/Library/Application Support/mlbt/mlbt.toml`
+
+> The path is also shown at the bottom of the `Help` page.
 
 ### Available settings
 
-- `favorite_team`: This will make that team always show up first in the schedule
-  if they have a game that day and be highlighted in the standings.
-  See [here](https://github.com/mlb-rs/mlbt/blob/main/src/components/constants.rs#L83)
-  for options (note: use the full name and not the short name).
-- `timezone`: This will change the time zone of the start time for the games in
-  the schedule. The default is `US/Pacific`. Some common options are:
-    * `US/Pacific`
-    * `US/Mountain`
-    * `US/Central`
-    * `US/Eastern`
-    * For the full list
-      see [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
-- `log_level`: Set the log level to be displayed. If not present, `error` level
-  is used. Use a lowercase word, e.g. `debug`.
-  See [here](https://github.com/mlb-rs/mlbt/blob/main/src/config.rs#L16)
-  for the options.
+- `favorite_team`: team to highlight in standings and surface first in
+  the schedule. TUI: picker shows all 30 current teams. Manually: use the full
+  name (e.g. `"Chicago Cubs"`). See the
+  [full list](https://github.com/mlb-rs/mlbt/blob/main/src/components/constants.rs#L83).
+- `timezone`: time zone for the start time of the games in the schedule. The
+  default is `US/Pacific`. In app picker covers common zones: Pacific, Arizona,
+  Mountain, Central, Eastern, London, Central Europe, Tokyo, Seoul, Sydney, UTC.
+  For anything else, edit the toml file with any value from the
+  [tz database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+- `log_level`: one of `off`, `error`, `warn`, `info`, `debug`, `trace`.
+  Default is `error`.
 
 ### Example config
 
