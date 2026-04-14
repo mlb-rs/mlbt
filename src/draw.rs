@@ -329,6 +329,8 @@ fn draw_help(f: &mut Frame, rect: Rect, app: &mut App) {
         HelpWidget {
             // use previous tab because help has been set to active at this point
             active_tab: app.state.previous_tab,
+            settings: &app.settings,
+            editor: &app.state.settings_editor,
         },
         rect,
         &mut app.state.help.state,

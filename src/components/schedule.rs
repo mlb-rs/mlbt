@@ -4,9 +4,10 @@ use crate::components::probable_pitchers::{ProbablePitcher, ProbablePitcherMatch
 use crate::components::standings::Team;
 use crate::state::app_settings::AppSettings;
 use crate::state::app_state::HomeOrAway;
-use chrono::{DateTime, NaiveDate};
+use chrono::{DateTime, NaiveDate, Utc};
 use chrono_tz::Tz;
 use core::option::Option::{None, Some};
+use log::error;
 use mlbt_api::schedule::{Game, LeagueRecord, ScheduleResponse};
 use std::cmp::Ordering;
 use tui::widgets::TableState;
@@ -31,7 +32,6 @@ impl Default for ScheduleState {
 }
 
 /// The information needed to create a single row in a table.
-#[derive(Default)]
 pub struct ScheduleRow {
     pub game_id: u64,
     pub home_team: Team,
@@ -40,7 +40,11 @@ pub struct ScheduleRow {
     pub away_team: Team,
     pub away_score: Option<u8>,
     pub away_record: Option<Record>,
+    /// Start time formatted for display in the user's current timezone.
     pub start_time: String,
+    /// Used to rerender `start_time` when the configured timezone changes without refetching the
+    /// schedule.
+    pub start_time_utc: DateTime<Utc>,
     pub game_status: String,
     pub home_probable_pitcher: ProbablePitcher,
     pub away_probable_pitcher: ProbablePitcher,
@@ -114,6 +118,14 @@ impl ScheduleState {
 
     pub fn toggle_win_probability(&mut self) {
         self.show_win_probability = !self.show_win_probability;
+    }
+
+    /// Re-render every row's `start_time` string using the given timezone.
+    /// Called after the user changes timezone so times update without a schedule refetch.
+    pub fn refresh_start_times(&mut self, tz: Tz) {
+        for row in &mut self.schedule {
+            row.start_time = format_start_time(row.start_time_utc, tz);
+        }
     }
 
     pub fn next(&mut self) {
@@ -192,10 +204,13 @@ impl ScheduleRow {
         });
         let away_record = Record::from_league_record(away_team.league_record.as_ref());
 
-        let datetime = DateTime::parse_from_rfc3339(&game.game_date)
-            .unwrap()
-            .with_timezone(&timezone);
-        let start_time = datetime.format("%l:%M %P").to_string();
+        let start_time_utc = DateTime::parse_from_rfc3339(&game.game_date)
+            .map(|dt| dt.with_timezone(&Utc))
+            .unwrap_or_else(|err| {
+                error!("invalid game_date {:?}: {err}", game.game_date);
+                DateTime::<Utc>::UNIX_EPOCH
+            });
+        let start_time = format_start_time(start_time_utc, timezone);
 
         let game_status = match &game.status.detailed_state {
             Some(s) if s == "In Progress" => {
@@ -226,6 +241,7 @@ impl ScheduleRow {
             away_score: game.teams.away.score,
             game_status,
             start_time,
+            start_time_utc,
             home_probable_pitcher: ProbablePitcher::from_team(&game.teams.home).unwrap_or_default(),
             away_probable_pitcher: ProbablePitcher::from_team(&game.teams.away).unwrap_or_default(),
         }
@@ -252,4 +268,9 @@ impl ScheduleRow {
         }
         todays_games
     }
+}
+
+/// Format a UTC game start time for display in the given timezone (e.g. "7:05 pm").
+fn format_start_time(utc: DateTime<Utc>, tz: Tz) -> String {
+    utc.with_timezone(&tz).format("%l:%M %P").to_string()
 }

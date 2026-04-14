@@ -1,6 +1,9 @@
+use crate::config::TomlFileStore;
 use crate::state::app_settings::AppSettings;
 use crate::state::app_state::AppState;
+use crate::state::settings_editor::SettingsStatus;
 use chrono::{NaiveDate, ParseError, Utc};
+use log::{error, info};
 use mlbt_api::live::LiveResponse;
 use mlbt_api::player::PeopleResponse;
 use mlbt_api::schedule::ScheduleResponse;
@@ -30,28 +33,57 @@ pub enum DebugState {
 pub struct App {
     pub settings: AppSettings,
     pub state: AppState,
+    store: TomlFileStore,
 }
 
 impl App {
     pub fn new() -> Self {
+        let store = TomlFileStore::default();
+        let settings = AppSettings::load(&store);
         let mut app = Self {
             state: AppState::default(),
-            settings: AppSettings::load_from_file(),
+            settings,
+            store,
         };
-        app.configure();
+        app.reconfigure();
         app
     }
 
-    /// Run any final configuration that might need to access multiple parts of state.
-    fn configure(&mut self) {
+    /// Commit the picker's current selection: apply to settings, persist, and replay settings
+    /// driven side effects. Sets a status (Saved / Error) on the settings editor, but keeps the in
+    /// memory change even on save failure.
+    pub fn commit_settings_picker(&mut self) {
+        let Some(picker) = self.state.settings_editor.picker.clone() else {
+            return;
+        };
+        picker.field.apply(picker.cursor, &mut self.settings);
+        self.state.settings_editor.close_picker();
+        self.reconfigure();
+
+        let status = match self.store.save(&self.settings) {
+            Ok(()) => {
+                info!("settings saved");
+                SettingsStatus::Saved
+            }
+            Err(err) => {
+                error!("could not save settings: {err}");
+                SettingsStatus::Error(err.to_string())
+            }
+        };
+        self.state.settings_editor.status = Some(status);
+    }
+
+    /// Replay settings-driven side effects across the app. Idempotent.
+    fn reconfigure(&mut self) {
         self.set_all_datepickers_to_today();
         self.state.standings.favorite_team = self.settings.favorite_team;
+        self.state
+            .schedule
+            .refresh_start_times(self.settings.timezone);
 
-        // override log level if set
-        if let Some(level) = self.settings.log_level {
-            log::set_max_level(level);
-            tui_logger::set_default_level(level);
-        }
+        let level = log::LevelFilter::from(self.settings.log_level);
+        log::set_max_level(level);
+        tui_logger::set_default_level(level);
     }
 
     /// Sync date pickers using the correct timezone.

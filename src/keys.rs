@@ -2,6 +2,7 @@ use crate::app::{App, DebugState, MenuItem};
 use crate::cleanup_terminal;
 use crate::components::stats::table::TeamOrPlayer;
 use crate::state::messages::{NetworkRequest, RefreshableRequest};
+use crate::state::settings_editor::SettingsFocus;
 use crate::state::stats::ActivePane;
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
@@ -205,16 +206,12 @@ pub async fn handle_key_bindings(
         (MenuItem::Scoreboard, Char('h'), _) => guard.state.box_score.set_home_active(),
         (MenuItem::Scoreboard, Char('a'), _) => guard.state.box_score.set_away_active(),
 
-        (MenuItem::Help, Char('J'), _) | (MenuItem::Help, KeyCode::Down, KeyModifiers::SHIFT) => {
-            guard.state.help.page_down()
+        (MenuItem::Help, _, _) => {
+            let handled = handle_help_key(key_event, &mut guard);
+            if !handled {
+                handle_global_key(key_event, guard, network_requests).await;
+            }
         }
-        (MenuItem::Help, Char('K'), _) | (MenuItem::Help, KeyCode::Up, KeyModifiers::SHIFT) => {
-            guard.state.help.page_up()
-        }
-        (MenuItem::Help, Char('j') | KeyCode::Down, _) => guard.state.help.next(),
-        (MenuItem::Help, Char('k') | KeyCode::Up, _) => guard.state.help.previous(),
-        (MenuItem::Help, KeyCode::Esc, _) => guard.exit_help(),
-        (MenuItem::Help, Char('"'), _) => guard.toggle_show_logs(),
 
         _ => handle_global_key(key_event, guard, network_requests).await,
     }
@@ -456,5 +453,83 @@ fn handle_search_key(key_event: KeyEvent, guard: &mut AppGuard<'_>) {
         (KeyCode::Down, _) => guard.state.stats.next(),
         (KeyCode::Up, _) => guard.state.stats.previous(),
         _ => {} // swallow all other keys
+    }
+}
+
+/// Handle keys on the Help page. Returns `true` if the key was consumed, or `false` to fall through
+/// to the global handler.
+fn handle_help_key(key_event: KeyEvent, guard: &mut AppGuard<'_>) -> bool {
+    // picker overlay intercepts everything
+    if guard.state.settings_editor.picker.is_some() {
+        match (key_event.code, key_event.modifiers) {
+            (KeyCode::Esc, _) => guard.state.settings_editor.close_picker(),
+            (KeyCode::Enter, _) => guard.commit_settings_picker(),
+            (Char('j') | KeyCode::Down, _) => guard.state.settings_editor.picker_next(),
+            (Char('k') | KeyCode::Up, _) => guard.state.settings_editor.picker_previous(),
+            // letter keys (except j/k which stay as nav) jump to the next option starting with that
+            // letter. cycles on repeated presses.
+            (Char(c), _) if c.is_ascii_alphabetic() => {
+                guard.state.settings_editor.picker_jump_to_char(c);
+            }
+            _ => {}
+        }
+        return true;
+    }
+
+    if key_event.code == KeyCode::Tab {
+        guard.state.settings_editor.toggle_focus();
+        return true;
+    }
+
+    if let (Char('"'), _) = (key_event.code, key_event.modifiers) {
+        guard.toggle_show_logs();
+        return true;
+    }
+
+    match guard.state.settings_editor.focus {
+        SettingsFocus::Settings => match (key_event.code, key_event.modifiers) {
+            (Char('j') | KeyCode::Down, _) => {
+                guard.state.settings_editor.next_field();
+                true
+            }
+            (Char('k') | KeyCode::Up, _) => {
+                guard.state.settings_editor.previous_field();
+                true
+            }
+            (KeyCode::Enter, _) => {
+                let field = guard.state.settings_editor.selected_field;
+                let cursor = field.current_index(&guard.settings);
+                guard.state.settings_editor.open_picker(cursor);
+                true
+            }
+            (KeyCode::Esc, _) => {
+                guard.exit_help();
+                true
+            }
+            _ => false,
+        },
+        SettingsFocus::Docs => match (key_event.code, key_event.modifiers) {
+            (Char('J'), _) | (KeyCode::Down, KeyModifiers::SHIFT) => {
+                guard.state.help.page_down();
+                true
+            }
+            (Char('K'), _) | (KeyCode::Up, KeyModifiers::SHIFT) => {
+                guard.state.help.page_up();
+                true
+            }
+            (Char('j') | KeyCode::Down, _) => {
+                guard.state.help.next();
+                true
+            }
+            (Char('k') | KeyCode::Up, _) => {
+                guard.state.help.previous();
+                true
+            }
+            (KeyCode::Esc, _) => {
+                guard.exit_help();
+                true
+            }
+            _ => false,
+        },
     }
 }

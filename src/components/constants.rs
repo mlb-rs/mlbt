@@ -77,6 +77,16 @@ pub fn lookup_team_by_id(id: u16) -> Option<Team> {
     CURRENT_TEAMS.get(&id).copied()
 }
 
+/// All current MLB teams, sorted by full name. Cached on first call.
+pub fn current_teams_sorted() -> &'static [Team] {
+    static SORTED: LazyLock<Vec<Team>> = LazyLock::new(|| {
+        let mut v: Vec<Team> = CURRENT_TEAMS.values().copied().collect();
+        v.sort_by_key(|t| t.name);
+        v
+    });
+    &SORTED
+}
+
 /// Current MLB teams keyed by id. Unlike `TEAM_IDS` which maps names (including historical aliases)
 /// to teams, this map has exactly one entry per current franchise with a unique id.
 #[rustfmt::skip]
