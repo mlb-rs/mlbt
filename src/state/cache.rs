@@ -9,7 +9,7 @@ use std::time::{Duration, Instant};
 
 const FINAL_GAME_TTL: Duration = Duration::from_hours(1);
 const PRUNE_AGE: Duration = Duration::from_hours(48);
-const PRUNE_INTERVAL: Duration = Duration::from_hours(2);
+pub const PRUNE_INTERVAL: Duration = Duration::from_hours(2);
 
 /// Cache key identifying a unique API request. PlayerProfile is excluded because it requires
 /// owned data for transformation (StatSplits stores Vec<Split> directly).
