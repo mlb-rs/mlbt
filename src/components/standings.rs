@@ -155,6 +155,24 @@ impl StandingsState {
         }
     }
 
+    /// Reapply the favorite team ordering/highlight to already loaded standings data.
+    pub fn apply_favorite_team(&mut self, favorite_team: Option<Team>) {
+        self.favorite_team = favorite_team;
+
+        if !self
+            .standings
+            .iter()
+            .any(|division| !division.standings.is_empty())
+        {
+            return;
+        }
+
+        Division::sort_by_favorite(&mut self.standings, favorite_team);
+        self.league_standings = self.get_teams_by_record();
+        self.team_ids = self.generate_ids();
+        self.reset_selection();
+    }
+
     /// Set the date from the validated input string from the date picker.
     pub fn set_date_from_valid_input(&mut self, date: NaiveDate) {
         self.date_selector.set_date_from_valid_input(date);
@@ -408,21 +426,25 @@ impl Division {
             })
             .collect();
 
+        Self::sort_by_favorite(&mut s, favorite_team);
+        s
+    }
+
+    fn sort_by_favorite(divisions: &mut [Division], favorite_team: Option<Team>) {
         if let Some(team) = favorite_team {
             if let Some(order) = DIVISION_ORDERS.get(&team.division_id) {
-                s.sort_by_key(|standing| {
+                divisions.sort_by_key(|standing| {
                     order
                         .iter()
                         .position(|&x| x == standing.id)
                         .unwrap_or(usize::MAX)
                 });
+                return;
             }
-        } else {
-            // ensure display order is the same
-            s.sort_by(|a, b| a.id.cmp(&b.id));
         }
 
-        s
+        // ensure display order is the same when there is no favorite team ordering
+        divisions.sort_by(|a, b| a.id.cmp(&b.id));
     }
 }
 
@@ -497,5 +519,65 @@ impl Standing {
             self.home.clone().into(),
             self.away.clone().into(),
         ]
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn standing(team_id: u16, wins: u8, losses: u8) -> Standing {
+        Standing {
+            team: lookup_team_by_id(team_id).unwrap(),
+            wins,
+            losses,
+            ..Standing::default()
+        }
+    }
+
+    #[test]
+    fn apply_favorite_team_reorders_divisions_and_selects_team() {
+        let mut state = StandingsState {
+            state: TableState::default(),
+            favorite_team: None,
+            standings: vec![
+                Division {
+                    id: 200,
+                    name: "AL West".to_string(),
+                    standings: vec![standing(108, 10, 5)],
+                },
+                Division {
+                    id: 201,
+                    name: "AL East".to_string(),
+                    standings: vec![standing(147, 11, 4)],
+                },
+                Division {
+                    id: 205,
+                    name: "NL Central".to_string(),
+                    standings: vec![standing(112, 9, 6)],
+                },
+            ],
+            league_standings: vec![],
+            team_ids: vec![],
+            date_selector: DateSelector::default(),
+            view_mode: ViewMode::ByDivision,
+            division_row_indices: HashSet::new(),
+            team_page: None,
+        };
+
+        state.apply_favorite_team(lookup_team_by_id(147));
+
+        assert_eq!(
+            state
+                .standings
+                .iter()
+                .map(|division| division.id)
+                .collect::<Vec<_>>(),
+            vec![201, 202, 200, 203, 204, 205]
+                .into_iter()
+                .filter(|id| [200, 201, 205].contains(id))
+                .collect::<Vec<_>>()
+        );
+        assert_eq!(state.get_selected(), 147);
     }
 }

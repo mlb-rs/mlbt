@@ -45,7 +45,7 @@ impl App {
             settings,
             store,
         };
-        app.reconfigure();
+        app.configure();
         app
     }
 
@@ -56,9 +56,10 @@ impl App {
         let Some(picker) = self.state.settings_editor.picker.clone() else {
             return;
         };
+        let previous_settings = self.settings.clone();
         picker.field.apply(picker.cursor, &mut self.settings);
         self.state.settings_editor.close_picker();
-        self.reconfigure();
+        self.apply_runtime_settings(&previous_settings);
 
         let status = match self.store.save(&self.settings) {
             Ok(()) => {
@@ -73,14 +74,36 @@ impl App {
         self.state.settings_editor.status = Some(status);
     }
 
-    /// Replay settings-driven side effects across the app. Idempotent.
-    fn reconfigure(&mut self) {
+    /// Startup only configuration that should run once after settings are loaded.
+    fn configure(&mut self) {
         self.set_all_datepickers_to_today();
         self.state.standings.favorite_team = self.settings.favorite_team;
-        self.state
-            .schedule
-            .refresh_start_times(self.settings.timezone);
+        self.apply_log_level();
+    }
 
+    /// Replay only the side effects driven by settings that changed at runtime.
+    fn apply_runtime_settings(&mut self, previous: &AppSettings) {
+        if self.settings.favorite_team.map(|t| t.id) != previous.favorite_team.map(|t| t.id) {
+            self.state
+                .schedule
+                .apply_favorite_team(self.settings.favorite_team);
+            self.state
+                .standings
+                .apply_favorite_team(self.settings.favorite_team);
+        }
+
+        if self.settings.timezone != previous.timezone {
+            self.state
+                .schedule
+                .refresh_start_times(self.settings.timezone);
+        }
+
+        if self.settings.log_level != previous.log_level {
+            self.apply_log_level();
+        }
+    }
+
+    fn apply_log_level(&self) {
         let level = log::LevelFilter::from(self.settings.log_level);
         log::set_max_level(level);
         tui_logger::set_default_level(level);
@@ -147,6 +170,10 @@ impl App {
         self.state.active_tab = next;
         self.state.debug_state = DebugState::Off;
 
+        if self.state.previous_tab == MenuItem::Help {
+            self.state.settings_editor.status = None;
+        }
+
         // reset help state when switching tabs but not when its opened/closed on same tab
         if next != MenuItem::Help {
             self.state.help.reset();
@@ -198,6 +225,7 @@ impl App {
     pub fn exit_help(&mut self) {
         if self.state.active_tab == MenuItem::Help {
             self.state.active_tab = self.state.previous_tab;
+            self.state.settings_editor.status = None;
         }
     }
 
@@ -294,5 +322,63 @@ impl App {
             }
             _ => {}
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::components::constants::lookup_team_by_id;
+    use crate::config::ConfigFile;
+
+    fn test_app() -> App {
+        App {
+            settings: AppSettings::from(ConfigFile::default()),
+            state: AppState::default(),
+            store: TomlFileStore::default(),
+        }
+    }
+
+    #[test]
+    fn runtime_settings_change_preserves_selected_dates() {
+        let mut app = test_app();
+        let historical_date = NaiveDate::from_ymd_opt(2024, 7, 4).unwrap();
+        app.state.schedule.date_selector.date = historical_date;
+        app.state.stats.date_selector.date = historical_date;
+        app.state.standings.date_selector.date = historical_date;
+
+        let previous_settings = app.settings.clone();
+        app.settings.favorite_team = lookup_team_by_id(112);
+        app.apply_runtime_settings(&previous_settings);
+
+        assert_eq!(app.state.schedule.date_selector.date, historical_date);
+        assert_eq!(app.state.stats.date_selector.date, historical_date);
+        assert_eq!(app.state.standings.date_selector.date, historical_date);
+    }
+
+    #[test]
+    fn exit_help_clears_settings_status() {
+        let mut app = test_app();
+        app.state.active_tab = MenuItem::Help;
+        app.state.previous_tab = MenuItem::Scoreboard;
+        app.state.settings_editor.status = Some(SettingsStatus::Saved);
+
+        app.exit_help();
+
+        assert_eq!(app.state.active_tab, MenuItem::Scoreboard);
+        assert!(app.state.settings_editor.status.is_none());
+    }
+
+    #[test]
+    fn leaving_help_via_tab_switch_clears_settings_status() {
+        let mut app = test_app();
+        app.state.active_tab = MenuItem::Help;
+        app.state.previous_tab = MenuItem::Scoreboard;
+        app.state.settings_editor.status = Some(SettingsStatus::Saved);
+
+        app.update_tab(MenuItem::Stats);
+
+        assert_eq!(app.state.active_tab, MenuItem::Stats);
+        assert!(app.state.settings_editor.status.is_none());
     }
 }
