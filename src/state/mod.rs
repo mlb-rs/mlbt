@@ -4,6 +4,7 @@ pub mod boxscore;
 pub mod cache;
 pub mod date_input;
 pub mod gameday;
+pub mod help;
 pub mod messages;
 pub mod network;
 pub mod player_profile;

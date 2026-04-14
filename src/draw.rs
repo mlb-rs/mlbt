@@ -12,7 +12,7 @@ use crate::ui::boxscore::TeamBatterBoxscoreWidget;
 use crate::ui::date_selector::DateSelectorWidget;
 use crate::ui::gameday::gameday_widget::GamedayWidget;
 use crate::ui::gameday::win_probability::WinProbabilityWidget;
-use crate::ui::help::HelpWidget;
+use crate::ui::help::help_widget::HelpWidget;
 use crate::ui::input_popup::{InputPopup, popup_cursor_position};
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
