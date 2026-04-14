@@ -431,16 +431,16 @@ impl Division {
     }
 
     fn sort_by_favorite(divisions: &mut [Division], favorite_team: Option<Team>) {
-        if let Some(team) = favorite_team {
-            if let Some(order) = DIVISION_ORDERS.get(&team.division_id) {
-                divisions.sort_by_key(|standing| {
-                    order
-                        .iter()
-                        .position(|&x| x == standing.id)
-                        .unwrap_or(usize::MAX)
-                });
-                return;
-            }
+        if let Some(team) = favorite_team
+            && let Some(order) = DIVISION_ORDERS.get(&team.division_id)
+        {
+            divisions.sort_by_key(|standing| {
+                order
+                    .iter()
+                    .position(|&x| x == standing.id)
+                    .unwrap_or(usize::MAX)
+            });
+            return;
         }
 
         // ensure display order is the same when there is no favorite team ordering

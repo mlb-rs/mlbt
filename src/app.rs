@@ -96,6 +96,12 @@ impl App {
             self.state
                 .schedule
                 .refresh_start_times(self.settings.timezone);
+            if let Some(tp) = &mut self.state.standings.team_page {
+                tp.refresh_schedule_times(self.settings.timezone);
+            }
+            if let Some(tp) = &mut self.state.stats.team_page {
+                tp.refresh_schedule_times(self.settings.timezone);
+            }
         }
 
         if self.settings.log_level != previous.log_level {
@@ -329,13 +335,51 @@ impl App {
 mod tests {
     use super::*;
     use crate::components::constants::lookup_team_by_id;
+    use crate::components::team_page::TeamGame;
     use crate::config::ConfigFile;
+    use crate::state::team_page::{TeamPageState, TeamSection};
+    use tui::widgets::TableState;
 
     fn test_app() -> App {
         App {
             settings: AppSettings::from(ConfigFile::default()),
             state: AppState::default(),
             store: TomlFileStore::default(),
+        }
+    }
+
+    fn test_team_page(time_or_score: &str) -> TeamPageState {
+        TeamPageState {
+            team: lookup_team_by_id(112).unwrap(),
+            date: NaiveDate::from_ymd_opt(2025, 3, 28).unwrap(),
+            schedule: vec![TeamGame {
+                date: NaiveDate::from_ymd_opt(2025, 3, 28).unwrap(),
+                date_display: "Mar 28".to_string(),
+                opponent: "@ AZ".to_string(),
+                time_or_score: time_or_score.to_string(),
+                start_time_utc: Some(
+                    NaiveDate::from_ymd_opt(2025, 3, 28)
+                        .unwrap()
+                        .and_hms_opt(23, 10, 0)
+                        .unwrap()
+                        .and_utc(),
+                ),
+                is_home: false,
+                is_past: false,
+            }],
+            schedule_selection: TableState::default(),
+            roster: vec![],
+            roster_type: RosterType::Active,
+            transactions: vec![],
+            selected_transaction: 0,
+            transaction_scroll: 0,
+            active_section: TeamSection::Roster,
+            roster_selection: TableState::default(),
+            roster_table_len: 0,
+            roster_header_rows: std::collections::HashSet::new(),
+            roster_row_map: vec![],
+            player_profile: None,
+            show_calendar: true,
         }
     }
 
@@ -354,6 +398,43 @@ mod tests {
         assert_eq!(app.state.schedule.date_selector.date, historical_date);
         assert_eq!(app.state.stats.date_selector.date, historical_date);
         assert_eq!(app.state.standings.date_selector.date, historical_date);
+    }
+
+    #[test]
+    fn runtime_timezone_change_refreshes_open_team_pages() {
+        let mut app = test_app();
+        app.settings.timezone = chrono_tz::US::Eastern;
+        app.state.standings.team_page = Some(test_team_page("7:10 PM"));
+        app.state.stats.team_page = Some(test_team_page("7:10 PM"));
+
+        let previous_settings = app.settings.clone();
+        app.settings.timezone = chrono_tz::US::Pacific;
+        app.apply_runtime_settings(&previous_settings);
+
+        assert_eq!(
+            app.state
+                .standings
+                .team_page
+                .as_ref()
+                .unwrap()
+                .schedule
+                .first()
+                .unwrap()
+                .time_or_score,
+            "4:10 pm"
+        );
+        assert_eq!(
+            app.state
+                .stats
+                .team_page
+                .as_ref()
+                .unwrap()
+                .schedule
+                .first()
+                .unwrap()
+                .time_or_score,
+            "4:10 pm"
+        );
     }
 
     #[test]

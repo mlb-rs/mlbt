@@ -2,6 +2,7 @@ use crate::components::constants::lookup_team_or;
 use crate::components::date_selector::DateSelector;
 use crate::components::probable_pitchers::{ProbablePitcher, ProbablePitcherMatchup};
 use crate::components::standings::Team;
+use crate::components::util::format_start_time_table;
 use crate::state::app_settings::AppSettings;
 use crate::state::app_state::HomeOrAway;
 use chrono::{DateTime, NaiveDate, Utc};
@@ -124,7 +125,7 @@ impl ScheduleState {
     /// Called after the user changes timezone so times update without a schedule refetch.
     pub fn refresh_start_times(&mut self, tz: Tz) {
         for row in &mut self.schedule {
-            row.start_time = format_start_time(row.start_time_utc, tz);
+            row.start_time = format_start_time_table(row.start_time_utc, tz);
         }
     }
 
@@ -224,7 +225,7 @@ impl ScheduleRow {
                 error!("invalid game_date {:?}: {err}", game.game_date);
                 DateTime::<Utc>::UNIX_EPOCH
             });
-        let start_time = format_start_time(start_time_utc, timezone);
+        let start_time = format_start_time_table(start_time_utc, timezone);
 
         let game_status = match &game.status.detailed_state {
             Some(s) if s == "In Progress" => {
@@ -264,11 +265,11 @@ impl ScheduleRow {
     /// Transform the data from the API into a vector of ScheduleRows.
     fn create_table(settings: &AppSettings, schedule: &ScheduleResponse) -> Vec<Self> {
         let mut todays_games: Vec<ScheduleRow> = Vec::with_capacity(schedule.dates.len());
-        if let Some(games) = &schedule.dates.first() {
-            if let Some(game) = &games.games {
-                for g in game {
-                    todays_games.push(ScheduleRow::create_matchup(g, settings.timezone));
-                }
+        if let Some(games) = &schedule.dates.first()
+            && let Some(game) = &games.games
+        {
+            for g in game {
+                todays_games.push(ScheduleRow::create_matchup(g, settings.timezone));
             }
         }
         favorite_first(todays_games, settings.favorite_team)
@@ -298,11 +299,6 @@ fn favorite_first(
     other.sort_by_key(|row| row.game_id);
     favorite.extend(other);
     favorite
-}
-
-/// Format a UTC game start time for display in the given timezone (e.g. "7:05 pm").
-fn format_start_time(utc: DateTime<Utc>, tz: Tz) -> String {
-    utc.with_timezone(&tz).format("%l:%M %P").to_string()
 }
 
 #[cfg(test)]
