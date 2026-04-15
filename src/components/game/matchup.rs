@@ -1,6 +1,7 @@
 use crate::components::game::live_game::PlayerMap;
 use mlbt_api::plays::{Count, Play};
-use tui::prelude::Stylize;
+use tui::prelude::{Span, Style, Stylize};
+use tui::style::Color;
 use tui::text::Line;
 
 pub struct Matchup {
@@ -24,9 +25,6 @@ pub struct Runners {
 }
 
 impl Runners {
-    const ON_BASE_CHAR: char = '■';
-    const EMPTY_BASE_CHAR: char = '□';
-
     pub fn from_matchup(matchup: &mlbt_api::plays::Matchup) -> Self {
         Runners {
             first: matchup.post_on_first.is_some(),
@@ -37,16 +35,18 @@ impl Runners {
 
     /// Generate two lines, one for second base and one for first and third. Second base is shown
     /// on a line above first and third.
-    pub fn generate_lines(&self) -> (Line<'_>, Line<'_>) {
+    pub fn generate_lines(&self, symbols: &crate::symbols::Symbols) -> (Line<'_>, Line<'_>) {
+        let on = symbols.base_occupied();
+        let off = symbols.base_empty();
         let second_base = match self.second {
-            true => format!("  {}  ", Self::ON_BASE_CHAR),
-            false => format!("  {}  ", Self::EMPTY_BASE_CHAR),
+            true => format!("  {on}  "),
+            false => format!("  {off}  "),
         };
         let first_third = match (self.first, self.third) {
-            (false, false) => format!("{}   {}", Self::EMPTY_BASE_CHAR, Self::EMPTY_BASE_CHAR),
-            (true, false) => format!("{}   {}", Self::EMPTY_BASE_CHAR, Self::ON_BASE_CHAR),
-            (false, true) => format!("{}   {}", Self::ON_BASE_CHAR, Self::EMPTY_BASE_CHAR),
-            (true, true) => format!("{}   {}", Self::ON_BASE_CHAR, Self::ON_BASE_CHAR),
+            (false, false) => format!("{off}   {off}"),
+            (true, false) => format!("{off}   {on}"),
+            (false, true) => format!("{on}   {off}"),
+            (true, true) => format!("{on}   {on}"),
         };
         (Line::from(second_base), Line::from(first_third))
     }
@@ -176,16 +176,31 @@ impl Matchup {
         lines
     }
 
-    pub fn format_scoreboard_lines(&self) -> Vec<Line<'_>> {
-        let outs = match self.count.outs {
-            0 => "◯ ◯ ◯",
-            1 => "● ◯ ◯",
-            2 => "● ● ◯",
-            3 => "● ● ●",
-            _ => "",
-        };
+    pub fn format_scoreboard_lines(&self, symbols: &crate::symbols::Symbols) -> Vec<Line<'_>> {
         let arrow = if self.is_top { "▲" } else { "▼" };
-        let (second_base, first_third) = self.runners.generate_lines();
+        let (second_base, first_third) = self.runners.generate_lines(symbols);
+
+        let outs_line = if symbols.nerd_fonts() {
+            let filled = Span::styled("●", Style::default().fg(Color::Red));
+            let empty  = Span::styled("◯", Style::default().fg(Color::DarkGray));
+            let sp     = Span::raw(" ");
+            let count  = self.count.outs as usize;
+            let mut spans: Vec<Span<'_>> = Vec::with_capacity(5);
+            for i in 0..3 {
+                if i > 0 { spans.push(sp.clone()); }
+                spans.push(if i < count { filled.clone() } else { empty.clone() });
+            }
+            Line::from(spans)
+        } else {
+            let s = match self.count.outs {
+                0 => "◯ ◯ ◯",
+                1 => "● ◯ ◯",
+                2 => "● ● ◯",
+                3 => "● ● ●",
+                _ => "",
+            };
+            Line::from(s)
+        };
 
         vec![
             Line::from(format!(
@@ -194,7 +209,7 @@ impl Matchup {
             )),
             second_base,
             first_third,
-            Line::from(outs),
+            outs_line,
         ]
     }
 }

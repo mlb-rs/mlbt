@@ -147,5 +147,35 @@ pub static TEAM_IDS: LazyLock<HashMap<&'static str, Team>> = LazyLock::new(|| {
     m.insert("New York Giants", Team { id: 137, division_id: 0, name: "New York Giants", team_name: "Giants", abbreviation: "NYG" });
     m.insert("Boston Braves", Team { id: 144, division_id: 0, name: "Boston Braves", team_name: "Braves", abbreviation: "BSN" });
     m.insert("St. Louis Browns", Team { id: 110, division_id: 0, name: "St. Louis Browns", team_name: "Browns", abbreviation: "SLB" });
+    // Short names — the standings and schedule API endpoints return these instead of full names
+    m.insert("Angels", Team { id: 108, division_id: 200, name: "Los Angeles Angels", team_name: "Angels", abbreviation: "LAA" });
+    m.insert("D-backs", Team { id: 109, division_id: 203, name: "Arizona Diamondbacks", team_name: "D-backs", abbreviation: "AZ" });
+    m.insert("Orioles", Team { id: 110, division_id: 201, name: "Baltimore Orioles", team_name: "Orioles", abbreviation: "BAL" });
+    m.insert("Red Sox", Team { id: 111, division_id: 201, name: "Boston Red Sox", team_name: "Red Sox", abbreviation: "BOS" });
+    m.insert("Cubs", Team { id: 112, division_id: 205, name: "Chicago Cubs", team_name: "Cubs", abbreviation: "CHC" });
+    m.insert("Reds", Team { id: 113, division_id: 205, name: "Cincinnati Reds", team_name: "Reds", abbreviation: "CIN" });
+    m.insert("Guardians", Team { id: 114, division_id: 202, name: "Cleveland Guardians", team_name: "Guardians", abbreviation: "CLE" });
+    m.insert("Rockies", Team { id: 115, division_id: 203, name: "Colorado Rockies", team_name: "Rockies", abbreviation: "COL" });
+    m.insert("Tigers", Team { id: 116, division_id: 202, name: "Detroit Tigers", team_name: "Tigers", abbreviation: "DET" });
+    m.insert("Astros", Team { id: 117, division_id: 200, name: "Houston Astros", team_name: "Astros", abbreviation: "HOU" });
+    m.insert("Royals", Team { id: 118, division_id: 202, name: "Kansas City Royals", team_name: "Royals", abbreviation: "KC" });
+    m.insert("Dodgers", Team { id: 119, division_id: 203, name: "Los Angeles Dodgers", team_name: "Dodgers", abbreviation: "LAD" });
+    m.insert("Nationals", Team { id: 120, division_id: 204, name: "Washington Nationals", team_name: "Nationals", abbreviation: "WSH" });
+    m.insert("Mets", Team { id: 121, division_id: 204, name: "New York Mets", team_name: "Mets", abbreviation: "NYM" });
+    m.insert("Pirates", Team { id: 134, division_id: 205, name: "Pittsburgh Pirates", team_name: "Pirates", abbreviation: "PIT" });
+    m.insert("Padres", Team { id: 135, division_id: 203, name: "San Diego Padres", team_name: "Padres", abbreviation: "SD" });
+    m.insert("Mariners", Team { id: 136, division_id: 200, name: "Seattle Mariners", team_name: "Mariners", abbreviation: "SEA" });
+    m.insert("Giants", Team { id: 137, division_id: 203, name: "San Francisco Giants", team_name: "Giants", abbreviation: "SF" });
+    m.insert("Cardinals", Team { id: 138, division_id: 205, name: "St. Louis Cardinals", team_name: "Cardinals", abbreviation: "STL" });
+    m.insert("Rays", Team { id: 139, division_id: 201, name: "Tampa Bay Rays", team_name: "Rays", abbreviation: "TB" });
+    m.insert("Rangers", Team { id: 140, division_id: 200, name: "Texas Rangers", team_name: "Rangers", abbreviation: "TEX" });
+    m.insert("Blue Jays", Team { id: 141, division_id: 201, name: "Toronto Blue Jays", team_name: "Blue Jays", abbreviation: "TOR" });
+    m.insert("Twins", Team { id: 142, division_id: 202, name: "Minnesota Twins", team_name: "Twins", abbreviation: "MIN" });
+    m.insert("Phillies", Team { id: 143, division_id: 204, name: "Philadelphia Phillies", team_name: "Phillies", abbreviation: "PHI" });
+    m.insert("Braves", Team { id: 144, division_id: 204, name: "Atlanta Braves", team_name: "Braves", abbreviation: "ATL" });
+    m.insert("White Sox", Team { id: 145, division_id: 202, name: "Chicago White Sox", team_name: "White Sox", abbreviation: "CWS" });
+    m.insert("Marlins", Team { id: 146, division_id: 204, name: "Miami Marlins", team_name: "Marlins", abbreviation: "MIA" });
+    m.insert("Yankees", Team { id: 147, division_id: 201, name: "New York Yankees", team_name: "Yankees", abbreviation: "NYY" });
+    m.insert("Brewers", Team { id: 158, division_id: 205, name: "Milwaukee Brewers", team_name: "Brewers", abbreviation: "MIL" });
     m
 });
