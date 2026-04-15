@@ -175,11 +175,11 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
         f.render_widget(ProbablePitchersWidget { matchup }, boxscore);
     } else {
         draw_border(f, boxscore, Color::White);
-        draw_linescore_boxscore(f, boxscore, app);
+        draw_linescore_boxscore(f, boxscore, app, symbols);
     }
 }
 
-fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App) {
+fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) {
     let chunks = LayoutAreas::for_boxscore(rect);
 
     f.render_widget(
@@ -193,6 +193,7 @@ fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App) {
         TeamBatterBoxscoreWidget {
             active: app.state.box_score.active_team,
             state: &mut app.state.box_score,
+            symbols,
         },
         chunks[1],
     );
@@ -220,14 +221,14 @@ fn draw_gameday(f: &mut Frame, rect: Rect, app: &mut App) {
 fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
     if let Some(tp) = &mut app.state.stats.team_page {
         if let Some(profile) = &mut tp.player_profile {
-            PlayerProfileWidget { state: profile }.render(rect, f.buffer_mut());
+            PlayerProfileWidget { state: profile, symbols }.render(rect, f.buffer_mut());
             return;
         }
         TeamPageWidget { state: tp }.render(rect, f.buffer_mut());
         return;
     }
     if let Some(profile) = &mut app.state.stats.player_profile {
-        PlayerProfileWidget { state: profile }.render(rect, f.buffer_mut());
+        PlayerProfileWidget { state: profile, symbols }.render(rect, f.buffer_mut());
         return;
     }
 
@@ -290,7 +291,7 @@ fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
 fn draw_standings(f: &mut Frame, rect: Rect, app: &mut App) {
     if let Some(tp) = &mut app.state.standings.team_page {
         if let Some(profile) = &mut tp.player_profile {
-            PlayerProfileWidget { state: profile }.render(rect, f.buffer_mut());
+            PlayerProfileWidget { state: profile, symbols }.render(rect, f.buffer_mut());
             return;
         }
         TeamPageWidget { state: tp }.render(rect, f.buffer_mut());

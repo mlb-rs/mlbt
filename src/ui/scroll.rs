@@ -39,7 +39,12 @@ pub fn adjust_area_for_scroll(area: Rect, params: ScrollParams) -> Option<(Rect,
     }
 }
 
-pub fn render_scrollbar(area: Rect, scroll_state: &mut ScrollbarState, buf: &mut Buffer) {
+pub fn render_scrollbar(
+    area: Rect,
+    scroll_state: &mut ScrollbarState,
+    symbols: &crate::symbols::Symbols,
+    buf: &mut Buffer,
+) {
     let scrollbar_area = Rect {
         x: area.x + area.width + 1, // +1 to render over the border
         y: area.y,
@@ -50,8 +55,8 @@ pub fn render_scrollbar(area: Rect, scroll_state: &mut ScrollbarState, buf: &mut
         Scrollbar::new(ScrollbarOrientation::VerticalRight)
             .thumb_symbol(DOUBLE_VERTICAL.track)
             .track_symbol(Some(DOUBLE_VERTICAL.track))
-            .begin_symbol(Some("↑"))
-            .end_symbol(Some("↓")),
+            .begin_symbol(Some(symbols.scroll_up()))
+            .end_symbol(Some(symbols.scroll_down())),
         scrollbar_area,
         buf,
         scroll_state,
