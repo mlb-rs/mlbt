@@ -58,7 +58,7 @@ impl LayoutAreas {
     /// Create two splits for displaying the current matchup and the pitches for the at bat.
     pub fn for_at_bat(rect: Rect) -> [Rect; 2] {
         Layout::vertical([
-            Constraint::Length(7), // matchup + on deck
+            Constraint::Length(8), // matchup + weather + on deck
             Constraint::Fill(1),   // pitches
         ])
         .areas(rect)

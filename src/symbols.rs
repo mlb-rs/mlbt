@@ -127,7 +127,7 @@ impl Symbols {
         }
     }
 
-    /// Format a weather string for display. Returns something like "72°F ☀" or "72°F".
+    /// Format a weather string for display. Returns something like "☀ 72°F" or "72°F".
     pub fn format_weather(&self, condition: &str, temp: &str) -> String {
         let icon = self.weather_icon(condition);
         if icon.is_empty() {

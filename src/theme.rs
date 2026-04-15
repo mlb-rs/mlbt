@@ -61,6 +61,30 @@ impl Theme {
     pub const TITLE_BG: Color = Color::Rgb(40, 60, 80);
     pub const TITLE_FG: Color = Color::Rgb(235, 219, 178);
 
+    // --- Weather colors (temperature heat scale) ---
+
+    /// Color for temperature on a cold-to-hot scale.
+    /// Blue for cold games, teal for cool, default for mild, orange for warm, red for hot.
+    pub fn temp_color(temp: u8) -> Color {
+        match temp {
+            0..=45 => Color::Rgb(100, 150, 220),  // cold — blue
+            46..=60 => Color::Rgb(80, 170, 170),  // cool — teal
+            61..=80 => Color::Rgb(146, 131, 116), // mild — dimmed/neutral
+            81..=95 => Color::Rgb(214, 153, 33),  // warm — orange
+            _ => Color::Rgb(204, 36, 29),         // hot — red
+        }
+    }
+
+    /// Color for wind speed. Calm is dimmed, strong wind gets more visible.
+    pub fn wind_color(mph: u8) -> Color {
+        match mph {
+            0..=5 => Color::Rgb(146, 131, 116),  // calm — dimmed
+            6..=12 => Color::Rgb(131, 178, 224), // light — soft blue
+            13..=20 => Color::Rgb(69, 133, 207), // moderate — blue
+            _ => Color::Rgb(160, 90, 200),       // strong — purple
+        }
+    }
+
     // --- Rainbow-only backgrounds ---
 
     pub const ROW_HIGHLIGHT: Color = Color::Rgb(55, 55, 60);

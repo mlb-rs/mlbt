@@ -196,12 +196,14 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) 
         f.render_widget(ProbablePitchersWidget { matchup }, boxscore);
     } else {
         // Show weather in the boxscore border title if available
-        let weather_title = app.state.gameday.game.weather.as_ref().and_then(|w| {
+        let weather_info = app.state.gameday.game.weather.as_ref().and_then(|w| {
             let condition = w.condition.as_deref()?;
             let temp = w.temp.as_deref()?;
-            Some(symbols.format_weather(condition, temp))
+            let temp_val: u8 = temp.parse().unwrap_or(70);
+            Some((symbols.format_weather(condition, temp), temp_val))
         });
-        if let Some(title) = &weather_title {
+        if let Some((title, temp_val)) = &weather_info {
+            use crate::theme::Theme;
             let block = Block::default()
                 .borders(Borders::ALL)
                 .border_type(BorderType::Rounded)
@@ -209,7 +211,7 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) 
                 .title_bottom(
                     Line::from(Span::styled(
                         format!(" {title} "),
-                        Style::default().fg(Color::DarkGray),
+                        Style::default().fg(Theme::temp_color(*temp_val)),
                     ))
                     .alignment(Alignment::Right),
                 );

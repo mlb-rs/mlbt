@@ -1,5 +1,6 @@
 use crate::components::game::live_game::GameState;
 use crate::symbols::Symbols;
+use crate::theme::Theme;
 use tui::prelude::*;
 use tui::widgets::{Block, Borders, Padding, Paragraph};
 
@@ -44,15 +45,41 @@ impl Widget for MatchupWidget<'_> {
             buf,
         );
         let mut scoreboard_lines = at_bat.matchup.format_scoreboard_lines(self.symbols);
-        // Append weather line if available
+        // Append weather line if available, colored by temperature and wind
         if let Some(weather) = &self.game.weather
             && let (Some(condition), Some(temp)) = (&weather.condition, &weather.temp)
         {
-            let weather_text = self.symbols.format_weather(condition, temp);
-            scoreboard_lines.push(Line::from(Span::styled(
-                weather_text,
-                Style::default().fg(Color::DarkGray),
-            )));
+            let icon = self.symbols.weather_icon(condition);
+            let temp_val: u8 = temp.parse().unwrap_or(70);
+            let temp_color = Theme::temp_color(temp_val);
+
+            let mut spans = vec![];
+            if !icon.is_empty() {
+                spans.push(Span::styled(
+                    format!("{icon} "),
+                    Style::default().fg(temp_color),
+                ));
+            }
+            spans.push(Span::styled(
+                format!("{temp}°F"),
+                Style::default().fg(temp_color),
+            ));
+
+            if let Some(wind) = &weather.wind {
+                // Parse mph from strings like "11 mph, Out To RF"
+                let mph: u8 = wind
+                    .split_whitespace()
+                    .next()
+                    .and_then(|s| s.parse().ok())
+                    .unwrap_or(0);
+                let wind_color = Theme::wind_color(mph);
+                spans.push(Span::styled(
+                    format!("  {wind}"),
+                    Style::default().fg(wind_color),
+                ));
+            }
+
+            scoreboard_lines.push(Line::from(spans));
         }
         Widget::render(
             Paragraph::new(scoreboard_lines)
