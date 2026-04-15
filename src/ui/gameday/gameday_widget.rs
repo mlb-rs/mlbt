@@ -41,6 +41,7 @@ impl Widget for GamedayWidget<'_> {
             let boxscore_widget = TeamBatterBoxscoreWidget {
                 active: self.active,
                 state: self.boxscore_state,
+                symbols: self.symbols,
             };
             Widget::render(boxscore_widget, chunks[1], buf);
         }
