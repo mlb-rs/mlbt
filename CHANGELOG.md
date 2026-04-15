@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix Stats page option pane selection: [PR 119](https://github.com/mlb-rs/mlbt/pull/119)
+- Fix challenge API response: [PR 126](https://github.com/mlb-rs/mlbt/pull/126)
 
 ## [0.2.0] - 2026-03-30
 

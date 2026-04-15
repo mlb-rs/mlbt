@@ -97,10 +97,10 @@ pub struct PlayEvent {
 #[derive(Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ReviewDetails {
-    pub is_overturned: bool,
-    pub in_progress: bool,
-    pub review_type: String,
-    pub challenge_team_id: u16,
+    pub is_overturned: Option<bool>,
+    pub in_progress: Option<bool>,
+    pub review_type: Option<String>,
+    pub challenge_team_id: Option<u16>,
     pub player: Option<Person>,
 }
 
