@@ -10,6 +10,8 @@ pub struct AppSettings {
     pub timezone: Tz,
     pub timezone_abbreviation: String,
     pub log_level: Option<LevelFilter>,
+    pub nerd_fonts: bool,
+    pub team_colors: bool,
 }
 
 impl AppSettings {
