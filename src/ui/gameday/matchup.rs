@@ -66,15 +66,15 @@ impl Widget for MatchupWidget<'_> {
             ));
 
             if let Some(wind) = &weather.wind {
-                // Parse mph from strings like "11 mph, Out To RF"
                 let mph: u8 = wind
                     .split_whitespace()
                     .next()
                     .and_then(|s| s.parse().ok())
                     .unwrap_or(0);
                 let wind_color = Theme::wind_color(mph);
+                let formatted = self.symbols.format_wind(wind);
                 spans.push(Span::styled(
-                    format!("  {wind}"),
+                    format!("  {formatted}"),
                     Style::default().fg(wind_color),
                 ));
             }

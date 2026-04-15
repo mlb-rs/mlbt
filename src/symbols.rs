@@ -136,6 +136,45 @@ impl Symbols {
             format!("{icon} {temp}°F")
         }
     }
+
+    /// Format wind string from the API into compact arrow notation.
+    /// "11 mph, Out To RF" -> "11 mph ↗" (nerd fonts) or "11 mph Out-RF" (plain)
+    /// "7 mph, R To L" -> "7 mph ←" or "7 mph R-L"
+    pub fn format_wind(&self, wind: &str) -> String {
+        // Split "11 mph, Out To RF" into speed ("11 mph") and direction ("Out To RF")
+        let (speed, direction) = match wind.split_once(", ") {
+            Some((s, d)) => (s, Some(d)),
+            None => (wind, None),
+        };
+
+        let Some(dir) = direction else {
+            return speed.to_string();
+        };
+
+        if self.nerd_fonts {
+            let arrow = match dir {
+                "Out To RF" => "↗",
+                "Out To CF" => "↑",
+                "Out To LF" => "↖",
+                "In From RF" => "↙",
+                "In From CF" => "↓",
+                "In From LF" => "↘",
+                "R To L" => "←",
+                "L To R" => "→",
+                "Calm" => "·",
+                _ => dir,
+            };
+            format!("{speed} {arrow}")
+        } else {
+            // Compact text: "Out To RF" -> "Out-RF"
+            let short = dir
+                .replace("Out To ", "Out-")
+                .replace("In From ", "In-")
+                .replace("R To L", "R-L")
+                .replace("L To R", "L-R");
+            format!("{speed} {short}")
+        }
+    }
 }
 
 #[cfg(test)]
