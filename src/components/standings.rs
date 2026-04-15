@@ -1,6 +1,6 @@
 use crate::components::constants::{DIVISION_ORDERS, DIVISIONS, lookup_team, lookup_team_by_id};
-use crate::components::team_colors;
 use crate::components::date_selector::DateSelector;
+use crate::components::team_colors;
 use crate::components::util::win_pct_color;
 use crate::state::team_page::TeamPageState;
 use chrono::NaiveDate;
@@ -13,7 +13,7 @@ use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
 use std::collections::HashSet;
 use std::string::ToString;
 use std::sync::Arc;
-use tui::prelude::{Color, Stylize};
+use tui::prelude::Color;
 use tui::widgets::{Cell, TableState};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -471,6 +471,7 @@ impl Standing {
     }
 
     pub fn to_cells(&self, symbols: &crate::symbols::Symbols) -> Vec<Cell<'_>> {
+        let theme = symbols.theme();
         let (prefix, rdiff_color) = match self.run_differential.signum() {
             1 => ("+", Color::Green),
             -1 => ("", Color::Red),
@@ -483,8 +484,8 @@ impl Standing {
             _ => Color::White,
         };
 
-        let name_cell = if symbols.nerd_fonts() {
-            let style = team_colors::get(self.team.abbreviation, symbols.official_team_colors())
+        let name_cell = if symbols.team_colors() {
+            let style = team_colors::get(self.team.abbreviation, false)
                 .map(|c| tui::prelude::Style::default().fg(c))
                 .unwrap_or_default();
             Cell::from(self.team.name.to_string()).style(style)
@@ -496,14 +497,15 @@ impl Standing {
             name_cell,
             self.wins.to_string().into(),
             self.losses.to_string().into(),
-            Cell::from(self.winning_percentage.clone()).fg(pct_color),
+            Cell::from(self.winning_percentage.clone()).style(theme.stat_style(pct_color)),
             self.games_back.clone().into(),
             self.wild_card_games_back.clone().into(),
             self.last_10.clone().into(),
-            Cell::from(self.streak.clone()).fg(streak_color),
+            Cell::from(self.streak.clone()).style(theme.stat_style(streak_color)),
             self.runs_scored.to_string().into(),
             self.runs_allowed.to_string().into(),
-            Cell::from(format!("{}{}", prefix, self.run_differential)).fg(rdiff_color),
+            Cell::from(format!("{}{}", prefix, self.run_differential))
+                .style(theme.stat_style(rdiff_color)),
             self.xwl.clone().into(),
             self.home.clone().into(),
             self.away.clone().into(),

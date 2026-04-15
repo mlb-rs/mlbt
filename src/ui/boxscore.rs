@@ -155,8 +155,6 @@ impl TeamBatterBoxscoreWidget<'_> {
         }
     }
 
-
-
     fn get_layout_areas(&mut self, area: Rect) -> [Rect; 4] {
         let (batting_height, notes_height, pitching_height, game_notes_height, _) =
             self.state.get_content_heights(self.active);

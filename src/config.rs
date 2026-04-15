@@ -1,6 +1,7 @@
 use crate::components::constants::TEAM_IDS;
 use crate::components::standings::Team;
 use crate::state::app_settings::AppSettings;
+use crate::theme::ThemeLevel;
 use anyhow::Context;
 use chrono::{TimeZone, Utc};
 use chrono_tz::America::Los_Angeles;
@@ -43,10 +44,12 @@ pub struct ConfigFile {
     /// Enable Nerd Font icons. Defaults to false for byte-for-byte compatibility.
     pub nerd_fonts: Option<bool>,
 
-    /// Use official team colors instead of the default terminal-friendly palette.
-    /// The official colors are accurate but some (dark blues) are harder to read
-    /// on dark backgrounds.
+    /// Show team colors on names in Scoreboard and Standings. Defaults to false.
     pub team_colors: Option<bool>,
+
+    /// Color theme level, modeled after Powerlevel10k.
+    /// Options: "lean" (subtle), "classic" (default), "rainbow" (maximum).
+    pub theme: Option<ThemeLevel>,
 }
 
 impl Default for ConfigFile {
@@ -57,6 +60,7 @@ impl Default for ConfigFile {
             log_level: None,
             nerd_fonts: None,
             team_colors: None,
+            theme: None,
         }
     }
 }
@@ -72,6 +76,7 @@ impl Into<AppSettings> for ConfigFile {
             log_level: self.validate_log_level(),
             nerd_fonts: self.nerd_fonts.unwrap_or(false),
             team_colors: self.team_colors.unwrap_or(false),
+            theme: self.theme.unwrap_or_default(),
         }
     }
 }

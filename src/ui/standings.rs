@@ -1,5 +1,6 @@
 use crate::components::standings::{StandingsState, ViewMode};
 use crate::symbols::Symbols;
+use crate::theme::Theme;
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
@@ -43,9 +44,11 @@ impl StatefulWidget for StandingsWidget<'_> {
             ViewMode::ByDivision => {
                 for d in &state.standings {
                     // create a row for the division name
-                    let division = Row::new(vec![d.name.clone()])
-                        .height(1)
-                        .style(Style::default().add_modifier(Modifier::BOLD));
+                    let mut div_style = Style::default().add_modifier(Modifier::BOLD);
+                    if self.symbols.theme().use_backgrounds() {
+                        div_style = div_style.bg(Theme::ROW_HIGHLIGHT);
+                    }
+                    let division = Row::new(vec![d.name.clone()]).height(1).style(div_style);
                     rows.push(division);
                     // then add all the teams in the division
                     for s in &d.standings {
@@ -61,7 +64,7 @@ impl StatefulWidget for StandingsWidget<'_> {
             }
         }
 
-        let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
+        let selected_style = self.symbols.theme().selection_style();
         let t = Table::new(rows, WIDTHS)
             .header(header)
             .block(
@@ -71,7 +74,7 @@ impl StatefulWidget for StandingsWidget<'_> {
                     .padding(Padding::new(1, 1, 0, 0))
                     .title(Span::styled(
                         state.date_selector.format_date_border_title(),
-                        Style::default().fg(Color::Black).bg(Color::Blue),
+                        self.symbols.theme().title_style(),
                     )),
             )
             .row_highlight_style(selected_style);

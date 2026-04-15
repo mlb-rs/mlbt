@@ -1,19 +1,30 @@
+use crate::theme::{Theme, ThemeLevel};
+
 pub struct Symbols {
     nerd_fonts: bool,
     team_colors: bool,
+    theme: Theme,
 }
 
 impl Symbols {
-    pub fn new(nerd_fonts: bool, team_colors: bool) -> Self {
-        Self { nerd_fonts, team_colors }
+    pub fn new(nerd_fonts: bool, team_colors: bool, theme_level: ThemeLevel) -> Self {
+        Self {
+            nerd_fonts,
+            team_colors,
+            theme: Theme::new(theme_level),
+        }
     }
 
     pub fn nerd_fonts(&self) -> bool {
         self.nerd_fonts
     }
 
-    pub fn official_team_colors(&self) -> bool {
+    pub fn team_colors(&self) -> bool {
         self.team_colors
+    }
+
+    pub fn theme(&self) -> &Theme {
+        &self.theme
     }
 
     pub fn tab_scoreboard(&self) -> &'static str {
@@ -89,8 +100,7 @@ mod tests {
 
     #[test]
     fn plain_mode_returns_ascii() {
-        let s = Symbols::new(false, false);
-        assert!(!s.nerd_fonts());
+        let s = Symbols::new(false, false, ThemeLevel::default());
         assert_eq!(s.tab_scoreboard(), "");
         assert_eq!(s.tab_gameday(), "");
         assert_eq!(s.tab_stats(), "");
@@ -108,8 +118,7 @@ mod tests {
 
     #[test]
     fn nerd_fonts_mode_returns_glyphs() {
-        let s = Symbols::new(true, false);
-        assert!(s.nerd_fonts());
+        let s = Symbols::new(true, false, ThemeLevel::default());
         assert_eq!(s.tab_scoreboard(), "\u{F073} ");
         assert_eq!(s.tab_gameday(), "\u{F008} ");
         assert_eq!(s.tab_stats(), "\u{F080} ");

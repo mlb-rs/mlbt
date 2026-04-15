@@ -1,5 +1,6 @@
 use crate::components::standings::Team;
 use crate::config::ConfigFile;
+use crate::theme::ThemeLevel;
 use chrono_tz::Tz;
 use log::{LevelFilter, error};
 
@@ -12,6 +13,7 @@ pub struct AppSettings {
     pub log_level: Option<LevelFilter>,
     pub nerd_fonts: bool,
     pub team_colors: bool,
+    pub theme: ThemeLevel,
 }
 
 impl AppSettings {

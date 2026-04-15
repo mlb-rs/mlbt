@@ -8,7 +8,6 @@ use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Table, Wrap};
 
 pub const STATS_OPTIONS_WIDTH: u16 = 36;
-const HIGHLIGHT_STYLE: Style = Style::new().bg(Color::Blue).fg(Color::Black);
 
 /// Renders the stats data table (left pane).
 pub struct StatsDataWidget<'a> {
@@ -47,7 +46,7 @@ impl StatefulWidget for StatsDataWidget<'_> {
                         "{name} {}",
                         state.table.sorting.order.arrow_symbol(self.symbols)
                     ))
-                    .style(Style::default().bg(Color::Blue))
+                    .style(self.symbols.theme().selection_style())
                 } else {
                     Cell::from(name.as_str())
                 }
@@ -56,6 +55,7 @@ impl StatefulWidget for StatsDataWidget<'_> {
             .height(1)
             .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
 
+        let theme = self.symbols.theme();
         let rows: Vec<Row> = rows
             .iter()
             .map(|row| {
@@ -69,7 +69,7 @@ impl StatefulWidget for StatsDataWidget<'_> {
                         } else {
                             cell.as_str().dim_or(Color::White)
                         };
-                        Cell::from(cell.as_str()).fg(color)
+                        Cell::from(cell.as_str()).style(theme.stat_style(color))
                     })
                     .collect::<Row>()
             })
@@ -96,11 +96,11 @@ impl StatefulWidget for StatsDataWidget<'_> {
                     .padding(Padding::new(1, 1, 0, 0))
                     .title(Span::styled(
                         state.date_selector.format_date_border_title(),
-                        Style::default().fg(Color::Black).bg(Color::Blue),
+                        self.symbols.theme().title_style(),
                     )),
             );
         if state.active_pane == ActivePane::Data {
-            t = t.row_highlight_style(HIGHLIGHT_STYLE);
+            t = t.row_highlight_style(self.symbols.theme().selection_style());
         }
 
         // borders (2) + header (1) = 3 rows of overhead
@@ -111,9 +111,11 @@ impl StatefulWidget for StatsDataWidget<'_> {
 }
 
 /// Renders the options sidebar (right pane).
-pub struct StatsOptionsWidget {}
+pub struct StatsOptionsWidget<'a> {
+    pub symbols: &'a Symbols,
+}
 
-impl StatefulWidget for StatsOptionsWidget {
+impl StatefulWidget for StatsOptionsWidget<'_> {
     type State = StatsState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
@@ -122,13 +124,14 @@ impl StatefulWidget for StatsOptionsWidget {
 
         // hitting | pitching
         // team | player
+        let highlight = self.symbols.theme().selection_style();
         let (hitting_style, pitching_style) = match state.stat_type.group {
-            StatGroup::Pitching => (Style::default(), HIGHLIGHT_STYLE),
-            StatGroup::Hitting => (HIGHLIGHT_STYLE, Style::default()),
+            StatGroup::Pitching => (Style::default(), highlight),
+            StatGroup::Hitting => (highlight, Style::default()),
         };
         let (team_style, player_style) = match state.stat_type.team_player {
-            TeamOrPlayer::Player => (Style::default(), HIGHLIGHT_STYLE),
-            TeamOrPlayer::Team => (HIGHLIGHT_STYLE, Style::default()),
+            TeamOrPlayer::Player => (Style::default(), highlight),
+            TeamOrPlayer::Team => (highlight, Style::default()),
         };
         let text = vec![
             Line::from(vec![
@@ -175,7 +178,7 @@ impl StatefulWidget for StatsOptionsWidget {
                 .border_type(BorderType::Rounded),
         );
         if state.active_pane == ActivePane::Options {
-            t = t.row_highlight_style(HIGHLIGHT_STYLE);
+            t = t.row_highlight_style(highlight);
         }
         StatefulWidget::render(t, options_rect, buf, &mut state.options_state);
     }

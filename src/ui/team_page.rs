@@ -1,5 +1,6 @@
 use crate::components::team_page::TeamGame;
 use crate::state::team_page::{TeamPageState, TeamSection};
+use crate::theme::Theme;
 use chrono::{Datelike, NaiveDate};
 use mlbt_api::team::RosterType;
 use time::{Date, Month};
@@ -13,7 +14,7 @@ const TITLE_STYLE: Style = Style::new().bold().underlined();
 const HOME_STYLE: Style = Style::new().fg(Color::Blue);
 const AWAY_STYLE: Style = Style::new().fg(Color::White);
 const TODAY_STYLE: Style = Style::new().fg(Color::Green).bold();
-const PAST_STYLE: Style = Style::new().fg(Color::DarkGray);
+const PAST_STYLE: Style = Style::new().fg(Theme::DIMMED);
 
 pub struct TeamPageWidget<'a> {
     pub state: &'a mut TeamPageState,
@@ -30,7 +31,7 @@ impl Widget for TeamPageWidget<'_> {
             .padding(Padding::new(1, 1, 0, 0))
             .title(Span::styled(
                 format!(" {} ", self.state.team.name),
-                Style::default().fg(Color::Black).bg(Color::Blue),
+                Style::default().fg(Theme::TITLE_FG).bg(Theme::TITLE_BG),
             ));
         let inner = block.inner(area);
         block.render(area, buf);
@@ -90,7 +91,7 @@ impl TeamPageWidget<'_> {
         if roster.is_empty() {
             Paragraph::new(Span::styled(
                 "  No roster data",
-                Style::default().fg(Color::DarkGray),
+                Style::default().fg(Theme::DIMMED),
             ))
             .render(area, buf);
             return;
@@ -135,7 +136,7 @@ impl TeamPageWidget<'_> {
                 Cell::from(Line::from(vec![
                     Span::styled(
                         format!("{:>2}  ", row.number),
-                        Style::default().fg(Color::DarkGray),
+                        Style::default().fg(Theme::DIMMED),
                     ),
                     Span::raw(row.name.as_str()),
                 ])),
@@ -219,7 +220,7 @@ impl TeamPageWidget<'_> {
         if games.is_empty() {
             Paragraph::new(Span::styled(
                 "  No schedule data",
-                Style::default().fg(Color::DarkGray),
+                Style::default().fg(Theme::DIMMED),
             ))
             .render(list_area, buf);
             return;
@@ -268,7 +269,7 @@ impl TeamPageWidget<'_> {
         if self.state.transactions.is_empty() {
             Paragraph::new(Span::styled(
                 "  No recent transactions",
-                Style::default().fg(Color::DarkGray),
+                Style::default().fg(Theme::DIMMED),
             ))
             .render(body_area, buf);
             return;
@@ -293,7 +294,7 @@ impl TeamPageWidget<'_> {
                 let (date_style, text_style) = if is_active && i == selected {
                     (highlight_style, highlight_style)
                 } else {
-                    (Style::default().fg(Color::DarkGray), Style::default())
+                    (Style::default().fg(Theme::DIMMED), Style::default())
                 };
                 Line::from(vec![
                     Span::styled(format!("{:<date_width$}", t.date), date_style),
@@ -322,7 +323,7 @@ fn il_status_style(code: &str) -> Style {
 /// Style for the selected row in the roster and schedule tables.
 fn highlight_style(active: TeamSection, desired: TeamSection) -> Style {
     if active == desired {
-        Style::default().bg(Color::Blue).fg(Color::Black)
+        Style::default().bg(Theme::ACCENT_BG).fg(Theme::ACCENT_FG)
     } else {
         Style::default()
     }

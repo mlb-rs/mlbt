@@ -6,9 +6,9 @@ use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, Tabs, Widget};
 use tui::{Frame, Terminal};
 
 use crate::app::{App, DebugState, MenuItem};
-use crate::symbols::Symbols;
 use crate::components::debug::DebugInfo;
 use crate::state::network::{ERROR_CHAR, LoadingState};
+use crate::symbols::Symbols;
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
 use crate::ui::date_selector::DateSelectorWidget;
 use crate::ui::gameday::gameday_widget::GamedayWidget;
@@ -41,7 +41,11 @@ where
     terminal
         .draw(|f| {
             main_layout.update(f.area(), app.settings.full_screen);
-            let symbols = Symbols::new(app.settings.nerd_fonts, app.settings.team_colors);
+            let symbols = Symbols::new(
+                app.settings.nerd_fonts,
+                app.settings.team_colors,
+                app.settings.theme,
+            );
 
             if !app.settings.full_screen {
                 draw_tabs(f, &main_layout.top_bar, app, &symbols);
@@ -61,7 +65,7 @@ where
                 MenuItem::Gameday => draw_gameday(f, main_layout.main, app, &symbols),
                 MenuItem::Stats => draw_stats(f, main_layout.main, app, &symbols),
                 MenuItem::Standings => draw_standings(f, main_layout.main, app, &symbols),
-                MenuItem::Help => draw_help(f, f.area(), app),
+                MenuItem::Help => draw_help(f, f.area(), app, &symbols),
             }
             if app.state.debug_state == DebugState::On {
                 let mut dbi = DebugInfo::new();
@@ -191,7 +195,7 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) 
     if let Some(matchup) = app.state.schedule.get_probable_pitchers_opt() {
         f.render_widget(ProbablePitchersWidget { matchup }, boxscore);
     } else {
-        draw_border(f, boxscore, Color::White);
+        draw_border(f, boxscore, symbols.theme().border());
         draw_linescore_boxscore(f, boxscore, app, symbols);
     }
 }
@@ -239,14 +243,22 @@ fn draw_gameday(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) {
 fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) {
     if let Some(tp) = &mut app.state.stats.team_page {
         if let Some(profile) = &mut tp.player_profile {
-            PlayerProfileWidget { state: profile, symbols }.render(rect, f.buffer_mut());
+            PlayerProfileWidget {
+                state: profile,
+                symbols,
+            }
+            .render(rect, f.buffer_mut());
             return;
         }
         TeamPageWidget { state: tp }.render(rect, f.buffer_mut());
         return;
     }
     if let Some(profile) = &mut app.state.stats.player_profile {
-        PlayerProfileWidget { state: profile, symbols }.render(rect, f.buffer_mut());
+        PlayerProfileWidget {
+            state: profile,
+            symbols,
+        }
+        .render(rect, f.buffer_mut());
         return;
     }
 
@@ -283,7 +295,11 @@ fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) {
     );
 
     if let Some(options_area) = options_area {
-        f.render_stateful_widget(StatsOptionsWidget {}, options_area, &mut app.state.stats);
+        f.render_stateful_widget(
+            StatsOptionsWidget { symbols },
+            options_area,
+            &mut app.state.stats,
+        );
     }
 
     if let Some(search_area) = search_area {
@@ -313,7 +329,11 @@ fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) {
 fn draw_standings(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) {
     if let Some(tp) = &mut app.state.standings.team_page {
         if let Some(profile) = &mut tp.player_profile {
-            PlayerProfileWidget { state: profile, symbols }.render(rect, f.buffer_mut());
+            PlayerProfileWidget {
+                state: profile,
+                symbols,
+            }
+            .render(rect, f.buffer_mut());
             return;
         }
         TeamPageWidget { state: tp }.render(rect, f.buffer_mut());
@@ -338,20 +358,21 @@ fn draw_win_probability(f: &mut Frame, rect: Rect, app: &mut App) {
     }
 }
 
-fn draw_help(f: &mut Frame, rect: Rect, app: &mut App) {
+fn draw_help(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) {
     f.render_widget(Clear, rect);
 
     if app.state.show_logs {
-        draw_border(f, rect, Color::White);
+        draw_border(f, rect, symbols.theme().border());
         f.render_widget(LogWidget {}, rect);
         return;
     }
 
-    draw_border(f, rect, Color::White);
+    draw_border(f, rect, symbols.theme().border());
     f.render_stateful_widget(
         HelpWidget {
             // use previous tab because help has been set to active at this point
             active_tab: app.state.previous_tab,
+            symbols,
         },
         rect,
         &mut app.state.help.state,

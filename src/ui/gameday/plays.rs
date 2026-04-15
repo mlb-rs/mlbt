@@ -1,5 +1,6 @@
 use crate::components::game::live_game::GameState;
 use crate::components::game::plays::PlayResult;
+use crate::theme::Theme;
 use std::vec;
 use tui::prelude::*;
 use tui::widgets::{Paragraph, Wrap};
@@ -8,9 +9,9 @@ use tui::widgets::{Paragraph, Wrap};
 // The green is used for pitches called as balls.
 // The red is used for pitches called as strikes.
 // The blue is used for contact (hit, out, run scoring).
-pub const GREEN: Color = Color::Rgb(39, 161, 39);
-pub const BLUE: Color = Color::Rgb(26, 86, 190);
-pub const RED: Color = Color::Rgb(170, 21, 11);
+pub const GREEN: Color = Theme::POSITIVE;
+pub const BLUE: Color = Theme::EXCELLENT;
+pub const RED: Color = Theme::POOR;
 
 pub struct InningPlaysWidget<'a> {
     pub game: &'a GameState,
@@ -29,7 +30,11 @@ impl Widget for InningPlaysWidget<'_> {
 }
 
 /// Format the plays for the current inning as TUI Lines.
-fn format_plays<'a>(game: &'a GameState, selected_at_bat: Option<u8>, symbols: &crate::symbols::Symbols) -> Vec<Line<'a>> {
+fn format_plays<'a>(
+    game: &'a GameState,
+    selected_at_bat: Option<u8>,
+    symbols: &crate::symbols::Symbols,
+) -> Vec<Line<'a>> {
     let (at_bat, _is_current) = game.get_at_bat_by_index_or_current(selected_at_bat);
     let inning = at_bat.inning;
 
@@ -96,7 +101,11 @@ fn build_line<'a>(
 }
 
 /// If runs were scored display as blue scoring glyph(s). Otherwise use `event_label`.
-fn format_runs<'a>(play: &'a PlayResult, selected_at_bat: Option<u8>, symbols: &crate::symbols::Symbols) -> Span<'a> {
+fn format_runs<'a>(
+    play: &'a PlayResult,
+    selected_at_bat: Option<u8>,
+    symbols: &crate::symbols::Symbols,
+) -> Span<'a> {
     let selected = selected_at_bat
         .map(|ab_idx| play.at_bat_index == ab_idx)
         .unwrap_or(false);
@@ -118,17 +127,30 @@ fn format_runs<'a>(play: &'a PlayResult, selected_at_bat: Option<u8>, symbols: &
 
 /// Returns a fixed-width 3-char event label when nerd_fonts is enabled,
 /// or the original single-char prefix otherwise.
-fn event_label<'a>(play: &'a PlayResult, selected: bool, symbols: &crate::symbols::Symbols) -> Span<'a> {
+fn event_label<'a>(
+    play: &'a PlayResult,
+    selected: bool,
+    symbols: &crate::symbols::Symbols,
+) -> Span<'a> {
     if !symbols.nerd_fonts() {
         // Original behavior: cursor char or dash
         let cursor = symbols.selection_cursor();
         let mut color = Color::White;
-        if play.is_out { color = RED; }
+        if play.is_out {
+            color = RED;
+        }
         let code = play.events.last().and_then(|e| e.code.as_deref());
-        if let Some("D") = code { color = BLUE; }
-        if let Some("H") = code { color = GREEN; }
-        if play.count.balls == 4 { color = GREEN; }
-        else if play.count.strikes == 3 { color = RED; }
+        if let Some("D") = code {
+            color = BLUE;
+        }
+        if let Some("H") = code {
+            color = GREEN;
+        }
+        if play.count.balls == 4 {
+            color = GREEN;
+        } else if play.count.strikes == 3 {
+            color = RED;
+        }
         return match selected {
             true => Span::raw(cursor.to_string()).fg(color).bold(),
             false => Span::raw("-").fg(color),
@@ -143,11 +165,17 @@ fn event_label<'a>(play: &'a PlayResult, selected: bool, symbols: &crate::symbol
     } else if let Some(c) = code {
         match c {
             "HR" => ("HR ", BLUE),
-            "T"  => ("3B ", BLUE),
-            "D"  => ("2B ", BLUE),
-            "S"  => ("1B ", BLUE),
-            "H"  => ("HBP", GREEN),
-            _    => if play.is_out { ("OUT", RED) } else { ("...", Color::White) },
+            "T" => ("3B ", BLUE),
+            "D" => ("2B ", BLUE),
+            "S" => ("1B ", BLUE),
+            "H" => ("HBP", GREEN),
+            _ => {
+                if play.is_out {
+                    ("OUT", RED)
+                } else {
+                    ("...", Color::White)
+                }
+            }
         }
     } else if play.is_out {
         ("OUT", RED)

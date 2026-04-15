@@ -1,6 +1,7 @@
 use crate::app::MenuItem;
 use crate::components::banner::BANNER;
 use crate::config::ConfigFile;
+use crate::symbols::Symbols;
 use tui::layout::{Alignment, Constraint, Flex, Layout};
 use tui::prelude::*;
 use tui::widgets::{Paragraph, Row, Table, TableState};
@@ -135,11 +136,12 @@ impl HelpState {
     }
 }
 
-pub struct HelpWidget {
+pub struct HelpWidget<'a> {
     pub active_tab: MenuItem,
+    pub symbols: &'a Symbols,
 }
 
-impl StatefulWidget for HelpWidget {
+impl StatefulWidget for HelpWidget<'_> {
     type State = TableState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
@@ -183,7 +185,7 @@ impl StatefulWidget for HelpWidget {
             .horizontal_margin(2)
             .areas(area);
 
-        let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
+        let selected_style = self.symbols.theme().selection_style();
         StatefulWidget::render(
             Table::new(rows, [Constraint::Percentage(100)])
                 .header(header)

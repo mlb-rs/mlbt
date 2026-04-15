@@ -182,13 +182,19 @@ impl Matchup {
 
         let outs_line = if symbols.nerd_fonts() {
             let filled = Span::styled("●", Style::default().fg(Color::Red));
-            let empty  = Span::styled("◯", Style::default().fg(Color::DarkGray));
-            let sp     = Span::raw(" ");
-            let count  = self.count.outs as usize;
+            let empty = Span::styled("◯", Style::default().fg(Color::DarkGray));
+            let sp = Span::raw(" ");
+            let count = self.count.outs as usize;
             let mut spans: Vec<Span<'_>> = Vec::with_capacity(5);
             for i in 0..3 {
-                if i > 0 { spans.push(sp.clone()); }
-                spans.push(if i < count { filled.clone() } else { empty.clone() });
+                if i > 0 {
+                    spans.push(sp.clone());
+                }
+                spans.push(if i < count {
+                    filled.clone()
+                } else {
+                    empty.clone()
+                });
             }
             Line::from(spans)
         } else {

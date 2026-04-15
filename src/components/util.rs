@@ -2,6 +2,8 @@ use chrono::NaiveDate;
 use log::error;
 use tui::style::Color;
 
+use crate::theme::Theme;
+
 /// Returns `Color::DarkGray` when the value is zero, otherwise the given fallback color.
 /// e.g. `self.hits.dim_or(color)`
 pub(crate) trait DimColor {
@@ -12,7 +14,7 @@ macro_rules! impl_dim_color_int {
     ($($t:ty),*) => {
         $(impl DimColor for $t {
             fn dim_or(&self, fallback: Color) -> Color {
-                if *self == 0 { Color::DarkGray } else { fallback }
+                if *self == 0 { Theme::DIMMED } else { fallback }
             }
         })*
     };
@@ -21,11 +23,7 @@ impl_dim_color_int!(u8, u16);
 
 impl DimColor for str {
     fn dim_or(&self, fallback: Color) -> Color {
-        if self == "0" {
-            Color::DarkGray
-        } else {
-            fallback
-        }
+        if self == "0" { Theme::DIMMED } else { fallback }
     }
 }
 
@@ -77,10 +75,14 @@ pub(crate) fn format_date(s: &str) -> String {
 /// call sites can fall back to their own contextual color.
 pub(crate) fn era_color(era: &str) -> Option<Color> {
     era.parse::<f64>().ok().and_then(|v| {
-        if v <= 3.00 {
-            Some(Color::Green)
+        if v <= 2.50 {
+            Some(Theme::EXCELLENT)
+        } else if v <= 3.00 {
+            Some(Theme::GOOD)
         } else if v >= 5.00 {
-            Some(Color::Red)
+            Some(Theme::POOR)
+        } else if v >= 4.00 {
+            Some(Theme::BELOW_AVG)
         } else {
             None
         }
@@ -92,11 +94,15 @@ pub(crate) fn era_color(era: &str) -> Option<Color> {
 pub(crate) fn avg_color(avg: &str) -> Option<Color> {
     avg.parse::<f64>().ok().and_then(|v| {
         if v == 0.0 {
-            Some(Color::DarkGray)
+            Some(Theme::DIMMED)
         } else if v >= 0.300 {
-            Some(Color::Green)
+            Some(Theme::EXCELLENT)
+        } else if v >= 0.275 {
+            Some(Theme::GOOD)
         } else if v < 0.100 {
-            Some(Color::Red)
+            Some(Theme::POOR)
+        } else if v < 0.200 {
+            Some(Theme::BELOW_AVG)
         } else {
             None
         }
@@ -107,11 +113,15 @@ pub(crate) fn avg_color(avg: &str) -> Option<Color> {
 pub(crate) fn win_pct_color(pct: &str) -> Option<Color> {
     pct.parse::<f64>().ok().map(|v| {
         if v == 0.0 {
-            Color::DarkGray
+            Theme::DIMMED
+        } else if v >= 0.600 {
+            Theme::EXCELLENT
         } else if v >= 0.500 {
-            Color::Green
+            Theme::GOOD
+        } else if v >= 0.400 {
+            Theme::BELOW_AVG
         } else {
-            Color::Red
+            Theme::POOR
         }
     })
 }

@@ -79,7 +79,11 @@ impl PitchEvent {
                 .as_ref()
                 .map(|pitch| pitch.as_lines(debug, home_team, away_team, players)),
             PitchEventType::Pitch => None,
-            _ => Some(self.format_non_pitch_event(home_team.abbreviation, away_team.abbreviation, symbols)),
+            _ => Some(self.format_non_pitch_event(
+                home_team.abbreviation,
+                away_team.abbreviation,
+                symbols,
+            )),
         }
     }
 
