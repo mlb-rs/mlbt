@@ -23,13 +23,17 @@ impl PeriodicRefresher {
             tokio::select! {
                 // Live game data updates (frequent for active games)
                 _ = live_interval.tick() => {
-                    let (active_tab, game_id) = {
+                    let (active_tab, game_id, is_final) = {
                         let app = app.lock().await;
-                        (app.state.active_tab, app.state.gameday.current_game_id())
+                        (
+                            app.state.active_tab,
+                            app.state.gameday.current_game_id(),
+                            app.state.gameday.is_final(),
+                        )
                     };
 
-                    if active_tab == MenuItem::Gameday && game_id > 0 {
-                        let _ = self.network_requests.send(NetworkRequest::GameData { game_id }.into()).await;
+                    if active_tab == MenuItem::Gameday && game_id > 0 && !is_final {
+                        let _ = self.network_requests.send(RefreshableRequest::force(NetworkRequest::GameData { game_id })).await;
                     }
                 }
 
@@ -41,9 +45,9 @@ impl PeriodicRefresher {
                     };
 
                     if active_tab == MenuItem::Scoreboard {
-                        let _ = self.network_requests.send(NetworkRequest::Schedule { date }.into()).await;
+                        let _ = self.network_requests.send(RefreshableRequest::force(NetworkRequest::Schedule { date })).await;
                         if game_id > 0 {
-                            let _ = self.network_requests.send(NetworkRequest::GameData { game_id }.into()).await;
+                            let _ = self.network_requests.send(RefreshableRequest::force(NetworkRequest::GameData { game_id })).await;
                         }
                     }
                 }
@@ -56,7 +60,7 @@ impl PeriodicRefresher {
                     };
 
                     if active_tab == MenuItem::Standings {
-                        let _ = self.network_requests.send(NetworkRequest::Standings { date }.into()).await;
+                        let _ = self.network_requests.send(RefreshableRequest::force(NetworkRequest::Standings { date })).await;
                     }
                 }
 
@@ -68,7 +72,7 @@ impl PeriodicRefresher {
                     };
 
                     if active_tab == MenuItem::Stats {
-                        let _ = self.network_requests.send(NetworkRequest::Stats { date, stat_type }.into()).await;
+                        let _ = self.network_requests.send(RefreshableRequest::force(NetworkRequest::Stats { date, stat_type })).await;
                     }
                 }
             }

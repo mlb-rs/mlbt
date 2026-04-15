@@ -54,6 +54,13 @@ pub struct RefreshableRequest {
 }
 
 impl RefreshableRequest {
+    pub fn new(request: NetworkRequest, force_refresh: bool) -> Self {
+        Self {
+            request,
+            force_refresh,
+        }
+    }
+
     pub fn force(request: NetworkRequest) -> Self {
         Self {
             request,

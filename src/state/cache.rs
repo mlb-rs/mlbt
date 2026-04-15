@@ -105,10 +105,7 @@ impl NetworkCache {
     fn ttl_for(&self, key: &CacheKey) -> Duration {
         match key {
             CacheKey::GameData { game_id } => {
-                if matches!(
-                    self.game_states.get(game_id),
-                    Some((AbstractGameState::Final, _))
-                ) {
+                if self.is_final_game(*game_id) {
                     FINAL_GAME_TTL
                 } else {
                     Duration::from_secs(10)
@@ -186,6 +183,14 @@ impl NetworkCache {
             .retain(|_, observed_at| observed_at.elapsed() < PRUNE_AGE);
         let removed = before - self.entries.len();
         debug!("pruned {removed} stale cache entries");
+    }
+
+    /// True if the game's last observed abstract state is `Final`.
+    pub fn is_final_game(&self, game_id: u64) -> bool {
+        matches!(
+            self.game_states.get(&game_id),
+            Some((AbstractGameState::Final, _))
+        )
     }
 
     /// Update tracked game states from a schedule response. When a game we previously observed
@@ -761,5 +766,19 @@ mod tests {
                 .get(&CacheKey::TeamPage { team_id: 333, date })
                 .is_some()
         );
+    }
+
+    #[test]
+    fn is_final_game_reflects_last_observed_state() {
+        let mut cache = NetworkCache::new();
+        assert!(!cache.is_final_game(42));
+
+        let schedule = make_schedule(TEST_DATE, vec![(42, AbstractGameState::Live)]);
+        cache.update_game_states(test_date(), &schedule);
+        assert!(!cache.is_final_game(42));
+
+        let schedule = make_schedule(TEST_DATE, vec![(42, AbstractGameState::Final)]);
+        cache.update_game_states(test_date(), &schedule);
+        assert!(cache.is_final_game(42));
     }
 }

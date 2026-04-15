@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add color highlighting to stats. Thanks @nuotsu! [PR 118](https://github.com/mlb-rs/mlbt/pull/118)
+- Add caching for API calls: [PR 127](https://github.com/mlb-rs/mlbt/pull/127)
 
 ### Fixed
 

@@ -1,4 +1,5 @@
 use crate::components::game::live_game::GameState;
+use mlbt_api::schedule::AbstractGameState;
 
 #[derive(Default)]
 pub struct GamedayState {
@@ -14,6 +15,13 @@ impl GamedayState {
 
     pub fn current_game_id(&self) -> u64 {
         self.game.game_id
+    }
+
+    pub fn is_final(&self) -> bool {
+        matches!(
+            self.game.abstract_game_state,
+            Some(AbstractGameState::Final)
+        )
     }
 
     pub fn reset(&mut self, game_id: Option<u64>) {

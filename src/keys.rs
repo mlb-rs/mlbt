@@ -230,14 +230,6 @@ async fn load_team(guard: AppGuard<'_>, network_requests: &mpsc::Sender<Refresha
         .await;
 }
 
-fn send_request(request: NetworkRequest, force: bool) -> RefreshableRequest {
-    if force {
-        RefreshableRequest::force(request)
-    } else {
-        request.into()
-    }
-}
-
 async fn load_game_data(
     guard: AppGuard<'_>,
     network_requests: &mpsc::Sender<RefreshableRequest>,
@@ -248,7 +240,10 @@ async fn load_game_data(
 
     if let Some(game_id) = game_id {
         let _ = network_requests
-            .send(send_request(NetworkRequest::GameData { game_id }, force))
+            .send(RefreshableRequest::new(
+                NetworkRequest::GameData { game_id },
+                force,
+            ))
             .await;
     }
 }
@@ -263,7 +258,7 @@ async fn load_stats(
     drop(guard);
 
     let _ = network_requests
-        .send(send_request(
+        .send(RefreshableRequest::new(
             NetworkRequest::Stats { date, stat_type },
             force,
         ))
@@ -289,7 +284,10 @@ async fn load_standings(
     drop(guard);
 
     let _ = network_requests
-        .send(send_request(NetworkRequest::Standings { date }, force))
+        .send(RefreshableRequest::new(
+            NetworkRequest::Standings { date },
+            force,
+        ))
         .await;
 }
 
@@ -303,12 +301,18 @@ async fn load_scoreboard(
     drop(guard);
 
     let _ = network_requests
-        .send(send_request(NetworkRequest::Schedule { date }, force))
+        .send(RefreshableRequest::new(
+            NetworkRequest::Schedule { date },
+            force,
+        ))
         .await;
 
     if let Some(game_id) = game_id {
         let _ = network_requests
-            .send(send_request(NetworkRequest::GameData { game_id }, force))
+            .send(RefreshableRequest::new(
+                NetworkRequest::GameData { game_id },
+                force,
+            ))
             .await;
     }
 }
