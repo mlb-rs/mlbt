@@ -1,4 +1,5 @@
 use crate::components::standings::{StandingsState, ViewMode};
+use crate::symbols::Symbols;
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
@@ -23,9 +24,11 @@ const WIDTHS: [Constraint; 14] = [
     Constraint::Length(8),
 ];
 
-pub struct StandingsWidget {}
+pub struct StandingsWidget<'a> {
+    pub symbols: &'a Symbols,
+}
 
-impl StatefulWidget for StandingsWidget {
+impl StatefulWidget for StandingsWidget<'_> {
     type State = StandingsState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
@@ -46,14 +49,14 @@ impl StatefulWidget for StandingsWidget {
                     rows.push(division);
                     // then add all the teams in the division
                     for s in &d.standings {
-                        rows.push(Row::new(s.to_cells()).height(1))
+                        rows.push(Row::new(s.to_cells(self.symbols)).height(1))
                     }
                 }
             }
             ViewMode::Overall => {
                 // Show all teams sorted by record without division headers
                 for t in &state.league_standings {
-                    rows.push(Row::new(t.to_cells()).height(1));
+                    rows.push(Row::new(t.to_cells(self.symbols)).height(1));
                 }
             }
         }

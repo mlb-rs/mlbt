@@ -1,4 +1,5 @@
 use crate::components::game::live_game::GameState;
+use crate::symbols::Symbols;
 use crate::components::game::strikezone::{
     DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH, StrikeZone,
 };
@@ -9,6 +10,7 @@ use tui::widgets::{Block, Borders, Paragraph, Wrap};
 pub struct AtBatWidget<'a> {
     pub game: &'a GameState,
     pub selected_at_bat: Option<u8>,
+    pub symbols: &'a Symbols,
 }
 
 impl Widget for AtBatWidget<'_> {
@@ -84,6 +86,7 @@ impl Widget for AtBatWidget<'_> {
                     &self.game.home_team,
                     &self.game.away_team,
                     &self.game.players,
+                    self.symbols,
                 )
             })
             .flatten()

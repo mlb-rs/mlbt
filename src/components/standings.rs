@@ -1,4 +1,5 @@
 use crate::components::constants::{DIVISION_ORDERS, DIVISIONS, lookup_team, lookup_team_by_id};
+use crate::components::team_colors;
 use crate::components::date_selector::DateSelector;
 use crate::components::util::win_pct_color;
 use crate::state::team_page::TeamPageState;
@@ -468,7 +469,7 @@ impl Standing {
         }
     }
 
-    pub fn to_cells(&self) -> Vec<Cell<'_>> {
+    pub fn to_cells(&self, symbols: &crate::symbols::Symbols) -> Vec<Cell<'_>> {
         let (prefix, rdiff_color) = match self.run_differential.signum() {
             1 => ("+", Color::Green),
             -1 => ("", Color::Red),
@@ -480,8 +481,18 @@ impl Standing {
             Some('L') => Color::Red,
             _ => Color::White,
         };
+
+        let name_cell = if symbols.nerd_fonts() {
+            let style = team_colors::get(self.team.abbreviation, symbols.official_team_colors())
+                .map(|c| tui::prelude::Style::default().fg(c))
+                .unwrap_or_default();
+            Cell::from(self.team.name.to_string()).style(style)
+        } else {
+            self.team.name.to_string().into()
+        };
+
         vec![
-            self.team.name.to_string().into(),
+            name_cell,
             self.wins.to_string().into(),
             self.losses.to_string().into(),
             Cell::from(self.winning_percentage.clone()).fg(pct_color),

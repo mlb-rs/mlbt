@@ -11,18 +11,17 @@ use tui::widgets::{Paragraph, Wrap};
 pub const GREEN: Color = Color::Rgb(39, 161, 39);
 pub const BLUE: Color = Color::Rgb(26, 86, 190);
 pub const RED: Color = Color::Rgb(170, 21, 11);
-pub const SCORING_SYMBOL: char = '!';
-pub const SELECTION_SYMBOL: char = '>';
 
 pub struct InningPlaysWidget<'a> {
     pub game: &'a GameState,
     pub selected_at_bat: Option<u8>,
+    pub symbols: &'a crate::symbols::Symbols,
 }
 
 impl Widget for InningPlaysWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         // TODO this doesn't scroll properly. needs to be a list for that
-        let inning_plays = format_plays(self.game, self.selected_at_bat);
+        let inning_plays = format_plays(self.game, self.selected_at_bat, self.symbols);
         let paragraph = Paragraph::new(inning_plays).wrap(Wrap { trim: false });
 
         Widget::render(paragraph, area, buf);
@@ -30,7 +29,7 @@ impl Widget for InningPlaysWidget<'_> {
 }
 
 /// Format the plays for the current inning as TUI Lines.
-fn format_plays(game: &GameState, selected_at_bat: Option<u8>) -> Vec<Line<'_>> {
+fn format_plays<'a>(game: &'a GameState, selected_at_bat: Option<u8>, symbols: &crate::symbols::Symbols) -> Vec<Line<'a>> {
     let (at_bat, _is_current) = game.get_at_bat_by_index_or_current(selected_at_bat);
     let inning = at_bat.inning;
 
@@ -65,6 +64,7 @@ fn format_plays(game: &GameState, selected_at_bat: Option<u8>) -> Vec<Line<'_>> 
             selected_at_bat,
             game.home_team.abbreviation,
             game.away_team.abbreviation,
+            symbols,
         ) {
             lines.push(line);
         }
@@ -78,6 +78,7 @@ fn build_line<'a>(
     selected_at_bat: Option<u8>,
     home_team_abbreviation: &'static str,
     away_team_abbreviation: &'static str,
+    symbols: &crate::symbols::Symbols,
 ) -> Option<Line<'a>> {
     let description = if play.description.is_empty() {
         "in progress..."
@@ -85,7 +86,7 @@ fn build_line<'a>(
         play.description.as_str()
     };
     let info = vec![
-        format_runs(play, selected_at_bat),
+        format_runs(play, selected_at_bat, symbols),
         Span::raw(" "),
         Span::raw(description),
         format_outs(play),
@@ -94,47 +95,70 @@ fn build_line<'a>(
     Some(Line::from(info))
 }
 
-/// If runs were scored display as blue exclamation mark(s). Otherwise use `-` to indicate a new
-/// line. If the line is selected, display `>` instead of `-`.
-fn format_runs(play: &PlayResult, selected_at_bat: Option<u8>) -> Span<'_> {
+/// If runs were scored display as blue scoring glyph(s). Otherwise use `event_label`.
+fn format_runs<'a>(play: &'a PlayResult, selected_at_bat: Option<u8>, symbols: &crate::symbols::Symbols) -> Span<'a> {
     let selected = selected_at_bat
         .map(|ab_idx| play.at_bat_index == ab_idx)
         .unwrap_or(false);
     if play.is_scoring_play {
-        // there could be no rbis on certain plays like a wild pitch but `!` should still be shown
+        let scoring = symbols.scoring_play();
+        // there could be no rbis on certain plays like a wild pitch but the symbol should still be shown
         let runs = if play.rbi == 0 { 1 } else { play.rbi as usize };
-        let rbis = SCORING_SYMBOL.to_string().repeat(runs);
+        let rbis = scoring.to_string().repeat(runs);
+        let cursor = symbols.selection_cursor();
         let text = match selected {
-            true => format! {"{SELECTION_SYMBOL} {rbis}"},
+            true => format!("{cursor} {rbis}"),
             false => rbis,
         };
-        Span::styled(text.to_string(), Style::default().fg(BLUE))
+        Span::styled(text, Style::default().fg(BLUE))
     } else {
+        event_label(play, selected, symbols)
+    }
+}
+
+/// Returns a fixed-width 3-char event label when nerd_fonts is enabled,
+/// or the original single-char prefix otherwise.
+fn event_label<'a>(play: &'a PlayResult, selected: bool, symbols: &crate::symbols::Symbols) -> Span<'a> {
+    if !symbols.nerd_fonts() {
+        // Original behavior: cursor char or dash
+        let cursor = symbols.selection_cursor();
         let mut color = Color::White;
-        if play.is_out {
-            color = RED;
-        }
-        let code = &play
-            .events
-            .last()
-            .and_then(|last_event| last_event.code.as_deref());
-        // hit
-        if let Some("D") = code {
-            color = BLUE;
-        }
-        // hbp
-        if let Some("H") = code {
-            color = GREEN;
-        }
-        if play.count.balls == 4 {
-            color = GREEN;
-        } else if play.count.strikes == 3 {
-            color = RED;
-        }
-        match selected {
-            true => Span::raw(SELECTION_SYMBOL.to_string()).fg(color).bold(),
+        if play.is_out { color = RED; }
+        let code = play.events.last().and_then(|e| e.code.as_deref());
+        if let Some("D") = code { color = BLUE; }
+        if let Some("H") = code { color = GREEN; }
+        if play.count.balls == 4 { color = GREEN; }
+        else if play.count.strikes == 3 { color = RED; }
+        return match selected {
+            true => Span::raw(cursor.to_string()).fg(color).bold(),
             false => Span::raw("-").fg(color),
+        };
+    }
+
+    let code = play.events.last().and_then(|e| e.code.as_deref());
+    let (label, color): (&'static str, Color) = if play.count.strikes == 3 {
+        ("  K", RED)
+    } else if play.count.balls == 4 {
+        (" BB", GREEN)
+    } else if let Some(c) = code {
+        match c {
+            "HR" => ("HR ", BLUE),
+            "T"  => ("3B ", BLUE),
+            "D"  => ("2B ", BLUE),
+            "S"  => ("1B ", BLUE),
+            "H"  => ("HBP", GREEN),
+            _    => if play.is_out { ("OUT", RED) } else { ("...", Color::White) },
         }
+    } else if play.is_out {
+        ("OUT", RED)
+    } else {
+        ("...", Color::DarkGray)
+    };
+
+    let style = Style::default().fg(color);
+    match selected {
+        true => Span::styled(label, style).bold(),
+        false => Span::styled(label, style),
     }
 }
 

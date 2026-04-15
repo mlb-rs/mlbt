@@ -9,5 +9,6 @@ pub mod probable_pitchers;
 pub mod schedule;
 pub mod standings;
 pub mod stats;
+pub mod team_colors;
 pub mod team_page;
 pub mod util;

@@ -1,12 +1,17 @@
 use crate::components::schedule::{Record, ScheduleRow, ScheduleState};
+use crate::components::standings::Team;
+use crate::components::team_colors;
 use crate::state::app_state::HomeOrAway;
+use crate::symbols::Symbols;
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
 const HEADER: &[&str; 8] = &["away", "", "", "home", "", "", "time", "status"];
 
-pub struct ScheduleWidget {
+pub struct ScheduleWidget<'a> {
     pub tz_abbreviation: String,
+    pub symbols: &'a Symbols,
+    pub favorite_team: Option<Team>,
 }
 
 impl ScheduleRow {
@@ -37,11 +42,16 @@ impl ScheduleRow {
         }
     }
 
-    fn format(&self, width: u16) -> Vec<Span<'_>> {
+    fn format<'a>(&'a self, width: u16, symbols: &Symbols, favorite_team: Option<Team>) -> Vec<Span<'a>> {
         let (away_team_style, away_score_style) = self.get_styles(HomeOrAway::Away);
         let (home_team_style, home_score_style) = self.get_styles(HomeOrAway::Home);
         let away_record = Self::format_record(self.away_record);
         let home_record = Self::format_record(self.home_record);
+
+        let is_favorite = favorite_team
+            .map(|t| t.id == self.away_team.id || t.id == self.home_team.id)
+            .unwrap_or(false);
+        let marker = if is_favorite { symbols.favorite_marker() } else { "  " };
 
         let (away_team, home_team) = if width < Self::ABBREVIATION_WIDTH {
             (self.away_team.abbreviation, self.home_team.abbreviation)
@@ -49,11 +59,20 @@ impl ScheduleRow {
             (self.away_team.team_name, self.home_team.team_name)
         };
 
+        // Merge team color into base style when nerd_fonts is enabled
+        let color_style = |base: Style, abbr: &str| -> Style {
+            if symbols.nerd_fonts() {
+                team_colors::get(abbr, symbols.official_team_colors()).map(|c| base.fg(c)).unwrap_or(base)
+            } else {
+                base
+            }
+        };
+
         vec![
-            Span::styled(away_team, away_team_style),
+            Span::styled(format!("{marker}{away_team}"), color_style(away_team_style, self.away_team.abbreviation)),
             Span::styled(away_record, away_team_style),
             Span::styled(Self::default_score(self.away_score), away_score_style),
-            Span::styled(home_team, home_team_style),
+            Span::styled(home_team, color_style(home_team_style, self.home_team.abbreviation)),
             Span::styled(home_record, home_team_style),
             Span::styled(Self::default_score(self.home_score), home_score_style),
             Span::raw(self.start_time.to_string()),
@@ -62,7 +81,7 @@ impl ScheduleRow {
     }
 }
 
-impl StatefulWidget for ScheduleWidget {
+impl StatefulWidget for ScheduleWidget<'_> {
     type State = ScheduleState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
@@ -81,9 +100,9 @@ impl StatefulWidget for ScheduleWidget {
         let rows = state
             .schedule
             .iter()
-            .map(|r| Row::new(r.format(area.width)));
+            .map(|r| Row::new(r.format(area.width, self.symbols, self.favorite_team)));
         let name_constraint = if area.width < ScheduleRow::ABBREVIATION_WIDTH {
-            Constraint::Length(ScheduleRow::ABBREVIATION_COL_WIDTH)
+            Constraint::Length(ScheduleRow::ABBREVIATION_COL_WIDTH + 2) // +2 for the always-2-char favorite marker
         } else {
             // dynamically size the team name column to fit the longest name in the schedule.
             // this accommodates longer international team names (e.g. WBC) while staying tight
@@ -94,7 +113,7 @@ impl StatefulWidget for ScheduleWidget {
                 .map(|r| r.home_team.team_name.len().max(r.away_team.team_name.len()))
                 .max()
                 .unwrap_or(ScheduleRow::NORMAL_COL_WIDTH as usize);
-            Constraint::Length(max_name_len.max(ScheduleRow::NORMAL_COL_WIDTH as usize) as u16)
+            Constraint::Length((max_name_len.max(ScheduleRow::NORMAL_COL_WIDTH as usize) + 2) as u16) // +2 for the always-2-char favorite marker
         };
         let widths = [
             name_constraint,        // away team name
