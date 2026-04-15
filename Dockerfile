@@ -1,12 +1,12 @@
 FROM rust:1.88 AS builder
-LABEL org.opencontainers.image.source=https://github.com/mlb-rs/mlbt
-LABEL org.opencontainers.image.description="A terminal user interface for the MLB Statcast API, written in Rust."
+LABEL org.opencontainers.image.source=https://github.com/agiacalone/mlbtg
+LABEL org.opencontainers.image.description="MLB in your terminal — a fork of mlbt with visual accessibility enhancements."
 LABEL org.opencontainers.image.licenses=MIT
 
-WORKDIR /usr/src/mlbt
+WORKDIR /usr/src/mlbtg
 COPY . .
 RUN cargo build --release
 
 FROM gcr.io/distroless/cc
-COPY --from=builder /usr/src/mlbt/target/release/mlbt /usr/local/bin/mlbt
-CMD ["/usr/local/bin/mlbt"]
+COPY --from=builder /usr/src/mlbtg/target/release/mlbtg /usr/local/bin/mlbtg
+CMD ["/usr/local/bin/mlbtg"]
