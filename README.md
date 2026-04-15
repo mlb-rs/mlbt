@@ -9,6 +9,15 @@ profiles. Powered by MLB's Stats API, check today's games or dig through decades
 of historical information. Go beyond the broadcast and nerd out with win
 probability, leverage index, exit velo, and more.
 
+This fork adds optional visual enhancements — color themes, Nerd Font icons,
+team colors, and weather display. All additions are off by default; without
+any config changes the app behaves identically to upstream.
+
+Color and glyphs serve the same purpose: making dense data scannable. Color
+highlights stat tiers at a glance; glyphs provide a redundant signal that
+works on low-contrast displays or for users who can't distinguish colors.
+Neither is the only channel — text labels are always present.
+
 <img src="https://github.com/user-attachments/assets/1c11e22b-df11-46df-8774-5783b77def84" alt="Demo showing the Schedule, Gameday, Stats, and Standings."/>
 
 ## Table of Contents
@@ -113,6 +122,7 @@ docker run -it --rm --name mlbt mlbt:latest
     - full box score
     - probable pitchers for upcoming games
     - win probability graph
+    - weather conditions for live/completed games
     - selectable date
 
 - gameday
@@ -122,10 +132,12 @@ docker run -it --rm --name mlbt mlbt:latest
     - hit stats: exit velocity, launch angle, distance
     - ABS challenge information for 2026+ games
     - leverage index and win probability change per at bat
+    - weather conditions with Nerd Font icons
 
 - pitching and hitting stats
     - player stats
     - team stats
+    - Fangraphs-inspired stat coloring (ERA, AVG, win%)
     - sorting
     - fuzzy search for players and teams
     - selectable date
@@ -133,6 +145,7 @@ docker run -it --rm --name mlbt mlbt:latest
 - standings
     - sorted by favorite team
     - division/league view
+    - stat coloring (win%, streak, run differential)
     - selectable date
 
 - team page
@@ -145,9 +158,12 @@ docker run -it --rm --name mlbt mlbt:latest
     - career stats
     - recent games
 
-- configuration
-    - favorite team
-    - time zone
+- visual customization
+    - three color themes: lean, classic, rainbow
+    - optional Nerd Font icons (tab icons, weather, base runners, play labels)
+    - optional team colors on names
+    - favorite team highlighting
+    - configuration via TOML file
 
 ## Usage
 
@@ -358,30 +374,23 @@ directory. For a user named `Alice` this would be:
 
 ### Available settings
 
-- `favorite_team`: This will make that team always show up first in the schedule
-  if they have a game that day and be highlighted in the standings.
-  See [here](https://github.com/mlb-rs/mlbt/blob/main/src/components/constants.rs#L83)
-  for options (note: use the full name and not the short name).
-- `timezone`: This will change the time zone of the start time for the games in
-  the schedule. The default is `US/Pacific`. Some common options are:
-    * `US/Pacific`
-    * `US/Mountain`
-    * `US/Central`
-    * `US/Eastern`
-    * For the full list
-      see [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
-- `log_level`: Set the log level to be displayed. If not present, `error` level
-  is used. Use a lowercase word, e.g. `debug`.
-  See [here](https://github.com/mlb-rs/mlbt/blob/main/src/config.rs#L16)
-  for the options.
+| Setting | Description | Default |
+|---------|-------------|---------|
+| `favorite_team` | Highlight your team in the schedule and standings. Use the full team name (e.g. `"Chicago Cubs"`). See [constants.rs](src/components/constants.rs) for all options. | none |
+| `timezone` | Time zone for game start times. Common values: `"US/Pacific"`, `"US/Mountain"`, `"US/Central"`, `"US/Eastern"`. [Full list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). | `"US/Pacific"` |
+| `nerd_fonts` | Enable [Nerd Font](https://www.nerdfonts.com/) icons for tabs, weather, base runners, and play-by-play labels. Requires a Nerd Font installed in your terminal. | `false` |
+| `team_colors` | Color team names in the scoreboard and standings using each team's primary color. | `false` |
+| `theme` | Color theme tier. `"lean"` is minimal (stock look), `"classic"` adds warm accents and Fangraphs-style stat colors, `"rainbow"` adds colored stat backgrounds and live game highlights. | `"classic"` |
+| `log_level` | Log level: `"off"`, `"trace"`, `"debug"`, `"info"`, `"warn"`, `"error"`. | `"error"` |
 
 ### Example config
 
 ```toml
-# See https://github.com/mlb-rs/mlbt#config for options
-favorite_team = "Chicago Cubs"
+favorite_team = "San Francisco Giants"
 timezone = "US/Pacific"
-log_level = "error"
+nerd_fonts = true
+team_colors = true
+theme = "classic"
 ```
 
 ## Shout out
