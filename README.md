@@ -1,389 +1,204 @@
-# mlbt
+# mlbtg
 
-[![CI](https://github.com/mlb-rs/mlbt/actions/workflows/ci.yml/badge.svg?event=push)](https://github.com/mlb-rs/mlbt/actions/workflows/ci.yml)
-[![dependency status](https://deps.rs/repo/github/mlb-rs/mlbt/status.svg)](https://deps.rs/repo/github/mlb-rs/mlbt)
+A fork of [mlbt](https://github.com/mlb-rs/mlbt) focused on readability and
+visual accessibility.
+
 [![Built With Ratatui](https://ratatui.rs/built-with-ratatui/badge.svg)](https://ratatui.rs/)
 
-mlb.com in your terminal. Gameday, scores, stats, standings, teams, and player
-profiles. Powered by MLB's Stats API, check today's games or dig through decades
-of historical information. Go beyond the broadcast and nerd out with win
-probability, leverage index, exit velo, and more.
+MLB in your terminal — gameday, scores, stats, standings, teams, and player
+profiles. Powered by MLB's public Stats API, browse today's games or dig through
+decades of historical data.
 
-This fork adds optional visual enhancements — color themes, Nerd Font icons,
-team colors, and weather display. All additions are off by default; without
-any config changes the app behaves identically to upstream.
+## Why this fork?
 
-Color and glyphs serve the same purpose: making dense data scannable. Color
-highlights stat tiers at a glance; glyphs provide a redundant signal that
-works on low-contrast displays or for users who can't distinguish colors.
-Neither is the only channel — text labels are always present.
+The upstream app is excellent. This fork layers on optional visual tools that
+make dense baseball data easier to scan:
 
-<img src="https://github.com/user-attachments/assets/1c11e22b-df11-46df-8774-5783b77def84" alt="Demo showing the Schedule, Gameday, Stats, and Standings."/>
+- **Color themes** (lean / classic / rainbow) inspired by
+  [Powerlevel10k](https://github.com/romkatv/powerlevel10k) and
+  [Fangraphs](https://www.fangraphs.com/) — stat cells light up by tier so
+  outliers jump off the screen.
+- **Nerd Font glyphs** — weather icons, base runner diamonds, play-by-play
+  labels (K, BB, 2B, HR), tab icons. Symbols convey meaning faster than text
+  in a dense layout.
+- **Team colors** on names in the scoreboard and standings.
+- **Weather conditions** shown in the gameday matchup and scoreboard.
 
-## Table of Contents
+Color and glyphs are redundant encoding channels. Color highlights stat tiers at
+a glance; glyphs provide the same signal for users on low-contrast displays or
+who can't distinguish colors. Text labels are always present — nothing relies on
+a single visual channel.
 
-- [Installation](#installation)
-    - [Cargo](#cargo)
-    - [Homebrew](#homebrew)
-    - [Binaries](#binaries)
-    - [Docker](#docker)
-- [Features](#features)
-- [Usage](#usage)
-    - [Scoreboard](#scoreboard)
-    - [Gameday](#gameday)
-    - [Stats](#stats)
-    - [Standings](#standings)
-    - [Team Page](#team-page)
-    - [Player Profile](#player-profile)
-    - [Date Picker](#date-picker)
-    - [Help](#help)
-- [Config](#config)
-- [Shout out](#shout-out)
-- [Copyright Notice](#copyright-notice)
-- [License](#license)
+**All additions are off by default.** Without any config changes the app behaves
+identically to upstream.
 
 ## Installation
 
-### Cargo
-
-Install a pre-built binary using [cargo-binstall](https://github.com/cargo-bins/cargo-binstall):
+Build from source:
 
 ```bash
-cargo binstall mlbt
+git clone https://github.com/agiacalone/mlbtg.git
+cd mlbtg
+cargo build --release
 ```
 
-Or build from source:
+The binary is at `target/release/mlbtg`. Copy it somewhere on your `$PATH`, or
+run directly with `cargo run`.
 
-```bash
-cargo install mlbt
-```
-
-### Homebrew
-
-```bash
-brew install mlb-rs/mlbt/mlbt
-```
-
-To update to the latest version:
-
-```bash
-brew upgrade mlbt
-```
-
-### Binaries
-
-macOS, Linux, and Windows binaries are available on the
-[releases](https://github.com/mlb-rs/mlbt/releases) page.
-
-| Platform               | Target                          |
-|------------------------|---------------------------------|
-| macOS (Apple Silicon)  | `aarch64-apple-darwin`          |
-| macOS (Intel)          | `x86_64-apple-darwin`           |
-| Linux (x86_64)         | `x86_64-unknown-linux-gnu`      |
-| Linux (x86_64, static) | `x86_64-unknown-linux-musl`     |
-| Linux (ARM64)          | `aarch64-unknown-linux-gnu`     |
-| Linux (ARM64, static)  | `aarch64-unknown-linux-musl`    |
-| Linux (ARMv7)          | `armv7-unknown-linux-gnueabihf` |
-| Windows (x86_64)       | `x86_64-pc-windows-msvc`        |
-
-`.deb` and `.rpm` packages are also available for Linux x86_64 and ARM64.
-
-### Docker
-
-`mlbt` publishes docker images on [ghcr](https://github.com/mlb-rs/mlbt/pkgs/container/mlbt).
-
-```bash
-docker run -it --rm --name mlbt ghcr.io/mlb-rs/mlbt
-```
-
-`mlbt` follows [semver](https://semver.org/) practices.
-You can execute individual releases explicitly.
-
-```bash
-docker run -it --rm --name mlbt ghcr.io/mlb-rs/mlbt:v0.2.0
-```
-
-Alternatively build the `mlbt` image with:
-
-```bash
-docker build -t mlbt .
-```
-
-Execute `mlbt` within the container with:
-
-```bash
-docker run -it --rm --name mlbt mlbt:latest
-```
+> For the original upstream release binaries, Homebrew tap, and Docker images,
+> see [mlb-rs/mlbt](https://github.com/mlb-rs/mlbt#installation).
 
 ## Features
 
-- scoreboard and box score
-    - sorted by favorite team
-    - full box score
-    - probable pitchers for upcoming games
-    - win probability graph
-    - weather conditions for live/completed games
-    - selectable date
+- **Scoreboard & box score** — favorite team sorting, full box score, probable
+  pitchers, win probability graph, weather for live/completed games, selectable
+  date.
 
-- gameday
-    - pitch display
-    - batter strike zone with heat map coloring
-    - selectable at bats (view the pitches and outcome of any at bat in the game)
-    - hit stats: exit velocity, launch angle, distance
-    - ABS challenge information for 2026+ games
-    - leverage index and win probability change per at bat
-    - weather conditions with Nerd Font icons
+- **Gameday** — pitch display, strike zone heat map, selectable at bats, exit
+  velocity / launch angle / distance, ABS challenge info (2026+), leverage index
+  and win probability per at bat, weather with Nerd Font icons.
 
-- pitching and hitting stats
-    - player stats
-    - team stats
-    - Fangraphs-inspired stat coloring (ERA, AVG, win%)
-    - sorting
-    - fuzzy search for players and teams
-    - selectable date
+- **Stats** — player and team pitching/hitting stats, Fangraphs-inspired stat
+  coloring (ERA, AVG, win%), sort by any column, fuzzy search, selectable date.
 
-- standings
-    - sorted by favorite team
-    - division/league view
-    - stat coloring (win%, streak, run differential)
-    - selectable date
+- **Standings** — favorite team sorting, division/league view, stat coloring
+  (win%, streak, run differential), selectable date.
 
-- team page
-    - roster (active and 40-man)
-    - schedule with calendar view
-    - recent transactions
+- **Team page** — roster (active and 40-man), schedule with calendar, recent
+  transactions.
 
-- player profile
-    - player bio
-    - career stats
-    - recent games
+- **Player profile** — bio, career stats, splits, recent games.
 
-- visual customization
-    - three color themes: lean, classic, rainbow
-    - optional Nerd Font icons (tab icons, weather, base runners, play labels)
-    - optional team colors on names
-    - favorite team highlighting
-    - configuration via TOML file
+- **Visual customization** — three color themes (lean / classic / rainbow),
+  optional Nerd Font icons, optional team colors, favorite team highlighting.
+  All configurable via a single TOML file.
 
 ## Usage
 
-After installing, run `mlbt` from your terminal to open the program.
-
-Press `q` to exit at any time.
+Run `mlbtg` (or `cargo run`) to start. Press `q` to exit.
 
 ### Tabs
 
-There are four main tabs.
-
-- Scoreboard
-- Gameday
-- Stats
-- Standings
-
-Press `f` for full screen mode to hide the tab bar.
+| Key | Tab |
+|-----|-----|
+| `1` | Scoreboard |
+| `2` | Gameday |
+| `3` | Stats |
+| `4` | Standings |
+| `?` | Help |
+| `f` | Toggle full screen |
 
 ### Scoreboard
 
-Press `1` to activate this tab.
-
-| Key                 | Description                                            |
-|---------------------|--------------------------------------------------------|
-| `j` / `↓`           | move down                                              |
-| `k` / `↑`           | move up                                                |
-| `Enter`             | view current game in Gameday                           |
-| `:`                 | activate date picker (see [Date Picker](#date-picker)) |
-| `w`                 | toggle win probability graph                           |
-| `h`                 | switch to home team in box score                       |
-| `a`                 | switch to away team in box score                       |
-| `Shift` +  `j`/ `↓` | scroll box score down                                  |
-| `Shift` +  `k`/ `↑` | scroll box score up                                    |
+| Key | Description |
+|-----|-------------|
+| `j` / `↓` | Move down |
+| `k` / `↑` | Move up |
+| `Enter` | View game in Gameday |
+| `:` | Date picker |
+| `w` | Toggle win probability |
+| `h` / `a` | Home / away team in box score |
+| `Shift` + `j` / `k` | Scroll box score |
 
 ### Gameday
 
-Press `2` to activate this tab.
+Toggle panes:
 
-By default, the `info` and `pitches` panes are shown. However, each pane can be
-toggled on and off using:
+| Key | Pane |
+|-----|------|
+| `i` | Info |
+| `p` | Pitches |
+| `b` | Box score |
+| `w` | Win probability |
 
-| Key | Description                  |
-|-----|------------------------------|
-| `i` | info pane                    |
-| `p` | pitches pane                 |
-| `b` | box score pane               |
-| `w` | toggle win probability graph |
-
-To view different at bats in the game, use:
-
-| Key       | Description                                    |
-|-----------|------------------------------------------------|
-| `j` / `↓` | move to previous at bat                        |
-| `k` / `↑` | move to next at bat                            |
-| `l`       | move to the "live" at bat, or latest available |
-| `s`       | move to first at bat of the game               |
-
-To interact with the box score, use:
-
-| Key                 | Description                      |
-|---------------------|----------------------------------|
-| `h`                 | switch to home team in box score |
-| `a`                 | switch to away team in box score |
-| `Shift` +  `j`/ `↓` | scroll box score down            |
-| `Shift` +  `k`/ `↑` | scroll box score up              |
-
-### Stats
-
-Press `3` to activate this tab.
-
-Inside the stats tab there are two panes: *stats table* and *options*. The stats
-table is used for selecting players/teams and searching. The options pane is
-used for sorting the stats and toggling columns on/off.
-
-| Key                 | Description                                            |
-|---------------------|--------------------------------------------------------|
-| `←` / `→` / `Tab`   | switch between stats table and options pane            |
-| `j` / `↓`           | move down in active pane                               |
-| `k` / `↑`           | move up in active pane                                 |
-| `Shift` + `j` / `↓` | page down in stats table                               |
-| `Shift` + `k` / `↑` | page up in stats table                                 |
-| `:`                 | activate date picker (see [Date Picker](#date-picker)) |
-
-You can switch between `pitching` and `hitting` stats and filter based on `team`
-or `player` using:
+Navigate at bats:
 
 | Key | Description |
 |-----|-------------|
-| `p` | pitching    |
-| `h` | hitting     |
-| `t` | team        |
-| `l` | player      |
+| `j` / `↓` | Previous at bat |
+| `k` / `↑` | Next at bat |
+| `l` | Jump to live / latest |
+| `s` | Jump to first |
 
-#### Search
+### Stats
 
-You can fuzzy search for a player or team in the stats table using:
-
-| Key          | Description                |
-|--------------|----------------------------|
-| `Ctrl` + `f` | activate fuzzy search      |
-| `Enter`      | finish fuzzy search        |
-| `Esc`        | clear fuzzy search results |
-
-While the stats table is active, press `Enter` to view a
-[player profile](#player-profile) or a [team page](#team-page).
-
-#### Stats Options
-
-The stats options pane can be turned on/off with `o`.
-
-Within each stat group (pitching or hitting) you can toggle the display of
-individual stat columns by selecting the stat with `Enter`. To sort the stats by
-a column, you can press `s`. To flip the sort order from ascending to descending
-or vice versa press `s` again.
-
-| Key     | Description                           |
-|---------|---------------------------------------|
-| `Enter` | toggle stat column                    |
-| `s`     | sort by the currently selected column |
-| `o`     | toggle options pane                   |
-
-> If your terminal is too small to display all columns, they will be turned off
-> starting from the right side.
+| Key | Description |
+|-----|-------------|
+| `←` / `→` / `Tab` | Switch pane (data / options) |
+| `j` / `k` | Move up / down |
+| `Shift` + `j` / `k` | Page up / down |
+| `p` / `h` | Pitching / hitting |
+| `t` / `l` | Team / player |
+| `Ctrl` + `f` | Fuzzy search |
+| `o` | Toggle options pane |
+| `s` | Sort by selected column |
+| `Enter` | View player profile or team page |
+| `:` | Date picker |
 
 ### Standings
 
-Press `4` to activate this tab.
-
-| Key       | Description                                            |
-|-----------|--------------------------------------------------------|
-| `j` / `↓` | move down                                              |
-| `k` / `↑` | move up                                                |
-| `Enter`   | view [team page](#team-page)                           |
-| `:`       | activate date picker (see [Date Picker](#date-picker)) |
-| `l`       | toggle division/league view                            |
+| Key | Description |
+|-----|-------------|
+| `j` / `k` | Move up / down |
+| `Enter` | View team page |
+| `l` | Toggle division / league view |
+| `:` | Date picker |
 
 ### Player Profile
 
-The player profile shows a player's career stats and recent games. It can be
-opened from [Stats](#stats) or from a [team page](#team-page) roster by pressing
-`Enter`.
-
-| Key                 | Description          |
-|---------------------|----------------------|
-| `s`                 | toggle stat category |
-| `j` / `↓`           | scroll down          |
-| `k` / `↑`           | scroll up            |
-| `Shift` + `j` / `↓` | page down            |
-| `Shift` + `k` / `↑` | page up              |
-| `Esc`               | close profile        |
+| Key | Description |
+|-----|-------------|
+| `j` / `k` | Scroll |
+| `Shift` + `j` / `k` | Page scroll |
+| `s` | Toggle stat category |
+| `Esc` | Close |
 
 ### Team Page
 
-The team page shows a team's roster, schedule, and recent transactions. It can
-be opened from [Standings](#standings) or from [Stats](#stats) by pressing
-`Enter`.
-
-| Key                 | Description                                        |
-|---------------------|----------------------------------------------------|
-| `←` / `→` / `Tab`   | switch section                                     |
-| `j` / `↓`           | move down                                          |
-| `k` / `↑`           | move up                                            |
-| `Shift` + `j` / `↓` | page down                                          |
-| `Shift` + `k` / `↑` | page up                                            |
-| `c`                 | toggle calendar                                    |
-| `r`                 | toggle roster type                                 |
-| `Enter`             | view [player profile](#player-profile) from roster |
-| `Esc`               | close team page                                    |
+| Key | Description |
+|-----|-------------|
+| `←` / `→` / `Tab` | Switch section |
+| `j` / `k` | Move up / down |
+| `Shift` + `j` / `k` | Page up / down |
+| `c` | Toggle calendar |
+| `r` | Toggle roster type |
+| `Enter` | View player profile |
+| `Esc` | Close |
 
 ### Date Picker
 
-With the date picker active, input a date in the form of `YYYY-MM-DD`, or use
-the `left`/`right` arrow keys, and press `Enter`.
+| Key | Description |
+|-----|-------------|
+| `←` / `→` | Navigate date |
+| `Enter` | Confirm |
+| `Esc` | Cancel |
+| `today` / `t` | Jump to today |
 
-| Key           | Description                     |
-|---------------|---------------------------------|
-| `←` / `→`     | use arrow keys to navigate date |
-| `Enter`       | confirm the selected date       |
-| `Esc`         | cancel selection                |
-| `today` / `t` | go back to the current day      |
-
-> Note that each tab has its own date, i.e. if you're viewing older stats or
-> standings, the schedule can be the current date.
-
-### Help
-
-Press `?` from any tab to open the help page.
-
-| Key                 | Description    |
-|---------------------|----------------|
-| `j` / `↓`           | move down      |
-| `k` / `↑`           | move up        |
-| `Shift` + `j` / `↓` | page down      |
-| `Shift` + `k` / `↑` | page up        |
-| `Esc`               | close help box |
-| `"`                 | display logs   |
+> Each tab has its own date — viewing historical stats won't change the
+> scoreboard date.
 
 ## Config
 
-You can configure the TUI with the toml file located at your users' home
-directory. For a user named `Alice` this would be:
+Settings live in a TOML file:
 
-- Linux:   `/home/alice/.config/mlbt/mlbt.toml`
-- Windows: `C:\Users\Alice\AppData\Roaming\mlbt\mlbt.toml`
-- macOS:   `/Users/Alice/Library/Application Support/mlbt/mlbt.toml`
+- Linux: `~/.config/mlbt/mlbt.toml`
+- macOS: `~/Library/Application Support/mlbt/mlbt.toml`
+- Windows: `%APPDATA%\mlbt\mlbt.toml`
 
-> You can see the path for your user in the `Help` page.
+The path is also shown on the Help page (`?`).
 
-### Available settings
+### Settings
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| `favorite_team` | Highlight your team in the schedule and standings. Use the full team name (e.g. `"Chicago Cubs"`). See [constants.rs](src/components/constants.rs) for all options. | none |
-| `timezone` | Time zone for game start times. Common values: `"US/Pacific"`, `"US/Mountain"`, `"US/Central"`, `"US/Eastern"`. [Full list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). | `"US/Pacific"` |
-| `nerd_fonts` | Enable [Nerd Font](https://www.nerdfonts.com/) icons for tabs, weather, base runners, and play-by-play labels. Requires a Nerd Font installed in your terminal. | `false` |
-| `team_colors` | Color team names in the scoreboard and standings using each team's primary color. | `false` |
-| `theme` | Color theme tier. `"lean"` is minimal (stock look), `"classic"` adds warm accents and Fangraphs-style stat colors, `"rainbow"` adds colored stat backgrounds and live game highlights. | `"classic"` |
-| `log_level` | Log level: `"off"`, `"trace"`, `"debug"`, `"info"`, `"warn"`, `"error"`. | `"error"` |
+| `favorite_team` | Your team — sorted first in schedule, highlighted in standings. Use the full name (e.g. `"San Francisco Giants"`). | none |
+| `timezone` | Game time display. `"US/Pacific"`, `"US/Central"`, `"US/Eastern"`, etc. [Full list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). | `"US/Pacific"` |
+| `nerd_fonts` | Enable [Nerd Font](https://www.nerdfonts.com/) icons — tabs, weather, bases, play labels. Requires a Nerd Font in your terminal. | `false` |
+| `team_colors` | Color team names by their primary color in scoreboard and standings. | `false` |
+| `theme` | Color tier: `"lean"` (stock look), `"classic"` (warm accents + stat colors), `"rainbow"` (stat backgrounds + live game highlights). | `"classic"` |
+| `log_level` | `"off"`, `"trace"`, `"debug"`, `"info"`, `"warn"`, `"error"`. | `"error"` |
 
-### Example config
+### Example
 
 ```toml
 favorite_team = "San Francisco Giants"
@@ -393,30 +208,19 @@ team_colors = true
 theme = "classic"
 ```
 
-## Shout out
+## Acknowledgments
 
-This was originally built with the
-wonderful [tui-rs](https://github.com/fdehau/tui-rs). It is now using the also
-wonderful fork, [ratatui](https://github.com/ratatui/ratatui).
-
-These TUIs were extremely helpful:
-[spotify-tui](https://github.com/Rigellute/spotify-tui),
-[tickrs](https://github.com/tarkah/tickrs),
-[bottom](https://github.com/ClementTsang/bottom).
-
-A reference MLB stats API client by
-[toddrob99](https://github.com/toddrob99/MLB-StatsAPI) helped make up for the
-lack of API documentation.
+This is a fork of [mlbt](https://github.com/mlb-rs/mlbt) by
+[mlb-rs](https://github.com/mlb-rs). Built with
+[ratatui](https://github.com/ratatui/ratatui).
 
 ## Copyright Notice
 
-The data used in this application is supplied by the MLB's Stats API. Use of
-this data is subject to the license posted here:
+Data is supplied by MLB's Stats API and is subject to the license at
 http://gdx.mlb.com/components/copyright.txt.
 
-This application and its author are not affiliated with the MLB.
+This application and its authors are not affiliated with MLB.
 
 ## License
 
-This project is under the
-[MIT License](https://github.com/mlb-rs/mlbt/blob/main/LICENSE).
+[MIT License](LICENSE)
