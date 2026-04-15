@@ -4,10 +4,10 @@ use tui::prelude::{Span, Style};
 
 #[derive(Debug)]
 pub struct ReviewDetails {
-    pub is_overturned: bool,
-    pub in_progress: bool,
+    pub is_overturned: Option<bool>,
+    pub in_progress: Option<bool>,
     // pub review_type: String, // TODO not sure what this is yet
-    /// Team that initiated the review.
+    /// Team that initiated the review. If None, usually means it was a crew chief review.
     pub challenge_team_id: Option<u16>,
     /// Player that initiated the review, if any.
     pub player_id: Option<PlayerId>,
@@ -51,16 +51,17 @@ impl ReviewDetails {
         })
     }
 
-    /// Returns the completed review status: " | Overturned [Ruth]" or " | Upheld [Ruth]"
+    /// Returns the completed review status: " | Overturned [Ruth]", " | Upheld [Ruth]", or
+    /// " | Challenged [Ruth]" when the outcome is unknown.
     pub fn format_status_spans(&self, player_map: &PlayerMap) -> Option<Vec<Span<'static>>> {
-        if self.in_progress {
+        if self.in_progress.unwrap_or(true) {
             return None;
         }
 
-        let status = if self.is_overturned {
-            "Overturned"
-        } else {
-            "Upheld"
+        let status = match self.is_overturned {
+            Some(true) => "Overturned",
+            Some(false) => "Upheld",
+            None => "Challenged",
         };
 
         let mut spans = vec![Span::raw(format!(" | {status}"))];
@@ -81,7 +82,7 @@ impl ReviewDetails {
         away_team: &Team,
         player_map: &PlayerMap,
     ) -> Option<Vec<Span<'static>>> {
-        if !self.in_progress {
+        if !self.in_progress.unwrap_or(false) {
             return None;
         }
 
@@ -144,8 +145,8 @@ mod tests {
         player_id: Option<u64>,
     ) -> ReviewDetails {
         ReviewDetails {
-            is_overturned: overturned,
-            in_progress,
+            is_overturned: Some(overturned),
+            in_progress: Some(in_progress),
             challenge_team_id: Some(team_id),
             player_id,
         }
@@ -188,6 +189,44 @@ mod tests {
                 .unwrap(),
         );
         assert!(text.contains("Overturned") && !text.contains("["));
+    }
+
+    #[test]
+    fn status_unknown_outcome_falls_back_to_challenged() {
+        let review = ReviewDetails {
+            is_overturned: None,
+            in_progress: Some(false),
+            challenge_team_id: Some(147),
+            player_id: Some(1),
+        };
+        let text = spans_text(&review.format_status_spans(&players()).unwrap());
+        assert!(text.contains("Challenged") && text.contains("[Ruth]"));
+    }
+
+    #[test]
+    fn status_returns_none_when_state_unknown() {
+        let review = ReviewDetails {
+            is_overturned: Some(true),
+            in_progress: None,
+            challenge_team_id: Some(147),
+            player_id: Some(1),
+        };
+        assert!(review.format_status_spans(&players()).is_none());
+    }
+
+    #[test]
+    fn in_progress_returns_none_when_state_unknown() {
+        let review = ReviewDetails {
+            is_overturned: Some(true),
+            in_progress: None,
+            challenge_team_id: Some(147),
+            player_id: Some(1),
+        };
+        assert!(
+            review
+                .format_in_progress_spans(&HOME, &AWAY, &players())
+                .is_none()
+        );
     }
 
     #[test]
