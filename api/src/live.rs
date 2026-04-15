@@ -31,6 +31,15 @@ pub struct GameData {
     pub players: HashMap<String, FullPlayer>,
     pub abs_challenges: Option<AbsChallenges>,
     pub status: Status,
+    pub weather: Option<Weather>,
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Weather {
+    pub condition: Option<String>,
+    pub temp: Option<String>,
+    pub wind: Option<String>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]

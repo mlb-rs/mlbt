@@ -1,7 +1,7 @@
 use tui::backend::Backend;
 use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Modifier, Style};
-use tui::text::Line;
+use tui::text::{Line, Span};
 use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph, Tabs, Widget};
 use tui::{Frame, Terminal};
 
@@ -195,7 +195,28 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) 
     if let Some(matchup) = app.state.schedule.get_probable_pitchers_opt() {
         f.render_widget(ProbablePitchersWidget { matchup }, boxscore);
     } else {
-        draw_border(f, boxscore, symbols.theme().border());
+        // Show weather in the boxscore border title if available
+        let weather_title = app.state.gameday.game.weather.as_ref().and_then(|w| {
+            let condition = w.condition.as_deref()?;
+            let temp = w.temp.as_deref()?;
+            Some(symbols.format_weather(condition, temp))
+        });
+        if let Some(title) = &weather_title {
+            let block = Block::default()
+                .borders(Borders::ALL)
+                .border_type(BorderType::Rounded)
+                .border_style(Style::default().fg(symbols.theme().border()))
+                .title_bottom(
+                    Line::from(Span::styled(
+                        format!(" {title} "),
+                        Style::default().fg(Color::DarkGray),
+                    ))
+                    .alignment(Alignment::Right),
+                );
+            f.render_widget(block, boxscore);
+        } else {
+            draw_border(f, boxscore, symbols.theme().border());
+        }
         draw_linescore_boxscore(f, boxscore, app, symbols);
     }
 }

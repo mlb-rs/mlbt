@@ -35,6 +35,8 @@ pub struct GameState {
     /// Remaining ABS challenges, if available.
     pub away_abs_challenges: Option<u8>,
     pub abstract_game_state: Option<AbstractGameState>,
+    /// Weather conditions at the venue.
+    pub weather: Option<mlbt_api::live::Weather>,
 }
 
 impl GameState {
@@ -55,6 +57,7 @@ impl GameState {
             plays.iter().for_each(|p| Self::update_single_play(self, p));
         }
         self.win_probability = WinProbability::from(win_probability);
+        self.weather = live_data.game_data.weather.clone();
     }
 
     fn set_teams(&mut self, live_data: &LiveResponse) {

@@ -43,8 +43,19 @@ impl Widget for MatchupWidget<'_> {
             away,
             buf,
         );
+        let mut scoreboard_lines = at_bat.matchup.format_scoreboard_lines(self.symbols);
+        // Append weather line if available
+        if let Some(weather) = &self.game.weather
+            && let (Some(condition), Some(temp)) = (&weather.condition, &weather.temp)
+        {
+            let weather_text = self.symbols.format_weather(condition, temp);
+            scoreboard_lines.push(Line::from(Span::styled(
+                weather_text,
+                Style::default().fg(Color::DarkGray),
+            )));
+        }
         Widget::render(
-            Paragraph::new(at_bat.matchup.format_scoreboard_lines(self.symbols))
+            Paragraph::new(scoreboard_lines)
                 .alignment(Alignment::Center)
                 .block(
                     Block::default()

@@ -92,6 +92,50 @@ impl Symbols {
     pub fn favorite_marker(&self) -> &'static str {
         if self.nerd_fonts { "★ " } else { "  " }
     }
+
+    /// Weather icon for the given condition string from the MLB API.
+    /// Returns a Nerd Font weather icon or a plain-text fallback.
+    pub fn weather_icon(&self, condition: &str) -> &'static str {
+        if self.nerd_fonts {
+            let lower = condition.to_lowercase();
+            if lower.contains("sun") || lower.contains("clear") {
+                "\u{E302}" // nf-weather-day_sunny
+            } else if lower.contains("partly") || lower.contains("few clouds") {
+                "\u{E37B}" // nf-weather-day_cloudy
+            } else if lower.contains("cloud") || lower.contains("overcast") {
+                "\u{E312}" // nf-weather-cloudy
+            } else if lower.contains("rain")
+                || lower.contains("drizzle")
+                || lower.contains("shower")
+            {
+                "\u{E318}" // nf-weather-rain
+            } else if lower.contains("snow") {
+                "\u{E31A}" // nf-weather-snow
+            } else if lower.contains("thunder") || lower.contains("storm") {
+                "\u{E31D}" // nf-weather-thunderstorm
+            } else if lower.contains("fog") || lower.contains("mist") || lower.contains("haze") {
+                "\u{E313}" // nf-weather-fog
+            } else if lower.contains("wind") {
+                "\u{E34B}" // nf-weather-strong_wind
+            } else if lower.contains("dome") || lower.contains("roof") {
+                "\u{F015}" // nf-fa-home (dome/roof closed)
+            } else {
+                "\u{E302}" // default to sunny
+            }
+        } else {
+            "" // no icon in plain mode
+        }
+    }
+
+    /// Format a weather string for display. Returns something like "72°F ☀" or "72°F".
+    pub fn format_weather(&self, condition: &str, temp: &str) -> String {
+        let icon = self.weather_icon(condition);
+        if icon.is_empty() {
+            format!("{temp}°F")
+        } else {
+            format!("{icon} {temp}°F")
+        }
+    }
 }
 
 #[cfg(test)]
