@@ -51,7 +51,7 @@ impl ApiError {
 /// The available stat groups. These are taken from the "meta" endpoint:
 /// https://statsapi.mlb.com/api/v1/statGroups
 /// I only need to use Hitting and Pitching for now.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum StatGroup {
     Hitting,
     Pitching,

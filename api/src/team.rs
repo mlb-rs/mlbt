@@ -3,7 +3,7 @@ use crate::live::{FullPlayer, PrimaryPosition};
 use serde::Deserialize;
 use std::fmt;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum RosterType {
     Active,
     FortyMan,

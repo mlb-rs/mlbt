@@ -7,6 +7,7 @@ use crate::components::standings::Team;
 use indexmap::IndexMap;
 use mlbt_api::live::LiveResponse;
 use mlbt_api::plays::Play;
+use mlbt_api::schedule::AbstractGameState;
 use mlbt_api::win_probability::WinProbabilityResponse;
 use std::collections::HashMap;
 use std::sync::LazyLock;
@@ -33,6 +34,7 @@ pub struct GameState {
     pub home_abs_challenges: Option<u8>,
     /// Remaining ABS challenges, if available.
     pub away_abs_challenges: Option<u8>,
+    pub abstract_game_state: Option<AbstractGameState>,
 }
 
 impl GameState {
@@ -46,6 +48,7 @@ impl GameState {
         self.set_teams(live_data);
         self.set_on_deck(live_data);
         self.set_abs_challenges(live_data);
+        self.abstract_game_state = live_data.game_data.status.abstract_game_state;
         self.current_at_bat = Self::get_current_play_ab_index(live_data);
         self.linescore = LineScore::from_live_data(live_data, &self.home_team, &self.away_team);
         if let Some(plays) = &live_data.live_data.plays.all_plays {

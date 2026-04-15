@@ -11,8 +11,9 @@ use mlbt_api::standings::StandingsResponse;
 use mlbt_api::stats::StatsResponse;
 use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
 use mlbt_api::win_probability::WinProbabilityResponse;
+use std::sync::Arc;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum NetworkRequest {
     Initialize,
     Schedule {
@@ -45,38 +46,70 @@ pub enum NetworkRequest {
     },
 }
 
-#[derive(Debug)]
+/// Wrapper that pairs a request with a force_refresh flag for the cache layer.
+#[derive(Debug, Copy, Clone)]
+pub struct RefreshableRequest {
+    pub request: NetworkRequest,
+    pub force_refresh: bool,
+}
+
+impl RefreshableRequest {
+    pub fn new(request: NetworkRequest, force_refresh: bool) -> Self {
+        Self {
+            request,
+            force_refresh,
+        }
+    }
+
+    pub fn force(request: NetworkRequest) -> Self {
+        Self {
+            request,
+            force_refresh: true,
+        }
+    }
+}
+
+impl From<NetworkRequest> for RefreshableRequest {
+    fn from(request: NetworkRequest) -> Self {
+        Self {
+            request,
+            force_refresh: false,
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
 pub enum NetworkResponse {
     LoadingStateChanged {
         loading_state: LoadingState,
     },
     ScheduleLoaded {
-        schedule: ScheduleResponse,
+        schedule: Arc<ScheduleResponse>,
     },
     GameDataLoaded {
-        game: Box<LiveResponse>,
-        win_probability: WinProbabilityResponse,
+        game: Arc<LiveResponse>,
+        win_probability: Arc<WinProbabilityResponse>,
     },
     StandingsLoaded {
-        standings: StandingsResponse,
+        standings: Arc<StandingsResponse>,
     },
     StatsLoaded {
-        stats: StatsResponse,
+        stats: Arc<StatsResponse>,
     },
     PlayerProfileLoaded {
-        data: PeopleResponse,
+        data: Arc<PeopleResponse>,
         game_type: GameType,
     },
     TeamPageLoaded {
         team_id: u16,
         date: NaiveDate,
-        schedule: ScheduleResponse,
-        roster: RosterResponse,
-        transactions: TransactionsResponse,
+        schedule: Arc<ScheduleResponse>,
+        roster: Arc<RosterResponse>,
+        transactions: Arc<TransactionsResponse>,
     },
     TeamRosterLoaded {
         team_id: u16,
-        roster: RosterResponse,
+        roster: Arc<RosterResponse>,
         roster_type: RosterType,
     },
     Initialized,

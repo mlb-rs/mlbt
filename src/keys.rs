@@ -1,7 +1,8 @@
 use crate::app::{App, DebugState, MenuItem};
+use crate::cleanup_terminal;
 use crate::components::stats::table::TeamOrPlayer;
+use crate::state::messages::{NetworkRequest, RefreshableRequest};
 use crate::state::stats::ActivePane;
-use crate::{NetworkRequest, cleanup_terminal};
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use mlbt_api::client::StatGroup;
@@ -13,7 +14,7 @@ type AppGuard<'a> = MutexGuard<'a, App>;
 pub async fn handle_key_bindings(
     key_event: KeyEvent,
     app: &Arc<Mutex<App>>,
-    network_requests: &mpsc::Sender<NetworkRequest>,
+    network_requests: &mpsc::Sender<RefreshableRequest>,
 ) {
     let mut guard = app.lock().await;
     match (guard.state.active_tab, key_event.code, key_event.modifiers) {
@@ -100,20 +101,20 @@ pub async fn handle_key_bindings(
         }
         (MenuItem::Scoreboard, Char('j') | KeyCode::Down, _) => {
             guard.state.schedule.next();
-            load_game_data(guard, network_requests).await;
+            load_game_data(guard, network_requests, false).await;
         }
         (MenuItem::Scoreboard, Char('K') | KeyCode::Up, KeyModifiers::SHIFT) => {
             guard.state.box_score.scroll_up()
         }
         (MenuItem::Scoreboard, Char('k') | KeyCode::Up, _) => {
             guard.state.schedule.previous();
-            load_game_data(guard, network_requests).await;
+            load_game_data(guard, network_requests, false).await;
         }
         (MenuItem::Scoreboard, Char(':'), _) => guard.update_tab(MenuItem::DatePicker),
         (MenuItem::Scoreboard, Char('w'), _) => guard.state.schedule.toggle_win_probability(),
         (MenuItem::Scoreboard, KeyCode::Enter, _) => {
             guard.update_tab(MenuItem::Gameday);
-            load_game_data(guard, network_requests).await;
+            load_game_data(guard, network_requests, false).await;
         }
 
         (MenuItem::DatePicker, KeyCode::Enter, _) => {
@@ -151,19 +152,19 @@ pub async fn handle_key_bindings(
         (MenuItem::Stats, Char('o'), _) => guard.state.stats.toggle_options(),
         (MenuItem::Stats, Char('p'), _) => {
             guard.state.stats.stat_type.group = StatGroup::Pitching;
-            load_stats(guard, network_requests).await;
+            load_stats(guard, network_requests, false).await;
         }
         (MenuItem::Stats, Char('h'), _) => {
             guard.state.stats.stat_type.group = StatGroup::Hitting;
-            load_stats(guard, network_requests).await;
+            load_stats(guard, network_requests, false).await;
         }
         (MenuItem::Stats, Char('l'), _) => {
             guard.state.stats.stat_type.team_player = TeamOrPlayer::Player;
-            load_stats(guard, network_requests).await;
+            load_stats(guard, network_requests, false).await;
         }
         (MenuItem::Stats, Char('t'), _) => {
             guard.state.stats.stat_type.team_player = TeamOrPlayer::Team;
-            load_stats(guard, network_requests).await;
+            load_stats(guard, network_requests, false).await;
         }
         (MenuItem::Stats, KeyCode::Enter, _) => {
             if guard.state.stats.active_pane == ActivePane::Options {
@@ -219,77 +220,111 @@ pub async fn handle_key_bindings(
     }
 }
 
-async fn load_team(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
+async fn load_team(guard: AppGuard<'_>, network_requests: &mpsc::Sender<RefreshableRequest>) {
     let team_id = guard.state.standings.get_selected();
     let date = guard.state.standings.date_selector.date;
     drop(guard);
 
     let _ = network_requests
-        .send(NetworkRequest::TeamPage { team_id, date })
+        .send(NetworkRequest::TeamPage { team_id, date }.into())
         .await;
 }
 
-async fn load_game_data(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
+async fn load_game_data(
+    guard: AppGuard<'_>,
+    network_requests: &mpsc::Sender<RefreshableRequest>,
+    force: bool,
+) {
     let game_id = guard.state.schedule.get_selected_game_opt();
     drop(guard);
 
     if let Some(game_id) = game_id {
         let _ = network_requests
-            .send(NetworkRequest::GameData { game_id })
+            .send(RefreshableRequest::new(
+                NetworkRequest::GameData { game_id },
+                force,
+            ))
             .await;
     }
 }
 
-async fn load_stats(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
+async fn load_stats(
+    guard: AppGuard<'_>,
+    network_requests: &mpsc::Sender<RefreshableRequest>,
+    force: bool,
+) {
     let date = guard.state.stats.date_selector.date;
     let stat_type = guard.state.stats.stat_type;
     drop(guard);
 
     let _ = network_requests
-        .send(NetworkRequest::Stats { date, stat_type })
+        .send(RefreshableRequest::new(
+            NetworkRequest::Stats { date, stat_type },
+            force,
+        ))
         .await;
 }
 
 async fn open_stats_selection(
     guard: AppGuard<'_>,
-    network_requests: &mpsc::Sender<NetworkRequest>,
+    network_requests: &mpsc::Sender<RefreshableRequest>,
 ) {
     if let Some(request) = guard.state.stats.open_selected_request() {
         drop(guard);
-        let _ = network_requests.send(request).await;
+        let _ = network_requests.send(request.into()).await;
     }
 }
 
-async fn load_standings(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
+async fn load_standings(
+    guard: AppGuard<'_>,
+    network_requests: &mpsc::Sender<RefreshableRequest>,
+    force: bool,
+) {
     let date = guard.state.standings.date_selector.date;
     drop(guard);
 
     let _ = network_requests
-        .send(NetworkRequest::Standings { date })
+        .send(RefreshableRequest::new(
+            NetworkRequest::Standings { date },
+            force,
+        ))
         .await;
 }
 
-async fn load_scoreboard(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
+async fn load_scoreboard(
+    guard: AppGuard<'_>,
+    network_requests: &mpsc::Sender<RefreshableRequest>,
+    force: bool,
+) {
     let date = guard.state.schedule.date_selector.date;
     let game_id = guard.state.schedule.get_selected_game_opt();
     drop(guard);
 
     let _ = network_requests
-        .send(NetworkRequest::Schedule { date })
+        .send(RefreshableRequest::new(
+            NetworkRequest::Schedule { date },
+            force,
+        ))
         .await;
 
     if let Some(game_id) = game_id {
         let _ = network_requests
-            .send(NetworkRequest::GameData { game_id })
+            .send(RefreshableRequest::new(
+                NetworkRequest::GameData { game_id },
+                force,
+            ))
             .await;
     }
 }
 
-async fn handle_date_change(guard: AppGuard<'_>, network_requests: &mpsc::Sender<NetworkRequest>) {
+async fn handle_date_change(
+    guard: AppGuard<'_>,
+    network_requests: &mpsc::Sender<RefreshableRequest>,
+) {
     match guard.state.active_tab {
-        MenuItem::Scoreboard => load_scoreboard(guard, network_requests).await,
-        MenuItem::Standings => load_standings(guard, network_requests).await,
-        MenuItem::Stats => load_stats(guard, network_requests).await,
+        MenuItem::Scoreboard => load_scoreboard(guard, network_requests, false).await,
+        MenuItem::Standings => load_standings(guard, network_requests, false).await,
+        MenuItem::Stats => load_stats(guard, network_requests, false).await,
         _ => {}
     }
 }
@@ -300,7 +335,7 @@ async fn handle_profile_key(
     key_event: KeyEvent,
     profile: &mut Option<crate::state::player_profile::PlayerProfileState>,
     date: chrono::NaiveDate,
-    network_requests: &mpsc::Sender<NetworkRequest>,
+    network_requests: &mpsc::Sender<RefreshableRequest>,
 ) -> bool {
     let Some(p) = profile.as_mut() else {
         return false;
@@ -308,7 +343,7 @@ async fn handle_profile_key(
     match (key_event.code, key_event.modifiers) {
         (Char('s'), _) => {
             let req = p.game_type_toggle_request(date);
-            let _ = network_requests.send(req).await;
+            let _ = network_requests.send(req.into()).await;
         }
         (Char('J'), _) | (KeyCode::Down, KeyModifiers::SHIFT) => p.page_down(),
         (Char('K'), _) | (KeyCode::Up, KeyModifiers::SHIFT) => p.page_up(),
@@ -322,7 +357,7 @@ async fn handle_profile_key(
 async fn handle_global_key(
     key_event: KeyEvent,
     mut guard: AppGuard<'_>,
-    network_requests: &mpsc::Sender<NetworkRequest>,
+    network_requests: &mpsc::Sender<RefreshableRequest>,
 ) {
     match (key_event.code, key_event.modifiers) {
         (Char('q'), _) => {
@@ -331,23 +366,27 @@ async fn handle_global_key(
         }
         (Char('f'), m) if !m.contains(KeyModifiers::CONTROL) => guard.toggle_full_screen(),
         (Char('1'), _) => {
+            let force = guard.state.active_tab == MenuItem::Scoreboard;
             guard.update_tab(MenuItem::Scoreboard);
             guard.state.gameday.live(); // reset at bat selection
-            load_scoreboard(guard, network_requests).await;
+            load_scoreboard(guard, network_requests, force).await;
         }
         (Char('2'), _) => {
+            let force = guard.state.active_tab == MenuItem::Gameday;
             guard.update_tab(MenuItem::Gameday);
-            load_game_data(guard, network_requests).await;
+            load_game_data(guard, network_requests, force).await;
         }
         (Char('3'), _) => {
+            let force = guard.state.active_tab == MenuItem::Stats;
             guard.update_tab(MenuItem::Stats);
             if !guard.state.stats.has_player_profile() {
-                load_stats(guard, network_requests).await;
+                load_stats(guard, network_requests, force).await;
             }
         }
         (Char('4'), _) => {
+            let force = guard.state.active_tab == MenuItem::Standings;
             guard.update_tab(MenuItem::Standings);
-            load_standings(guard, network_requests).await;
+            load_standings(guard, network_requests, force).await;
         }
         (Char('?'), _) => guard.update_tab(MenuItem::Help),
         (Char('d'), _) => guard.toggle_debug(),
@@ -363,7 +402,7 @@ async fn handle_global_key(
 async fn handle_team_page_key(
     key_event: KeyEvent,
     team_page: &mut Option<crate::state::team_page::TeamPageState>,
-    network_requests: &mpsc::Sender<NetworkRequest>,
+    network_requests: &mpsc::Sender<RefreshableRequest>,
 ) -> bool {
     let Some(tp) = team_page.as_mut() else {
         return false;
@@ -384,11 +423,11 @@ async fn handle_team_page_key(
         (Char('c'), _) => tp.toggle_calendar(),
         (Char('r'), _) => {
             let req = tp.roster_toggle_request();
-            let _ = network_requests.send(req).await;
+            let _ = network_requests.send(req.into()).await;
         }
         (KeyCode::Enter, _) => {
             if let Some(req) = tp.player_profile_request() {
-                let _ = network_requests.send(req).await;
+                let _ = network_requests.send(req.into()).await;
             }
         }
         _ => return false,

@@ -7,7 +7,7 @@ mod state;
 mod ui;
 
 use crate::app::App;
-use crate::state::messages::{NetworkRequest, NetworkResponse, UiEvent};
+use crate::state::messages::{NetworkRequest, NetworkResponse, RefreshableRequest, UiEvent};
 use crate::state::network::{LoadingState, NetworkWorker};
 use crate::state::refresher::PeriodicRefresher;
 use crossterm::event::{self as crossterm_event, Event};
@@ -41,7 +41,7 @@ async fn main() -> anyhow::Result<()> {
     let app = Arc::new(Mutex::new(App::new()));
 
     let (ui_event_tx, ui_event_rx) = mpsc::channel::<UiEvent>(100);
-    let (network_req_tx, network_req_rx) = mpsc::channel::<NetworkRequest>(100);
+    let (network_req_tx, network_req_rx) = mpsc::channel::<RefreshableRequest>(100);
     let (network_resp_tx, network_resp_rx) = mpsc::channel::<NetworkResponse>(100);
 
     // input handler thread
@@ -72,7 +72,7 @@ async fn main_ui_loop(
     mut terminal: Terminal<CrosstermBackend<Stdout>>,
     app: Arc<Mutex<App>>,
     mut ui_events: mpsc::Receiver<UiEvent>,
-    network_requests: mpsc::Sender<NetworkRequest>,
+    network_requests: mpsc::Sender<RefreshableRequest>,
     mut network_responses: mpsc::Receiver<NetworkResponse>,
 ) {
     let mut loading = LoadingState::default();
@@ -101,11 +101,13 @@ async fn main_ui_loop(
 async fn handle_ui_event(
     ui_event: UiEvent,
     app: &Arc<Mutex<App>>,
-    network_requests: &mpsc::Sender<NetworkRequest>,
+    network_requests: &mpsc::Sender<RefreshableRequest>,
 ) -> bool {
     match ui_event {
         UiEvent::AppStarted => {
-            let _ = network_requests.send(NetworkRequest::Initialize).await;
+            let _ = network_requests
+                .send(NetworkRequest::Initialize.into())
+                .await;
             true // Redraw immediately to show loading state
         }
         UiEvent::KeyPressed(key_event) => {
@@ -119,7 +121,7 @@ async fn handle_ui_event(
 async fn handle_network_response(
     response: NetworkResponse,
     app: &Arc<Mutex<App>>,
-    network_requests: &mpsc::Sender<NetworkRequest>,
+    network_requests: &mpsc::Sender<RefreshableRequest>,
     loading: &mut LoadingState,
 ) -> bool {
     match response {
@@ -136,7 +138,7 @@ async fn handle_network_response(
 
             if let Some(game_id) = game_id_to_load {
                 let _ = network_requests
-                    .send(NetworkRequest::GameData { game_id })
+                    .send(NetworkRequest::GameData { game_id }.into())
                     .await;
             }
         }
@@ -167,7 +169,7 @@ async fn handle_network_response(
             transactions,
         } => {
             let mut guard = app.lock().await;
-            guard.update_team_page(team_id, date, schedule, roster, transactions);
+            guard.update_team_page(team_id, date, &schedule, &roster, &transactions);
         }
         NetworkResponse::TeamRosterLoaded {
             team_id,
@@ -175,7 +177,7 @@ async fn handle_network_response(
             roster_type,
         } => {
             let mut guard = app.lock().await;
-            guard.update_team_roster(team_id, roster, roster_type);
+            guard.update_team_roster(team_id, &roster, roster_type);
         }
         NetworkResponse::Initialized => {
             // Teams must be loaded before the schedule so international team names resolve.
@@ -184,7 +186,7 @@ async fn handle_network_response(
                 guard.state.schedule.date_selector.date
             };
             let _ = network_requests
-                .send(NetworkRequest::Schedule { date })
+                .send(NetworkRequest::Schedule { date }.into())
                 .await;
         }
         NetworkResponse::Error { message } => {

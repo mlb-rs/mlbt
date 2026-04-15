@@ -1,8 +1,8 @@
 use crate::boxscore::Boxscore;
 use crate::plays::Plays;
-use std::collections::HashMap;
-
+use crate::schedule::Status;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -30,6 +30,7 @@ pub struct GameData {
     pub teams: Teams,
     pub players: HashMap<String, FullPlayer>,
     pub abs_challenges: Option<AbsChallenges>,
+    pub status: Status,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]

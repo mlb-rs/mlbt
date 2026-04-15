@@ -38,14 +38,14 @@ pub struct TransactionRow {
 
 impl TeamGame {
     pub fn from_schedule(
-        response: ScheduleResponse,
+        response: &ScheduleResponse,
         team_id: u16,
         date: NaiveDate,
         tz: Tz,
     ) -> Vec<TeamGame> {
         let mut games = Vec::new();
-        for date_entry in response.dates {
-            let Some(date_games) = date_entry.games else {
+        for date_entry in &response.dates {
+            let Some(date_games) = &date_entry.games else {
                 continue;
             };
             for game in date_games {
@@ -154,10 +154,10 @@ impl PositionGroup {
 }
 
 impl RosterRow {
-    pub fn from_roster(response: RosterResponse) -> Vec<RosterRow> {
+    pub fn from_roster(response: &RosterResponse) -> Vec<RosterRow> {
         let mut rows: Vec<RosterRow> = response
             .roster
-            .into_iter()
+            .iter()
             .map(|entry| {
                 let person = &entry.person;
                 let bats = person.bat_side.as_ref().map_display_or(|s| &s.code, "-");
@@ -196,12 +196,12 @@ impl RosterRow {
 }
 
 impl TransactionRow {
-    pub fn from_transactions(response: TransactionsResponse) -> Vec<TransactionRow> {
+    pub fn from_transactions(response: &TransactionsResponse) -> Vec<TransactionRow> {
         let mut rows: Vec<TransactionRow> = response
             .transactions
-            .into_iter()
+            .iter()
             .filter_map(|t| {
-                let description = t.description?;
+                let description = t.description.clone()?;
                 let date = t.date.as_ref().map_display_or(|d| format_short_date(d), "");
                 Some(TransactionRow { date, description })
             })

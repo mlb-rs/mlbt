@@ -7,7 +7,7 @@ const SPRING_TRAINING_FALLBACK_MONTH: u32 = 3;
 const SPRING_TRAINING_FALLBACK_DAY: u32 = 20;
 
 /// Whether the date falls in spring training or the regular season.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum GameType {
     SpringTraining,
     RegularSeason,

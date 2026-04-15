@@ -9,6 +9,7 @@ use mlbt_api::schedule::ScheduleResponse;
 use mlbt_api::season::GameType;
 use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
 use std::collections::HashSet;
+use std::sync::Arc;
 use tui::widgets::TableState;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -46,9 +47,9 @@ impl TeamPageState {
     pub fn from_response(
         team: Team,
         date: chrono::NaiveDate,
-        schedule: ScheduleResponse,
-        roster: RosterResponse,
-        transactions: TransactionsResponse,
+        schedule: &ScheduleResponse,
+        roster: &RosterResponse,
+        transactions: &TransactionsResponse,
         tz: Tz,
     ) -> Self {
         let schedule = TeamGame::from_schedule(schedule, team.id, date, tz);
@@ -91,7 +92,7 @@ impl TeamPageState {
         }
     }
 
-    pub fn update_roster(&mut self, roster: RosterResponse, roster_type: RosterType) {
+    pub fn update_roster(&mut self, roster: &RosterResponse, roster_type: RosterType) {
         self.roster = RosterRow::from_roster(roster);
         self.roster_type = roster_type;
         let (len, headers, map) = build_roster_row_map(&self.roster);
@@ -256,7 +257,7 @@ impl TeamPageState {
 
     pub fn update_player_profile(
         &mut self,
-        data: mlbt_api::player::PeopleResponse,
+        data: Arc<mlbt_api::player::PeopleResponse>,
         game_type: GameType,
     ) {
         let group = self

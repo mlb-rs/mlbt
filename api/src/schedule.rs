@@ -149,11 +149,12 @@ pub enum AbstractGameCode {
     F,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub enum AbstractGameState {
     Final,
     Live,
     Preview,
+    Other,
 }
 
 /// Only present if `hydrate=probablePitcher` is used.

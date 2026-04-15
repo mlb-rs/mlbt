@@ -1,34 +1,39 @@
-use crate::NetworkRequest;
 use crate::app::{App, MenuItem};
+use crate::state::messages::{NetworkRequest, RefreshableRequest};
 use std::time::Duration;
 use tokio::sync::mpsc;
 use tokio::time::interval;
 
 pub struct PeriodicRefresher {
-    network_requests: mpsc::Sender<NetworkRequest>,
+    network_requests: mpsc::Sender<RefreshableRequest>,
 }
 
 impl PeriodicRefresher {
-    pub fn new(network_requests: mpsc::Sender<NetworkRequest>) -> Self {
+    pub fn new(network_requests: mpsc::Sender<RefreshableRequest>) -> Self {
         Self { network_requests }
     }
 
     pub async fn run(self, app: std::sync::Arc<tokio::sync::Mutex<App>>) {
         let mut live_interval = interval(Duration::from_secs(10)); // Live data every 10s
-        let mut schedule_interval = interval(Duration::from_secs(60)); // Schedule every minute
+        let mut schedule_interval = interval(Duration::from_secs(30)); // Schedule every 30s
         let mut standings_interval = interval(Duration::from_secs(1800)); // Standings every 30 minutes
+        let mut stats_interval = interval(Duration::from_secs(1800)); // Stats every 30 minutes
 
         loop {
             tokio::select! {
                 // Live game data updates (frequent for active games)
                 _ = live_interval.tick() => {
-                    let (active_tab, game_id) = {
+                    let (active_tab, game_id, is_final) = {
                         let app = app.lock().await;
-                        (app.state.active_tab, app.state.gameday.current_game_id())
+                        (
+                            app.state.active_tab,
+                            app.state.gameday.current_game_id(),
+                            app.state.gameday.is_final(),
+                        )
                     };
 
-                    if active_tab == MenuItem::Gameday && game_id > 0 {
-                        let _ = self.network_requests.send(NetworkRequest::GameData { game_id }).await;
+                    if active_tab == MenuItem::Gameday && game_id > 0 && !is_final {
+                        let _ = self.network_requests.send(RefreshableRequest::force(NetworkRequest::GameData { game_id })).await;
                     }
                 }
 
@@ -40,9 +45,9 @@ impl PeriodicRefresher {
                     };
 
                     if active_tab == MenuItem::Scoreboard {
-                        let _ = self.network_requests.send(NetworkRequest::Schedule { date }).await;
+                        let _ = self.network_requests.send(RefreshableRequest::force(NetworkRequest::Schedule { date })).await;
                         if game_id > 0 {
-                            let _ = self.network_requests.send(NetworkRequest::GameData { game_id }).await;
+                            let _ = self.network_requests.send(RefreshableRequest::force(NetworkRequest::GameData { game_id })).await;
                         }
                     }
                 }
@@ -55,7 +60,19 @@ impl PeriodicRefresher {
                     };
 
                     if active_tab == MenuItem::Standings {
-                        let _ = self.network_requests.send(NetworkRequest::Standings { date }).await;
+                        let _ = self.network_requests.send(RefreshableRequest::force(NetworkRequest::Standings { date })).await;
+                    }
+                }
+
+                // Stats updates (low frequency)
+                _ = stats_interval.tick() => {
+                    let (active_tab, date, stat_type) = {
+                        let app = app.lock().await;
+                        (app.state.active_tab, app.state.stats.date_selector.date, app.state.stats.stat_type)
+                    };
+
+                    if active_tab == MenuItem::Stats {
+                        let _ = self.network_requests.send(RefreshableRequest::force(NetworkRequest::Stats { date, stat_type })).await;
                     }
                 }
             }
