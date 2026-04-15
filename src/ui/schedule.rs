@@ -62,17 +62,25 @@ impl ScheduleRow {
         // Merge team color into base style when nerd_fonts is enabled
         let color_style = |base: Style, abbr: &str| -> Style {
             if symbols.nerd_fonts() {
-                team_colors::get(abbr, symbols.official_team_colors()).map(|c| base.fg(c)).unwrap_or(base)
+                team_colors::get(abbr, symbols.official_team_colors())
+                    .map(|c| base.fg(c))
+                    .unwrap_or(base)
             } else {
                 base
             }
         };
 
         vec![
-            Span::styled(format!("{marker}{away_team}"), color_style(away_team_style, self.away_team.abbreviation)),
+            Span::styled(
+                format!("{marker}{away_team}"),
+                color_style(away_team_style, self.away_team.abbreviation),
+            ),
             Span::styled(away_record, away_team_style),
             Span::styled(Self::default_score(self.away_score), away_score_style),
-            Span::styled(home_team, color_style(home_team_style, self.home_team.abbreviation)),
+            Span::styled(
+                home_team,
+                color_style(home_team_style, self.home_team.abbreviation),
+            ),
             Span::styled(home_record, home_team_style),
             Span::styled(Self::default_score(self.home_score), home_score_style),
             Span::raw(self.start_time.to_string()),
@@ -113,7 +121,9 @@ impl StatefulWidget for ScheduleWidget<'_> {
                 .map(|r| r.home_team.team_name.len().max(r.away_team.team_name.len()))
                 .max()
                 .unwrap_or(ScheduleRow::NORMAL_COL_WIDTH as usize);
-            Constraint::Length((max_name_len.max(ScheduleRow::NORMAL_COL_WIDTH as usize) + 2) as u16) // +2 for the always-2-char favorite marker
+            Constraint::Length(
+                (max_name_len.max(ScheduleRow::NORMAL_COL_WIDTH as usize) + 2) as u16,
+            ) // +2 for the always-2-char favorite marker
         };
         let widths = [
             name_constraint,        // away team name
