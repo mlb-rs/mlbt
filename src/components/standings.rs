@@ -468,7 +468,7 @@ impl Standing {
         }
     }
 
-    pub fn to_cells(&self) -> Vec<Cell<'_>> {
+    pub fn to_cells(&self, _symbols: &crate::symbols::Symbols) -> Vec<Cell<'_>> {
         let (prefix, rdiff_color) = match self.run_differential.signum() {
             1 => ("+", Color::Green),
             -1 => ("", Color::Red),
@@ -480,8 +480,11 @@ impl Standing {
             Some('L') => Color::Red,
             _ => Color::White,
         };
+
+        let name_cell: Cell<'_> = self.team.name.to_string().into();
+
         vec![
-            self.team.name.to_string().into(),
+            name_cell,
             self.wins.to_string().into(),
             self.losses.to_string().into(),
             Cell::from(self.winning_percentage.clone()).fg(pct_color),

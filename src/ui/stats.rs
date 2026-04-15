@@ -2,6 +2,7 @@ use crate::components::stats::table::TeamOrPlayer;
 use crate::components::stats::{STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH};
 use crate::components::util::{DimColor, avg_color, era_color};
 use crate::state::stats::{ActivePane, StatsState};
+use crate::symbols::Symbols;
 use mlbt_api::client::StatGroup;
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Table, Wrap};
@@ -10,9 +11,11 @@ pub const STATS_OPTIONS_WIDTH: u16 = 36;
 const HIGHLIGHT_STYLE: Style = Style::new().bg(Color::Blue).fg(Color::Black);
 
 /// Renders the stats data table (left pane).
-pub struct StatsDataWidget {}
+pub struct StatsDataWidget<'a> {
+    pub symbols: &'a Symbols,
+}
 
-impl StatefulWidget for StatsDataWidget {
+impl StatefulWidget for StatsDataWidget<'_> {
     type State = StatsState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
@@ -42,7 +45,7 @@ impl StatefulWidget for StatsDataWidget {
                 if name == sort_column {
                     Cell::from(format!(
                         "{name} {}",
-                        state.table.sorting.order.arrow_symbol()
+                        state.table.sorting.order.arrow_symbol(self.symbols)
                     ))
                     .style(Style::default().bg(Color::Blue))
                 } else {

@@ -1,5 +1,6 @@
 use crate::components::stats::player_profile::PlayerProfile;
 use crate::state::player_profile::PlayerProfileState;
+use crate::symbols::Symbols;
 use crate::ui::scroll::{ScrollParams, adjust_area_for_scroll, render_scrollbar};
 use mlbt_api::client::StatGroup;
 use mlbt_api::season::GameType;
@@ -9,6 +10,7 @@ use tui::widgets::{Block, BorderType, Borders, Padding, Paragraph, Row, Table};
 
 pub struct PlayerProfileWidget<'a> {
     pub state: &'a mut PlayerProfileState,
+    pub symbols: &'a Symbols,
 }
 
 impl Widget for PlayerProfileWidget<'_> {
@@ -101,7 +103,7 @@ impl Widget for PlayerProfileWidget<'_> {
         }
 
         self.state.sync_scrollbar();
-        render_scrollbar(inner, &mut self.state.scroll_state, buf);
+        render_scrollbar(inner, &mut self.state.scroll_state, self.symbols, buf);
     }
 }
 

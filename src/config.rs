@@ -39,6 +39,9 @@ pub struct ConfigFile {
     /// Optional log level to use. If not present, the default is `Error`.
     /// Set the level using a lowercase string, e.g. "error".
     pub log_level: Option<LogLevel>,
+
+    /// Enable Nerd Font icons. Defaults to false for byte-for-byte compatibility.
+    pub nerd_fonts: Option<bool>,
 }
 
 impl Default for ConfigFile {
@@ -47,6 +50,7 @@ impl Default for ConfigFile {
             favorite_team: None,
             timezone: Some(ConfigFile::DEFAULT_TIMEZONE),
             log_level: None,
+            nerd_fonts: None,
         }
     }
 }
@@ -60,6 +64,7 @@ impl Into<AppSettings> for ConfigFile {
             timezone: self.validate_timezone(),
             timezone_abbreviation: self.get_timezone_abbreviation(),
             log_level: self.validate_log_level(),
+            nerd_fonts: self.nerd_fonts.unwrap_or(false),
         }
     }
 }

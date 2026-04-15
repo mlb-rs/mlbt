@@ -8,6 +8,7 @@ use tui::{Frame, Terminal};
 use crate::app::{App, DebugState, MenuItem};
 use crate::components::debug::DebugInfo;
 use crate::state::network::{ERROR_CHAR, LoadingState};
+use crate::symbols::Symbols;
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
 use crate::ui::date_selector::DateSelectorWidget;
 use crate::ui::gameday::gameday_widget::GamedayWidget;
@@ -40,25 +41,26 @@ where
     terminal
         .draw(|f| {
             main_layout.update(f.area(), app.settings.full_screen);
+            let symbols = Symbols::new(app.settings.nerd_fonts);
 
             if !app.settings.full_screen {
-                draw_tabs(f, &main_layout.top_bar, app);
+                draw_tabs(f, &main_layout.top_bar, app, &symbols);
             }
 
             match app.state.active_tab {
-                MenuItem::Scoreboard => draw_scoreboard(f, main_layout.main, app),
+                MenuItem::Scoreboard => draw_scoreboard(f, main_layout.main, app, &symbols),
                 MenuItem::DatePicker => {
                     match app.state.previous_tab {
-                        MenuItem::Scoreboard => draw_scoreboard(f, main_layout.main, app),
-                        MenuItem::Standings => draw_standings(f, main_layout.main, app),
-                        MenuItem::Stats => draw_stats(f, main_layout.main, app),
+                        MenuItem::Scoreboard => draw_scoreboard(f, main_layout.main, app, &symbols),
+                        MenuItem::Standings => draw_standings(f, main_layout.main, app, &symbols),
+                        MenuItem::Stats => draw_stats(f, main_layout.main, app, &symbols),
                         _ => (),
                     }
                     draw_date_picker(f, main_layout.main, app);
                 }
-                MenuItem::Gameday => draw_gameday(f, main_layout.main, app),
-                MenuItem::Stats => draw_stats(f, main_layout.main, app),
-                MenuItem::Standings => draw_standings(f, main_layout.main, app),
+                MenuItem::Gameday => draw_gameday(f, main_layout.main, app, &symbols),
+                MenuItem::Stats => draw_stats(f, main_layout.main, app, &symbols),
+                MenuItem::Standings => draw_standings(f, main_layout.main, app, &symbols),
                 MenuItem::Help => draw_help(f, f.area(), app),
             }
             if app.state.debug_state == DebugState::On {
@@ -113,12 +115,25 @@ fn draw_loading_spinner(f: &mut Frame, area: Rect, app: &App, loading: LoadingSt
     f.render_widget(spinner, area);
 }
 
-fn draw_tabs(f: &mut Frame, top_bar: &[Rect], app: &App) {
+fn draw_tabs(f: &mut Frame, top_bar: &[Rect], app: &App, symbols: &Symbols) {
     let style = Style::default().fg(Color::White);
     let border_style = Style::default();
     let border_type = BorderType::Rounded;
 
-    let titles: Vec<Line> = TABS.iter().map(|t| Line::from(*t)).collect();
+    let titles: Vec<Line> = TABS
+        .iter()
+        .enumerate()
+        .map(|(i, t)| {
+            let icon = match i {
+                0 => symbols.tab_scoreboard(),
+                1 => symbols.tab_gameday(),
+                2 => symbols.tab_stats(),
+                3 => symbols.tab_standings(),
+                _ => "",
+            };
+            Line::from(format!("{icon}{t}"))
+        })
+        .collect();
 
     let tabs = Tabs::new(titles)
         .block(
@@ -147,7 +162,7 @@ fn draw_tabs(f: &mut Frame, top_bar: &[Rect], app: &App) {
     f.render_widget(help, top_bar[1]);
 }
 
-fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
+fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) {
     // TODO calculate width based on table sizes
     let direction = match f.area().width {
         w if w < 125 => Direction::Vertical,
@@ -162,6 +177,8 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
     f.render_stateful_widget(
         ScheduleWidget {
             tz_abbreviation: app.settings.timezone_abbreviation.clone(),
+            symbols,
+            favorite_team: app.settings.favorite_team,
         },
         scoreboard,
         &mut app.state.schedule,
@@ -175,11 +192,11 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
         f.render_widget(ProbablePitchersWidget { matchup }, boxscore);
     } else {
         draw_border(f, boxscore, Color::White);
-        draw_linescore_boxscore(f, boxscore, app);
+        draw_linescore_boxscore(f, boxscore, app, symbols);
     }
 }
 
-fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App) {
+fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) {
     let chunks = LayoutAreas::for_boxscore(rect);
 
     f.render_widget(
@@ -193,6 +210,7 @@ fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App) {
         TeamBatterBoxscoreWidget {
             active: app.state.box_score.active_team,
             state: &mut app.state.box_score,
+            symbols,
         },
         chunks[1],
     );
@@ -206,28 +224,37 @@ fn draw_date_picker(f: &mut Frame, rect: Rect, app: &mut App) {
     f.set_cursor_position((cx, cy));
 }
 
-fn draw_gameday(f: &mut Frame, rect: Rect, app: &mut App) {
+fn draw_gameday(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) {
     f.render_widget(
         GamedayWidget {
             active: app.state.box_score.active_team,
             state: &app.state.gameday,
             boxscore_state: &mut app.state.box_score,
+            symbols,
         },
         rect,
     );
 }
 
-fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
+fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) {
     if let Some(tp) = &mut app.state.stats.team_page {
         if let Some(profile) = &mut tp.player_profile {
-            PlayerProfileWidget { state: profile }.render(rect, f.buffer_mut());
+            PlayerProfileWidget {
+                state: profile,
+                symbols,
+            }
+            .render(rect, f.buffer_mut());
             return;
         }
         TeamPageWidget { state: tp }.render(rect, f.buffer_mut());
         return;
     }
     if let Some(profile) = &mut app.state.stats.player_profile {
-        PlayerProfileWidget { state: profile }.render(rect, f.buffer_mut());
+        PlayerProfileWidget {
+            state: profile,
+            symbols,
+        }
+        .render(rect, f.buffer_mut());
         return;
     }
 
@@ -257,7 +284,11 @@ fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
     // of space for columns. If I didn't, you could select columns that would be covered by the
     // options pane, but then when its disabled would become visible.
     app.state.stats.table.trim_columns(data_table_area.width);
-    f.render_stateful_widget(StatsDataWidget {}, data_table_area, &mut app.state.stats);
+    f.render_stateful_widget(
+        StatsDataWidget { symbols },
+        data_table_area,
+        &mut app.state.stats,
+    );
 
     if let Some(options_area) = options_area {
         f.render_stateful_widget(StatsOptionsWidget {}, options_area, &mut app.state.stats);
@@ -287,16 +318,20 @@ fn draw_stats(f: &mut Frame, rect: Rect, app: &mut App) {
     }
 }
 
-fn draw_standings(f: &mut Frame, rect: Rect, app: &mut App) {
+fn draw_standings(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) {
     if let Some(tp) = &mut app.state.standings.team_page {
         if let Some(profile) = &mut tp.player_profile {
-            PlayerProfileWidget { state: profile }.render(rect, f.buffer_mut());
+            PlayerProfileWidget {
+                state: profile,
+                symbols,
+            }
+            .render(rect, f.buffer_mut());
             return;
         }
         TeamPageWidget { state: tp }.render(rect, f.buffer_mut());
         return;
     }
-    f.render_stateful_widget(StandingsWidget {}, rect, &mut app.state.standings);
+    f.render_stateful_widget(StandingsWidget { symbols }, rect, &mut app.state.standings);
 }
 
 fn draw_win_probability(f: &mut Frame, rect: Rect, app: &mut App) {

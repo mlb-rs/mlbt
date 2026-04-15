@@ -1,5 +1,6 @@
 use crate::state::app_state::HomeOrAway;
 use crate::state::boxscore::BoxscoreState;
+use crate::symbols::Symbols;
 use crate::ui::scroll::{ScrollParams, adjust_area_for_scroll, render_scrollbar};
 use tui::prelude::*;
 use tui::widgets::{Block, Borders, Cell, Row, Table};
@@ -33,6 +34,7 @@ const PITCHING_HEADER: &[&str] = &["pitcher", "ip", "h", "r", "er", "bb", "k", "
 pub struct TeamBatterBoxscoreWidget<'a> {
     pub active: HomeOrAway,
     pub state: &'a mut BoxscoreState,
+    pub symbols: &'a Symbols,
 }
 
 impl Widget for TeamBatterBoxscoreWidget<'_> {
@@ -116,7 +118,7 @@ impl TeamBatterBoxscoreWidget<'_> {
             render_paragraph_with_scroll(paragraph, offset, visible_game_notes, buf);
         }
 
-        render_scrollbar(area, &mut self.state.scroll_state, buf);
+        render_scrollbar(area, &mut self.state.scroll_state, self.symbols, buf);
     }
 
     fn render_static(&mut self, area: Rect, buf: &mut Buffer) {

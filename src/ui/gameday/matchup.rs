@@ -1,10 +1,12 @@
 use crate::components::game::live_game::GameState;
+use crate::symbols::Symbols;
 use tui::prelude::*;
 use tui::widgets::{Block, Borders, Padding, Paragraph};
 
 pub struct MatchupWidget<'a> {
     pub game: &'a GameState,
     pub selected_at_bat: Option<u8>,
+    pub symbols: &'a Symbols,
 }
 
 impl Widget for MatchupWidget<'_> {
@@ -42,7 +44,7 @@ impl Widget for MatchupWidget<'_> {
             buf,
         );
         Widget::render(
-            Paragraph::new(at_bat.matchup.format_scoreboard_lines())
+            Paragraph::new(at_bat.matchup.format_scoreboard_lines(self.symbols))
                 .alignment(Alignment::Center)
                 .block(
                     Block::default()
