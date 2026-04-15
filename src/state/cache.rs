@@ -56,6 +56,10 @@ pub struct NetworkCache {
     /// Tracks the last known abstract game state per game_id, used to detect transitions to Final.
     /// The `Instant` records when the state was last observed from a schedule response.
     game_states: HashMap<u64, (AbstractGameState, Instant)>,
+    /// Schedule dates this process has observed with at least one non `Final` game.
+    /// Used to distinguish live observations (invalidate on Final) from historical browsing
+    /// (no invalidation, since current caches already reflect the result).
+    mutable_dates: HashMap<NaiveDate, Instant>,
     last_prune: Instant,
 }
 
@@ -64,6 +68,7 @@ impl NetworkCache {
         Self {
             entries: HashMap::new(),
             game_states: HashMap::new(),
+            mutable_dates: HashMap::new(),
             last_prune: Instant::now(),
         }
     }
@@ -129,6 +134,13 @@ impl NetworkCache {
         }
     }
 
+    fn has_fresh_mutable_date(&self, date: NaiveDate) -> bool {
+        matches!(
+            self.mutable_dates.get(&date),
+            Some(observed_at) if observed_at.elapsed() < PRUNE_AGE
+        )
+    }
+
     /// Insert a response with the default TTL for its key type. If the response is a schedule,
     /// automatically updates game state tracking and invalidates affected caches.
     pub fn insert(&mut self, key: CacheKey, response: NetworkResponse) {
@@ -170,15 +182,25 @@ impl NetworkCache {
             .retain(|_, entry| entry.fetched_at.elapsed() < PRUNE_AGE);
         self.game_states
             .retain(|_, (_, observed_at)| observed_at.elapsed() < PRUNE_AGE);
+        self.mutable_dates
+            .retain(|_, observed_at| observed_at.elapsed() < PRUNE_AGE);
         let removed = before - self.entries.len();
         debug!("pruned {removed} stale cache entries");
     }
 
-    /// Update tracked game states from a schedule response. When any game transitions to Final:
-    /// - Extends that game's cached data TTL to 1 hour (data is now static)
-    /// - Invalidates standings and stats caches for the request date only
-    fn update_game_states(&mut self, date: NaiveDate, schedule: &ScheduleResponse) {
-        let mut any_went_final = false;
+    /// Update tracked game states from a schedule response. When a game we previously observed
+    /// transitions to Final:
+    /// - Extends that game's cached data TTL (data is now static)
+    /// - Invalidates standings/stats caches for dates >= schedule_date (cumulative data stale)
+    /// - Invalidates team page caches for the teams involved (season wide schedules stale)
+    ///
+    /// If we've never observed the game or the schedule_date in a non-final state (e.g. user
+    /// browses an old date for the first time and all games there are already Final), we record
+    /// the state but don't invalidate, there's no evidence our current caches are stale.
+    fn update_game_states(&mut self, schedule_date: NaiveDate, schedule: &ScheduleResponse) {
+        let mut invalidate = false;
+        let mut affected_team_ids: Vec<u16> = Vec::new();
+        let mut saw_non_final = false;
 
         for date_entry in &schedule.dates {
             let Some(games) = &date_entry.games else {
@@ -189,11 +211,13 @@ impl NetworkCache {
                     continue;
                 };
                 let game_id = game.game_pk;
-                let was_final = matches!(
-                    self.game_states.get(&game_id),
-                    Some((AbstractGameState::Final, _))
-                );
+                let prior_state = self.game_states.get(&game_id).map(|(s, _)| *s);
+                let was_final = matches!(prior_state, Some(AbstractGameState::Final));
                 let is_final = matches!(new_state, AbstractGameState::Final);
+
+                if !is_final {
+                    saw_non_final = true;
+                }
 
                 if is_final && !was_final {
                     debug!("game {game_id} went Final, extending cache TTL");
@@ -201,7 +225,17 @@ impl NetworkCache {
                         entry.ttl = FINAL_GAME_TTL;
                         entry.fetched_at = Instant::now();
                     }
-                    any_went_final = true;
+                    // Only trust this transition as "live" if we previously saw the game
+                    // non-final OR we've observed this date as mutable in this process.
+                    let prior_non_final = matches!(
+                        prior_state,
+                        Some(AbstractGameState::Live | AbstractGameState::Preview)
+                    );
+                    if prior_non_final || self.has_fresh_mutable_date(schedule_date) {
+                        invalidate = true;
+                        affected_team_ids.push(game.teams.home.team.id);
+                        affected_team_ids.push(game.teams.away.team.id);
+                    }
                 }
 
                 self.game_states
@@ -209,10 +243,19 @@ impl NetworkCache {
             }
         }
 
-        if any_went_final {
-            debug!("invalidating standings and stats for {date} after game(s) went Final");
+        if saw_non_final {
+            self.mutable_dates.insert(schedule_date, Instant::now());
+        }
+
+        if invalidate {
+            debug!(
+                "invalidating standings/stats (>= {schedule_date}) and team pages for {affected_team_ids:?}"
+            );
             self.entries.retain(|key, _| match key {
-                CacheKey::Standings { date: d } | CacheKey::Stats { date: d, .. } => *d != date,
+                CacheKey::Standings { date: d } | CacheKey::Stats { date: d, .. } => {
+                    *d < schedule_date
+                }
+                CacheKey::TeamPage { team_id, .. } => !affected_team_ids.contains(team_id),
                 _ => true,
             });
         }
@@ -420,7 +463,7 @@ mod tests {
     }
 
     #[test]
-    fn unknown_to_final_counts_as_transition() {
+    fn unknown_to_final_does_not_invalidate_without_mutable_observation() {
         let mut cache = NetworkCache::new();
         let date = NaiveDate::from_ymd_opt(2026, 4, 13).unwrap();
 
@@ -431,11 +474,12 @@ mod tests {
             },
         );
 
-        // Game appears for the first time as Final (no prior state tracked)
+        // Game appears for the first time as Final. No prior state and no mutable date observed.
+        // This is likely historical browsing so current caches are not assumed stale.
         let schedule = make_schedule(TEST_DATE, vec![(456, AbstractGameState::Final)]);
         cache.update_game_states(test_date(), &schedule);
 
-        assert!(cache.get(&CacheKey::Standings { date }).is_none());
+        assert!(cache.get(&CacheKey::Standings { date }).is_some());
     }
 
     #[test]
@@ -480,12 +524,19 @@ mod tests {
         cache
             .game_states
             .insert(111, (AbstractGameState::Final, Instant::now() - PRUNE_AGE));
+        cache
+            .mutable_dates
+            .insert(test_date(), Instant::now() - PRUNE_AGE);
 
         // Insert a fresh entry
         cache.insert(CacheKey::GameData { game_id: 222 }, game_data_response());
         cache
             .game_states
             .insert(222, (AbstractGameState::Live, Instant::now()));
+        cache.mutable_dates.insert(
+            NaiveDate::from_ymd_opt(2026, 4, 14).unwrap(),
+            Instant::now(),
+        );
 
         cache.prune();
 
@@ -495,12 +546,18 @@ mod tests {
                 .contains_key(&CacheKey::GameData { game_id: 111 })
         );
         assert!(!cache.game_states.contains_key(&111));
+        assert!(!cache.mutable_dates.contains_key(&test_date()));
         assert!(
             cache
                 .entries
                 .contains_key(&CacheKey::GameData { game_id: 222 })
         );
         assert!(cache.game_states.contains_key(&222));
+        assert!(
+            cache
+                .mutable_dates
+                .contains_key(&NaiveDate::from_ymd_opt(2026, 4, 14).unwrap())
+        );
     }
 
     #[test]
@@ -527,24 +584,88 @@ mod tests {
     }
 
     #[test]
-    fn final_on_one_date_does_not_invalidate_other_dates() {
+    fn unobserved_historical_final_does_not_invalidate() {
         let mut cache = NetworkCache::new();
-        let apr13 = NaiveDate::from_ymd_opt(2026, 4, 13).unwrap();
-        let apr10 = NaiveDate::from_ymd_opt(2026, 4, 10).unwrap();
+        let past = NaiveDate::from_ymd_opt(2026, 4, 10).unwrap();
+        let today = NaiveDate::from_ymd_opt(2026, 4, 13).unwrap();
 
-        // Cache standings for both dates
         cache.insert(
-            CacheKey::Standings { date: apr13 },
+            CacheKey::Standings { date: today },
             NetworkResponse::StandingsLoaded {
                 standings: Arc::new(mlbt_api::standings::StandingsResponse::default()),
             },
         );
+
+        // User browses back to a past date so all games there are already Final.
+        // We've never observed game 123 nor the past date in a non final state.
+        let schedule = make_schedule("2026-04-10", vec![(123, AbstractGameState::Final)]);
+        cache.update_game_states(past, &schedule);
+
+        // No evidence the cached standings are stale.
+        assert!(cache.get(&CacheKey::Standings { date: today }).is_some());
+    }
+
+    #[test]
+    fn stale_mutable_date_does_not_authorize_invalidation() {
+        let mut cache = NetworkCache::new();
+        let past = NaiveDate::from_ymd_opt(2026, 4, 10).unwrap();
+        let today = NaiveDate::from_ymd_opt(2026, 4, 13).unwrap();
+
         cache.insert(
-            CacheKey::Standings { date: apr10 },
+            CacheKey::Standings { date: today },
             NetworkResponse::StandingsLoaded {
                 standings: Arc::new(mlbt_api::standings::StandingsResponse::default()),
             },
         );
+
+        cache
+            .mutable_dates
+            .insert(past, Instant::now() - PRUNE_AGE - Duration::from_secs(1));
+
+        let schedule = make_schedule("2026-04-10", vec![(123, AbstractGameState::Final)]);
+        cache.update_game_states(past, &schedule);
+
+        assert!(cache.get(&CacheKey::Standings { date: today }).is_some());
+    }
+
+    #[test]
+    fn observed_non_final_then_final_invalidates() {
+        let mut cache = NetworkCache::new();
+        let date = test_date();
+
+        cache.insert(
+            CacheKey::Standings { date },
+            NetworkResponse::StandingsLoaded {
+                standings: Arc::new(mlbt_api::standings::StandingsResponse::default()),
+            },
+        );
+
+        // Observe the game as Live first (establishes that we watched this date mutable)
+        let schedule = make_schedule(TEST_DATE, vec![(123, AbstractGameState::Live)]);
+        cache.update_game_states(date, &schedule);
+
+        // Then observe the transition to Final.  This is a real signal
+        let schedule = make_schedule(TEST_DATE, vec![(123, AbstractGameState::Final)]);
+        cache.update_game_states(date, &schedule);
+
+        assert!(cache.get(&CacheKey::Standings { date }).is_none());
+    }
+
+    #[test]
+    fn final_invalidates_from_transition_date_onward() {
+        let mut cache = NetworkCache::new();
+        let apr10 = NaiveDate::from_ymd_opt(2026, 4, 10).unwrap();
+        let apr13 = NaiveDate::from_ymd_opt(2026, 4, 13).unwrap();
+        let apr14 = NaiveDate::from_ymd_opt(2026, 4, 14).unwrap();
+
+        for date in [apr10, apr13, apr14] {
+            cache.insert(
+                CacheKey::Standings { date },
+                NetworkResponse::StandingsLoaded {
+                    standings: Arc::new(mlbt_api::standings::StandingsResponse::default()),
+                },
+            );
+        }
 
         // Game on Apr 13 goes Final
         let schedule = make_schedule(TEST_DATE, vec![(123, AbstractGameState::Live)]);
@@ -552,8 +673,93 @@ mod tests {
         let schedule = make_schedule(TEST_DATE, vec![(123, AbstractGameState::Final)]);
         cache.update_game_states(test_date(), &schedule);
 
-        // Apr 13 standings invalidated, Apr 10 standings preserved
-        assert!(cache.get(&CacheKey::Standings { date: apr13 }).is_none());
+        // Earlier date preserved, transition date and later invalidated
         assert!(cache.get(&CacheKey::Standings { date: apr10 }).is_some());
+        assert!(cache.get(&CacheKey::Standings { date: apr13 }).is_none());
+        assert!(cache.get(&CacheKey::Standings { date: apr14 }).is_none());
+    }
+
+    #[test]
+    fn final_invalidates_team_page_for_involved_teams() {
+        use mlbt_api::schedule::{Dates, Game, IdNameLink, Status, TeamInfo, Teams};
+        let mut cache = NetworkCache::new();
+        let date = test_date();
+
+        // Cache team pages for teams 111 (home), 222 (away), and 333 (uninvolved)
+        for team_id in [111, 222, 333] {
+            cache.insert(
+                CacheKey::TeamPage { team_id, date },
+                NetworkResponse::TeamPageLoaded {
+                    team_id,
+                    date,
+                    schedule: Arc::new(mlbt_api::schedule::ScheduleResponse::default()),
+                    roster: Arc::new(mlbt_api::team::RosterResponse::default()),
+                    transactions: Arc::new(mlbt_api::team::TransactionsResponse::default()),
+                },
+            );
+        }
+
+        // Build a schedule with a Live game between teams 111 and 222
+        let make_game = |state| Game {
+            game_pk: 1,
+            status: Status {
+                abstract_game_state: Some(state),
+                ..Default::default()
+            },
+            teams: Teams {
+                home: TeamInfo {
+                    team: IdNameLink {
+                        id: 111,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                away: TeamInfo {
+                    team: IdNameLink {
+                        id: 222,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+            },
+            ..Default::default()
+        };
+        let schedule = ScheduleResponse {
+            dates: vec![Dates {
+                date: Some(TEST_DATE.to_string()),
+                games: Some(vec![make_game(AbstractGameState::Live)]),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+        cache.update_game_states(date, &schedule);
+
+        // Now the game goes Final
+        let schedule = ScheduleResponse {
+            dates: vec![Dates {
+                date: Some(TEST_DATE.to_string()),
+                games: Some(vec![make_game(AbstractGameState::Final)]),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+        cache.update_game_states(date, &schedule);
+
+        // Involved teams invalidated, uninvolved preserved
+        assert!(
+            cache
+                .get(&CacheKey::TeamPage { team_id: 111, date })
+                .is_none()
+        );
+        assert!(
+            cache
+                .get(&CacheKey::TeamPage { team_id: 222, date })
+                .is_none()
+        );
+        assert!(
+            cache
+                .get(&CacheKey::TeamPage { team_id: 333, date })
+                .is_some()
+        );
     }
 }

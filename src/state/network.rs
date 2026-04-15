@@ -81,6 +81,15 @@ impl NetworkWorker {
                         refreshable.request = NetworkRequest::GameData { game_id: latest };
                     }
 
+                    // The primary request cancels any pending debounce when it's not a new
+                    // debounceable GameData. Overflow items don't as they arrived earlier in time.
+                    let is_debounceable_game =
+                        matches!(refreshable.request, NetworkRequest::GameData { .. })
+                            && !refreshable.force_refresh;
+                    if !is_debounceable_game {
+                        debounce_game_id = None;
+                    }
+
                     self.handle_request(refreshable, &mut debounce_game_id, debounce_sleep.as_mut()).await;
 
                     // Process any non-GameData requests collected during draining
@@ -135,11 +144,6 @@ impl NetworkWorker {
             && let Some(key) = cache_key.as_ref()
         {
             self.cache.invalidate(key);
-        }
-
-        // Any non-debounced request cancels a pending debounce
-        if !matches!(request, NetworkRequest::GameData { .. }) || refreshable.force_refresh {
-            *debounce_game_id = None;
         }
 
         // Check cache before making API calls
