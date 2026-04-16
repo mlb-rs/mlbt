@@ -3,6 +3,7 @@ use crate::state::settings_editor::{
     PickerState, SettingsEditorState, SettingsField, SettingsFocus, SettingsStatus,
     current_value_label, max_value_width,
 };
+use crate::ui::help::HIGHLIGHT_STYLE;
 use tui::layout::{Alignment, Constraint, Flex, Layout, Rect};
 use tui::prelude::*;
 use tui::widgets::{
@@ -17,8 +18,6 @@ pub fn render_settings(
     buf: &mut Buffer,
 ) {
     let settings_focused = editor.focus == SettingsFocus::Settings;
-    // Match the docs table's selected-row highlight.
-    let focused_row_style = Style::default().bg(Color::Blue).fg(Color::Black);
 
     let values: Vec<(SettingsField, String)> = SettingsField::ALL
         .iter()
@@ -43,7 +42,7 @@ pub fn render_settings(
         .map(|(field, value)| {
             let is_selected = editor.selected_field == *field;
             let style = if is_selected && settings_focused {
-                focused_row_style
+                HIGHLIGHT_STYLE
             } else {
                 Style::default()
             };

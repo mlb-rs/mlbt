@@ -129,8 +129,9 @@ impl ScheduleState {
         }
     }
 
-    /// Reorder the already loaded rows to reflect the current favorite team while preserving the
-    /// selected game.
+    /// Reorder the already loaded rows to reflect the current favorite team. Selects the first row
+    /// so the Scoreboard jumps to the favorite's game (or the top of the list when no favorite is
+    /// set). Callers should refetch game data when this shifts the selection.
     pub fn apply_favorite_team(&mut self, favorite_team: Option<Team>) {
         let rows = std::mem::take(&mut self.schedule);
         self.schedule = favorite_first(rows, favorite_team);

@@ -4,6 +4,7 @@ use crate::components::help::{HEADER, RowType, build_docs, format_row};
 use crate::config::TomlFileStore;
 use crate::state::app_settings::AppSettings;
 use crate::state::settings_editor::{SettingsEditorState, SettingsFocus};
+use crate::ui::help::HIGHLIGHT_STYLE;
 use crate::ui::help::settings_panel::{render_picker, render_settings};
 use tui::layout::{Constraint, Flex, Layout};
 use tui::prelude::*;
@@ -15,7 +16,7 @@ pub struct HelpWidget<'a> {
     pub editor: &'a SettingsEditorState,
 }
 
-impl<'a> StatefulWidget for HelpWidget<'a> {
+impl StatefulWidget for HelpWidget<'_> {
     type State = TableState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
@@ -46,13 +47,12 @@ impl<'a> StatefulWidget for HelpWidget<'a> {
             .horizontal_margin(2)
             .areas(area);
 
-        let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
         let mut docs_table = Table::new(rows, [Constraint::Percentage(100)])
             .header(header)
             .style(help_menu_style);
         // only show selected row if the docs table is focused.
         if self.editor.focus == SettingsFocus::Docs {
-            docs_table = docs_table.row_highlight_style(selected_style);
+            docs_table = docs_table.row_highlight_style(HIGHLIGHT_STYLE);
         }
         StatefulWidget::render(docs_table, table_area, buf, state);
 

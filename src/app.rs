@@ -49,31 +49,6 @@ impl App {
         app
     }
 
-    /// Commit the picker's current selection: apply to settings, persist, and replay settings
-    /// driven side effects. Sets a status (Saved / Error) on the settings editor, but keeps the in
-    /// memory change even on save failure.
-    pub fn commit_settings_picker(&mut self) {
-        let Some(picker) = self.state.settings_editor.picker.clone() else {
-            return;
-        };
-        let previous_settings = self.settings.clone();
-        picker.field.apply(picker.cursor, &mut self.settings);
-        self.state.settings_editor.close_picker();
-        self.apply_runtime_settings(&previous_settings);
-
-        let status = match self.store.save(&self.settings) {
-            Ok(()) => {
-                info!("settings saved");
-                SettingsStatus::Saved
-            }
-            Err(err) => {
-                error!("could not save settings: {err}");
-                SettingsStatus::Error(err.to_string())
-            }
-        };
-        self.state.settings_editor.status = Some(status);
-    }
-
     /// Startup only configuration that should run once after settings are loaded.
     fn configure(&mut self) {
         self.set_all_datepickers_to_today();
@@ -107,6 +82,40 @@ impl App {
         if self.settings.log_level != previous.log_level {
             self.apply_log_level();
         }
+    }
+
+    /// Commit the picker's current selection: apply to settings, persist, and replay settings
+    /// driven side effects. Sets a status (Saved / Error) on the settings editor, but keeps the in
+    /// memory change even on save failure.
+    ///
+    /// Returns whether the runtime side effects shifted the Scoreboard's selected game (e.g.
+    /// changing a favorite team), so the caller can refetch game data to keep the box score in sync
+    /// with the Scoreboard selection.
+    pub fn commit_settings_picker(&mut self) -> bool {
+        let Some(picker) = self.state.settings_editor.picker.clone() else {
+            return false;
+        };
+        let previous_settings = self.settings.clone();
+        let previous_game_id = self.state.schedule.get_selected_game_opt();
+
+        picker.field.apply(picker.cursor, &mut self.settings);
+        self.state.settings_editor.close_picker();
+        self.apply_runtime_settings(&previous_settings);
+
+        let status = match self.store.save(&self.settings) {
+            Ok(()) => {
+                info!("settings saved");
+                SettingsStatus::Saved
+            }
+            Err(err) => {
+                error!("could not save settings: {err}");
+                SettingsStatus::Error(err.to_string())
+            }
+        };
+        self.state.settings_editor.status = Some(status);
+
+        let new_game_id = self.state.schedule.get_selected_game_opt();
+        new_game_id != previous_game_id && new_game_id.is_some()
     }
 
     fn apply_log_level(&self) {
@@ -335,8 +344,11 @@ impl App {
 mod tests {
     use super::*;
     use crate::components::constants::lookup_team_by_id;
+    use crate::components::probable_pitchers::ProbablePitcher;
+    use crate::components::schedule::ScheduleRow;
     use crate::components::team_page::TeamGame;
     use crate::config::ConfigFile;
+    use crate::state::settings_editor::{PickerState, SettingsField, TEAM_OPTIONS};
     use crate::state::team_page::{TeamPageState, TeamSection};
     use tui::widgets::TableState;
 
@@ -380,6 +392,23 @@ mod tests {
             roster_row_map: vec![],
             player_profile: None,
             show_calendar: true,
+        }
+    }
+
+    fn test_schedule_row(game_id: u64, home_team: u16, away_team: u16) -> ScheduleRow {
+        ScheduleRow {
+            game_id,
+            home_team: lookup_team_by_id(home_team).unwrap(),
+            home_score: None,
+            home_record: None,
+            away_team: lookup_team_by_id(away_team).unwrap(),
+            away_score: None,
+            away_record: None,
+            start_time: String::new(),
+            start_time_utc: chrono::DateTime::<chrono::Utc>::UNIX_EPOCH,
+            game_status: String::new(),
+            home_probable_pitcher: ProbablePitcher::default(),
+            away_probable_pitcher: ProbablePitcher::default(),
         }
     }
 
@@ -435,6 +464,30 @@ mod tests {
                 .time_or_score,
             "4:10 pm"
         );
+    }
+
+    #[test]
+    fn commit_settings_picker_reports_when_selected_game_changes() {
+        let mut app = test_app();
+        let cubs_index = TEAM_OPTIONS
+            .iter()
+            .position(|team| team.map(|t| t.id) == Some(112))
+            .unwrap();
+        app.state.schedule.schedule = vec![
+            test_schedule_row(30, 114, 115),
+            test_schedule_row(10, 108, 109),
+            test_schedule_row(20, 112, 113),
+        ];
+        app.state.schedule.state.select(Some(0));
+        app.state.settings_editor.picker = Some(PickerState {
+            field: SettingsField::FavoriteTeam,
+            cursor: cubs_index,
+        });
+
+        let game_id_changed = app.commit_settings_picker();
+
+        assert!(game_id_changed);
+        assert_eq!(app.state.schedule.get_selected_game_opt(), Some(20));
     }
 
     #[test]

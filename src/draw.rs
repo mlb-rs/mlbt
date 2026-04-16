@@ -98,7 +98,7 @@ fn draw_loading_spinner(f: &mut Frame, area: Rect, app: &App, loading: LoadingSt
         .alignment(Alignment::Right)
         .style(style);
 
-    let area = if app.settings.full_screen {
+    let area = if app.settings.full_screen || app.state.active_tab == MenuItem::Help {
         // render in the bottom right
         Rect::new(
             area.width.saturating_sub(3),

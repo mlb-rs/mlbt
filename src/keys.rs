@@ -207,8 +207,10 @@ pub async fn handle_key_bindings(
         (MenuItem::Scoreboard, Char('a'), _) => guard.state.box_score.set_away_active(),
 
         (MenuItem::Help, _, _) => {
-            let handled = handle_help_key(key_event, &mut guard);
-            if !handled {
+            let (handled, game_id_changed) = handle_help_key(key_event, &mut guard);
+            if game_id_changed && guard.state.previous_tab == MenuItem::Scoreboard {
+                load_game_data(guard, network_requests, false).await;
+            } else if !handled {
                 handle_global_key(key_event, guard, network_requests).await;
             }
         }
@@ -456,14 +458,19 @@ fn handle_search_key(key_event: KeyEvent, guard: &mut AppGuard<'_>) {
     }
 }
 
-/// Handle keys on the Help page. Returns `true` if the key was consumed, or `false` to fall through
-/// to the global handler.
-fn handle_help_key(key_event: KeyEvent, guard: &mut AppGuard<'_>) -> bool {
+/// Handle keys on the Help page.
+///
+/// Returns `(handled, game_id_changed)`, where:
+///
+/// - `handled`: `true` if the key was consumed, `false` to fall through to the global handler.
+/// - `game_id_changed`: whether committing a picker changed the selected schedule game id.
+fn handle_help_key(key_event: KeyEvent, guard: &mut AppGuard<'_>) -> (bool, bool) {
     // picker overlay intercepts everything
     if guard.state.settings_editor.picker.is_some() {
+        let mut game_id_changed = false;
         match (key_event.code, key_event.modifiers) {
             (KeyCode::Esc, _) => guard.state.settings_editor.close_picker(),
-            (KeyCode::Enter, _) => guard.commit_settings_picker(),
+            (KeyCode::Enter, _) => game_id_changed = guard.commit_settings_picker(),
             (Char('j') | KeyCode::Down, _) => guard.state.settings_editor.picker_next(),
             (Char('k') | KeyCode::Up, _) => guard.state.settings_editor.picker_previous(),
             // letter keys (except j/k which stay as nav) jump to the next option starting with that
@@ -473,20 +480,20 @@ fn handle_help_key(key_event: KeyEvent, guard: &mut AppGuard<'_>) -> bool {
             }
             _ => {}
         }
-        return true;
+        return (true, game_id_changed);
     }
 
     if key_event.code == KeyCode::Tab {
         guard.state.settings_editor.toggle_focus();
-        return true;
+        return (true, false);
     }
 
     if let (Char('"'), _) = (key_event.code, key_event.modifiers) {
         guard.toggle_show_logs();
-        return true;
+        return (true, false);
     }
 
-    match guard.state.settings_editor.focus {
+    let handled = match guard.state.settings_editor.focus {
         SettingsFocus::Settings => match (key_event.code, key_event.modifiers) {
             (Char('j') | KeyCode::Down, _) => {
                 guard.state.settings_editor.next_field();
@@ -531,5 +538,6 @@ fn handle_help_key(key_event: KeyEvent, guard: &mut AppGuard<'_>) -> bool {
             }
             _ => false,
         },
-    }
+    };
+    (handled, false)
 }
