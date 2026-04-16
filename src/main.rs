@@ -10,7 +10,7 @@ use crate::app::App;
 use crate::state::messages::{NetworkRequest, NetworkResponse, RefreshableRequest, UiEvent};
 use crate::state::network::{LoadingState, NetworkWorker};
 use crate::state::refresher::PeriodicRefresher;
-use crossterm::event::{self as crossterm_event, Event};
+use crossterm::event::{self as crossterm_event, Event, KeyEventKind};
 use crossterm::{cursor, execute, terminal};
 use log::error;
 use std::io::Stdout;
@@ -201,7 +201,9 @@ async fn input_handler_task(ui_events: mpsc::Sender<UiEvent>) {
     loop {
         if let Ok(event) = crossterm_event::read() {
             let ui_event = match event {
-                Event::Key(key_event) => Some(UiEvent::KeyPressed(key_event)),
+                Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
+                    Some(UiEvent::KeyPressed(key_event))
+                }
                 Event::Resize(_, _) => Some(UiEvent::Resize),
                 Event::Mouse(_) => None, // Ignore mouse events for now
                 _ => None,
