@@ -1,6 +1,6 @@
 use crate::components::stats::table::TeamOrPlayer;
 use crate::components::stats::{STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH};
-use crate::components::util::{DimColor, avg_color, era_color};
+use crate::components::util::{DimColor, avg_color, era_color, obp_color, ops_color, slg_color, whip_color};
 use crate::state::stats::{ActivePane, StatsState};
 use crate::symbols::Symbols;
 use mlbt_api::client::StatGroup;
@@ -23,10 +23,18 @@ impl StatefulWidget for StatsDataWidget<'_> {
 
         let mut avg_idx = None;
         let mut era_idx = None;
+        let mut obp_idx = None;
+        let mut slg_idx = None;
+        let mut ops_idx = None;
+        let mut whip_idx = None;
         for (i, name) in header.iter().enumerate() {
             match name.as_str() {
                 "AVG" => avg_idx = Some(i),
                 "ERA" => era_idx = Some(i),
+                "OBP" => obp_idx = Some(i),
+                "SLG" => slg_idx = Some(i),
+                "OPS" => ops_idx = Some(i),
+                "WHIP" => whip_idx = Some(i),
                 _ => {}
             }
         }
@@ -66,6 +74,14 @@ impl StatefulWidget for StatsDataWidget<'_> {
                             avg_color(cell).unwrap_or(Color::White)
                         } else if Some(i) == era_idx {
                             era_color(cell).unwrap_or(Color::White)
+                        } else if Some(i) == obp_idx {
+                            obp_color(cell).unwrap_or(Color::White)
+                        } else if Some(i) == slg_idx {
+                            slg_color(cell).unwrap_or(Color::White)
+                        } else if Some(i) == ops_idx {
+                            ops_color(cell).unwrap_or(Color::White)
+                        } else if Some(i) == whip_idx {
+                            whip_color(cell).unwrap_or(Color::White)
                         } else {
                             cell.as_str().dim_or(Color::White)
                         };
