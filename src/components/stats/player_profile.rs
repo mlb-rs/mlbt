@@ -4,6 +4,7 @@ use crate::components::stats::splits::{RecentSplit, RecentStats, StatSplits};
 use crate::components::team_colors;
 use crate::components::util::{
     DimColor, OptionDisplayExt, OptionMapDisplayExt, avg_color, era_color, format_date,
+    obp_color, slg_color, ops_color, whip_color,
 };
 use crate::symbols::Symbols;
 use mlbt_api::player::PersonFull;
@@ -172,9 +173,9 @@ impl PlayerProfile {
                     Cell::from(s.at_bats.to_string()).fg(s.at_bats.dim_or(Color::White)),
                     Cell::from(s.avg.as_str())
                         .fg(avg_color(s.avg.as_str()).unwrap_or(Color::White)),
-                    s.obp.as_str().into(),
-                    s.slg.as_str().into(),
-                    s.ops.as_str().into(),
+                    Cell::from(s.obp.as_str()).fg(obp_color(s.obp.as_str()).unwrap_or(Color::White)),
+                    Cell::from(s.slg.as_str()).fg(slg_color(s.slg.as_str()).unwrap_or(Color::White)),
+                    Cell::from(s.ops.as_str()).fg(ops_color(s.ops.as_str()).unwrap_or(Color::White)),
                     Cell::from(s.runs.to_string()).fg(s.runs.dim_or(Color::White)),
                     Cell::from(s.hits.to_string()).fg(s.hits.dim_or(Color::White)),
                     Cell::from(s.doubles.to_string()).fg(s.doubles.dim_or(Color::White)),
@@ -207,7 +208,7 @@ impl PlayerProfile {
                     Cell::from(s.base_on_balls.to_string())
                         .fg(s.base_on_balls.dim_or(Color::White)),
                     Cell::from(s.strike_outs.to_string()).fg(s.strike_outs.dim_or(Color::White)),
-                    s.whip.as_str().into(),
+                    Cell::from(s.whip.as_str()).fg(whip_color(s.whip.as_str()).unwrap_or(Color::White)),
                 ]);
             }
         }
