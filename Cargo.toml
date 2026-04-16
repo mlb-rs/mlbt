@@ -1,6 +1,6 @@
 [package]
 name = "mlbtg"
-version = "0.3.0-alpha.1"
+version = "1.0.0"
 authors = ["Andrew Schneider <andjschneider@gmail.com>", "Anthony Giacalone <anthony.giacalone@csulb.edu>"]
 edition = "2024"
 license = "MIT"
