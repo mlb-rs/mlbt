@@ -1404,19 +1404,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "mlbt-api"
-version = "0.4.2"
-dependencies = [
- "chrono",
- "derive_builder",
- "mockito",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
-]
-
-[[package]]
 name = "mlbtg"
 version = "1.0.0"
 dependencies = [
@@ -1436,6 +1423,19 @@ dependencies = [
  "tokio",
  "toml",
  "tui-logger",
+]
+
+[[package]]
+name = "mlbt-api"
+version = "0.4.2"
+dependencies = [
+ "chrono",
+ "derive_builder",
+ "mockito",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]

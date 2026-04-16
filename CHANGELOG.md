@@ -15,7 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Weather display in gameday matchup panel with temperature color-coding and directional wind arrows
 - Linescore abbreviation now uses team color and bolds the leading/winning team
 
-### Upstream base: [0.3.0] - 2026-04-15
+### Upstream base: [0.3.1] - 2026-04-16
+
+- Fix double key press on Windows. Thanks @samc1213! [PR 131](https://github.com/mlb-rs/mlbt/pull/131)
+
+## [0.3.1] - 2026-04-16
+
+### Fixed
+
+- Fix double key press on Windows. Thanks @samc1213! [PR 131](https://github.com/mlb-rs/mlbt/pull/131)
+
+## [0.3.0] - 2026-04-15
 
 ### Added
 

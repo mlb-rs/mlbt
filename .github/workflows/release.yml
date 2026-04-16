@@ -68,9 +68,9 @@ jobs:
         shell: bash
         run: |
           cd target/${{ matrix.target }}/release
-          BINARY_NAME=mlbt.exe
+          BINARY_NAME=mlbtg.exe
           strip $BINARY_NAME
-          ARCHIVE_NAME=mlbt-${{ matrix.target }}
+          ARCHIVE_NAME=mlbtg-${{ matrix.target }}
           tar czvf $ARCHIVE_NAME.tar.gz $BINARY_NAME
           certutil -hashfile $ARCHIVE_NAME.tar.gz sha256 | grep -E [A-Fa-f0-9]{64} > $ARCHIVE_NAME.sha256
 
@@ -79,9 +79,9 @@ jobs:
         shell: bash
         run: |
           cd target/${{ matrix.target }}/release
-          BINARY_NAME=mlbt
+          BINARY_NAME=mlbtg
           strip $BINARY_NAME 2>/dev/null || true
-          ARCHIVE_NAME=mlbt-${{ matrix.target }}
+          ARCHIVE_NAME=mlbtg-${{ matrix.target }}
           tar czvf $ARCHIVE_NAME.tar.gz $BINARY_NAME
           shasum -a 256 $ARCHIVE_NAME.tar.gz > $ARCHIVE_NAME.sha256
 
@@ -119,93 +119,10 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            target/${{ matrix.target }}/release/mlbt-${{ matrix.target }}.tar.gz
-            target/${{ matrix.target }}/release/mlbt-${{ matrix.target }}.sha256
+            target/${{ matrix.target }}/release/mlbtg-${{ matrix.target }}.tar.gz
+            target/${{ matrix.target }}/release/mlbtg-${{ matrix.target }}.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  update-homebrew:
-    name: Update Homebrew formula
-    runs-on: ubuntu-latest
-    needs: publish-platform-artifacts
-    steps:
-      - name: Get release version
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
-
-      - name: Download checksums
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release download ${{ github.ref_name }} \
-            --repo mlb-rs/mlbt \
-            --pattern "*.sha256" \
-            --dir checksums
-
-      - name: Generate formula
-        run: |
-          MACOS_ARM_SHA=$(awk '{print $1}' checksums/mlbt-aarch64-apple-darwin.sha256)
-          MACOS_INTEL_SHA=$(awk '{print $1}' checksums/mlbt-x86_64-apple-darwin.sha256)
-          LINUX_ARM_SHA=$(awk '{print $1}' checksums/mlbt-aarch64-unknown-linux-gnu.sha256)
-          LINUX_INTEL_SHA=$(awk '{print $1}' checksums/mlbt-x86_64-unknown-linux-gnu.sha256)
-
-          cat > mlbt.rb << EOF
-          class Mlbt < Formula
-            desc "Interact with MLB's Statcast API and even watch a live baseball game in your terminal."
-            homepage "https://github.com/mlb-rs/mlbt"
-            version "${VERSION}"
-            license "MIT"
-
-            on_macos do
-              on_arm do
-                url "https://github.com/mlb-rs/mlbt/releases/download/v#{version}/mlbt-aarch64-apple-darwin.tar.gz"
-                sha256 "${MACOS_ARM_SHA}"
-              end
-              on_intel do
-                url "https://github.com/mlb-rs/mlbt/releases/download/v#{version}/mlbt-x86_64-apple-darwin.tar.gz"
-                sha256 "${MACOS_INTEL_SHA}"
-              end
-            end
-
-            on_linux do
-              on_arm do
-                url "https://github.com/mlb-rs/mlbt/releases/download/v#{version}/mlbt-aarch64-unknown-linux-gnu.tar.gz"
-                sha256 "${LINUX_ARM_SHA}"
-              end
-              on_intel do
-                url "https://github.com/mlb-rs/mlbt/releases/download/v#{version}/mlbt-x86_64-unknown-linux-gnu.tar.gz"
-                sha256 "${LINUX_INTEL_SHA}"
-              end
-            end
-
-            def install
-              bin.install "mlbt"
-            end
-
-            def caveats
-              <<~EOS
-                Play ball! Run with "mlbt"
-              EOS
-            end
-
-            test do
-              assert_match version.to_s, shell_output("#{bin}/mlbt --version")
-            end
-          end
-          EOF
-          sed -i 's/^          //' mlbt.rb
-
-      - name: Update tap repo
-        env:
-          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-        run: |
-          git clone https://x-access-token:${TAP_TOKEN}@github.com/mlb-rs/homebrew-mlbt.git tap
-          cp mlbt.rb tap/mlbt.rb
-          cd tap
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add mlbt.rb
-          git commit -m "Update mlbt to ${VERSION}"
-          git push
 
   publish-docker-image:
     runs-on: ubuntu-latest
@@ -232,5 +149,5 @@ jobs:
 
       - name: Build and Push Image
         run: |
-          docker build . --tag ghcr.io/mlb-rs/mlbt:$TAG
-          docker push ghcr.io/mlb-rs/mlbt:$TAG
+          docker build . --tag ghcr.io/agiacalone/mlbtg:$TAG
+          docker push ghcr.io/agiacalone/mlbtg:$TAG
