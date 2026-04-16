@@ -42,18 +42,8 @@ impl Runners {
         let off = symbols.base_empty().to_string();
 
         if symbols.team_colors() {
-            let on_span = || {
-                Span::styled(
-                    on.clone(),
-                    Style::default().fg(Theme::BELOW_AVG),
-                )
-            };
-            let off_span = || {
-                Span::styled(
-                    off.clone(),
-                    Style::default().fg(Theme::DIMMED),
-                )
-            };
+            let on_span = || Span::styled(on.clone(), Style::default().fg(Theme::BELOW_AVG));
+            let off_span = || Span::styled(off.clone(), Style::default().fg(Theme::DIMMED));
 
             let second = if self.second { on_span() } else { off_span() };
             let second_line = Line::from(vec![Span::raw("  "), second, Span::raw("  ")]);
@@ -286,12 +276,7 @@ impl Matchup {
             Line::from(vec![away_span, mid, home_span])
         };
 
-        vec![
-            score_line,
-            second_base,
-            first_third,
-            outs_line,
-        ]
+        vec![score_line, second_base, first_third, outs_line]
     }
 }
 
