@@ -23,6 +23,7 @@ pub struct LineScore {
 /// LineScoreLine stores the high level game information for a single team.
 #[derive(Default, Debug)]
 pub struct LineScoreLine {
+    #[allow(dead_code)]
     pub team: HomeOrAway,
     #[allow(dead_code)]
     pub name: String,
