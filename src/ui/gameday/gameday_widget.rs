@@ -33,7 +33,6 @@ impl Widget for GamedayWidget<'_> {
             let chunks = LayoutAreas::for_boxscore(p);
 
             let linescore_widget = LineScoreWidget {
-                active: self.active,
                 linescore: &self.state.game.linescore,
                 symbols: self.symbols,
             };

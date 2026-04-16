@@ -11,8 +11,8 @@ use crate::state::stats::StatsState;
 /// A team must be either Home or Away.
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub enum HomeOrAway {
-    Home = 0,
     #[default]
+    Home = 0,
     Away = 1,
 }
 

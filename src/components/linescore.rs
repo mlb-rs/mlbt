@@ -95,18 +95,16 @@ impl LineScoreLine {
         line
     }
 
-    pub fn create_score_vec(&self, active: HomeOrAway, symbols: &Symbols) -> Vec<Cell<'_>> {
+    pub fn create_score_vec(&self, won: bool, symbols: &Symbols) -> Vec<Cell<'_>> {
         let mut row = vec![];
-        // Display a blue background if the team is active; otherwise apply team color when enabled.
-        let team = if active == self.team {
-            Span::styled(
-                self.abbreviation.clone(),
-                Style::default().fg(Color::Black).bg(Color::Blue),
-            )
-        } else if symbols.team_colors() {
-            team_colors::get(&self.abbreviation, false)
-                .map(|c| Span::styled(self.abbreviation.clone(), Style::default().fg(c)))
-                .unwrap_or_else(|| Span::raw(self.abbreviation.clone()))
+        let team = if symbols.team_colors() {
+            let base_style = team_colors::get(&self.abbreviation, false)
+                .map(|c| Style::default().fg(c))
+                .unwrap_or_default();
+            let style = if won { base_style.bold() } else { base_style };
+            Span::styled(self.abbreviation.clone(), style)
+        } else if won {
+            Span::raw(self.abbreviation.clone()).bold()
         } else {
             Span::raw(self.abbreviation.clone())
         };

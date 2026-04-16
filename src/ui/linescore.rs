@@ -1,5 +1,4 @@
 use crate::components::linescore::LineScore;
-use crate::state::app_state::HomeOrAway;
 use crate::symbols::Symbols;
 
 use tui::{
@@ -12,7 +11,6 @@ use tui::{
 // TODO depending on the terminal size the number of columns display should be changed. Only two columns *need* to be shown, the current inning and the run totals - eveything else can get chopped off.
 
 pub struct LineScoreWidget<'a> {
-    pub active: HomeOrAway,
     pub linescore: &'a LineScore,
     pub symbols: &'a Symbols,
 }
@@ -34,18 +32,12 @@ impl Widget for LineScoreWidget<'_> {
             .height(1)
             .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
 
+        let away_won = self.linescore.away.runs > self.linescore.home.runs;
+        let home_won = self.linescore.home.runs > self.linescore.away.runs;
         let t = Table::new(
             vec![
-                Row::new(
-                    self.linescore
-                        .away
-                        .create_score_vec(self.active, self.symbols),
-                ),
-                Row::new(
-                    self.linescore
-                        .home
-                        .create_score_vec(self.active, self.symbols),
-                ),
+                Row::new(self.linescore.away.create_score_vec(away_won, self.symbols)),
+                Row::new(self.linescore.home.create_score_vec(home_won, self.symbols)),
             ],
             widths.as_slice(),
         )

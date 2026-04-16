@@ -228,7 +228,6 @@ fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App, symbols: &S
 
     f.render_widget(
         LineScoreWidget {
-            active: app.state.box_score.active_team,
             linescore: &app.state.gameday.game.linescore,
             symbols,
         },
