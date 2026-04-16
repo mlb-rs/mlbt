@@ -196,11 +196,10 @@ pub(crate) fn ops_color(ops: &str) -> Option<Color> {
 
 /// Color for a WHIP stat string. Returns `None` for average range (1.11–1.39).
 /// Lower WHIP is better — color scale is inverted relative to batting stats.
+/// 0.00 WHIP is treated as elite performance (no hits or walks allowed).
 pub(crate) fn whip_color(whip: &str) -> Option<Color> {
     whip.parse::<f64>().ok().and_then(|v| {
-        if v == 0.0 {
-            Some(Theme::DIMMED)
-        } else if v <= 0.90 {
+        if v <= 0.90 {
             Some(Theme::EXCELLENT)
         } else if v <= 1.10 {
             Some(Theme::GOOD)
@@ -277,6 +276,8 @@ mod stat_color_tests {
     fn slg_below() { assert_eq!(slg_color(".320"), Some(Theme::BELOW_AVG)); }
     #[test]
     fn slg_poor() { assert_eq!(slg_color(".280"), Some(Theme::POOR)); }
+    #[test]
+    fn slg_zero() { assert_eq!(slg_color(".000"), Some(Theme::DIMMED)); }
 
     #[test]
     fn ops_excellent() { assert_eq!(ops_color(".950"), Some(Theme::EXCELLENT)); }
@@ -288,6 +289,8 @@ mod stat_color_tests {
     fn ops_below() { assert_eq!(ops_color(".640"), Some(Theme::BELOW_AVG)); }
     #[test]
     fn ops_poor() { assert_eq!(ops_color(".550"), Some(Theme::POOR)); }
+    #[test]
+    fn ops_zero() { assert_eq!(ops_color(".000"), Some(Theme::DIMMED)); }
 
     #[test]
     fn whip_excellent() { assert_eq!(whip_color("0.85"), Some(Theme::EXCELLENT)); }
@@ -300,5 +303,5 @@ mod stat_color_tests {
     #[test]
     fn whip_poor() { assert_eq!(whip_color("1.70"), Some(Theme::POOR)); }
     #[test]
-    fn whip_zero() { assert_eq!(whip_color("0.00"), Some(Theme::DIMMED)); }
+    fn whip_zero() { assert_eq!(whip_color("0.00"), Some(Theme::EXCELLENT)); }
 }
