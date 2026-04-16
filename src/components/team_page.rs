@@ -16,6 +16,7 @@ pub struct TeamGame {
     pub start_time_utc: Option<DateTime<Utc>>,
     pub is_home: bool,
     pub is_past: bool,
+    pub is_win: Option<bool>,
 }
 
 #[derive(Debug, Clone)]
@@ -84,7 +85,7 @@ impl TeamGame {
                     parse_game_time(&game.game_date)
                 };
 
-                let time_or_score = if is_final {
+                let (time_or_score, is_win) = if is_final {
                     let home_score = game.teams.home.score.unwrap_or(0);
                     let away_score = game.teams.away.score.unwrap_or(0);
                     let (team_score, opp_score) = if is_home {
@@ -99,11 +100,13 @@ impl TeamGame {
                     } else {
                         "L"
                     };
-                    format!("{team_score}-{opp_score} {result}")
+                    let win = Some(team_score > opp_score);
+                    (format!("{team_score}-{opp_score} {result}"), win)
                 } else {
-                    start_time_utc
+                    let score = start_time_utc
                         .map(|utc| format_start_time_compact(utc, tz))
-                        .unwrap_or_else(|| "TBD".to_string())
+                        .unwrap_or_else(|| "TBD".to_string());
+                    (score, None)
                 };
 
                 games.push(TeamGame {
@@ -114,6 +117,7 @@ impl TeamGame {
                     start_time_utc,
                     is_home,
                     is_past,
+                    is_win,
                 });
             }
         }

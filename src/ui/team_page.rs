@@ -235,11 +235,11 @@ impl TeamPageWidget<'_> {
         let rows: Vec<Row> = games
             .iter()
             .map(|g| {
-                let (date_style, text_style) = style_schedule_game(self.state.date, g);
+                let (date_style, text_style, score_style) = style_schedule_game(self.state.date, g);
                 Row::new(vec![
                     Cell::from(Span::styled(g.date_display.as_str(), date_style)),
                     Cell::from(Span::styled(g.opponent.as_str(), text_style)),
-                    Cell::from(Span::styled(g.time_or_score.as_str(), text_style)),
+                    Cell::from(Span::styled(g.time_or_score.as_str(), score_style)),
                 ])
             })
             .collect();
@@ -330,7 +330,7 @@ fn highlight_style(active: TeamSection, desired: TeamSection) -> Style {
 }
 
 /// Style for the calendar day and list text of a game in the schedule.
-fn style_schedule_game(today: NaiveDate, g: &TeamGame) -> (Style, Style) {
+fn style_schedule_game(today: NaiveDate, g: &TeamGame) -> (Style, Style, Style) {
     let date_style = if g.date == today {
         TODAY_STYLE
     } else if g.is_past {
@@ -345,7 +345,12 @@ fn style_schedule_game(today: NaiveDate, g: &TeamGame) -> (Style, Style) {
     } else {
         Style::default()
     };
-    (date_style, text_style)
+    let score_style = match g.is_win {
+        Some(true) => Style::new().fg(Color::Green),
+        Some(false) => Style::new().fg(Color::Red),
+        None => text_style,
+    };
+    (date_style, text_style, score_style)
 }
 
 fn chrono_to_time(d: NaiveDate) -> Date {
