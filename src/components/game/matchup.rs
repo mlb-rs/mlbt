@@ -1,5 +1,6 @@
 use crate::components::game::live_game::PlayerMap;
 use crate::components::team_colors;
+use crate::theme::Theme;
 use mlbt_api::plays::{Count, Play};
 use tui::prelude::{Span, Style, Stylize};
 use tui::style::Color;
@@ -37,19 +38,45 @@ impl Runners {
     /// Generate two lines, one for second base and one for first and third. Second base is shown
     /// on a line above first and third.
     pub fn generate_lines(&self, symbols: &crate::symbols::Symbols) -> (Line<'_>, Line<'_>) {
-        let on = symbols.base_occupied();
-        let off = symbols.base_empty();
-        let second_base = match self.second {
-            true => format!("  {on}  "),
-            false => format!("  {off}  "),
-        };
-        let first_third = match (self.first, self.third) {
-            (false, false) => format!("{off}   {off}"),
-            (true, false) => format!("{off}   {on}"),
-            (false, true) => format!("{on}   {off}"),
-            (true, true) => format!("{on}   {on}"),
-        };
-        (Line::from(second_base), Line::from(first_third))
+        let on = symbols.base_occupied().to_string();
+        let off = symbols.base_empty().to_string();
+
+        if symbols.team_colors() {
+            let on_span = || {
+                Span::styled(
+                    on.clone(),
+                    Style::default().fg(Theme::BELOW_AVG),
+                )
+            };
+            let off_span = || {
+                Span::styled(
+                    off.clone(),
+                    Style::default().fg(Theme::DIMMED),
+                )
+            };
+
+            let second = if self.second { on_span() } else { off_span() };
+            let second_line = Line::from(vec![Span::raw("  "), second, Span::raw("  ")]);
+
+            // third is on the left, first is on the right
+            let third = if self.third { on_span() } else { off_span() };
+            let first = if self.first { on_span() } else { off_span() };
+            let first_third_line = Line::from(vec![third, Span::raw("   "), first]);
+
+            (second_line, first_third_line)
+        } else {
+            let second_base = match self.second {
+                true => format!("  {on}  "),
+                false => format!("  {off}  "),
+            };
+            let first_third = match (self.first, self.third) {
+                (false, false) => format!("{off}   {off}"),
+                (true, false) => format!("{off}   {on}"),
+                (false, true) => format!("{on}   {off}"),
+                (true, true) => format!("{on}   {on}"),
+            };
+            (Line::from(second_base), Line::from(first_third))
+        }
     }
 }
 
@@ -186,7 +213,12 @@ impl Matchup {
         lines
     }
 
-    pub fn format_scoreboard_lines(&self, symbols: &crate::symbols::Symbols) -> Vec<Line<'_>> {
+    pub fn format_scoreboard_lines(
+        &self,
+        symbols: &crate::symbols::Symbols,
+        away_abbr: &str,
+        home_abbr: &str,
+    ) -> Vec<Line<'_>> {
         let arrow = if self.is_top { "▲" } else { "▼" };
         let (second_base, first_third) = self.runners.generate_lines(symbols);
 
@@ -218,11 +250,43 @@ impl Matchup {
             Line::from(s)
         };
 
+        let away_leads = self.away_score > self.home_score;
+        let home_leads = self.home_score > self.away_score;
+
+        let score_line = if symbols.team_colors() {
+            let away_style = team_colors::get(away_abbr, false)
+                .map(|c| Style::default().fg(c))
+                .unwrap_or_default();
+            let home_style = team_colors::get(home_abbr, false)
+                .map(|c| Style::default().fg(c))
+                .unwrap_or_default();
+            let away_style = if away_leads { away_style.bold() } else { away_style };
+            let home_style = if home_leads { home_style.bold() } else { home_style };
+            Line::from(vec![
+                Span::styled(self.away_score.to_string(), away_style),
+                Span::raw(format!("    {} {}    ", arrow, self.inning)),
+                Span::styled(self.home_score.to_string(), home_style),
+            ])
+        } else {
+            let away = if away_leads {
+                format!("{}", self.away_score).to_string()
+            } else {
+                self.away_score.to_string()
+            };
+            let home = if home_leads {
+                format!("{}", self.home_score).to_string()
+            } else {
+                self.home_score.to_string()
+            };
+            Line::from(vec![
+                if away_leads { Span::raw(away).bold() } else { Span::raw(away) },
+                Span::raw(format!("    {} {}    ", arrow, self.inning)),
+                if home_leads { Span::raw(home).bold() } else { Span::raw(home) },
+            ])
+        };
+
         vec![
-            Line::from(format!(
-                "{}    {} {}    {}",
-                self.away_score, arrow, self.inning, self.home_score
-            )),
+            score_line,
             second_base,
             first_third,
             outs_line,

@@ -107,6 +107,12 @@ impl TeamPageState {
         self.roster_selection.select(first);
     }
 
+    pub fn refresh_schedule_times(&mut self, tz: Tz) {
+        for game in &mut self.schedule {
+            game.refresh_time_or_score(tz);
+        }
+    }
+
     pub fn next_section(&mut self) {
         self.active_section = match self.active_section {
             TeamSection::Roster => TeamSection::Schedule,
@@ -374,6 +380,7 @@ mod tests {
                     date_display: String::new(),
                     opponent: String::new(),
                     time_or_score: String::new(),
+                    start_time_utc: None,
                     is_home: false,
                     is_past: false,
                 };
@@ -527,5 +534,41 @@ mod tests {
         assert_eq!(s.active_section, TeamSection::Transactions);
         s.previous_section();
         assert_eq!(s.active_section, TeamSection::Schedule);
+    }
+
+    #[test]
+    fn refresh_schedule_times_updates_only_upcoming_games() {
+        let mut s = nav_state(&[], 0);
+        s.schedule = vec![
+            TeamGame {
+                date: chrono::NaiveDate::default(),
+                date_display: String::new(),
+                opponent: String::new(),
+                time_or_score: "7:10 PM".to_string(),
+                start_time_utc: Some(
+                    chrono::NaiveDate::from_ymd_opt(2025, 3, 28)
+                        .unwrap()
+                        .and_hms_opt(23, 10, 0)
+                        .unwrap()
+                        .and_utc(),
+                ),
+                is_home: false,
+                is_past: false,
+            },
+            TeamGame {
+                date: chrono::NaiveDate::default(),
+                date_display: String::new(),
+                opponent: String::new(),
+                time_or_score: "4-3 W".to_string(),
+                start_time_utc: None,
+                is_home: false,
+                is_past: true,
+            },
+        ];
+
+        s.refresh_schedule_times(chrono_tz::US::Pacific);
+
+        assert_eq!(s.schedule[0].time_or_score, "4:10 pm");
+        assert_eq!(s.schedule[1].time_or_score, "4-3 W");
     }
 }

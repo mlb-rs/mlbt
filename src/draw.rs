@@ -13,7 +13,7 @@ use crate::ui::boxscore::TeamBatterBoxscoreWidget;
 use crate::ui::date_selector::DateSelectorWidget;
 use crate::ui::gameday::gameday_widget::GamedayWidget;
 use crate::ui::gameday::win_probability::WinProbabilityWidget;
-use crate::ui::help::HelpWidget;
+use crate::ui::help::help_widget::HelpWidget;
 use crate::ui::input_popup::{InputPopup, popup_cursor_position};
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
@@ -104,7 +104,7 @@ fn draw_loading_spinner(f: &mut Frame, area: Rect, app: &App, loading: LoadingSt
         .alignment(Alignment::Right)
         .style(style);
 
-    let area = if app.settings.full_screen {
+    let area = if app.settings.full_screen || app.state.active_tab == MenuItem::Help {
         // render in the bottom right
         Rect::new(
             area.width.saturating_sub(3),
@@ -397,7 +397,8 @@ fn draw_help(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) {
         HelpWidget {
             // use previous tab because help has been set to active at this point
             active_tab: app.state.previous_tab,
-            symbols,
+            settings: &app.settings,
+            editor: &app.state.settings_editor,
         },
         rect,
         &mut app.state.help.state,

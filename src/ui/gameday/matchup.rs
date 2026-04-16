@@ -46,7 +46,11 @@ impl Widget for MatchupWidget<'_> {
             away,
             buf,
         );
-        let mut scoreboard_lines = at_bat.matchup.format_scoreboard_lines(self.symbols);
+        let mut scoreboard_lines = at_bat.matchup.format_scoreboard_lines(
+            self.symbols,
+            self.game.away_team.abbreviation,
+            self.game.home_team.abbreviation,
+        );
         // Append weather line if available, colored by temperature and wind
         if let Some(weather) = &self.game.weather
             && let (Some(condition), Some(temp)) = (&weather.condition, &weather.temp)

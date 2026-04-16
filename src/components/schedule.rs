@@ -2,11 +2,13 @@ use crate::components::constants::lookup_team_or;
 use crate::components::date_selector::DateSelector;
 use crate::components::probable_pitchers::{ProbablePitcher, ProbablePitcherMatchup};
 use crate::components::standings::Team;
+use crate::components::util::format_start_time_table;
 use crate::state::app_settings::AppSettings;
 use crate::state::app_state::HomeOrAway;
-use chrono::{DateTime, NaiveDate};
+use chrono::{DateTime, NaiveDate, Utc};
 use chrono_tz::Tz;
 use core::option::Option::{None, Some};
+use log::error;
 use mlbt_api::schedule::{Game, LeagueRecord, ScheduleResponse};
 use std::cmp::Ordering;
 use tui::widgets::TableState;
@@ -31,7 +33,6 @@ impl Default for ScheduleState {
 }
 
 /// The information needed to create a single row in a table.
-#[derive(Default)]
 pub struct ScheduleRow {
     pub game_id: u64,
     pub home_team: Team,
@@ -40,7 +41,11 @@ pub struct ScheduleRow {
     pub away_team: Team,
     pub away_score: Option<u8>,
     pub away_record: Option<Record>,
+    /// Start time formatted for display in the user's current timezone.
     pub start_time: String,
+    /// Used to rerender `start_time` when the configured timezone changes without refetching the
+    /// schedule.
+    pub start_time_utc: DateTime<Utc>,
     pub game_status: String,
     pub home_probable_pitcher: ProbablePitcher,
     pub away_probable_pitcher: ProbablePitcher,
@@ -114,6 +119,29 @@ impl ScheduleState {
 
     pub fn toggle_win_probability(&mut self) {
         self.show_win_probability = !self.show_win_probability;
+    }
+
+    /// Re-render every row's `start_time` string using the given timezone.
+    /// Called after the user changes timezone so times update without a schedule refetch.
+    pub fn refresh_start_times(&mut self, tz: Tz) {
+        for row in &mut self.schedule {
+            row.start_time = format_start_time_table(row.start_time_utc, tz);
+        }
+    }
+
+    /// Reorder the already loaded rows to reflect the current favorite team. Selects the first row
+    /// so the Scoreboard jumps to the favorite's game (or the top of the list when no favorite is
+    /// set). Callers should refetch game data when this shifts the selection.
+    pub fn apply_favorite_team(&mut self, favorite_team: Option<Team>) {
+        let rows = std::mem::take(&mut self.schedule);
+        self.schedule = favorite_first(rows, favorite_team);
+
+        if self.schedule.is_empty() {
+            self.state.select(None);
+            return;
+        }
+
+        self.state.select(Some(0));
     }
 
     pub fn next(&mut self) {
@@ -192,10 +220,13 @@ impl ScheduleRow {
         });
         let away_record = Record::from_league_record(away_team.league_record.as_ref());
 
-        let datetime = DateTime::parse_from_rfc3339(&game.game_date)
-            .unwrap()
-            .with_timezone(&timezone);
-        let start_time = datetime.format("%l:%M %P").to_string();
+        let start_time_utc = DateTime::parse_from_rfc3339(&game.game_date)
+            .map(|dt| dt.with_timezone(&Utc))
+            .unwrap_or_else(|err| {
+                error!("invalid game_date {:?}: {err}", game.game_date);
+                DateTime::<Utc>::UNIX_EPOCH
+            });
+        let start_time = format_start_time_table(start_time_utc, timezone);
 
         let game_status = match &game.status.detailed_state {
             Some(s) if s == "In Progress" => {
@@ -226,6 +257,7 @@ impl ScheduleRow {
             away_score: game.teams.away.score,
             game_status,
             start_time,
+            start_time_utc,
             home_probable_pitcher: ProbablePitcher::from_team(&game.teams.home).unwrap_or_default(),
             away_probable_pitcher: ProbablePitcher::from_team(&game.teams.away).unwrap_or_default(),
         }
@@ -234,22 +266,110 @@ impl ScheduleRow {
     /// Transform the data from the API into a vector of ScheduleRows.
     fn create_table(settings: &AppSettings, schedule: &ScheduleResponse) -> Vec<Self> {
         let mut todays_games: Vec<ScheduleRow> = Vec::with_capacity(schedule.dates.len());
-        if let Some(games) = &schedule.dates.first() {
-            let favorite = settings
-                .favorite_team
-                .map(|f| f.name)
-                .unwrap_or_else(|| "na");
-            if let Some(game) = &games.games {
-                for g in game {
-                    let row = ScheduleRow::create_matchup(g, settings.timezone);
-                    if g.teams.home.team.name == favorite || g.teams.away.team.name == favorite {
-                        todays_games.insert(0, row);
-                    } else {
-                        todays_games.push(row);
-                    }
-                }
+        if let Some(games) = &schedule.dates.first()
+            && let Some(game) = &games.games
+        {
+            for g in game {
+                todays_games.push(ScheduleRow::create_matchup(g, settings.timezone));
             }
         }
-        todays_games
+        favorite_first(todays_games, settings.favorite_team)
+    }
+
+    fn has_team(&self, team: Team) -> bool {
+        self.home_team.id == team.id || self.away_team.id == team.id
+    }
+}
+
+fn favorite_first(
+    rows: impl IntoIterator<Item = ScheduleRow>,
+    favorite_team: Option<Team>,
+) -> Vec<ScheduleRow> {
+    let mut favorite = Vec::new();
+    let mut other = Vec::new();
+
+    for row in rows {
+        if favorite_team.is_some_and(|team| row.has_team(team)) {
+            favorite.push(row);
+        } else {
+            other.push(row);
+        }
+    }
+
+    favorite.sort_by_key(|row| row.game_id);
+    other.sort_by_key(|row| row.game_id);
+    favorite.extend(other);
+    favorite
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::components::constants::lookup_team_by_id;
+    use crate::components::probable_pitchers::ProbablePitcher;
+
+    fn row(game_id: u64, home_team: u16, away_team: u16) -> ScheduleRow {
+        ScheduleRow {
+            game_id,
+            home_team: lookup_team_by_id(home_team).unwrap(),
+            home_score: None,
+            home_record: None,
+            away_team: lookup_team_by_id(away_team).unwrap(),
+            away_score: None,
+            away_record: None,
+            start_time: String::new(),
+            start_time_utc: DateTime::<Utc>::UNIX_EPOCH,
+            game_status: String::new(),
+            home_probable_pitcher: ProbablePitcher::default(),
+            away_probable_pitcher: ProbablePitcher::default(),
+        }
+    }
+
+    #[test]
+    fn apply_favorite_team_reorders_rows_and_resets_selection() {
+        let mut state = ScheduleState {
+            state: TableState::default(),
+            schedule: vec![row(30, 114, 115), row(10, 108, 109), row(20, 112, 113)],
+            date_selector: DateSelector::default(),
+            show_win_probability: true,
+        };
+        state.state.select(Some(2));
+
+        state.apply_favorite_team(lookup_team_by_id(112));
+
+        assert_eq!(
+            state
+                .schedule
+                .iter()
+                .map(|row| row.game_id)
+                .collect::<Vec<_>>(),
+            vec![20, 10, 30]
+        );
+        assert_eq!(state.get_selected_game_opt(), Some(20));
+        assert_eq!(state.state.selected(), Some(0));
+    }
+
+    #[test]
+    fn apply_favorite_team_none_sorts_by_game_id_and_resets_selection() {
+        let mut state = ScheduleState {
+            state: TableState::default(),
+            schedule: vec![row(30, 114, 115), row(10, 108, 109), row(20, 112, 113)],
+            date_selector: DateSelector::default(),
+            show_win_probability: true,
+        };
+        state.state.select(Some(0));
+
+        state.apply_favorite_team(None);
+
+        assert_eq!(
+            state
+                .schedule
+                .iter()
+                .map(|row| row.game_id)
+                .collect::<Vec<_>>(),
+            vec![10, 20, 30]
+        );
+        assert_eq!(state.get_selected_game_opt(), Some(10));
+        assert_eq!(state.state.selected(), Some(0));
     }
 }

@@ -206,22 +206,30 @@ Navigate at bats:
 
 ## Config
 
-Settings live in a TOML file:
+The TUI can be configured two ways:
 
-- Linux: `~/.config/mlbt/mlbt.toml`
-- macOS: `~/Library/Application Support/mlbt/mlbt.toml`
-- Windows: `%APPDATA%\mlbt\mlbt.toml`
+1. **TUI editor** (recommended): open the help page with `?`, press `Tab` to
+   focus the settings panel on the right, and use `j/k` to pick a field. Press
+   `Enter` to open the picker and then `Enter` again to save the setting.
+2. **Manually editing the config file**: edit the toml file directly. Useful for
+   timezones outside the curated options in the TUI.
 
-The path is also shown on the Help page (`?`).
+The config file is located at:
+
+- Linux:   `~/.config/mlbt/mlbt.toml`
+- macOS:   `~/Library/Application Support/mlbt/mlbt.toml`
+- Windows: `~\AppData\Roaming\mlbt\mlbt.toml`
+
+> The path is also shown at the bottom of the `Help` page.
 
 ### Settings
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| `favorite_team` | Your team — sorted first in schedule, highlighted in standings. Use the full name (e.g. `"San Francisco Giants"`). | none |
-| `timezone` | Game time display. `"US/Pacific"`, `"US/Central"`, `"US/Eastern"`, etc. [Full list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). | `"US/Pacific"` |
+| `favorite_team` | Your team — sorted first in schedule, highlighted in standings. TUI: picker shows all 30 teams. Manually: use the full name (e.g. `"San Francisco Giants"`). | none |
+| `timezone` | Game time display. TUI: picker covers common zones. Manually: any value from the [tz database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). | `"US/Pacific"` |
 | `nerd_fonts` | Enable [Nerd Font](https://www.nerdfonts.com/) icons — tabs, weather, bases, play labels. Requires a Nerd Font in your terminal. | `false` |
-| `team_colors` | Color team names by their primary color in scoreboard and standings. | `false` |
+| `team_colors` | Color team names by their primary color in scoreboard, standings, and gameday. | `false` |
 | `theme` | Color tier: `"lean"` (stock look), `"classic"` (warm accents + stat colors), `"rainbow"` (stat backgrounds + live game highlights). | `"classic"` |
 | `log_level` | `"off"`, `"trace"`, `"debug"`, `"info"`, `"warn"`, `"error"`. | `"error"` |
 
