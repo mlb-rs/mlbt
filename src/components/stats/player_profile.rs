@@ -218,7 +218,7 @@ impl PlayerProfile {
 
     fn game_log_cells<'a>(split: &'a Split, symbols: &Symbols) -> Vec<Cell<'a>> {
         let date = split.date.map_display_or(|d| format_date(d), "");
-        let prefix = if split.is_home == Some(true) { "vs" } else { "@" };
+        let prefix = if split.is_home == Some(true) { "vs" } else { " @" };
 
         let opp_team = split
             .opponent
