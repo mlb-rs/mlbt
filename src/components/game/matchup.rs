@@ -103,6 +103,7 @@ impl From<&Play> for Matchup {
 }
 
 impl Matchup {
+    #[allow(clippy::too_many_arguments)]
     pub fn format_team_lines(
         &self,
         team_name: &str,
