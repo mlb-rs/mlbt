@@ -7,6 +7,7 @@ use crate::components::util::{
     obp_color, slg_color, ops_color, whip_color,
 };
 use crate::symbols::Symbols;
+use crate::theme::Theme;
 use mlbt_api::player::PersonFull;
 use mlbt_api::stats::{Split, StatSplit};
 use tui::layout::Constraint;
@@ -246,10 +247,18 @@ impl PlayerProfile {
                 cells.extend([
                     Cell::from(s.at_bats.to_string()).fg(s.at_bats.dim_or(Color::White)),
                     Cell::from(s.runs.to_string()).fg(s.runs.dim_or(Color::White)),
-                    Cell::from(s.hits.to_string()).fg(s.hits.dim_or(Color::White)),
+                    Cell::from(s.hits.to_string()).fg(if s.hits >= 3 {
+                        Theme::GOOD
+                    } else {
+                        s.hits.dim_or(Color::White)
+                    }),
                     Cell::from(s.doubles.to_string()).fg(s.doubles.dim_or(Color::White)),
                     Cell::from(s.triples.to_string()).fg(s.triples.dim_or(Color::White)),
-                    Cell::from(s.home_runs.to_string()).fg(s.home_runs.dim_or(Color::White)),
+                    Cell::from(s.home_runs.to_string()).fg(if s.home_runs > 0 {
+                        Theme::GOOD
+                    } else {
+                        Theme::DIMMED
+                    }),
                     Cell::from(s.rbi.to_string()).fg(s.rbi.dim_or(Color::White)),
                     Cell::from(s.base_on_balls.to_string())
                         .fg(s.base_on_balls.dim_or(Color::White)),
