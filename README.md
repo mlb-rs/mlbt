@@ -32,9 +32,21 @@ a single visual channel.
 **All additions are off by default.** Without any config changes the app behaves
 identically to upstream.
 
+### Scoreboard — rainbow theme
+
+![Scoreboard with rainbow theme showing team colors, stat backgrounds, and weather](images/scoreboard-rainbow-large.png)
+
+### Scoreboard — lean theme
+
+![Scoreboard with lean theme showing minimal styling](images/scoreboard-lean-small.png)
+
+### Gameday — rainbow theme
+
+![Gameday view with rainbow theme showing play-by-play labels, strike zone, and weather](images/gameday-rainbow-small.png)
+
 ## Installation
 
-Build from source:
+### Build from source
 
 ```bash
 git clone https://github.com/agiacalone/mlbtg.git
@@ -44,6 +56,21 @@ cargo build --release
 
 The binary is at `target/release/mlbtg`. Copy it somewhere on your `$PATH`, or
 run directly with `cargo run`.
+
+### Docker
+
+Build and run with Docker:
+
+```bash
+docker build -t mlbtg .
+docker run -it --rm mlbtg
+```
+
+To mount your config file into the container:
+
+```bash
+docker run -it --rm -v ~/.config/mlbt:/root/.config/mlbt mlbtg
+```
 
 > For the original upstream release binaries, Homebrew tap, and Docker images,
 > see [mlb-rs/mlbt](https://github.com/mlb-rs/mlbt#installation).
