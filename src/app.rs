@@ -378,6 +378,7 @@ mod tests {
                 ),
                 is_home: false,
                 is_past: false,
+                is_win: None,
             }],
             schedule_selection: TableState::default(),
             roster: vec![],

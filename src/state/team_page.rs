@@ -383,6 +383,7 @@ mod tests {
                     start_time_utc: None,
                     is_home: false,
                     is_past: false,
+                    is_win: None,
                 };
                 schedule_len
             ],
@@ -554,6 +555,7 @@ mod tests {
                 ),
                 is_home: false,
                 is_past: false,
+                is_win: None,
             },
             TeamGame {
                 date: chrono::NaiveDate::default(),
@@ -563,6 +565,7 @@ mod tests {
                 start_time_utc: None,
                 is_home: false,
                 is_past: true,
+                is_win: Some(true),
             },
         ];
 
