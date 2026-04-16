@@ -384,8 +384,8 @@ impl PlayerProfile {
                             Cell::from(s.sb.to_string()).fg(s.sb.dim_or(Color::White)),
                             Cell::from(s.avg.as_str())
                                 .fg(avg_color(s.avg.as_str()).unwrap_or(Color::White)),
-                            s.obp.as_str().into(),
-                            s.slg.as_str().into(),
+                            Cell::from(s.obp.as_str()).fg(obp_color(s.obp.as_str()).unwrap_or(Color::White)),
+                            Cell::from(s.slg.as_str()).fg(slg_color(s.slg.as_str()).unwrap_or(Color::White)),
                         ]);
                     }
                     Some(RecentStats::Pitching(s)) => {
@@ -402,7 +402,7 @@ impl PlayerProfile {
                             Cell::from(s.er.to_string()).fg(s.er.dim_or(Color::White)),
                             Cell::from(s.bb.to_string()).fg(s.bb.dim_or(Color::White)),
                             Cell::from(s.so.to_string()).fg(s.so.dim_or(Color::White)),
-                            s.whip.as_str().into(),
+                            Cell::from(s.whip.as_str()).fg(whip_color(s.whip.as_str()).unwrap_or(Color::White)),
                         ]);
                     }
                     None => {
