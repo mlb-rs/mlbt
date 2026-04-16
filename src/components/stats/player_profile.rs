@@ -11,7 +11,7 @@ use crate::theme::Theme;
 use mlbt_api::player::PersonFull;
 use mlbt_api::stats::{Split, StatSplit};
 use tui::layout::Constraint;
-use tui::prelude::{Line, Modifier, Style, Stylize};
+use tui::prelude::{Line, Modifier, Span, Style, Stylize};
 use tui::style::Color;
 use tui::widgets::{Cell, Row};
 
@@ -235,7 +235,10 @@ impl PlayerProfile {
 
         let opp_cell = if symbols.team_colors() {
             let color = team_colors::get(opp_abbr, false).unwrap_or(Color::White);
-            Cell::from(format!("{prefix} {opp_abbr}")).fg(color)
+            Cell::from(Line::from(vec![
+                Span::raw(format!("{prefix} ")),
+                Span::styled(opp_abbr, Style::default().fg(color)),
+            ]))
         } else {
             Cell::from(format!("{prefix} {opp_abbr}"))
         };
