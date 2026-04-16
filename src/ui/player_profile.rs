@@ -202,7 +202,7 @@ impl PlayerProfileWidget<'_> {
 
     fn render_game_log(&self, area: Rect, skip: u16, buf: &mut Buffer) {
         let splits = &self.state.profile.splits.game_log;
-        if let Some((header, widths, rows)) = PlayerProfile::build_game_log_rows(splits) {
+        if let Some((header, widths, rows)) = PlayerProfile::build_game_log_rows(splits, self.symbols) {
             render_table_with_title(
                 "Recent Games",
                 header,

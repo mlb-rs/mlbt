@@ -1,9 +1,11 @@
 use crate::components::constants::{lookup_team, lookup_team_by_id};
 use crate::components::standings::Team;
 use crate::components::stats::splits::{RecentSplit, RecentStats, StatSplits};
+use crate::components::team_colors;
 use crate::components::util::{
     DimColor, OptionDisplayExt, OptionMapDisplayExt, avg_color, era_color, format_date,
 };
+use crate::symbols::Symbols;
 use mlbt_api::player::PersonFull;
 use mlbt_api::stats::{Split, StatSplit};
 use tui::layout::Constraint;
@@ -212,24 +214,31 @@ impl PlayerProfile {
         cells
     }
 
-    fn game_log_cells(split: &Split) -> Vec<Cell<'_>> {
+    fn game_log_cells<'a>(split: &'a Split, symbols: &Symbols) -> Vec<Cell<'a>> {
         let date = split.date.map_display_or(|d| format_date(d), "");
-        let opp = split
+        let prefix = if split.is_home == Some(true) { "vs" } else { "@" };
+
+        let opp_team = split
             .opponent
-            .map_display_or(|o| lookup_team(&o.name).abbreviation, "---");
-        let prefix = if split.is_home == Some(true) {
-            "vs"
-        } else {
-            "@"
-        };
+            .as_ref()
+            .map(|o| lookup_team(&o.name));
+        let opp_abbr = opp_team.map(|t| t.abbreviation).unwrap_or("---");
+
         // whether the team won/lost, not the pitcher's game decision
-        let result = match split.is_win {
-            Some(true) => "W",
-            Some(false) => "L",
-            None => "-",
+        let result_cell = match split.is_win {
+            Some(true) => Cell::from("W").fg(Color::Green),
+            Some(false) => Cell::from("L").fg(Color::Red),
+            None => Cell::from("-"),
         };
 
-        let mut cells = vec![date.into(), result.into(), format!("{prefix} {opp}").into()];
+        let opp_cell = if symbols.team_colors() {
+            let color = team_colors::get(opp_abbr, false).unwrap_or(Color::White);
+            Cell::from(format!("{prefix} {opp_abbr}")).fg(color)
+        } else {
+            Cell::from(format!("{prefix} {opp_abbr}"))
+        };
+
+        let mut cells = vec![date.into(), result_cell, opp_cell];
 
         match &split.stat {
             StatSplit::Hitting(s) => {
@@ -310,9 +319,10 @@ impl PlayerProfile {
     }
 
     /// Build header row, column widths, and data rows for the game log table.
-    pub fn build_game_log_rows(
-        splits: &[Split],
-    ) -> Option<(Row<'_>, Vec<Constraint>, Vec<Row<'_>>)> {
+    pub fn build_game_log_rows<'a>(
+        splits: &'a [Split],
+        symbols: &Symbols,
+    ) -> Option<(Row<'a>, Vec<Constraint>, Vec<Row<'a>>)> {
         let first = splits.first()?;
         let headers = if matches!(&first.stat, StatSplit::Hitting(_)) {
             GAME_LOG_HITTING_HEADERS
@@ -329,7 +339,7 @@ impl PlayerProfile {
         let rows = splits
             .iter()
             .rev()
-            .map(|split| Row::new(Self::game_log_cells(split)))
+            .map(|split| Row::new(Self::game_log_cells(split, symbols)))
             .collect();
 
         Some((header, widths, rows))
