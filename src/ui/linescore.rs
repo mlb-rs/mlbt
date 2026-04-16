@@ -36,8 +36,16 @@ impl Widget for LineScoreWidget<'_> {
 
         let t = Table::new(
             vec![
-                Row::new(self.linescore.away.create_score_vec(self.active, self.symbols)),
-                Row::new(self.linescore.home.create_score_vec(self.active, self.symbols)),
+                Row::new(
+                    self.linescore
+                        .away
+                        .create_score_vec(self.active, self.symbols),
+                ),
+                Row::new(
+                    self.linescore
+                        .home
+                        .create_score_vec(self.active, self.symbols),
+                ),
             ],
             widths.as_slice(),
         )

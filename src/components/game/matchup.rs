@@ -253,36 +253,37 @@ impl Matchup {
         let away_leads = self.away_score > self.home_score;
         let home_leads = self.home_score > self.away_score;
 
+        let mid = Span::raw(format!("    {} {}    ", arrow, self.inning));
         let score_line = if symbols.team_colors() {
-            let away_style = team_colors::get(away_abbr, false)
+            let mut away_style = team_colors::get(away_abbr, false)
                 .map(|c| Style::default().fg(c))
                 .unwrap_or_default();
-            let home_style = team_colors::get(home_abbr, false)
+            let mut home_style = team_colors::get(home_abbr, false)
                 .map(|c| Style::default().fg(c))
                 .unwrap_or_default();
-            let away_style = if away_leads { away_style.bold() } else { away_style };
-            let home_style = if home_leads { home_style.bold() } else { home_style };
+            if away_leads {
+                away_style = away_style.bold();
+            }
+            if home_leads {
+                home_style = home_style.bold();
+            }
             Line::from(vec![
                 Span::styled(self.away_score.to_string(), away_style),
-                Span::raw(format!("    {} {}    ", arrow, self.inning)),
+                mid,
                 Span::styled(self.home_score.to_string(), home_style),
             ])
         } else {
-            let away = if away_leads {
-                format!("{}", self.away_score).to_string()
+            let away_span = if away_leads {
+                Span::raw(self.away_score.to_string()).bold()
             } else {
-                self.away_score.to_string()
+                Span::raw(self.away_score.to_string())
             };
-            let home = if home_leads {
-                format!("{}", self.home_score).to_string()
+            let home_span = if home_leads {
+                Span::raw(self.home_score.to_string()).bold()
             } else {
-                self.home_score.to_string()
+                Span::raw(self.home_score.to_string())
             };
-            Line::from(vec![
-                if away_leads { Span::raw(away).bold() } else { Span::raw(away) },
-                Span::raw(format!("    {} {}    ", arrow, self.inning)),
-                if home_leads { Span::raw(home).bold() } else { Span::raw(home) },
-            ])
+            Line::from(vec![away_span, mid, home_span])
         };
 
         vec![
@@ -304,8 +305,16 @@ mod tests {
         use crate::theme::ThemeLevel;
         let m = Matchup::default();
         let symbols = Symbols::new(false, false, ThemeLevel::default());
-        m.format_team_lines(name, "TST", challenges, is_home, current, &HashMap::new(), &symbols)[0]
-            .to_string()
+        m.format_team_lines(
+            name,
+            "TST",
+            challenges,
+            is_home,
+            current,
+            &HashMap::new(),
+            &symbols,
+        )[0]
+        .to_string()
     }
 
     #[test]

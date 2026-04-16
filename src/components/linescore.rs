@@ -105,9 +105,7 @@ impl LineScoreLine {
             )
         } else if symbols.team_colors() {
             team_colors::get(&self.abbreviation, false)
-                .map(|c| {
-                    Span::styled(self.abbreviation.clone(), Style::default().fg(c))
-                })
+                .map(|c| Span::styled(self.abbreviation.clone(), Style::default().fg(c)))
                 .unwrap_or_else(|| Span::raw(self.abbreviation.clone()))
         } else {
             Span::raw(self.abbreviation.clone())
