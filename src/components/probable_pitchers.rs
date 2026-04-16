@@ -1,6 +1,9 @@
 use crate::components::standings::Team;
-use crate::components::util::OptionDisplayExt;
+use crate::components::util::{era_color, OptionDisplayExt};
 use mlbt_api::schedule::TeamInfo;
+use tui::prelude::Stylize;
+use tui::style::Color;
+use tui::widgets::Cell;
 
 #[derive(Debug, Clone)]
 pub struct ProbablePitcher {
@@ -65,16 +68,17 @@ impl ProbablePitcher {
         })
     }
 
-    pub fn to_row_cells(&self, team_name: &str) -> Vec<String> {
+    pub fn to_row_cells(&self, team_name: &str) -> Vec<Cell<'static>> {
         vec![
-            team_name.to_string(),
-            self.name.clone(),
-            self.wins.display_or("-"),
-            self.losses.display_or("-"),
-            self.era.display_or("-"),
-            self.innings_pitched.display_or("-"),
-            self.strike_outs.display_or("-"),
-            self.base_on_balls.display_or("-"),
+            Cell::from(team_name.to_string()),
+            Cell::from(self.name.clone()),
+            Cell::from(self.wins.display_or("-")),
+            Cell::from(self.losses.display_or("-")),
+            Cell::from(self.era.display_or("-"))
+                .fg(self.era.as_deref().and_then(era_color).unwrap_or(Color::White)),
+            Cell::from(self.innings_pitched.display_or("-")),
+            Cell::from(self.strike_outs.display_or("-")),
+            Cell::from(self.base_on_balls.display_or("-")),
         ]
     }
 }
