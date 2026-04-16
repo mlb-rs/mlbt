@@ -137,6 +137,83 @@ pub(crate) fn win_pct_color(pct: &str) -> Option<Color> {
     })
 }
 
+/// Color for an OBP stat string. Returns `None` for average range (.290–.349).
+pub(crate) fn obp_color(obp: &str) -> Option<Color> {
+    obp.parse::<f64>().ok().and_then(|v| {
+        if v == 0.0 {
+            Some(Theme::DIMMED)
+        } else if v >= 0.380 {
+            Some(Theme::EXCELLENT)
+        } else if v >= 0.350 {
+            Some(Theme::GOOD)
+        } else if v < 0.250 {
+            Some(Theme::POOR)
+        } else if v < 0.290 {
+            Some(Theme::BELOW_AVG)
+        } else {
+            None
+        }
+    })
+}
+
+/// Color for a SLG stat string. Returns `None` for average range (.350–.449).
+pub(crate) fn slg_color(slg: &str) -> Option<Color> {
+    slg.parse::<f64>().ok().and_then(|v| {
+        if v == 0.0 {
+            Some(Theme::DIMMED)
+        } else if v >= 0.500 {
+            Some(Theme::EXCELLENT)
+        } else if v >= 0.450 {
+            Some(Theme::GOOD)
+        } else if v < 0.300 {
+            Some(Theme::POOR)
+        } else if v < 0.350 {
+            Some(Theme::BELOW_AVG)
+        } else {
+            None
+        }
+    })
+}
+
+/// Color for an OPS stat string. Returns `None` for average range (.680–.799).
+pub(crate) fn ops_color(ops: &str) -> Option<Color> {
+    ops.parse::<f64>().ok().and_then(|v| {
+        if v == 0.0 {
+            Some(Theme::DIMMED)
+        } else if v >= 0.900 {
+            Some(Theme::EXCELLENT)
+        } else if v >= 0.800 {
+            Some(Theme::GOOD)
+        } else if v < 0.600 {
+            Some(Theme::POOR)
+        } else if v < 0.680 {
+            Some(Theme::BELOW_AVG)
+        } else {
+            None
+        }
+    })
+}
+
+/// Color for a WHIP stat string. Returns `None` for average range (1.11–1.39).
+/// Lower WHIP is better — color scale is inverted relative to batting stats.
+pub(crate) fn whip_color(whip: &str) -> Option<Color> {
+    whip.parse::<f64>().ok().and_then(|v| {
+        if v == 0.0 {
+            Some(Theme::DIMMED)
+        } else if v <= 0.90 {
+            Some(Theme::EXCELLENT)
+        } else if v <= 1.10 {
+            Some(Theme::GOOD)
+        } else if v >= 1.60 {
+            Some(Theme::POOR)
+        } else if v >= 1.40 {
+            Some(Theme::BELOW_AVG)
+        } else {
+            None
+        }
+    })
+}
+
 /// Convert a string from the API to a Color::Rgb. The string starts out as:
 /// "rgba(255, 255, 255, 0.55)".
 pub(crate) fn convert_color(s: String) -> Color {
@@ -171,4 +248,57 @@ fn test_color_conversion() {
 
     let nonsense = ("rgba(-5, 255, 255, 0.55)", Color::Rgb(0, 255, 255));
     assert_eq!(convert_color(nonsense.0.to_string()), nonsense.1);
+}
+
+#[cfg(test)]
+mod stat_color_tests {
+    use super::*;
+
+    #[test]
+    fn obp_excellent() { assert_eq!(obp_color(".400"), Some(Theme::EXCELLENT)); }
+    #[test]
+    fn obp_good() { assert_eq!(obp_color(".355"), Some(Theme::GOOD)); }
+    #[test]
+    fn obp_average() { assert_eq!(obp_color(".310"), None); }
+    #[test]
+    fn obp_below() { assert_eq!(obp_color(".270"), Some(Theme::BELOW_AVG)); }
+    #[test]
+    fn obp_poor() { assert_eq!(obp_color(".240"), Some(Theme::POOR)); }
+    #[test]
+    fn obp_zero() { assert_eq!(obp_color(".000"), Some(Theme::DIMMED)); }
+
+    #[test]
+    fn slg_excellent() { assert_eq!(slg_color(".520"), Some(Theme::EXCELLENT)); }
+    #[test]
+    fn slg_good() { assert_eq!(slg_color(".460"), Some(Theme::GOOD)); }
+    #[test]
+    fn slg_average() { assert_eq!(slg_color(".400"), None); }
+    #[test]
+    fn slg_below() { assert_eq!(slg_color(".320"), Some(Theme::BELOW_AVG)); }
+    #[test]
+    fn slg_poor() { assert_eq!(slg_color(".280"), Some(Theme::POOR)); }
+
+    #[test]
+    fn ops_excellent() { assert_eq!(ops_color(".950"), Some(Theme::EXCELLENT)); }
+    #[test]
+    fn ops_good() { assert_eq!(ops_color(".820"), Some(Theme::GOOD)); }
+    #[test]
+    fn ops_average() { assert_eq!(ops_color(".730"), None); }
+    #[test]
+    fn ops_below() { assert_eq!(ops_color(".640"), Some(Theme::BELOW_AVG)); }
+    #[test]
+    fn ops_poor() { assert_eq!(ops_color(".550"), Some(Theme::POOR)); }
+
+    #[test]
+    fn whip_excellent() { assert_eq!(whip_color("0.85"), Some(Theme::EXCELLENT)); }
+    #[test]
+    fn whip_good() { assert_eq!(whip_color("1.05"), Some(Theme::GOOD)); }
+    #[test]
+    fn whip_average() { assert_eq!(whip_color("1.25"), None); }
+    #[test]
+    fn whip_below() { assert_eq!(whip_color("1.45"), Some(Theme::BELOW_AVG)); }
+    #[test]
+    fn whip_poor() { assert_eq!(whip_color("1.70"), Some(Theme::POOR)); }
+    #[test]
+    fn whip_zero() { assert_eq!(whip_color("0.00"), Some(Theme::DIMMED)); }
 }
