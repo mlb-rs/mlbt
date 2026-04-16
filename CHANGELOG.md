@@ -5,18 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2026-04-15
 
 ### Added
 
 - Add color highlighting to stats. Thanks @nuotsu! [PR 118](https://github.com/mlb-rs/mlbt/pull/118)
 - Add caching for API calls: [PR 127](https://github.com/mlb-rs/mlbt/pull/127)
-- Add in app configuration editing: [PR 128](https://github.com/mlb-rs/mlbt/pull/128)
+- Add in-app configuration editing with live reloading: [PR 128](https://github.com/mlb-rs/mlbt/pull/128)
 
 ### Fixed
 
-- Fix Stats page option pane selection: [PR 119](https://github.com/mlb-rs/mlbt/pull/119)
-- Fix challenge API response: [PR 126](https://github.com/mlb-rs/mlbt/pull/126)
+- Fix Stats page's option pane selection highlighting: [PR 119](https://github.com/mlb-rs/mlbt/pull/119)
+- Fix API response for crew chief challenges: [PR 126](https://github.com/mlb-rs/mlbt/pull/126)
 
 ## [0.2.0] - 2026-03-30
 
