@@ -35,6 +35,7 @@ impl Widget for GamedayWidget<'_> {
             let linescore_widget = LineScoreWidget {
                 active: self.active,
                 linescore: &self.state.game.linescore,
+                symbols: self.symbols,
             };
             Widget::render(linescore_widget, chunks[0], buf);
 
@@ -81,6 +82,7 @@ impl Widget for GamedayWidget<'_> {
                     game: &self.state.game,
                     selected_at_bat: self.state.selected_at_bat(),
                     active_tab: MenuItem::Gameday,
+                    symbols: self.symbols,
                 };
                 Widget::render(wps_widget, chunks[1], buf);
             }

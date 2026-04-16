@@ -1,8 +1,10 @@
 use mlbt_api::live::LiveResponse;
 
 use crate::components::standings::Team;
+use crate::components::team_colors;
 use crate::components::util::DimColor;
 use crate::state::app_state::HomeOrAway;
+use crate::symbols::Symbols;
 use tui::prelude::Stylize;
 use tui::style::{Color, Modifier, Style};
 use tui::text::Span;
@@ -93,15 +95,22 @@ impl LineScoreLine {
         line
     }
 
-    pub fn create_score_vec(&self, active: HomeOrAway) -> Vec<Cell<'_>> {
+    pub fn create_score_vec(&self, active: HomeOrAway, symbols: &Symbols) -> Vec<Cell<'_>> {
         let mut row = vec![];
-        // Display a blue background if the team is active
-        let team = match active == self.team {
-            true => Span::styled(
+        // Display a blue background if the team is active; otherwise apply team color when enabled.
+        let team = if active == self.team {
+            Span::styled(
                 self.abbreviation.clone(),
                 Style::default().fg(Color::Black).bg(Color::Blue),
-            ),
-            false => Span::raw(self.abbreviation.clone()),
+            )
+        } else if symbols.team_colors() {
+            team_colors::get(&self.abbreviation, false)
+                .map(|c| {
+                    Span::styled(self.abbreviation.clone(), Style::default().fg(c))
+                })
+                .unwrap_or_else(|| Span::raw(self.abbreviation.clone()))
+        } else {
+            Span::raw(self.abbreviation.clone())
         };
         row.push(Cell::from(team));
 

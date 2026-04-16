@@ -1,4 +1,5 @@
 use crate::components::stats::player_profile::PlayerProfile;
+use crate::components::team_colors;
 use crate::state::player_profile::PlayerProfileState;
 use crate::symbols::Symbols;
 use crate::theme::Theme;
@@ -33,7 +34,15 @@ impl Widget for PlayerProfileWidget<'_> {
                     } else {
                         format!(" {} ", profile.team.abbreviation)
                     },
-                    Style::default().fg(Color::Black).bg(Color::Cyan),
+                    {
+                        let bg = if self.symbols.team_colors() {
+                            team_colors::get(profile.team.abbreviation, false)
+                                .unwrap_or(Color::Cyan)
+                        } else {
+                            Color::Cyan
+                        };
+                        Style::default().fg(Color::Black).bg(bg)
+                    },
                 ),
             ]));
         let inner = block.inner(area);

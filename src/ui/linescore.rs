@@ -1,5 +1,6 @@
 use crate::components::linescore::LineScore;
 use crate::state::app_state::HomeOrAway;
+use crate::symbols::Symbols;
 
 use tui::{
     buffer::Buffer,
@@ -13,6 +14,7 @@ use tui::{
 pub struct LineScoreWidget<'a> {
     pub active: HomeOrAway,
     pub linescore: &'a LineScore,
+    pub symbols: &'a Symbols,
 }
 
 impl Widget for LineScoreWidget<'_> {
@@ -34,8 +36,8 @@ impl Widget for LineScoreWidget<'_> {
 
         let t = Table::new(
             vec![
-                Row::new(self.linescore.away.create_score_vec(self.active)),
-                Row::new(self.linescore.home.create_score_vec(self.active)),
+                Row::new(self.linescore.away.create_score_vec(self.active, self.symbols)),
+                Row::new(self.linescore.home.create_score_vec(self.active, self.symbols)),
             ],
             widths.as_slice(),
         )

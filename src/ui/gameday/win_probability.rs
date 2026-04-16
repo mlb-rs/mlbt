@@ -2,6 +2,8 @@ use crate::app::MenuItem;
 use crate::components::game::live_game::{AtBatIndex, GameState};
 use crate::components::game::win_probability::WinProbabilityAtBat;
 use crate::components::standings::Team;
+use crate::components::team_colors;
+use crate::symbols::Symbols;
 use crate::ui::gameday::plays::{BLUE, GREEN};
 use indexmap::IndexMap;
 use tui::prelude::*;
@@ -15,6 +17,7 @@ pub struct WinProbabilityWidget<'a> {
     pub game: &'a GameState,
     pub selected_at_bat: Option<u8>,
     pub active_tab: MenuItem,
+    pub symbols: &'a Symbols,
 }
 
 struct WinProbabilityData<'a> {
@@ -43,7 +46,7 @@ impl Widget for WinProbabilityWidget<'_> {
                 .vertical_margin(1)
                 .areas(area);
                 let data = WinProbabilityData::new(self.game, self.selected_at_bat, chart.height);
-                data.render_line_chart(chart, buf);
+                data.render_line_chart(chart, buf, self.symbols);
             }
             MenuItem::Gameday => {
                 let [table, chart] =
@@ -51,7 +54,7 @@ impl Widget for WinProbabilityWidget<'_> {
                         .areas(area);
                 let data = WinProbabilityData::new(self.game, self.selected_at_bat, table.height);
                 data.render_table(table, buf);
-                data.render_chart(chart, buf);
+                data.render_chart(chart, buf, self.symbols);
             }
             _ => (),
         }
@@ -183,7 +186,7 @@ impl<'a> WinProbabilityData<'a> {
             .style(Style::default().fg(Color::Black))
     }
 
-    fn render_chart(&self, area: Rect, buf: &mut Buffer) {
+    fn render_chart(&self, area: Rect, buf: &mut Buffer, _symbols: &Symbols) {
         let (start_idx, end_idx, _) = self.calculate_visible_range();
 
         let bars: Vec<Bar> = self
@@ -250,7 +253,7 @@ impl<'a> WinProbabilityData<'a> {
         }
     }
 
-    fn render_line_chart(&self, area: Rect, buf: &mut Buffer) {
+    fn render_line_chart(&self, area: Rect, buf: &mut Buffer, symbols: &Symbols) {
         let (points, x_axis_bounds) = self.prepare_chart_data();
 
         // split points into home and away teams so they can be different colors
@@ -259,12 +262,27 @@ impl<'a> WinProbabilityData<'a> {
 
         let inning_lines = self.generate_inning_lines();
         let datasets = self.create_datasets(&home_points, &away_points, &inning_lines);
-        let chart = self.create_chart(datasets, x_axis_bounds);
+        let chart = self.create_chart(datasets, x_axis_bounds, symbols);
 
         Widget::render(chart, area, buf);
     }
 
-    fn create_chart<'c>(&self, datasets: Vec<Dataset<'c>>, x_axis_bounds: f64) -> Chart<'c> {
+    fn create_chart<'c>(
+        &self,
+        datasets: Vec<Dataset<'c>>,
+        x_axis_bounds: f64,
+        symbols: &Symbols,
+    ) -> Chart<'c> {
+        let team_span = |abbr: &'static str| -> Span<'static> {
+            if symbols.team_colors() {
+                team_colors::get(abbr, false)
+                    .map(|c| Span::styled(abbr, Style::default().fg(c)))
+                    .unwrap_or_else(|| Span::raw(abbr))
+            } else {
+                Span::raw(abbr)
+            }
+        };
+
         Chart::new(datasets)
             .block(
                 Block::default()
@@ -280,9 +298,9 @@ impl<'a> WinProbabilityData<'a> {
                 Axis::default()
                     .style(Style::default().fg(Color::Gray))
                     .labels([
-                        self.home_team.abbreviation.to_string(),
-                        "50%".into(),
-                        self.away_team.abbreviation.to_string(),
+                        team_span(self.home_team.abbreviation),
+                        Span::raw("50%"),
+                        team_span(self.away_team.abbreviation),
                     ])
                     .bounds([-50.0, 50.0]),
             )

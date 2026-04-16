@@ -1,4 +1,5 @@
 use crate::components::game::live_game::PlayerMap;
+use crate::components::team_colors;
 use mlbt_api::plays::{Count, Play};
 use tui::prelude::{Span, Style, Stylize};
 use tui::style::Color;
@@ -88,10 +89,12 @@ impl Matchup {
     pub fn format_team_lines(
         &self,
         team_name: &str,
+        abbreviation: &str,
         abs_challenges: Option<u8>,
         is_home: bool,
         current_play: bool,
         players: &PlayerMap,
+        symbols: &crate::symbols::Symbols,
     ) -> Vec<Line<'_>> {
         // only show the remaining challenges if the current play is selected
         let challenges = if current_play {
@@ -109,7 +112,14 @@ impl Matchup {
             (false, false) => format!("{team_name}  {challenges}"),
             _ => team_name.to_string(),
         };
-        let mut lines = vec![Line::from(header).bold()];
+        let header_span = if symbols.team_colors() {
+            team_colors::get(abbreviation, false)
+                .map(|c| Span::raw(header.clone()).bold().fg(c))
+                .unwrap_or_else(|| Span::raw(header.clone()).bold())
+        } else {
+            Span::raw(header.clone()).bold()
+        };
+        let mut lines = vec![Line::from(header_span)];
 
         let is_batting = if is_home { !self.is_top } else { self.is_top };
         if is_batting {
@@ -226,8 +236,12 @@ mod tests {
     use std::collections::HashMap;
 
     fn header(name: &str, challenges: Option<u8>, is_home: bool, current: bool) -> String {
+        use crate::symbols::Symbols;
+        use crate::theme::ThemeLevel;
         let m = Matchup::default();
-        m.format_team_lines(name, challenges, is_home, current, &HashMap::new())[0].to_string()
+        let symbols = Symbols::new(false, false, ThemeLevel::default());
+        m.format_team_lines(name, "TST", challenges, is_home, current, &HashMap::new(), &symbols)[0]
+            .to_string()
     }
 
     #[test]

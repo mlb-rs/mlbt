@@ -30,10 +30,12 @@ impl Widget for MatchupWidget<'_> {
         Widget::render(
             Paragraph::new(at_bat.matchup.format_team_lines(
                 self.game.away_team.team_name,
+                self.game.away_team.abbreviation,
                 self.game.away_abs_challenges,
                 false,
                 is_current,
                 &self.game.players,
+                self.symbols,
             ))
             .alignment(Alignment::Left)
             .block(
@@ -95,10 +97,12 @@ impl Widget for MatchupWidget<'_> {
         Widget::render(
             Paragraph::new(at_bat.matchup.format_team_lines(
                 self.game.home_team.team_name,
+                self.game.home_team.abbreviation,
                 self.game.home_abs_challenges,
                 true,
                 is_current,
                 &self.game.players,
+                self.symbols,
             ))
             .alignment(Alignment::Right)
             .block(

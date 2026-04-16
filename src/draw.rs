@@ -188,7 +188,7 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) 
         &mut app.state.schedule,
     );
     if app.state.schedule.show_win_probability {
-        draw_win_probability(f, scoreboard, app);
+        draw_win_probability(f, scoreboard, app, symbols);
     }
 
     // display probable pitchers or line score and box score on right
@@ -230,6 +230,7 @@ fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App, symbols: &S
         LineScoreWidget {
             active: app.state.box_score.active_team,
             linescore: &app.state.gameday.game.linescore,
+            symbols,
         },
         chunks[0],
     );
@@ -365,16 +366,17 @@ fn draw_standings(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) {
     f.render_stateful_widget(StandingsWidget { symbols }, rect, &mut app.state.standings);
 }
 
-fn draw_win_probability(f: &mut Frame, rect: Rect, app: &mut App) {
+fn draw_win_probability(f: &mut Frame, rect: Rect, app: &mut App, symbols: &Symbols) {
     // only render if it doesn't overlap the schedule
     let minimum_size =
-        WinProbabilityWidget::get_min_table_height() + app.state.schedule.schedule.len() + 2; // +2 for borders 
+        WinProbabilityWidget::get_min_table_height() + app.state.schedule.schedule.len() + 2; // +2 for borders
     if rect.height > minimum_size as u16 {
         f.render_widget(
             WinProbabilityWidget {
                 game: &app.state.gameday.game,
                 selected_at_bat: app.state.gameday.selected_at_bat(),
                 active_tab: MenuItem::Scoreboard,
+                symbols,
             },
             rect,
         );

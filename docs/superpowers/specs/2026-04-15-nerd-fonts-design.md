@@ -160,6 +160,36 @@ No snapshot or integration tests — consistent with what the project already ha
 
 ---
 
+## Deferred: Additional Team Color Opportunities
+
+These locations display team names/abbreviations but have not yet been colored. Documented for future work.
+
+### Probable Pitchers team column (`src/ui/probable_pitchers.rs`)
+
+`ProbablePitchersWidget` renders a two-row table (away pitcher / home pitcher) where the first column is the team name or abbreviation depending on terminal width. Currently no `symbols` field on the widget.
+
+**Work needed:**
+- Add `symbols: &'a Symbols` to `ProbablePitchersWidget`
+- Thread it in from the two call sites: `draw.rs` (`draw_scoreboard`) and wherever else the widget is constructed
+- In `render()`, build a styled `Cell` for the team column using `team_colors::get(abbreviation, false)` when `symbols.team_colors()` is true
+- `ProbablePitcher::to_row_cells()` returns `Vec<Cell>` — either pass `symbols` to it or handle the first cell in the widget's `render()` method directly
+
+### Scoring summary span in play-by-play (`src/ui/gameday/plays.rs`)
+
+`build_scoring_span()` produces a single `Span<'static>` formatted as `[ATH 2, NYY 3]` appended after scoring plays. Currently bold, no team color.
+
+Coloring each abbreviation separately requires splitting it into a `Line` with multiple spans. This is a larger refactor because:
+- The function returns `Span<'static>` and callers expect a single span
+- The abbreviations are `&'static str` but passing `symbols` requires a lifetime-aware signature change
+- The play line is already visually busy with hit-type labels (commit 4)
+
+**Work needed:**
+- Change `build_scoring_span` return type from `Span<'static>` to `Line<'static>`
+- Update all callers that push this into a `Line::from(vec![...])` to use `extend` or flatten
+- Add `symbols: &Symbols` parameter and apply `team_colors::get` to each abbreviation span
+
+---
+
 ## What is not changing
 
 - No changes to the `mlb-api` crate
