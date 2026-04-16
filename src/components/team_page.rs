@@ -1,6 +1,8 @@
 use crate::components::constants::lookup_team_by_id;
-use crate::components::util::{OptionDisplayExt, OptionMapDisplayExt, format_date};
-use chrono::{NaiveDate, NaiveDateTime, TimeZone, Utc};
+use crate::components::util::{
+    OptionDisplayExt, OptionMapDisplayExt, format_date, format_start_time_compact,
+};
+use chrono::{DateTime, NaiveDate, NaiveDateTime, TimeZone, Utc};
 use chrono_tz::Tz;
 use mlbt_api::schedule::{AbstractGameState, ScheduleResponse};
 use mlbt_api::team::{RosterResponse, TransactionsResponse};
@@ -11,6 +13,7 @@ pub struct TeamGame {
     pub date_display: String,
     pub opponent: String,
     pub time_or_score: String,
+    pub start_time_utc: Option<DateTime<Utc>>,
     pub is_home: bool,
     pub is_past: bool,
 }
@@ -75,6 +78,11 @@ impl TeamGame {
                     Some(AbstractGameState::Final)
                 );
                 let is_past = is_final && game_date < date;
+                let start_time_utc = if is_final {
+                    None
+                } else {
+                    parse_game_time(&game.game_date)
+                };
 
                 let time_or_score = if is_final {
                     let home_score = game.teams.home.score.unwrap_or(0);
@@ -93,7 +101,9 @@ impl TeamGame {
                     };
                     format!("{team_score}-{opp_score} {result}")
                 } else {
-                    format_game_time(&game.game_date, tz)
+                    start_time_utc
+                        .map(|utc| format_start_time_compact(utc, tz))
+                        .unwrap_or_else(|| "TBD".to_string())
                 };
 
                 games.push(TeamGame {
@@ -101,12 +111,19 @@ impl TeamGame {
                     date_display,
                     opponent,
                     time_or_score,
+                    start_time_utc,
                     is_home,
                     is_past,
                 });
             }
         }
         games
+    }
+
+    pub fn refresh_time_or_score(&mut self, tz: Tz) {
+        if let Some(utc) = self.start_time_utc {
+            self.time_or_score = format_start_time_compact(utc, tz);
+        }
     }
 }
 
@@ -219,14 +236,8 @@ fn format_short_date(s: &str) -> String {
         .unwrap_or_else(|_| s.to_string())
 }
 
-/// Parse a UTC game_date like "2025-03-28T23:10:00Z" into local time like "7:10 PM".
-/// Returns "TBD" on failure.
-fn format_game_time(game_date: &str, tz: Tz) -> String {
+fn parse_game_time(game_date: &str) -> Option<DateTime<Utc>> {
     NaiveDateTime::parse_from_str(game_date, "%Y-%m-%dT%H:%M:%SZ")
         .ok()
-        .map(|ndt| {
-            let utc_dt = Utc.from_utc_datetime(&ndt);
-            utc_dt.with_timezone(&tz).format("%-I:%M %p").to_string()
-        })
-        .unwrap_or_else(|| "TBD".to_string())
+        .map(|ndt| Utc.from_utc_datetime(&ndt))
 }

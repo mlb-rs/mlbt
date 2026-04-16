@@ -4,8 +4,9 @@ use crate::components::standings::StandingsState;
 use crate::state::boxscore::BoxscoreState;
 use crate::state::date_input::DateInput;
 use crate::state::gameday::GamedayState;
+use crate::state::help::HelpState;
+use crate::state::settings_editor::SettingsEditorState;
 use crate::state::stats::StatsState;
-use crate::ui::help::HelpState;
 
 /// A team must be either Home or Away.
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
@@ -28,4 +29,5 @@ pub struct AppState {
     pub standings: StandingsState,
     pub stats: StatsState,
     pub help: HelpState,
+    pub settings_editor: SettingsEditorState,
 }
