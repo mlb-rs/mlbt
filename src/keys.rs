@@ -389,10 +389,8 @@ async fn handle_global_key(
         }
         (Char('?'), _) => guard.update_tab(MenuItem::Help),
         (Char('d'), _) => guard.toggle_debug(),
-        (Char('"'), _) => {
-            if guard.state.debug_state == DebugState::On {
-                guard.toggle_show_logs();
-            }
+        (Char('"'), _) if guard.state.debug_state == DebugState::On => {
+            guard.toggle_show_logs();
         }
         _ => {}
     }
