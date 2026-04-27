@@ -61,9 +61,9 @@ impl StatefulWidget for StatsDataWidget {
                     .enumerate()
                     .map(|(i, cell)| {
                         let color = if Some(i) == avg_idx {
-                            avg_color(cell).unwrap_or(Color::default())
+                            avg_color(cell).unwrap_or_default()
                         } else if Some(i) == era_idx {
-                            era_color(cell).unwrap_or(Color::default())
+                            era_color(cell).unwrap_or_default()
                         } else {
                             cell.as_str().dim_or(Color::default())
                         };
