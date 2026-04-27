@@ -2,18 +2,20 @@ use crate::components::constants::lookup_team_by_id;
 use crate::components::date_selector::DateSelector;
 use crate::components::stats::search::SearchState;
 use crate::components::stats::table::{
-    PLAYER_COLUMN_NAME, StatType, StatsTable, TEAM_COLUMN_NAME, TableData, TeamOrPlayer,
+    PLAYER_COLUMN_NAME, Sort, StatType, StatsTable, TEAM_COLUMN_NAME, TableData, TeamOrPlayer,
 };
 use crate::state::messages::NetworkRequest;
 use crate::state::player_profile::PlayerProfileState;
 use crate::state::team_page::TeamPageState;
 use chrono::{Datelike, NaiveDate};
 use chrono_tz::Tz;
+use mlbt_api::client::StatGroup;
 use mlbt_api::player::PeopleResponse;
 use mlbt_api::schedule::ScheduleResponse;
 use mlbt_api::season::GameType;
 use mlbt_api::stats::StatsResponse;
 use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
+use std::collections::HashMap;
 use std::sync::Arc;
 use tui::widgets::TableState;
 
@@ -22,6 +24,22 @@ pub enum ActivePane {
     #[default]
     Data,
     Options,
+}
+
+/// Identifies a stat table view. Qualification is excluded since it only filters rows.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+struct ViewKey {
+    group: StatGroup,
+    team_player: TeamOrPlayer,
+}
+
+/// Sort and column visibility for one `ViewKey`.
+#[derive(Clone, Default)]
+struct ViewPrefs {
+    /// Sort column + order. `None` falls back to the default in `Sort::new`.
+    sort: Option<Sort>,
+    /// Column name to active flag, only for columns that have been toggled.
+    column_overrides: HashMap<String, bool>,
 }
 
 /// Stores the state for rendering the stats.
@@ -34,7 +52,7 @@ pub struct StatsState {
     pub active_pane: ActivePane,
     /// Pane that was active before search opened, used to restore on cancel.
     pub search_previous_pane: Option<ActivePane>,
-    /// The stat type combination of team/player and pitching/hitting.
+    /// The stat type combination of team/player, pitching/hitting, and all/qualified.
     pub stat_type: StatType,
     /// The stats table data and cache.
     pub table: StatsTable,
@@ -50,6 +68,11 @@ pub struct StatsState {
     pub player_profile: Option<PlayerProfileState>,
     /// Active team page view. When Some, renders full-page replacing the stats table.
     pub team_page: Option<TeamPageState>,
+    /// Sort and column visibility per `ViewKey`, restored on `update()`.
+    view_prefs: HashMap<ViewKey, ViewPrefs>,
+    /// Last `ViewKey` seen by `update()`. Used to keep the options pane row when only qualification
+    /// toggles, since the stats columns don't change.
+    last_view_key: Option<ViewKey>,
 }
 
 impl Default for StatsState {
@@ -68,6 +91,8 @@ impl Default for StatsState {
             search: SearchState::default(),
             player_profile: None,
             team_page: None,
+            view_prefs: HashMap::new(),
+            last_view_key: None,
         };
         ss.options_state.select(Some(0));
         ss.data_state.select(Some(0));
@@ -77,13 +102,53 @@ impl Default for StatsState {
 
 impl StatsState {
     pub fn update(&mut self, stats: &StatsResponse) {
+        let current_key = self.view_key();
+        let same_view = self.last_view_key == Some(current_key);
+        self.last_view_key = Some(current_key);
+
         self.player_profile = None;
         self.table.load(stats, self.stat_type);
+        self.apply_view_prefs();
         self.data_state.select(Some(0));
-        self.options_state.select(Some(0));
+        // Only reset the options pane row selection if the columns could differ.
+        if !same_view {
+            self.options_state.select(Some(0));
+        }
         // Clear search state since the underlying data has changed.
         self.search.close();
         self.search_previous_pane = None;
+    }
+
+    fn view_key(&self) -> ViewKey {
+        ViewKey {
+            group: self.stat_type.group,
+            team_player: self.stat_type.team_player,
+        }
+    }
+
+    /// Restore saved sort and column visibility for the current view. Called after `table.load()`
+    /// has reset everything to defaults.
+    fn apply_view_prefs(&mut self) {
+        let Some(prefs) = self.view_prefs.get(&self.view_key()) else {
+            return;
+        };
+        for (name, active) in &prefs.column_overrides {
+            if let Some(entry) = self.table.columns.get_mut(name) {
+                entry.active = *active;
+            }
+        }
+
+        // Only restore the saved sort if its column still exists and is visible.
+        if let Some(sort) = &prefs.sort
+            && let Some(name) = &sort.column_name
+            && self
+                .table
+                .columns
+                .get(name)
+                .is_some_and(|entry| entry.active)
+        {
+            self.table.sorting = sort.clone();
+        }
     }
 
     pub fn has_player_profile(&self) -> bool {
@@ -266,6 +331,16 @@ impl StatsState {
     pub fn toggle_stat(&mut self) {
         let idx = self.options_state.selected().unwrap_or_default();
         self.table.toggle_stat(idx);
+        let key = self.view_key();
+        let prefs = self.view_prefs.entry(key).or_default();
+        if let Some((name, entry)) = self.table.columns.get_index(idx) {
+            prefs.column_overrides.insert(name.clone(), entry.active);
+        }
+        // StatsTable.toggle_stat clears the sort if the sort column was toggled off. Mirror that so
+        // it doesn't come back on the next view switch.
+        if self.table.sorting.column_name.is_none() {
+            prefs.sort = None;
+        }
     }
 
     /// Sort the table by the selected stat.
@@ -274,6 +349,13 @@ impl StatsState {
             return;
         };
         self.table.store_sort_column(idx);
+        let key = self.view_key();
+        let prefs = self.view_prefs.entry(key).or_default();
+        prefs.sort = if self.table.sorting.column_name.is_some() {
+            Some(self.table.sorting.clone())
+        } else {
+            None
+        };
     }
 
     /// Get the player or team id for the currently selected row.
