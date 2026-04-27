@@ -256,7 +256,11 @@ impl NetworkWorker {
         debug!("loading {stat_type:?} stats for {date}");
         self.ensure_season_info(date).await;
         let game_type = game_type_for_date(date, self.cached_season_info());
-        let StatType { team_player, group } = stat_type;
+        let StatType {
+            team_player,
+            group,
+            qualification,
+        } = stat_type;
         let stats = match team_player {
             TeamOrPlayer::Team => {
                 self.client
@@ -265,7 +269,7 @@ impl NetworkWorker {
             }
             TeamOrPlayer::Player => {
                 self.client
-                    .get_player_stats_on_date(group, date, game_type)
+                    .get_player_stats_on_date(group, qualification, date, game_type)
                     .await
             }
         }?;

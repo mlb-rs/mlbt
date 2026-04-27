@@ -1,6 +1,6 @@
 use crate::components::constants::lookup_team;
 use indexmap::IndexMap;
-use mlbt_api::client::StatGroup;
+use mlbt_api::client::{Qualification, StatGroup};
 use mlbt_api::stats::{HittingStat, PitchingStat, StatSplit, StatsResponse};
 use std::cmp::Ordering;
 use std::string::ToString;
@@ -24,6 +24,7 @@ pub type TableData = (Vec<String>, Vec<u64>, Vec<Vec<String>>);
 pub struct StatType {
     pub group: StatGroup,
     pub team_player: TeamOrPlayer,
+    pub qualification: Qualification,
 }
 
 impl Default for StatType {
@@ -31,6 +32,7 @@ impl Default for StatType {
         Self {
             group: StatGroup::Hitting,
             team_player: TeamOrPlayer::Player,
+            qualification: Qualification::Qualified,
         }
     }
 }

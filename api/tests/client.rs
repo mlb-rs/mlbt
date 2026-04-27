@@ -28,6 +28,7 @@ async fn generate_mock_client() -> (MLBApi, ServerGuard) {
 mod tests {
     use super::*;
     use chrono::{DateTime, Datelike, Local};
+    use mlbt_api::client::Qualification;
 
     /// Test the schedule for the All Star Game 2021
     #[tokio::test]
@@ -211,7 +212,7 @@ mod tests {
         let local: DateTime<Local> = Local::now();
         for group in [StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!(
-                "/v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=ALL",
+                "/v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=all",
                 local.year(),
                 group,
                 group.default_sort_stat()
@@ -225,7 +226,7 @@ mod tests {
                 .create();
 
             let resp = client
-                .get_player_stats(group, GameType::RegularSeason)
+                .get_player_stats(group, Qualification::All, GameType::RegularSeason)
                 .await
                 .unwrap();
             m.assert(); // assert mock was called
@@ -241,7 +242,7 @@ mod tests {
 
         for group in [StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!(
-                "/v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=ALL",
+                "/v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=all",
                 date.year(),
                 group,
                 group.default_sort_stat()
@@ -255,7 +256,7 @@ mod tests {
                 .create();
 
             let resp = client
-                .get_player_stats_on_date(group, date, GameType::RegularSeason)
+                .get_player_stats_on_date(group, Qualification::All, date, GameType::RegularSeason)
                 .await
                 .unwrap();
             m.assert(); // assert mock was called
@@ -272,7 +273,7 @@ mod tests {
 
         for group in [StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!(
-                "/v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=ALL",
+                "/v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=all",
                 date.year(),
                 date.format("%Y-%m-%d"),
                 group,
@@ -287,7 +288,7 @@ mod tests {
                 .create();
 
             let resp = client
-                .get_player_stats_on_date(group, date, GameType::RegularSeason)
+                .get_player_stats_on_date(group, Qualification::All, date, GameType::RegularSeason)
                 .await
                 .unwrap();
             m.assert(); // assert mock was called
@@ -404,7 +405,7 @@ mod tests {
 
         for group in [StatGroup::Hitting, StatGroup::Pitching] {
             let url = format!(
-                "/v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&gameType=S&playerPool=ALL",
+                "/v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&gameType=S&playerPool=all",
                 date.year(),
                 group,
                 group.default_sort_stat()
@@ -418,7 +419,7 @@ mod tests {
                 .create();
 
             let resp = client
-                .get_player_stats_on_date(group, date, GameType::SpringTraining)
+                .get_player_stats_on_date(group, Qualification::All, date, GameType::SpringTraining)
                 .await
                 .unwrap();
             m.assert();
