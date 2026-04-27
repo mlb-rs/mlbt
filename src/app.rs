@@ -405,10 +405,11 @@ mod tests {
             away_score: None,
             away_record: None,
             start_time: String::new(),
-            start_time_utc: chrono::DateTime::<chrono::Utc>::UNIX_EPOCH,
+            start_time_utc: chrono::DateTime::<Utc>::UNIX_EPOCH,
             game_status: String::new(),
             home_probable_pitcher: ProbablePitcher::default(),
             away_probable_pitcher: ProbablePitcher::default(),
+            decision_pitchers: None,
         }
     }
 

@@ -187,6 +187,7 @@ pub struct PitcherStats {
     pub innings_pitched: Option<String>,
     pub wins: Option<u8>,
     pub losses: Option<u8>,
+    pub saves: Option<u8>,
 }
 
 /// Only present if `hydrate=decisions` is used, and only present for Final games.

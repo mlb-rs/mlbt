@@ -44,15 +44,22 @@ impl LayoutAreas {
         Layout::horizontal([Constraint::Percentage(90), Constraint::Percentage(10)]).areas(area)
     }
 
-    /// Create two splits for displaying the line score on top and a box score below.
-    pub fn for_boxscore(rect: Rect) -> [Rect; 2] {
-        Layout::vertical([
+    /// Create splits for displaying the line score on top and a box score below.
+    /// If a game is Final, show the decision pitchers in between.
+    pub fn for_boxscore(rect: Rect, decision_pitchers: u16) -> Vec<Rect> {
+        let mut constraints = vec![
             Constraint::Length(4), // line score
             Constraint::Fill(1),   // box score
-        ])
-        .horizontal_margin(2)
-        .vertical_margin(1)
-        .areas(rect)
+        ];
+        if decision_pitchers > 0 {
+            constraints.insert(1, Constraint::Length(decision_pitchers + 1)); // +1 for blank line
+        }
+
+        Layout::vertical(constraints)
+            .horizontal_margin(2)
+            .vertical_margin(1)
+            .split(rect)
+            .to_vec()
     }
 
     /// Create two splits for displaying the current matchup and the pitches for the at bat.

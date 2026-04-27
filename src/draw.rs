@@ -10,6 +10,7 @@ use crate::components::debug::DebugInfo;
 use crate::state::network::{ERROR_CHAR, LoadingState};
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
 use crate::ui::date_selector::DateSelectorWidget;
+use crate::ui::decision_pitchers::DecisionPitchersWidget;
 use crate::ui::gameday::gameday_widget::GamedayWidget;
 use crate::ui::gameday::win_probability::WinProbabilityWidget;
 use crate::ui::help::help_widget::HelpWidget;
@@ -180,7 +181,14 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
 }
 
 fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App) {
-    let chunks = LayoutAreas::for_boxscore(rect);
+    // Load decisions off gameday's loaded game id so they update in sync with the linescore and box
+    // score, not ahead of them on schedule scroll.
+    let decision_pitchers = app
+        .state
+        .schedule
+        .get_decision_pitchers_for_game(app.state.gameday.current_game_id());
+    let pitcher_count = decision_pitchers.map_or(0, |d| d.count());
+    let chunks = LayoutAreas::for_boxscore(rect, pitcher_count);
 
     f.render_widget(
         LineScoreWidget {
@@ -189,12 +197,18 @@ fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App) {
         },
         chunks[0],
     );
+    let boxscore_chunk = if let Some(decisions) = decision_pitchers {
+        f.render_widget(DecisionPitchersWidget { decisions }, chunks[1]);
+        chunks[2]
+    } else {
+        chunks[1]
+    };
     f.render_widget(
         TeamBatterBoxscoreWidget {
             active: app.state.box_score.active_team,
             state: &mut app.state.box_score,
         },
-        chunks[1],
+        boxscore_chunk,
     );
 }
 

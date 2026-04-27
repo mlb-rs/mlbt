@@ -28,7 +28,7 @@ impl Widget for GamedayWidget<'_> {
         if self.state.panels.boxscore {
             let p = panels.pop().unwrap();
             Self::draw_border(p, buf);
-            let chunks = LayoutAreas::for_boxscore(p);
+            let chunks = LayoutAreas::for_boxscore(p, 0);
 
             let linescore_widget = LineScoreWidget {
                 active: self.active,
