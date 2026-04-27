@@ -105,7 +105,7 @@ impl fmt::Display for Qualification {
 impl MLBApi {
     pub async fn get_todays_schedule(&self) -> ApiResult<ScheduleResponse> {
         let url = format!(
-            "{}v1/schedule?sportId=1,51&hydrate=linescore,probablePitcher,stats",
+            "{}v1/schedule?sportId=1,51&hydrate=linescore,probablePitcher,stats,decisions",
             self.base_url
         );
         self.get(url).await
@@ -113,7 +113,7 @@ impl MLBApi {
 
     pub async fn get_schedule_date(&self, date: NaiveDate) -> ApiResult<ScheduleResponse> {
         let url = format!(
-            "{}v1/schedule?sportId=1,51&hydrate=linescore,probablePitcher,stats&date={}",
+            "{}v1/schedule?sportId=1,51&hydrate=linescore,probablePitcher,stats,decisions&date={}",
             self.base_url,
             date.format("%Y-%m-%d")
         );

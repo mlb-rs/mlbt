@@ -88,6 +88,7 @@ pub struct Game {
     // pub description: Option<String>,
     // pub resume_date: Option<String>,
     // pub reschedule_date: Option<String>,
+    pub decisions: Option<Decisions>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -178,6 +179,7 @@ pub struct StatEntry {
 #[derive(Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PitcherStats {
+    pub note: Option<String>,
     pub summary: Option<String>,
     pub strike_outs: Option<u16>,
     pub base_on_balls: Option<u16>,
@@ -185,4 +187,21 @@ pub struct PitcherStats {
     pub innings_pitched: Option<String>,
     pub wins: Option<u8>,
     pub losses: Option<u8>,
+}
+
+/// Only present if `hydrate=decisions` is used, and only present for Final games.
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Decisions {
+    pub winner: DecisionPitcher,
+    pub loser: DecisionPitcher,
+    pub save: Option<DecisionPitcher>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DecisionPitcher {
+    pub full_name: String,
+    #[serde(default)]
+    pub stats: Vec<StatEntry>,
 }
