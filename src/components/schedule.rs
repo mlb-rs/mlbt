@@ -126,9 +126,6 @@ impl ScheduleState {
             return None;
         }
         let row = self.schedule.iter().find(|row| row.game_id == game_id)?;
-        if row.game_status != "Final" {
-            return None;
-        }
         row.decision_pitchers.as_ref()
     }
 

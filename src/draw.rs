@@ -181,12 +181,15 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
 }
 
 fn draw_linescore_boxscore(f: &mut Frame, rect: Rect, app: &mut App) {
-    // Load decisions off gameday's loaded game id so they update in sync with the linescore and box
-    // score, not ahead of them on schedule scroll.
-    let decision_pitchers = app
-        .state
-        .schedule
-        .get_decision_pitchers_for_game(app.state.gameday.current_game_id());
+    // `is_final` only returns true once the live api has populated GameState, which keeps
+    // decisions in sync with the linescore and box score instead of leading them on scroll.
+    let decision_pitchers = if app.state.gameday.is_final() {
+        app.state
+            .schedule
+            .get_decision_pitchers_for_game(app.state.gameday.current_game_id())
+    } else {
+        None
+    };
     let pitcher_count = decision_pitchers.map_or(0, |d| d.count());
     let chunks = LayoutAreas::for_boxscore(rect, pitcher_count);
 
