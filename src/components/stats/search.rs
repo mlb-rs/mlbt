@@ -70,7 +70,7 @@ impl SearchState {
             })
             .collect();
 
-        scored.sort_by(|a, b| b.1.cmp(&a.1));
+        scored.sort_by_key(|b| std::cmp::Reverse(b.1));
         scored.truncate(MAX_RESULTS);
 
         self.matched_indices = scored.into_iter().map(|(idx, _)| idx).collect();

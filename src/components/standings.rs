@@ -444,7 +444,7 @@ impl Division {
         }
 
         // ensure display order is the same when there is no favorite team ordering
-        divisions.sort_by(|a, b| a.id.cmp(&b.id));
+        divisions.sort_by_key(|a| a.id);
     }
 }
 
