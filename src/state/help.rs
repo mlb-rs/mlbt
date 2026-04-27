@@ -1,3 +1,4 @@
+use crate::components::help::DOCS_LEN;
 use tui::widgets::TableState;
 
 pub struct HelpState {
@@ -14,11 +15,20 @@ impl Default for HelpState {
 
 impl HelpState {
     pub fn next(&mut self) {
-        self.state.scroll_down_by(1);
+        let i = match self.state.selected() {
+            Some(i) if i >= DOCS_LEN - 1 => 0,
+            Some(i) => i + 1,
+            None => 0,
+        };
+        self.state.select(Some(i));
     }
 
     pub fn previous(&mut self) {
-        self.state.scroll_up_by(1);
+        let i = match self.state.selected() {
+            Some(0) | None => DOCS_LEN - 1,
+            Some(i) => i - 1,
+        };
+        self.state.select(Some(i));
     }
 
     pub fn page_down(&mut self) {
