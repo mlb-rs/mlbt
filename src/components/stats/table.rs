@@ -1,6 +1,6 @@
 use crate::components::constants::lookup_team;
 use indexmap::IndexMap;
-use mlbt_api::client::StatGroup;
+use mlbt_api::client::{Qualification, StatGroup};
 use mlbt_api::stats::{HittingStat, PitchingStat, StatSplit, StatsResponse};
 use std::cmp::Ordering;
 use std::string::ToString;
@@ -12,6 +12,8 @@ pub const STATS_FIRST_COL_WIDTH: u16 = 28;
 pub const STATS_DEFAULT_COL_WIDTH: u16 = 6;
 pub const PLAYER_COLUMN_NAME: &str = "Player";
 pub const TEAM_COLUMN_NAME: &str = "Team";
+const DEFAULT_SORT_COLUMN_PITCHING: &str = "IP";
+const DEFAULT_SORT_COLUMN_HITTING: &str = "AB";
 
 /// Table data in row oriented form: (header, ids, rows).
 /// `ids` are the player/team id for each row.
@@ -22,6 +24,17 @@ pub type TableData = (Vec<String>, Vec<u64>, Vec<Vec<String>>);
 pub struct StatType {
     pub group: StatGroup,
     pub team_player: TeamOrPlayer,
+    pub qualification: Qualification,
+}
+
+impl Default for StatType {
+    fn default() -> Self {
+        Self {
+            group: StatGroup::Hitting,
+            team_player: TeamOrPlayer::Player,
+            qualification: Qualification::All,
+        }
+    }
 }
 
 impl StatType {
@@ -38,15 +51,15 @@ impl StatType {
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub enum TeamOrPlayer {
-    #[default]
     Team,
+    #[default]
     Player,
 }
 
 #[derive(Copy, Clone, Debug, Default, Eq, PartialEq)]
 pub enum Order {
-    #[default]
     Ascending,
+    #[default]
     Descending,
 }
 
@@ -78,11 +91,15 @@ pub struct Sort {
     pub order: Order,
 }
 
-impl Default for Sort {
-    fn default() -> Self {
+impl Sort {
+    fn new(stat_type: StatType) -> Self {
+        let column_name = match stat_type.group {
+            StatGroup::Hitting => DEFAULT_SORT_COLUMN_HITTING.to_string(),
+            StatGroup::Pitching => DEFAULT_SORT_COLUMN_PITCHING.to_string(),
+        };
         Sort {
-            column_name: None,
-            order: Order::Ascending,
+            column_name: Some(column_name),
+            order: Order::Descending,
         }
     }
 }
@@ -111,18 +128,16 @@ pub struct StatsTable {
     row_ids: Vec<u64>,
 }
 
-impl Default for StatsTable {
-    fn default() -> Self {
+impl StatsTable {
+    pub fn new(stat_type: StatType) -> Self {
         Self {
             columns: IndexMap::new(),
-            sorting: Sort::default(),
+            sorting: Sort::new(stat_type),
             cache: None,
             row_ids: Vec::new(),
         }
     }
-}
 
-impl StatsTable {
     pub fn invalidate_cache(&mut self) {
         self.cache = None;
     }
@@ -131,9 +146,10 @@ impl StatsTable {
         self.cache.as_ref()
     }
 
-    pub fn load(&mut self, stats: &StatsResponse, team_player: TeamOrPlayer) {
+    pub fn load(&mut self, stats: &StatsResponse, stat_type: StatType) {
         self.columns.clear();
         self.row_ids.clear();
+        self.sorting = Sort::new(stat_type);
         self.invalidate_cache();
         for stat in &stats.stats {
             for split in &stat.splits {
@@ -151,10 +167,10 @@ impl StatsTable {
                 self.row_ids.push(id);
                 match &split.stat {
                     StatSplit::Pitching(s) => {
-                        self.load_pitching_stats(name, team_abbreviation, s, team_player)
+                        self.load_pitching_stats(name, team_abbreviation, s, stat_type.team_player)
                     }
                     StatSplit::Hitting(s) => {
-                        self.load_hitting_stats(name, team_abbreviation, s, team_player)
+                        self.load_hitting_stats(name, team_abbreviation, s, stat_type.team_player)
                     }
                 };
             }

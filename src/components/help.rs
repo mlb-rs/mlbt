@@ -47,10 +47,11 @@ const GAMEDAY_DOCS: &[&[&str; 2]; 12] = &[
     &["Go to live at bat", "l"],
     &["Go to first at bat", "s"],
 ];
-const STATS_DOCS: &[&[&str; 2]; 16] = &[
+const STATS_DOCS: &[&[&str; 2]; 17] = &[
     &["Stats", "3"],
     &["Switch hitting/pitching", "h/p"],
     &["Switch team/player", "t/l"],
+    &["Switch all/qualified", "a/u"],
     &["Switch pane", "←/→/Tab"],
     &["Move down", "j/↓"],
     &["Move up", "k/↑"],

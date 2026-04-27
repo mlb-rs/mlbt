@@ -1,13 +1,14 @@
 use crate::components::stats::table::TeamOrPlayer;
 use crate::components::stats::{STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH};
-use crate::components::util::{DimColor, avg_color, era_color};
+use crate::components::util::{DIM_COLOR, DimColor, avg_color, era_color};
 use crate::state::stats::{ActivePane, StatsState};
-use mlbt_api::client::StatGroup;
+use mlbt_api::client::{Qualification, StatGroup};
 use tui::prelude::*;
-use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Table, Wrap};
+use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Table};
 
 pub const STATS_OPTIONS_WIDTH: u16 = 36;
-const HIGHLIGHT_STYLE: Style = Style::new().bg(Color::Blue).fg(Color::Black);
+const HIGHLIGHT_COLOR: Color = Color::Blue;
+const HIGHLIGHT_STYLE: Style = Style::new().bg(HIGHLIGHT_COLOR).fg(Color::Black);
 
 /// Renders the stats data table (left pane).
 pub struct StatsDataWidget {}
@@ -44,7 +45,7 @@ impl StatefulWidget for StatsDataWidget {
                         "{name} {}",
                         state.table.sorting.order.arrow_symbol()
                     ))
-                    .style(Style::default().bg(Color::Blue))
+                    .bg(HIGHLIGHT_COLOR)
                 } else {
                     Cell::from(name.as_str())
                 }
@@ -60,11 +61,11 @@ impl StatefulWidget for StatsDataWidget {
                     .enumerate()
                     .map(|(i, cell)| {
                         let color = if Some(i) == avg_idx {
-                            avg_color(cell).unwrap_or(Color::White)
+                            avg_color(cell).unwrap_or_default()
                         } else if Some(i) == era_idx {
-                            era_color(cell).unwrap_or(Color::White)
+                            era_color(cell).unwrap_or_default()
                         } else {
-                            cell.as_str().dim_or(Color::White)
+                            cell.as_str().dim_or(Color::default())
                         };
                         Cell::from(cell.as_str()).fg(color)
                     })
@@ -93,7 +94,7 @@ impl StatefulWidget for StatsDataWidget {
                     .padding(Padding::new(1, 1, 0, 0))
                     .title(Span::styled(
                         state.date_selector.format_date_border_title(),
-                        Style::default().fg(Color::Black).bg(Color::Blue),
+                        HIGHLIGHT_STYLE,
                     )),
             );
         if state.active_pane == ActivePane::Data {
@@ -115,10 +116,11 @@ impl StatefulWidget for StatsOptionsWidget {
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let [stats_rect, options_rect] =
-            Layout::vertical([Constraint::Length(4), Constraint::Percentage(100)]).areas(area);
+            Layout::vertical([Constraint::Length(5), Constraint::Percentage(100)]).areas(area);
 
         // hitting | pitching
-        // team | player
+        //    team | player
+        //     all | qualified
         let (hitting_style, pitching_style) = match state.stat_type.group {
             StatGroup::Pitching => (Style::default(), HIGHLIGHT_STYLE),
             StatGroup::Hitting => (HIGHLIGHT_STYLE, Style::default()),
@@ -127,27 +129,60 @@ impl StatefulWidget for StatsOptionsWidget {
             TeamOrPlayer::Player => (Style::default(), HIGHLIGHT_STYLE),
             TeamOrPlayer::Team => (HIGHLIGHT_STYLE, Style::default()),
         };
-        let text = vec![
-            Line::from(vec![
-                Span::styled("hitting", hitting_style),
-                Span::raw(" | "),
-                Span::styled("pitching", pitching_style),
-            ]),
-            Line::from(vec![
-                Span::styled("team", team_style),
-                Span::raw(" | "),
-                Span::styled("player", player_style),
-            ]),
-        ];
-        Paragraph::new(text)
-            .block(
-                Block::default()
-                    .borders(Borders::ALL)
-                    .border_type(BorderType::Rounded),
-            )
-            .alignment(Alignment::Center)
-            .wrap(Wrap { trim: true })
-            .render(stats_rect, buf);
+
+        let is_team = state.stat_type.team_player == TeamOrPlayer::Team;
+        let dim_if_team = if is_team {
+            Style::default().fg(DIM_COLOR)
+        } else {
+            Style::default()
+        };
+        let (all_style, qualified_style) = if is_team {
+            // disable qualification selection when Team is selected because it's not applicable
+            (dim_if_team, dim_if_team)
+        } else {
+            match state.stat_type.qualification {
+                Qualification::All => (HIGHLIGHT_STYLE, Style::default()),
+                Qualification::Qualified => (Style::default(), HIGHLIGHT_STYLE),
+            }
+        };
+
+        let block = Block::default()
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded);
+        let inner = block.inner(stats_rect);
+        block.render(stats_rect, buf);
+
+        // split into three chunks so that the center line is always exactly in the center
+        let [left_area, divider_area, right_area] = Layout::horizontal([
+            Constraint::Fill(1),
+            Constraint::Length(3),
+            Constraint::Fill(1),
+        ])
+        .areas(inner);
+
+        Paragraph::new(vec![
+            Line::from(Span::styled("hitting", hitting_style)),
+            Line::from(Span::styled("team", team_style)),
+            Line::from(Span::styled("all", all_style)),
+        ])
+        .alignment(Alignment::Right)
+        .render(left_area, buf);
+
+        Paragraph::new(vec![
+            Line::from(" | "),
+            Line::from(" | "),
+            Line::from(" | ").style(dim_if_team),
+        ])
+        .alignment(Alignment::Center)
+        .render(divider_area, buf);
+
+        Paragraph::new(vec![
+            Line::from(Span::styled("pitching", pitching_style)),
+            Line::from(Span::styled("player", player_style)),
+            Line::from(Span::styled("qualified", qualified_style)),
+        ])
+        .alignment(Alignment::Left)
+        .render(right_area, buf);
 
         // Create the options rows, e.g. ["[X]", "ERA", "earned run average"]
         let mut options = Vec::new();

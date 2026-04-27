@@ -83,6 +83,25 @@ impl StatGroup {
     }
 }
 
+/// Filter for the `playerPool` query parameter on player stats endpoints.
+/// `Qualified` restricts results to players meeting MLB's rate-stat eligibility thresholds:
+/// (3.1 PA or 1.0 IP per team game).
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
+pub enum Qualification {
+    #[default]
+    All,
+    Qualified,
+}
+
+impl fmt::Display for Qualification {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Qualification::All => write!(f, "all"),
+            Qualification::Qualified => write!(f, "qualified"),
+        }
+    }
+}
+
 impl MLBApi {
     pub async fn get_todays_schedule(&self) -> ApiResult<ScheduleResponse> {
         let url = format!(
@@ -190,16 +209,18 @@ impl MLBApi {
     pub async fn get_player_stats(
         &self,
         group: StatGroup,
+        qualification: Qualification,
         game_type: GameType,
     ) -> ApiResult<StatsResponse> {
         let local: DateTime<Local> = Local::now();
         let sort = group.default_sort_stat();
         let mut url = format!(
-            "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=ALL",
+            "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&playerPool={}",
             self.base_url,
             local.year(),
             group,
-            sort
+            sort,
+            qualification,
         );
         if game_type == GameType::SpringTraining {
             url.push_str("&gameType=S");
@@ -210,6 +231,7 @@ impl MLBApi {
     pub async fn get_player_stats_on_date(
         &self,
         group: StatGroup,
+        qualification: Qualification,
         date: NaiveDate,
         game_type: GameType,
     ) -> ApiResult<StatsResponse> {
@@ -217,32 +239,38 @@ impl MLBApi {
         let url = match game_type {
             // Spring training doesn't work well with byDateRange, use season instead.
             GameType::SpringTraining => format!(
-                "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&gameType=S&playerPool=ALL",
+                "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&gameType=S&playerPool={}",
                 self.base_url,
                 date.year(),
                 group,
-                sort
+                sort,
+                qualification,
             ),
             GameType::RegularSeason => {
                 let current_year = Local::now().year();
-                if date.year() < current_year {
-                    // For past seasons use season stats because its way faster, and you can't use
-                    // a date range anyway.
+                // Past seasons use season stats because byDateRange is much slower on a cold cache.
+                // Qualified must also use season stats because the API ignores `playerPool` on
+                // byDateRange queries.
+                let use_season =
+                    date.year() < current_year || qualification == Qualification::Qualified;
+                if use_season {
                     format!(
-                        "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=ALL",
+                        "{}v1/stats?sportId=1&stats=season&season={}&group={}&limit=3000&sortStat={}&order=desc&playerPool={}",
                         self.base_url,
                         date.year(),
                         group,
-                        sort
+                        sort,
+                        qualification,
                     )
                 } else {
                     format!(
-                        "{}v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=3000&sortStat={}&order=desc&playerPool=ALL",
+                        "{}v1/stats?sportId=1&stats=byDateRange&season={}&endDate={}&group={}&limit=3000&sortStat={}&order=desc&playerPool={}",
                         self.base_url,
                         date.year(),
                         date.format("%Y-%m-%d"),
                         group,
-                        sort
+                        sort,
+                        qualification,
                     )
                 }
             }

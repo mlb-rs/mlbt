@@ -413,10 +413,7 @@ mod tests {
         cache.insert(
             CacheKey::Stats {
                 date,
-                stat_type: StatType {
-                    group: StatGroup::Hitting,
-                    team_player: crate::components::stats::table::TeamOrPlayer::Player,
-                },
+                stat_type: StatType::default(),
             },
             NetworkResponse::StatsLoaded {
                 stats: Arc::new(mlbt_api::stats::StatsResponse::default()),
@@ -436,10 +433,7 @@ mod tests {
             cache
                 .get(&CacheKey::Stats {
                     date,
-                    stat_type: StatType {
-                        group: StatGroup::Hitting,
-                        team_player: crate::components::stats::table::TeamOrPlayer::Player,
-                    },
+                    stat_type: StatType::default(),
                 })
                 .is_none()
         );

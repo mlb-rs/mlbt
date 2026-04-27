@@ -3,7 +3,9 @@ use chrono_tz::Tz;
 use log::error;
 use tui::style::Color;
 
-/// Returns `Color::DarkGray` when the value is zero, otherwise the given fallback color.
+pub const DIM_COLOR: Color = Color::DarkGray;
+
+/// Returns `DIM_COLOR` when the value is zero, otherwise the given fallback color.
 /// e.g. `self.hits.dim_or(color)`
 pub(crate) trait DimColor {
     fn dim_or(&self, fallback: Color) -> Color;
@@ -13,7 +15,7 @@ macro_rules! impl_dim_color_int {
     ($($t:ty),*) => {
         $(impl DimColor for $t {
             fn dim_or(&self, fallback: Color) -> Color {
-                if *self == 0 { Color::DarkGray } else { fallback }
+                if *self == 0 { DIM_COLOR } else { fallback }
             }
         })*
     };

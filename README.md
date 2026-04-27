@@ -231,8 +231,8 @@ used for sorting the stats and toggling columns on/off.
 | `Shift` + `k` / `↑` | page up in stats table                                 |
 | `:`                 | activate date picker (see [Date Picker](#date-picker)) |
 
-You can switch between `pitching` and `hitting` stats and filter based on `team`
-or `player` using:
+Switch between `pitching` and `hitting` stats, filter by `team` or `player`, and
+choose to view `all` or just `qualified` players.
 
 | Key | Description |
 |-----|-------------|
@@ -240,6 +240,8 @@ or `player` using:
 | `h` | hitting     |
 | `t` | team        |
 | `l` | player      |
+| `a` | all players |
+| `u` | qualified   |
 
 #### Search
 
