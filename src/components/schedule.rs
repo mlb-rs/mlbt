@@ -145,6 +145,10 @@ impl ScheduleState {
     }
 
     pub fn next(&mut self) {
+        if self.schedule.is_empty() {
+            self.state.select(None);
+            return;
+        }
         let i = match self.state.selected() {
             Some(i) => {
                 if i >= self.schedule.len() - 1 {
@@ -159,6 +163,10 @@ impl ScheduleState {
     }
 
     pub fn previous(&mut self) {
+        if self.schedule.is_empty() {
+            self.state.select(None);
+            return;
+        }
         let i = match self.state.selected() {
             Some(i) => {
                 if i == 0 {

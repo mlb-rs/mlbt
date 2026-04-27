@@ -2,6 +2,15 @@ use crate::app::MenuItem;
 
 pub const HEADER: &[&str; 2] = &["Description", "Key"];
 
+/// Total row count of the docs table.
+pub const DOCS_LEN: usize = GENERAL_DOCS.len()
+    + SCOREBOARD_DOCS.len()
+    + GAMEDAY_DOCS.len()
+    + STATS_DOCS.len()
+    + STANDINGS_DOCS.len()
+    + TEAM_PAGE_DOCS.len()
+    + PLAYER_PROFILE_DOCS.len();
+
 const GENERAL_DOCS: &[&[&str; 2]; 9] = &[
     &["Exit help", "Esc"],
     &["Move down", "j/↓"],
