@@ -241,13 +241,6 @@ impl StatsState {
         self.select(Some(0));
     }
 
-    fn select(&mut self, index: Option<usize>) {
-        match self.active_pane {
-            ActivePane::Data => self.data_state.select(index),
-            ActivePane::Options => self.options_state.select(index),
-        }
-    }
-
     /// Set the date using Left/Right arrow keys to move a single day at a time.
     pub fn set_date_with_arrows(&mut self, forward: bool) -> NaiveDate {
         self.date_selector.set_date_with_arrows(forward)
@@ -388,82 +381,178 @@ impl StatsState {
     }
 
     pub fn next(&mut self) {
-        let len = match self.active_pane {
-            ActivePane::Data => self.row_count(),
-            ActivePane::Options => self.table.columns.len(),
-        };
+        let len = self.active_pane_len();
         if len == 0 {
             return;
         }
-        let selected = match self.active_pane {
-            ActivePane::Data => self.data_state.selected(),
-            ActivePane::Options => self.options_state.selected(),
-        };
-        let i = match selected {
-            Some(i) => {
-                if i >= len - 1 {
-                    0
-                } else {
-                    i + 1
-                }
-            }
+
+        let next = match self.selected() {
+            Some(i) if i >= len - 1 => 0,
+            Some(i) => i + 1,
             None => 0,
         };
-        self.select(Some(i));
+
+        self.select(Some(next));
+    }
+
+    pub fn previous(&mut self) {
+        let len = self.active_pane_len();
+        if len == 0 {
+            return;
+        }
+
+        let previous = match self.selected() {
+            Some(0) => len - 1,
+            Some(i) => i - 1,
+            None => 0,
+        };
+
+        self.select(Some(previous));
+    }
+
+    fn select(&mut self, index: Option<usize>) {
+        match self.active_pane {
+            ActivePane::Data => self.data_state.select(index),
+            ActivePane::Options => self.options_state.select(index),
+        }
+    }
+
+    fn selected(&self) -> Option<usize> {
+        match self.active_pane {
+            ActivePane::Data => self.data_state.selected(),
+            ActivePane::Options => self.options_state.selected(),
+        }
+    }
+
+    fn active_pane_len(&self) -> usize {
+        match self.active_pane {
+            ActivePane::Data => self.row_count(),
+            ActivePane::Options => self.table.columns.len(),
+        }
     }
 
     pub fn page_down(&mut self) {
-        if self.active_pane != ActivePane::Data {
-            return;
-        }
-        let len = self.row_count();
-        if len == 0 || self.visible_rows == 0 {
+        if !self.can_page_data() {
             return;
         }
         // The last visible row becomes the first visible row
+        let len = self.row_count();
         let offset = self.data_state.offset();
         let last_visible = (offset + self.visible_rows - 1).min(len - 1);
-        *self.data_state.offset_mut() = last_visible;
-        self.data_state.select(Some(last_visible));
+        self.select_data_row(last_visible);
     }
 
     pub fn page_up(&mut self) {
-        if self.active_pane != ActivePane::Data {
-            return;
-        }
-        let len = self.row_count();
-        if len == 0 || self.visible_rows == 0 {
+        if !self.can_page_data() {
             return;
         }
         // The first visible row becomes the last visible row
         let offset = self.data_state.offset();
         let new_offset = offset.saturating_sub(self.visible_rows - 1);
-        *self.data_state.offset_mut() = new_offset;
-        self.data_state.select(Some(new_offset));
+        self.select_data_row(new_offset);
     }
 
-    pub fn previous(&mut self) {
-        let len = match self.active_pane {
-            ActivePane::Data => self.row_count(),
-            ActivePane::Options => self.table.columns.len(),
-        };
-        if len == 0 {
-            return;
+    fn can_page_data(&self) -> bool {
+        self.active_pane == ActivePane::Data && self.row_count() > 0 && self.visible_rows > 0
+    }
+
+    fn select_data_row(&mut self, index: usize) {
+        *self.data_state.offset_mut() = index;
+        self.data_state.select(Some(index));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::components::stats::table::TableEntry;
+
+    fn state_with(n_rows: usize, n_cols: usize) -> StatsState {
+        let mut s = StatsState::default();
+        for i in 0..n_cols {
+            s.table.columns.insert(
+                format!("c{i}"),
+                TableEntry {
+                    description: String::new(),
+                    active: true,
+                    rows: (0..n_rows).map(|r| r.to_string()).collect(),
+                },
+            );
         }
-        let selected = match self.active_pane {
-            ActivePane::Data => self.data_state.selected(),
-            ActivePane::Options => self.options_state.selected(),
-        };
-        let i = match selected {
-            Some(i) => {
-                if i == 0 {
-                    len - 1
-                } else {
-                    i - 1
-                }
-            }
-            None => 0,
-        };
-        self.select(Some(i));
+        s
+    }
+
+    #[test]
+    fn next_wraps_at_end() {
+        let mut s = state_with(3, 1);
+        s.data_state.select(Some(2));
+        s.next();
+        assert_eq!(s.data_state.selected(), Some(0));
+    }
+
+    #[test]
+    fn previous_wraps_at_start() {
+        let mut s = state_with(3, 1);
+        s.data_state.select(Some(0));
+        s.previous();
+        assert_eq!(s.data_state.selected(), Some(2));
+    }
+
+    #[test]
+    fn next_targets_active_pane() {
+        let mut s = state_with(5, 3);
+        s.active_pane = ActivePane::Options;
+        s.options_state.select(Some(0));
+        s.next();
+        assert_eq!(s.options_state.selected(), Some(1));
+        assert_eq!(s.data_state.selected(), Some(0));
+    }
+
+    #[test]
+    fn page_down_jumps_to_last_visible() {
+        let mut s = state_with(20, 1);
+        s.visible_rows = 5;
+        s.data_state.select(Some(0));
+        s.page_down();
+        assert_eq!(s.data_state.selected(), Some(4));
+    }
+
+    #[test]
+    fn page_up_reverses_page_down() {
+        let mut s = state_with(20, 1);
+        s.visible_rows = 5;
+        *s.data_state.offset_mut() = 10;
+        s.data_state.select(Some(10));
+        s.page_up();
+        assert_eq!(s.data_state.selected(), Some(6));
+    }
+
+    #[test]
+    fn page_down_clamps_at_end() {
+        let mut s = state_with(20, 1);
+        s.visible_rows = 5;
+        *s.data_state.offset_mut() = 19;
+        s.data_state.select(Some(19));
+        s.page_down();
+        assert_eq!(s.data_state.selected(), Some(19));
+    }
+
+    #[test]
+    fn page_up_clamps_at_start() {
+        let mut s = state_with(20, 1);
+        s.visible_rows = 5;
+        s.data_state.select(Some(0));
+        s.page_up();
+        assert_eq!(s.data_state.selected(), Some(0));
+    }
+
+    #[test]
+    fn page_noop_on_options_pane() {
+        let mut s = state_with(20, 1);
+        s.visible_rows = 5;
+        s.active_pane = ActivePane::Options;
+        s.data_state.select(Some(0));
+        s.page_down();
+        assert_eq!(s.data_state.selected(), Some(0));
     }
 }
