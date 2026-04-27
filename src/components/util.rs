@@ -69,6 +69,18 @@ impl<T> OptionMapDisplayExt<T> for Option<T> {
     }
 }
 
+/// Surname for compact display. Skips trailing generational suffixes so "Vladimir Guerrero Jr."
+/// returns "Guerrero" instead of "Jr."
+pub(crate) fn last_name(full: &str) -> &str {
+    let mut parts = full.rsplitn(3, ' ');
+    let tail = parts.next().unwrap_or(full);
+    if matches!(tail, "Jr." | "Sr." | "II" | "III" | "IV") {
+        parts.next().unwrap_or(tail)
+    } else {
+        tail
+    }
+}
+
 /// Format "YYYY-MM-DD" as "M/D/YYYY", or return the original string if parsing fails.
 pub(crate) fn format_date(s: &str) -> String {
     NaiveDate::parse_from_str(s, "%Y-%m-%d")
@@ -143,6 +155,21 @@ pub(crate) fn convert_color(s: String) -> Color {
         error!("color doesn't start with 'rgba(' {s:?}");
         Color::Rgb(0, 0, 0)
     }
+}
+
+#[test]
+fn test_last_name() {
+    assert_eq!(last_name("Jack Flaherty"), "Flaherty");
+    assert_eq!(last_name("J.P. France"), "France");
+    assert_eq!(last_name("Vladimir Guerrero Jr."), "Guerrero");
+    assert_eq!(last_name("Cal Ripken Jr."), "Ripken");
+    assert_eq!(last_name("Ken Griffey Sr."), "Griffey");
+    assert_eq!(last_name("Cal Ripken III"), "Ripken");
+    assert_eq!(last_name("Robert Person II"), "Person");
+    assert_eq!(last_name("Madison"), "Madison");
+    assert_eq!(last_name(""), "");
+    // suffix-only input falls back to the suffix
+    assert_eq!(last_name("Jr."), "Jr.");
 }
 
 #[test]

@@ -17,20 +17,6 @@ pub struct GameDecisionPitchers {
     pub save_pitcher: Option<DecisionPitcher>,
 }
 
-impl DecisionPitcher {
-    /// Surname for compact display. Skips trailing generational suffixes so
-    /// "Vladimir Guerrero Jr." returns "Guerrero" instead of "Jr.".
-    pub fn last_name(&self) -> &str {
-        let mut parts = self.name.rsplitn(3, ' ');
-        let tail = parts.next().unwrap_or(&self.name);
-        if matches!(tail, "Jr." | "Sr." | "II" | "III" | "IV") {
-            parts.next().unwrap_or(tail)
-        } else {
-            tail
-        }
-    }
-}
-
 impl From<&mlbt_api::schedule::DecisionPitcher> for DecisionPitcher {
     fn from(pitcher: &mlbt_api::schedule::DecisionPitcher) -> Self {
         let stats = pitcher.stats.iter().find_map(|entry| {

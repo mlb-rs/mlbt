@@ -1,5 +1,5 @@
 use crate::components::decision_pitchers::{DecisionPitcher, GameDecisionPitchers};
-use crate::components::util::{DIM_COLOR, OptionDisplayExt};
+use crate::components::util::{DIM_COLOR, OptionDisplayExt, last_name};
 use tui::buffer::Buffer;
 use tui::layout::Rect;
 use tui::style::Style;
@@ -30,7 +30,7 @@ fn wl_line<'a>(label: &'a str, p: &'a DecisionPitcher, dim: Style) -> Line<'a> {
     let era = p.era.display_or("-");
     Line::from(vec![
         Span::styled(format!("{label}: "), dim),
-        Span::raw(p.last_name().to_string()),
+        Span::raw(last_name(&p.name).to_string()),
         Span::styled(format!(" {wins}-{losses}, {era} ERA"), dim),
     ])
 }
@@ -40,7 +40,7 @@ fn save_line(p: &DecisionPitcher, dim: Style) -> Line<'_> {
     let era = p.era.display_or("-");
     Line::from(vec![
         Span::styled("S: ", dim),
-        Span::raw(p.last_name().to_string()),
+        Span::raw(last_name(&p.name).to_string()),
         Span::styled(format!(" {saves}, {era} ERA"), dim),
     ])
 }
