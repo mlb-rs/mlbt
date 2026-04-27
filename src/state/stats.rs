@@ -9,7 +9,6 @@ use crate::state::player_profile::PlayerProfileState;
 use crate::state::team_page::TeamPageState;
 use chrono::{Datelike, NaiveDate};
 use chrono_tz::Tz;
-use mlbt_api::client::StatGroup;
 use mlbt_api::player::PeopleResponse;
 use mlbt_api::schedule::ScheduleResponse;
 use mlbt_api::season::GameType;
@@ -55,16 +54,14 @@ pub struct StatsState {
 
 impl Default for StatsState {
     fn default() -> Self {
+        let stat_type = StatType::default();
         let mut ss = StatsState {
             options_state: TableState::default(),
             data_state: TableState::default(),
             active_pane: ActivePane::default(),
             search_previous_pane: None,
-            stat_type: StatType {
-                group: StatGroup::Hitting,
-                team_player: TeamOrPlayer::Player,
-            },
-            table: StatsTable::default(),
+            stat_type,
+            table: StatsTable::new(stat_type),
             show_options: true,
             date_selector: DateSelector::default(),
             visible_rows: 0,
@@ -81,7 +78,7 @@ impl Default for StatsState {
 impl StatsState {
     pub fn update(&mut self, stats: &StatsResponse) {
         self.player_profile = None;
-        self.table.load(stats, self.stat_type.team_player);
+        self.table.load(stats, self.stat_type);
         self.data_state.select(Some(0));
         self.options_state.select(Some(0));
         // Clear search state since the underlying data has changed.
