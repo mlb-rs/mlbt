@@ -1,6 +1,7 @@
 use crate::boxscore::Boxscore;
 use crate::plays::Plays;
 use crate::schedule::Status;
+use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -175,7 +176,8 @@ pub struct FullPlayer {
     pub first_name: String,
     pub last_name: String,
     pub primary_number: Option<String>,
-    pub birth_date: Option<String>,
+    #[serde(default, with = "crate::serde_dates::optional_date")]
+    pub birth_date: Option<NaiveDate>,
     pub current_age: Option<i64>,
     pub birth_city: Option<String>,
     pub birth_state_province: Option<String>,
@@ -192,7 +194,8 @@ pub struct FullPlayer {
     pub is_player: Option<bool>,
     pub is_verified: Option<bool>,
     pub draft_year: Option<i64>,
-    pub mlb_debut_date: Option<String>,
+    #[serde(default, with = "crate::serde_dates::optional_date")]
+    pub mlb_debut_date: Option<NaiveDate>,
     pub bat_side: Option<Side>,
     pub pitch_hand: Option<Side>,
     pub name_first_last: Option<String>,

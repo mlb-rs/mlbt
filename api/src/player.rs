@@ -1,6 +1,7 @@
 use crate::live::{PrimaryPosition, Side};
 use crate::schedule::IdNameLink;
 use crate::stats::Stat;
+use chrono::NaiveDate;
 use serde::Deserialize;
 
 #[derive(Default, Debug, Deserialize)]
@@ -15,7 +16,8 @@ pub struct PersonFull {
     pub id: u64,
     pub full_name: String,
     pub primary_number: Option<String>,
-    pub birth_date: Option<String>,
+    #[serde(default, with = "crate::serde_dates::optional_date")]
+    pub birth_date: Option<NaiveDate>,
     pub current_age: Option<u8>,
     pub birth_city: Option<String>,
     pub birth_state_province: Option<String>,
@@ -25,7 +27,8 @@ pub struct PersonFull {
     pub primary_position: Option<PrimaryPosition>,
     pub bat_side: Option<Side>,
     pub pitch_hand: Option<Side>,
-    pub mlb_debut_date: Option<String>,
+    #[serde(default, with = "crate::serde_dates::optional_date")]
+    pub mlb_debut_date: Option<NaiveDate>,
     pub active: Option<bool>,
     pub draft_year: Option<u16>,
     pub current_team: Option<IdNameLink>,

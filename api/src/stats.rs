@@ -1,4 +1,5 @@
 use crate::schedule::IdNameLink;
+use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -31,7 +32,8 @@ pub struct Split {
     pub team: Option<IdNameLink>,
     pub player: Option<Player>,
     // Game log fields (only present on gameLog splits):
-    pub date: Option<String>,
+    #[serde(default, with = "crate::serde_dates::optional_date")]
+    pub date: Option<NaiveDate>,
     pub is_home: Option<bool>,
     pub is_win: Option<bool>,
     pub opponent: Option<IdNameLink>,

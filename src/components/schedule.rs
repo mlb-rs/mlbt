@@ -9,7 +9,6 @@ use crate::state::app_state::HomeOrAway;
 use chrono::{DateTime, NaiveDate, Utc};
 use chrono_tz::Tz;
 use core::option::Option::{None, Some};
-use log::error;
 use mlbt_api::schedule::{Game, LeagueRecord, ScheduleResponse};
 use std::cmp::Ordering;
 use tui::widgets::TableState;
@@ -240,12 +239,7 @@ impl ScheduleRow {
         });
         let away_record = Record::from_league_record(away_team.league_record.as_ref());
 
-        let start_time_utc = DateTime::parse_from_rfc3339(&game.game_date)
-            .map(|dt| dt.with_timezone(&Utc))
-            .unwrap_or_else(|err| {
-                error!("invalid game_date {:?}: {err}", game.game_date);
-                DateTime::<Utc>::UNIX_EPOCH
-            });
+        let start_time_utc = game.game_date;
         let start_time = format_game_time_padded(start_time_utc, timezone);
 
         let game_status = match &game.status.detailed_state {

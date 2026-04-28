@@ -106,7 +106,7 @@ impl PlayerProfile {
         let weight = person.weight.map_display_or(|w| format!("{w}lb"), "");
         let age = person.current_age.display_or("-");
 
-        let birth_date = format_numeric_date_or(person.birth_date.as_ref(), "---");
+        let birth_date = format_numeric_date_or(person.birth_date, "---");
         let birthplace = [
             person.birth_city.as_deref(),
             person.birth_state_province.as_deref(),
@@ -131,7 +131,7 @@ impl PlayerProfile {
             ));
         }
 
-        let mlb_debut = format_numeric_date_or(person.mlb_debut_date.as_ref(), "---");
+        let mlb_debut = format_numeric_date_or(person.mlb_debut_date, "---");
 
         let mut bio = vec![
             format!("{position} | {bats}/{throws} | {height} {weight} | Age: {age}").into(),
@@ -212,7 +212,7 @@ impl PlayerProfile {
     }
 
     fn game_log_cells(split: &Split) -> Vec<Cell<'_>> {
-        let date = format_numeric_date_or(split.date.as_ref(), "");
+        let date = format_numeric_date_or(split.date, "");
         let opp = split
             .opponent
             .map_display_or(|o| lookup_team(&o.name).abbreviation, "---");

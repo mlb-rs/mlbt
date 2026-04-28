@@ -1,4 +1,5 @@
 use crate::stats::DisplayName;
+use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -32,7 +33,8 @@ pub struct IdNameLink {
 #[derive(Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Dates {
-    pub date: Option<String>,
+    #[serde(default, with = "crate::serde_dates::optional_date")]
+    pub date: Option<NaiveDate>,
     pub total_items: Option<u8>,
     pub total_events: Option<u8>,
     pub total_games: Option<u8>,
@@ -58,8 +60,8 @@ pub struct Game {
     pub link: String,
     // pub game_type: Option<GameType>,
     pub season: String,
-    pub game_date: String,
-    pub official_date: String,
+    pub game_date: DateTime<Utc>,
+    pub official_date: NaiveDate,
     pub status: Status,
     pub teams: Teams,
     /// Only present if `hydrate=linescore` is used.

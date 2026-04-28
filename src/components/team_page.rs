@@ -1,7 +1,6 @@
 use crate::components::constants::lookup_team_by_id;
 use crate::components::datetime::{
     format_game_time, format_numeric_date_or, format_short_date, format_short_date_or,
-    parse_api_date, parse_api_datetime,
 };
 use crate::components::util::{OptionDisplayExt, OptionMapDisplayExt};
 use chrono::{DateTime, NaiveDate, Utc};
@@ -71,19 +70,15 @@ impl TeamGame {
                     format!("@ {abbr}")
                 };
 
-                let game_date = parse_api_date(&game.official_date).unwrap_or_default();
-                let date_display = format_short_date(&game.official_date).unwrap_or_default();
+                let game_date = game.official_date;
+                let date_display = format_short_date(game_date);
 
                 let is_final = matches!(
                     game.status.abstract_game_state,
                     Some(AbstractGameState::Final)
                 );
                 let is_past = is_final && game_date < date;
-                let start_time_utc = if is_final {
-                    None
-                } else {
-                    parse_api_datetime(&game.game_date)
-                };
+                let start_time_utc = if is_final { None } else { Some(game.game_date) };
 
                 let time_or_score = if is_final {
                     let home_score = game.teams.home.score.unwrap_or(0);
@@ -190,7 +185,7 @@ impl RosterRow {
                     bats_throws: format!("{bats}/{throws}"),
                     height: person.height.display_or("-"),
                     weight: person.weight.display_or("-"),
-                    dob: format_numeric_date_or(person.birth_date.as_ref(), "-"),
+                    dob: format_numeric_date_or(person.birth_date, "-"),
                     status: entry.status.description.clone(),
                     status_code: entry.status.code.clone(),
                 }
@@ -217,7 +212,7 @@ impl TransactionRow {
             .iter()
             .filter_map(|t| {
                 let description = t.description.clone()?;
-                let date = format_short_date_or(t.date.as_ref(), "");
+                let date = format_short_date_or(t.date, "");
                 Some(TransactionRow { date, description })
             })
             .collect();
