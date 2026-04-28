@@ -1,6 +1,7 @@
 pub(crate) mod boxscore;
 pub(crate) mod date_selector;
 pub(crate) mod debug;
+pub(crate) mod decision_pitchers;
 pub(crate) mod gameday;
 pub(crate) mod help;
 pub(crate) mod input_popup;

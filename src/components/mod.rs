@@ -3,6 +3,7 @@ pub mod boxscore;
 pub mod constants;
 pub mod date_selector;
 pub mod debug;
+pub mod decision_pitchers;
 pub mod game;
 pub mod help;
 pub mod linescore;

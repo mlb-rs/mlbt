@@ -1,5 +1,6 @@
 use crate::components::constants::lookup_team_or;
 use crate::components::date_selector::DateSelector;
+use crate::components::decision_pitchers::GameDecisionPitchers;
 use crate::components::probable_pitchers::{ProbablePitcher, ProbablePitcherMatchup};
 use crate::components::standings::Team;
 use crate::components::util::format_start_time_table;
@@ -49,6 +50,7 @@ pub struct ScheduleRow {
     pub game_status: String,
     pub home_probable_pitcher: ProbablePitcher,
     pub away_probable_pitcher: ProbablePitcher,
+    pub decision_pitchers: Option<GameDecisionPitchers>,
 }
 
 #[derive(Default, Copy, Clone)]
@@ -115,6 +117,16 @@ impl ScheduleState {
             away_pitcher: &row.away_probable_pitcher,
             away_team: row.away_team,
         })
+    }
+
+    /// Look up decisions by `game_id` so the right panel can load them based on the gameday-loaded
+    /// game, keeping them in sync with the linescore and box score.
+    pub fn get_decision_pitchers_for_game(&self, game_id: u64) -> Option<&GameDecisionPitchers> {
+        if game_id == 0 {
+            return None;
+        }
+        let row = self.schedule.iter().find(|row| row.game_id == game_id)?;
+        row.decision_pitchers.as_ref()
     }
 
     pub fn toggle_win_probability(&mut self) {
@@ -268,6 +280,7 @@ impl ScheduleRow {
             start_time_utc,
             home_probable_pitcher: ProbablePitcher::from_team(&game.teams.home).unwrap_or_default(),
             away_probable_pitcher: ProbablePitcher::from_team(&game.teams.away).unwrap_or_default(),
+            decision_pitchers: GameDecisionPitchers::from_game(game),
         }
     }
 
@@ -330,6 +343,7 @@ mod tests {
             game_status: String::new(),
             home_probable_pitcher: ProbablePitcher::default(),
             away_probable_pitcher: ProbablePitcher::default(),
+            decision_pitchers: None,
         }
     }
 

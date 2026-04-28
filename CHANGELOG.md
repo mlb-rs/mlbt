@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add winning, losing, and save (if applicable) pitchers for games that have 
+  ended in the Schedule tab: [PR 138](https://github.com/mlb-rs/mlbt/pull/138)
 - Add `all | qualified` toggle to Stats and save sort + column preferences in
   memory: [PR 137](https://github.com/mlb-rs/mlbt/pull/137)
  
