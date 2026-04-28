@@ -5,6 +5,7 @@ pub mod player;
 pub mod plays;
 pub mod schedule;
 pub mod season;
+pub mod serde_dates;
 pub mod standings;
 pub mod stats;
 pub mod team;

@@ -1,4 +1,5 @@
 use crate::schedule::IdNameLink;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -13,7 +14,7 @@ pub struct Record {
     pub standings_type: String,
     pub league: IdLink,
     pub division: Option<IdLink>,
-    pub last_updated: String,
+    pub last_updated: DateTime<Utc>,
     pub team_records: Vec<TeamRecord>,
 }
 
@@ -40,7 +41,7 @@ pub struct TeamRecord {
     pub division_games_back: String,
     pub conference_games_back: String,
     pub league_record: RecordElement,
-    pub last_updated: String,
+    pub last_updated: DateTime<Utc>,
     pub records: Records,
     pub runs_allowed: u16,
     pub runs_scored: u16,

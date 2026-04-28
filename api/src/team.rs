@@ -1,5 +1,5 @@
 use crate::live::{FullPlayer, PrimaryPosition};
-
+use chrono::NaiveDate;
 use serde::Deserialize;
 use std::fmt;
 
@@ -51,9 +51,12 @@ pub struct Transaction {
     pub person: Option<TransactionEntity>,
     pub from_team: Option<TransactionEntity>,
     pub to_team: Option<TransactionEntity>,
-    pub date: Option<String>,
-    pub effective_date: Option<String>,
-    pub resolution_date: Option<String>,
+    #[serde(default, with = "crate::serde_dates::optional_date")]
+    pub date: Option<NaiveDate>,
+    #[serde(default, with = "crate::serde_dates::optional_date")]
+    pub effective_date: Option<NaiveDate>,
+    #[serde(default, with = "crate::serde_dates::optional_date")]
+    pub resolution_date: Option<NaiveDate>,
     pub type_code: Option<String>,
     pub type_desc: Option<String>,
     pub description: Option<String>,

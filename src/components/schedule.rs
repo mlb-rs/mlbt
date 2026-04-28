@@ -1,15 +1,14 @@
 use crate::components::constants::lookup_team_or;
 use crate::components::date_selector::DateSelector;
+use crate::components::datetime::format_game_time_padded;
 use crate::components::decision_pitchers::GameDecisionPitchers;
 use crate::components::probable_pitchers::{ProbablePitcher, ProbablePitcherMatchup};
 use crate::components::standings::Team;
-use crate::components::util::format_start_time_table;
 use crate::state::app_settings::AppSettings;
 use crate::state::app_state::HomeOrAway;
 use chrono::{DateTime, NaiveDate, Utc};
 use chrono_tz::Tz;
 use core::option::Option::{None, Some};
-use log::error;
 use mlbt_api::schedule::{Game, LeagueRecord, ScheduleResponse};
 use std::cmp::Ordering;
 use tui::widgets::TableState;
@@ -137,7 +136,7 @@ impl ScheduleState {
     /// Called after the user changes timezone so times update without a schedule refetch.
     pub fn refresh_start_times(&mut self, tz: Tz) {
         for row in &mut self.schedule {
-            row.start_time = format_start_time_table(row.start_time_utc, tz);
+            row.start_time = format_game_time_padded(row.start_time_utc, tz);
         }
     }
 
@@ -240,13 +239,8 @@ impl ScheduleRow {
         });
         let away_record = Record::from_league_record(away_team.league_record.as_ref());
 
-        let start_time_utc = DateTime::parse_from_rfc3339(&game.game_date)
-            .map(|dt| dt.with_timezone(&Utc))
-            .unwrap_or_else(|err| {
-                error!("invalid game_date {:?}: {err}", game.game_date);
-                DateTime::<Utc>::UNIX_EPOCH
-            });
-        let start_time = format_start_time_table(start_time_utc, timezone);
+        let start_time_utc = game.game_date;
+        let start_time = format_game_time_padded(start_time_utc, timezone);
 
         let game_status = match &game.status.detailed_state {
             Some(s) if s == "In Progress" => {

@@ -2,6 +2,7 @@ pub mod banner;
 pub mod boxscore;
 pub mod constants;
 pub mod date_selector;
+pub mod datetime;
 pub mod debug;
 pub mod decision_pitchers;
 pub mod game;

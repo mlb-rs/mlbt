@@ -275,8 +275,6 @@ mod tests {
     use mlbt_api::season::GameType;
     use std::sync::Arc;
 
-    const TEST_DATE: &str = "2026-04-13";
-
     fn test_date() -> NaiveDate {
         NaiveDate::from_ymd_opt(2026, 4, 13).unwrap()
     }
@@ -336,11 +334,11 @@ mod tests {
         assert!(NetworkCache::key_for(&req).is_none());
     }
 
-    fn make_schedule(date: &str, games: Vec<(u64, AbstractGameState)>) -> ScheduleResponse {
+    fn make_schedule(date: NaiveDate, games: Vec<(u64, AbstractGameState)>) -> ScheduleResponse {
         use mlbt_api::schedule::{Dates, Game, Status};
         ScheduleResponse {
             dates: vec![Dates {
-                date: Some(date.to_string()),
+                date: Some(date),
                 games: Some(
                     games
                         .into_iter()
@@ -382,7 +380,7 @@ mod tests {
         );
 
         // First schedule: game is Live
-        let schedule = make_schedule(TEST_DATE, vec![(game_id, AbstractGameState::Live)]);
+        let schedule = make_schedule(test_date(), vec![(game_id, AbstractGameState::Live)]);
         cache.update_game_states(test_date(), &schedule);
         assert_eq!(
             cache.entries[&CacheKey::GameData { game_id }].ttl,
@@ -390,7 +388,7 @@ mod tests {
         );
 
         // Game goes Final
-        let schedule = make_schedule(TEST_DATE, vec![(game_id, AbstractGameState::Final)]);
+        let schedule = make_schedule(test_date(), vec![(game_id, AbstractGameState::Final)]);
         cache.update_game_states(test_date(), &schedule);
         assert_eq!(
             cache.entries[&CacheKey::GameData { game_id }].ttl,
@@ -422,9 +420,9 @@ mod tests {
         assert!(cache.get(&CacheKey::Standings { date }).is_some());
 
         // Game goes from Live to Final
-        let schedule = make_schedule(TEST_DATE, vec![(123, AbstractGameState::Live)]);
+        let schedule = make_schedule(test_date(), vec![(123, AbstractGameState::Live)]);
         cache.update_game_states(test_date(), &schedule);
-        let schedule = make_schedule(TEST_DATE, vec![(123, AbstractGameState::Final)]);
+        let schedule = make_schedule(test_date(), vec![(123, AbstractGameState::Final)]);
         cache.update_game_states(test_date(), &schedule);
 
         // Standings and stats should be invalidated
@@ -445,7 +443,7 @@ mod tests {
         let date = NaiveDate::from_ymd_opt(2026, 4, 13).unwrap();
 
         // Game already Final
-        let schedule = make_schedule(TEST_DATE, vec![(123, AbstractGameState::Final)]);
+        let schedule = make_schedule(test_date(), vec![(123, AbstractGameState::Final)]);
         cache.update_game_states(test_date(), &schedule);
 
         // Cache standings after the game went Final
@@ -475,7 +473,7 @@ mod tests {
 
         // Game appears for the first time as Final. No prior state and no mutable date observed.
         // This is likely historical browsing so current caches are not assumed stale.
-        let schedule = make_schedule(TEST_DATE, vec![(456, AbstractGameState::Final)]);
+        let schedule = make_schedule(test_date(), vec![(456, AbstractGameState::Final)]);
         cache.update_game_states(test_date(), &schedule);
 
         assert!(cache.get(&CacheKey::Standings { date }).is_some());
@@ -497,7 +495,7 @@ mod tests {
         );
 
         // Game goes Final — should reset fetched_at to now
-        let schedule = make_schedule(TEST_DATE, vec![(game_id, AbstractGameState::Final)]);
+        let schedule = make_schedule(test_date(), vec![(game_id, AbstractGameState::Final)]);
         cache.update_game_states(test_date(), &schedule);
 
         let entry = &cache.entries[&CacheKey::GameData { game_id }];
@@ -597,7 +595,7 @@ mod tests {
 
         // User browses back to a past date so all games there are already Final.
         // We've never observed game 123 nor the past date in a non final state.
-        let schedule = make_schedule("2026-04-10", vec![(123, AbstractGameState::Final)]);
+        let schedule = make_schedule(past, vec![(123, AbstractGameState::Final)]);
         cache.update_game_states(past, &schedule);
 
         // No evidence the cached standings are stale.
@@ -621,7 +619,7 @@ mod tests {
             .mutable_dates
             .insert(past, Instant::now() - PRUNE_AGE - Duration::from_secs(1));
 
-        let schedule = make_schedule("2026-04-10", vec![(123, AbstractGameState::Final)]);
+        let schedule = make_schedule(past, vec![(123, AbstractGameState::Final)]);
         cache.update_game_states(past, &schedule);
 
         assert!(cache.get(&CacheKey::Standings { date: today }).is_some());
@@ -640,11 +638,11 @@ mod tests {
         );
 
         // Observe the game as Live first (establishes that we watched this date mutable)
-        let schedule = make_schedule(TEST_DATE, vec![(123, AbstractGameState::Live)]);
+        let schedule = make_schedule(test_date(), vec![(123, AbstractGameState::Live)]);
         cache.update_game_states(date, &schedule);
 
         // Then observe the transition to Final.  This is a real signal
-        let schedule = make_schedule(TEST_DATE, vec![(123, AbstractGameState::Final)]);
+        let schedule = make_schedule(test_date(), vec![(123, AbstractGameState::Final)]);
         cache.update_game_states(date, &schedule);
 
         assert!(cache.get(&CacheKey::Standings { date }).is_none());
@@ -667,9 +665,9 @@ mod tests {
         }
 
         // Game on Apr 13 goes Final
-        let schedule = make_schedule(TEST_DATE, vec![(123, AbstractGameState::Live)]);
+        let schedule = make_schedule(test_date(), vec![(123, AbstractGameState::Live)]);
         cache.update_game_states(test_date(), &schedule);
-        let schedule = make_schedule(TEST_DATE, vec![(123, AbstractGameState::Final)]);
+        let schedule = make_schedule(test_date(), vec![(123, AbstractGameState::Final)]);
         cache.update_game_states(test_date(), &schedule);
 
         // Earlier date preserved, transition date and later invalidated
@@ -725,7 +723,7 @@ mod tests {
         };
         let schedule = ScheduleResponse {
             dates: vec![Dates {
-                date: Some(TEST_DATE.to_string()),
+                date: Some(test_date()),
                 games: Some(vec![make_game(AbstractGameState::Live)]),
                 ..Default::default()
             }],
@@ -736,7 +734,7 @@ mod tests {
         // Now the game goes Final
         let schedule = ScheduleResponse {
             dates: vec![Dates {
-                date: Some(TEST_DATE.to_string()),
+                date: Some(test_date()),
                 games: Some(vec![make_game(AbstractGameState::Final)]),
                 ..Default::default()
             }],
@@ -767,11 +765,11 @@ mod tests {
         let mut cache = NetworkCache::new();
         assert!(!cache.is_final_game(42));
 
-        let schedule = make_schedule(TEST_DATE, vec![(42, AbstractGameState::Live)]);
+        let schedule = make_schedule(test_date(), vec![(42, AbstractGameState::Live)]);
         cache.update_game_states(test_date(), &schedule);
         assert!(!cache.is_final_game(42));
 
-        let schedule = make_schedule(TEST_DATE, vec![(42, AbstractGameState::Final)]);
+        let schedule = make_schedule(test_date(), vec![(42, AbstractGameState::Final)]);
         cache.update_game_states(test_date(), &schedule);
         assert!(cache.is_final_game(42));
     }
