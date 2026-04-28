@@ -353,10 +353,13 @@ mod tests {
     use tui::widgets::TableState;
 
     fn test_app() -> App {
+        // tests must never share the real config file path, otherwise running the suite would
+        // overwrite the local `mlbt.toml` with default settings on every save call
+        let path = std::env::temp_dir().join(format!("mlbt-test-{}.toml", std::process::id()));
         App {
             settings: AppSettings::from(ConfigFile::default()),
             state: AppState::default(),
-            store: TomlFileStore::default(),
+            store: TomlFileStore::with_path(path),
         }
     }
 
