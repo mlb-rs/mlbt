@@ -103,6 +103,12 @@ impl TomlFileStore {
     const HEADER: &str = "# See https://github.com/mlb-rs/mlbt#config for options\n";
     const CONFIG_FILE_NAME: &str = "mlbt.toml";
 
+    /// Build a store backed by a specific path. Used in tests so the real config file isn't clobbered.
+    #[cfg(test)]
+    pub fn with_path(path: PathBuf) -> Self {
+        Self { path: Some(path) }
+    }
+
     /// Resolve the canonical config path:
     /// * Linux:   /home/alice/.config/mlbt/mlbt.toml
     /// * Windows: C:\Users\Alice\AppData\Roaming\mlbt\mlbt.toml
