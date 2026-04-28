@@ -1,8 +1,10 @@
 use crate::components::constants::lookup_team_by_id;
-use crate::components::util::{
-    OptionDisplayExt, OptionMapDisplayExt, format_date, format_start_time_compact,
+use crate::components::datetime::{
+    format_game_time, format_numeric_date_or, format_short_date, format_short_date_or,
+    parse_api_date, parse_api_datetime,
 };
-use chrono::{DateTime, NaiveDate, NaiveDateTime, TimeZone, Utc};
+use crate::components::util::{OptionDisplayExt, OptionMapDisplayExt};
+use chrono::{DateTime, NaiveDate, Utc};
 use chrono_tz::Tz;
 use mlbt_api::schedule::{AbstractGameState, ScheduleResponse};
 use mlbt_api::team::{RosterResponse, TransactionsResponse};
@@ -69,9 +71,8 @@ impl TeamGame {
                     format!("@ {abbr}")
                 };
 
-                let game_date =
-                    NaiveDate::parse_from_str(&game.official_date, "%Y-%m-%d").unwrap_or_default();
-                let date_display = format_short_date(&game.official_date);
+                let game_date = parse_api_date(&game.official_date).unwrap_or_default();
+                let date_display = format_short_date(&game.official_date).unwrap_or_default();
 
                 let is_final = matches!(
                     game.status.abstract_game_state,
@@ -81,7 +82,7 @@ impl TeamGame {
                 let start_time_utc = if is_final {
                     None
                 } else {
-                    parse_game_time(&game.game_date)
+                    parse_api_datetime(&game.game_date)
                 };
 
                 let time_or_score = if is_final {
@@ -102,7 +103,7 @@ impl TeamGame {
                     format!("{team_score}-{opp_score} {result}")
                 } else {
                     start_time_utc
-                        .map(|utc| format_start_time_compact(utc, tz))
+                        .map(|utc| format_game_time(utc, tz))
                         .unwrap_or_else(|| "TBD".to_string())
                 };
 
@@ -122,7 +123,7 @@ impl TeamGame {
 
     pub fn refresh_time_or_score(&mut self, tz: Tz) {
         if let Some(utc) = self.start_time_utc {
-            self.time_or_score = format_start_time_compact(utc, tz);
+            self.time_or_score = format_game_time(utc, tz);
         }
     }
 }
@@ -189,10 +190,7 @@ impl RosterRow {
                     bats_throws: format!("{bats}/{throws}"),
                     height: person.height.display_or("-"),
                     weight: person.weight.display_or("-"),
-                    dob: person
-                        .birth_date
-                        .as_ref()
-                        .map_display_or(|d| format_date(d), "-"),
+                    dob: format_numeric_date_or(person.birth_date.as_ref(), "-"),
                     status: entry.status.description.clone(),
                     status_code: entry.status.code.clone(),
                 }
@@ -219,7 +217,7 @@ impl TransactionRow {
             .iter()
             .filter_map(|t| {
                 let description = t.description.clone()?;
-                let date = t.date.as_ref().map_display_or(|d| format_short_date(d), "");
+                let date = format_short_date_or(t.date.as_ref(), "");
                 Some(TransactionRow { date, description })
             })
             .collect();
@@ -227,17 +225,4 @@ impl TransactionRow {
         rows.reverse();
         rows
     }
-}
-
-/// Parse "YYYY-MM-DD" into a short display like "Mar 26", or return the input on failure.
-fn format_short_date(s: &str) -> String {
-    NaiveDate::parse_from_str(s, "%Y-%m-%d")
-        .map(|d| d.format("%b %-d").to_string())
-        .unwrap_or_else(|_| s.to_string())
-}
-
-fn parse_game_time(game_date: &str) -> Option<DateTime<Utc>> {
-    NaiveDateTime::parse_from_str(game_date, "%Y-%m-%dT%H:%M:%SZ")
-        .ok()
-        .map(|ndt| Utc.from_utc_datetime(&ndt))
 }

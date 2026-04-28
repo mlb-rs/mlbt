@@ -1,5 +1,3 @@
-use chrono::{DateTime, NaiveDate, Utc};
-use chrono_tz::Tz;
 use log::error;
 use tui::style::Color;
 
@@ -79,23 +77,6 @@ pub(crate) fn last_name(full: &str) -> &str {
     } else {
         tail
     }
-}
-
-/// Format "YYYY-MM-DD" as "M/D/YYYY", or return the original string if parsing fails.
-pub(crate) fn format_date(s: &str) -> String {
-    NaiveDate::parse_from_str(s, "%Y-%m-%d")
-        .map(|d| d.format("%-m/%-d/%Y").to_string())
-        .unwrap_or_else(|_| s.to_string())
-}
-
-/// Format a UTC game start time for schedule/table display in the user's configured timezone.
-pub(crate) fn format_start_time_table(utc: DateTime<Utc>, tz: Tz) -> String {
-    utc.with_timezone(&tz).format("%l:%M %P").to_string()
-}
-
-/// Format a UTC game start time for compact display in the user's configured timezone.
-pub(crate) fn format_start_time_compact(utc: DateTime<Utc>, tz: Tz) -> String {
-    utc.with_timezone(&tz).format("%-I:%M %P").to_string()
 }
 
 /// Color for an ERA stat string. Returns `None` for average range (3.00–4.99) so
