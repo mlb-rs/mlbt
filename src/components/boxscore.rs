@@ -1,12 +1,14 @@
 use crate::components::game::player::Player;
 use crate::state::app_state::HomeOrAway;
-use crate::ui::styling::{DimStyle, TEXT_COLOR, avg_style, dim_style, era_style};
+use crate::ui::styling::{DimStyle, avg_style, dim_style, era_style, text_style};
 use mlbt_api::boxscore::{LabelValue, Player as ApiPlayer, Team};
 use mlbt_api::live::LiveResponse;
 use std::collections::HashMap;
 use tui::prelude::{Line, Stylize};
 use tui::text::Span;
 use tui::widgets::Cell;
+
+const TOTALS_NAME: &str = "Totals";
 
 #[derive(Default)]
 pub struct Boxscore {
@@ -100,37 +102,37 @@ impl BatterBoxscore {
     }
 
     pub fn to_cells(&self) -> Vec<Cell<'_>> {
-        let note = self.note.as_deref().unwrap_or_default();
-        let prefix = match self.is_substitute {
-            true => "  ".to_string(),
-            false => "".to_string(),
-        };
-        let name = if self.name == "Totals" {
-            Span::from("Totals").style(dim_style()).into()
+        let total = self.name == TOTALS_NAME;
+
+        let name_cell = if total {
+            Cell::from(self.name.clone()).dim()
         } else {
-            Line::from(vec![
+            let note = self.note.as_deref().unwrap_or_default();
+            let prefix = match self.is_substitute {
+                true => "  ",
+                false => "",
+            };
+            Cell::from(Line::from(vec![
                 Span::from(format!("{prefix}{note}{} ", self.name)),
                 Span::from(self.position.clone()).style(dim_style()),
-            ])
+            ]))
         };
 
-        let cells = vec![
-            Cell::from(name),
-            Cell::from(self.at_bats.to_string()).style(self.at_bats.dim_or_default()),
-            Cell::from(self.runs.to_string()).style(self.runs.dim_or_default()),
-            Cell::from(self.hits.to_string()).style(self.hits.dim_or_default()),
-            Cell::from(self.rbis.to_string()).style(self.rbis.dim_or_default()),
-            Cell::from(self.walks.to_string()).style(self.walks.dim_or_default()),
-            Cell::from(self.strike_outs.to_string()).style(self.strike_outs.dim_or_default()),
-            Cell::from(self.left_on.to_string()).style(self.left_on.dim_or_default()),
-            Cell::from(self.batting_average.as_str()).style(avg_style(&self.batting_average)),
-        ];
-
-        if self.name == "Totals" {
-            cells.into_iter().map(|c| c.style(dim_style())).collect()
-        } else {
-            cells
-        }
+        vec![
+            name_cell,
+            styled_cell(self.at_bats, self.at_bats.dim_or_default(), total),
+            styled_cell(self.runs, self.runs.dim_or_default(), total),
+            styled_cell(self.hits, self.hits.dim_or_default(), total),
+            styled_cell(self.rbis, self.rbis.dim_or_default(), total),
+            styled_cell(self.walks, self.walks.dim_or_default(), total),
+            styled_cell(self.strike_outs, self.strike_outs.dim_or_default(), total),
+            styled_cell(self.left_on, self.left_on.dim_or_default(), total),
+            styled_cell(
+                &self.batting_average,
+                avg_style(&self.batting_average),
+                total,
+            ),
+        ]
     }
 }
 
@@ -168,35 +170,33 @@ impl PitcherBoxscore {
     }
 
     pub fn to_cells(&self) -> Vec<Cell<'_>> {
-        let note = self.note.as_deref().unwrap_or_default();
-        let name = if self.name == "Totals" {
-            Span::from("Totals").style(dim_style()).into()
-        } else if !note.is_empty() {
-            Line::from(vec![
-                Span::from(format!("{} ", self.name)),
-                Span::from(note).style(dim_style()),
-            ])
+        let total = self.name == TOTALS_NAME;
+
+        let name_cell = if total {
+            Cell::from(self.name.clone()).dim()
         } else {
-            self.name.clone().into()
+            let note = self.note.as_deref().unwrap_or_default();
+            if !note.is_empty() {
+                Cell::from(Line::from(vec![
+                    Span::from(format!("{} ", self.name)),
+                    Span::from(note).style(dim_style()),
+                ]))
+            } else {
+                Cell::from(self.name.clone())
+            }
         };
 
-        let cells = vec![
-            Cell::from(name),
-            Cell::from(self.innings_pitched.clone()).fg(TEXT_COLOR),
-            Cell::from(self.hits.to_string()).style(self.hits.dim_or_default()),
-            Cell::from(self.runs.to_string()).style(self.runs.dim_or_default()),
-            Cell::from(self.earned_runs.to_string()).style(self.earned_runs.dim_or_default()),
-            Cell::from(self.walks.to_string()).style(self.walks.dim_or_default()),
-            Cell::from(self.strikeouts.to_string()).style(self.strikeouts.dim_or_default()),
-            Cell::from(self.home_runs.to_string()).style(self.home_runs.dim_or_default()),
-            Cell::from(self.era.clone()).style(era_style(&self.era)),
-        ];
-
-        if self.name == "Totals" {
-            cells.into_iter().map(|c| c.style(dim_style())).collect()
-        } else {
-            cells
-        }
+        vec![
+            name_cell,
+            styled_cell(&self.innings_pitched, text_style(), total),
+            styled_cell(self.hits, self.hits.dim_or_default(), total),
+            styled_cell(self.runs, self.runs.dim_or_default(), total),
+            styled_cell(self.earned_runs, self.earned_runs.dim_or_default(), total),
+            styled_cell(self.walks, self.walks.dim_or_default(), total),
+            styled_cell(self.strikeouts, self.strikeouts.dim_or_default(), total),
+            styled_cell(self.home_runs, self.home_runs.dim_or_default(), total),
+            styled_cell(&self.era, era_style(&self.era), total),
+        ]
     }
 }
 
@@ -290,7 +290,7 @@ impl Boxscore {
 
         // add total row
         pitchers.push(PitcherBoxscore {
-            name: "Totals".to_string(),
+            name: TOTALS_NAME.to_string(),
             innings_pitched: team
                 .team_stats
                 .pitching
@@ -335,7 +335,7 @@ impl Boxscore {
 
         // add total row
         batters.push(BatterBoxscore {
-            name: "Totals".to_string(),
+            name: TOTALS_NAME.to_string(),
             position: "".to_string(),
             at_bats: team.team_stats.batting.at_bats.unwrap_or_default(),
             runs: team.team_stats.batting.runs.unwrap_or_default(),
@@ -471,5 +471,18 @@ impl From<&LabelValue> for BattingNote {
             label: value.label.clone(),
             value: value.value.clone().unwrap_or_default(),
         }
+    }
+}
+
+fn styled_cell<T: ToString, S: Into<tui::style::Style>>(
+    val: T,
+    style: S,
+    is_total: bool,
+) -> Cell<'static> {
+    let cell = Cell::from(val.to_string());
+    if is_total {
+        cell.dim()
+    } else {
+        cell.style(style)
     }
 }
