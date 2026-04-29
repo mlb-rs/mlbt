@@ -8,7 +8,7 @@ pub const TEXT_COLOR: Color = Color::Reset;
 /// Default border color which allows the terminal theme to supply the color.
 const BORDER_COLOR: Color = Color::Reset;
 
-const UNDERLINER_COLOR: Color = Color::Reset;
+const UNDERLINE_COLOR: Color = Color::Reset;
 
 pub fn border_style() -> Style {
     Style::new().fg(BORDER_COLOR)
@@ -18,7 +18,7 @@ pub fn header_style() -> Style {
     Style::new()
         .bold()
         .underlined()
-        .underline_color(UNDERLINER_COLOR)
+        .underline_color(UNDERLINE_COLOR)
 }
 
 pub fn text_style() -> Style {
@@ -42,18 +42,18 @@ pub trait DimStyle {
         if self.is_zero() {
             dim_style()
         } else {
-            Style::new().fg(TEXT_COLOR)
+            text_style()
         }
     }
 }
 
 macro_rules! impl_is_zero {
-      ($($t:ty),*) => {
-          $(impl DimStyle for $t {
-              fn is_zero(&self) -> bool { *self == 0 }
-          })*
-      };
-  }
+    ($($t:ty),*) => {
+        $(impl DimStyle for $t {
+            fn is_zero(&self) -> bool { *self == 0 }
+        })*
+    };
+}
 impl_is_zero!(u8, u16);
 
 impl DimStyle for str {
