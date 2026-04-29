@@ -1,6 +1,6 @@
 use crate::components::game::player::Player;
 use crate::state::app_state::HomeOrAway;
-use crate::ui::color::{DimStyle, TEXT_COLOR, avg_style, dim_style, era_style};
+use crate::ui::styling::{DimStyle, TEXT_COLOR, avg_style, dim_style, era_style};
 use mlbt_api::boxscore::{LabelValue, Player as ApiPlayer, Team};
 use mlbt_api::live::LiveResponse;
 use std::collections::HashMap;

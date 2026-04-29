@@ -1,4 +1,4 @@
-use crate::ui::color::text_style;
+use crate::ui::styling::text_style;
 use tui::prelude::{Color, Line};
 use tui::widgets::Block;
 use tui::{buffer::Buffer, layout::Rect, style::Style, widgets::Widget};

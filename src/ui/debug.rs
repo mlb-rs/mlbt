@@ -1,6 +1,6 @@
 use crate::components::debug::DebugInfo;
-use crate::ui::color::text_style;
 use crate::ui::logs::LogWidget;
+use crate::ui::styling::text_style;
 use tui::layout::Constraint::Percentage;
 use tui::prelude::*;
 use tui::widgets::{Block, Clear, Paragraph};

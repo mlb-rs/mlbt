@@ -1,5 +1,5 @@
 use crate::components::game::live_game::GameState;
-use crate::ui::color::border_style;
+use crate::ui::styling::border_style;
 use tui::prelude::*;
 use tui::widgets::{Block, Borders, Padding, Paragraph};
 

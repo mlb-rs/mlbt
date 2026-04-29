@@ -3,7 +3,7 @@ use crate::components::datetime::format_numeric_date_or;
 use crate::components::standings::Team;
 use crate::components::stats::splits::{RecentSplit, RecentStats, StatSplits};
 use crate::components::util::{OptionDisplayExt, OptionMapDisplayExt};
-use crate::ui::color::{DimStyle, avg_style, era_style, header_style};
+use crate::ui::styling::{DimStyle, avg_style, era_style, header_style};
 use mlbt_api::player::PersonFull;
 use mlbt_api::stats::{Split, StatSplit};
 use tui::layout::Constraint;

@@ -1,5 +1,4 @@
 pub(crate) mod boxscore;
-pub mod color;
 pub(crate) mod date_selector;
 pub(crate) mod debug;
 pub(crate) mod decision_pitchers;
@@ -15,4 +14,5 @@ pub(crate) mod schedule;
 pub(crate) mod scroll;
 pub(crate) mod standings;
 pub(crate) mod stats;
+pub mod styling;
 pub(crate) mod team_page;

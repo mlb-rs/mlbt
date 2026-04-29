@@ -9,7 +9,6 @@ use crate::app::{App, DebugState, MenuItem};
 use crate::components::debug::DebugInfo;
 use crate::state::network::{ERROR_CHAR, LoadingState};
 use crate::ui::boxscore::TeamBatterBoxscoreWidget;
-use crate::ui::color::{TEXT_COLOR, border_style};
 use crate::ui::date_selector::DateSelectorWidget;
 use crate::ui::decision_pitchers::DecisionPitchersWidget;
 use crate::ui::gameday::gameday_widget::GamedayWidget;
@@ -24,6 +23,7 @@ use crate::ui::probable_pitchers::ProbablePitchersWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::standings::StandingsWidget;
 use crate::ui::stats::{STATS_OPTIONS_WIDTH, StatsDataWidget, StatsOptionsWidget};
+use crate::ui::styling::{TEXT_COLOR, border_style};
 use crate::ui::team_page::TeamPageWidget;
 
 static TABS: &[&str; 4] = &["Scoreboard", "Gameday", "Stats", "Standings"];

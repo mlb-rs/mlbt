@@ -3,7 +3,7 @@ use crate::state::settings_editor::{
     PickerState, SettingsEditorState, SettingsField, SettingsFocus, SettingsStatus,
     current_value_label, max_value_width,
 };
-use crate::ui::color::{border_style, selected_style};
+use crate::ui::styling::{border_style, selected_style};
 use tui::layout::{Alignment, Constraint, Flex, Layout, Rect};
 use tui::prelude::*;
 use tui::widgets::{

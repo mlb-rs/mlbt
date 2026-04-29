@@ -2,7 +2,7 @@ use crate::components::game::live_game::GameState;
 use crate::components::game::strikezone::{
     DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH, StrikeZone,
 };
-use crate::ui::color::border_style;
+use crate::ui::styling::border_style;
 use tui::prelude::*;
 use tui::widgets::canvas::{Canvas, Rectangle};
 use tui::widgets::{Block, Borders, Paragraph, Wrap};

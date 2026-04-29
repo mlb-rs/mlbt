@@ -1,6 +1,6 @@
 use crate::components::standings::Team;
 use crate::state::app_state::HomeOrAway;
-use crate::ui::color::{DimStyle, selected_style};
+use crate::ui::styling::{DimStyle, selected_style};
 use mlbt_api::live::LiveResponse;
 use tui::style::{Modifier, Style};
 use tui::text::Span;

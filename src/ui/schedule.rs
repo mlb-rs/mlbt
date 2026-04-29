@@ -1,6 +1,6 @@
 use crate::components::schedule::{Record, ScheduleRow, ScheduleState};
 use crate::state::app_state::HomeOrAway;
-use crate::ui::color::{border_style, dim_style, header_style, selected_style};
+use crate::ui::styling::{border_style, dim_style, header_style, selected_style};
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 

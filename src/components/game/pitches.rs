@@ -3,7 +3,7 @@ use crate::components::game::pitch_event::PitchEvent;
 use crate::components::game::review::ReviewDetails;
 use crate::components::game::strikezone::{DEFAULT_SZ_BOT, DEFAULT_SZ_TOP};
 use crate::components::standings::Team;
-use crate::ui::color::convert_color;
+use crate::ui::styling::convert_color;
 use mlbt_api::plays::{Play, PlayEvent};
 use tui::{
     style::{Color, Style},

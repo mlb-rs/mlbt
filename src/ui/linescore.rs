@@ -1,6 +1,6 @@
 use crate::components::linescore::LineScore;
 use crate::state::app_state::HomeOrAway;
-use crate::ui::color::{header_style, text_style};
+use crate::ui::styling::{header_style, text_style};
 use tui::{
     buffer::Buffer,
     layout::{Constraint, Rect},

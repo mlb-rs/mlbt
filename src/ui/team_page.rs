@@ -1,6 +1,6 @@
 use crate::components::team_page::TeamGame;
 use crate::state::team_page::{TeamPageState, TeamSection};
-use crate::ui::color::{TEXT_COLOR, border_style, dim_style, header_style, selected_style};
+use crate::ui::styling::{TEXT_COLOR, border_style, dim_style, header_style, selected_style};
 use chrono::{Datelike, NaiveDate};
 use mlbt_api::team::RosterType;
 use time::{Date, Month};

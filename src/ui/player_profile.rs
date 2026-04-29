@@ -1,7 +1,7 @@
 use crate::components::stats::player_profile::PlayerProfile;
 use crate::state::player_profile::PlayerProfileState;
-use crate::ui::color::{border_style, dim_style, selected_style};
 use crate::ui::scroll::{ScrollParams, adjust_area_for_scroll, render_scrollbar};
+use crate::ui::styling::{border_style, dim_style, selected_style};
 use mlbt_api::client::StatGroup;
 use mlbt_api::season::GameType;
 use mlbt_api::stats::Split;

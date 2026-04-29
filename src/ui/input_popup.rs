@@ -1,4 +1,4 @@
-use crate::ui::color::dim_style;
+use crate::ui::styling::dim_style;
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph};
 

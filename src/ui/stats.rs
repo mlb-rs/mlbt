@@ -1,7 +1,7 @@
 use crate::components::stats::table::TeamOrPlayer;
 use crate::components::stats::{STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH};
 use crate::state::stats::{ActivePane, StatsState};
-use crate::ui::color::{
+use crate::ui::styling::{
     DimStyle, avg_style, border_style, dim_style, era_style, header_style, selected_style,
 };
 use mlbt_api::client::{Qualification, StatGroup};

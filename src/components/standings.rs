@@ -1,8 +1,8 @@
 use crate::components::constants::{DIVISION_ORDERS, DIVISIONS, lookup_team, lookup_team_by_id};
 use crate::components::date_selector::DateSelector;
 use crate::state::team_page::TeamPageState;
-use crate::ui::color::TEXT_COLOR;
-use crate::ui::color::win_pct_color;
+use crate::ui::styling::TEXT_COLOR;
+use crate::ui::styling::win_pct_color;
 use chrono::NaiveDate;
 use chrono_tz::Tz;
 use mlbt_api::player::PeopleResponse;

@@ -1,6 +1,6 @@
 use crate::components::game::live_game::GameState;
 use crate::components::game::plays::PlayResult;
-use crate::ui::color::TEXT_COLOR;
+use crate::ui::styling::TEXT_COLOR;
 use std::vec;
 use tui::prelude::*;
 use tui::widgets::{Paragraph, Wrap};

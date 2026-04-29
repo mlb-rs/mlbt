@@ -1,6 +1,6 @@
 use crate::components::decision_pitchers::{DecisionPitcher, GameDecisionPitchers};
 use crate::components::util::{OptionDisplayExt, last_name};
-use crate::ui::color::dim_style;
+use crate::ui::styling::dim_style;
 use tui::buffer::Buffer;
 use tui::layout::Rect;
 use tui::style::Style;

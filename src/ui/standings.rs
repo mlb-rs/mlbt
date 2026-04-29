@@ -1,5 +1,5 @@
 use crate::components::standings::{StandingsState, ViewMode};
-use crate::ui::color::{border_style, header_style, selected_style};
+use crate::ui::styling::{border_style, header_style, selected_style};
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 

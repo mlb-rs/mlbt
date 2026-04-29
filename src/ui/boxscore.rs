@@ -1,7 +1,7 @@
 use crate::state::app_state::HomeOrAway;
 use crate::state::boxscore::BoxscoreState;
-use crate::ui::color::{header_style, text_style};
 use crate::ui::scroll::{ScrollParams, adjust_area_for_scroll, render_scrollbar};
+use crate::ui::styling::{header_style, text_style};
 use tui::prelude::*;
 use tui::widgets::{Block, Borders, Cell, Row, Table};
 

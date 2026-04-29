@@ -2,8 +2,8 @@ use crate::app::MenuItem;
 use crate::components::game::live_game::{AtBatIndex, GameState};
 use crate::components::game::win_probability::WinProbabilityAtBat;
 use crate::components::standings::Team;
-use crate::ui::color::{TEXT_COLOR, border_style, header_style, selected_style};
 use crate::ui::gameday::plays::{BLUE, GREEN};
+use crate::ui::styling::{TEXT_COLOR, border_style, header_style, selected_style};
 use indexmap::IndexMap;
 use tui::prelude::*;
 use tui::widgets::{

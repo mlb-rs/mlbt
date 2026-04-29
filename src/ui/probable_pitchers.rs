@@ -1,6 +1,6 @@
 use crate::components::probable_pitchers::ProbablePitcherMatchup;
 use crate::components::schedule::ScheduleRow;
-use crate::ui::color::{border_style, header_style, selected_style};
+use crate::ui::styling::{border_style, header_style, selected_style};
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Padding, Row, Table};
 
