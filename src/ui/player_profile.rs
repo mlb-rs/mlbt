@@ -24,7 +24,7 @@ impl Widget for PlayerProfileWidget<'_> {
             .title(Line::from(vec![
                 Span::styled(
                     format!(" #{} {} ", profile.number, profile.name),
-                    Style::default().fg(Color::Black).bg(Color::Blue),
+                    selected_style(),
                 ),
                 Span::styled(
                     if profile.is_minor_league {
@@ -240,7 +240,7 @@ fn render_table_with_title<'a>(
 fn render_section_title(title: &str, area: Rect, buf: &mut Buffer) {
     Paragraph::new(Line::from(Span::styled(
         format!(" {title} "),
-        Style::default().bg(Color::Blue).fg(Color::Black),
+        selected_style(),
     )))
     .render(area, buf);
 }

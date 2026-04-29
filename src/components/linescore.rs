@@ -1,8 +1,8 @@
 use crate::components::standings::Team;
 use crate::state::app_state::HomeOrAway;
-use crate::ui::color::DimStyle;
+use crate::ui::color::{DimStyle, selected_style};
 use mlbt_api::live::LiveResponse;
-use tui::style::{Color, Modifier, Style};
+use tui::style::{Modifier, Style};
 use tui::text::Span;
 use tui::widgets::Cell;
 
@@ -95,10 +95,7 @@ impl LineScoreLine {
         let mut row = vec![];
         // Display a blue background if the team is active
         let team = match active == self.team {
-            true => Span::styled(
-                self.abbreviation.clone(),
-                Style::default().fg(Color::Black).bg(Color::Blue),
-            ),
+            true => Span::styled(self.abbreviation.clone(), selected_style()),
             false => Span::raw(self.abbreviation.clone()),
         };
         row.push(Cell::from(team));

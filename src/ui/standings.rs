@@ -1,5 +1,5 @@
 use crate::components::standings::{StandingsState, ViewMode};
-use crate::ui::color::{border_style, header_style};
+use crate::ui::color::{border_style, header_style, selected_style};
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
@@ -57,7 +57,6 @@ impl StatefulWidget for StandingsWidget {
             }
         }
 
-        let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
         let t = Table::new(rows, WIDTHS)
             .header(header)
             .block(
@@ -68,10 +67,10 @@ impl StatefulWidget for StandingsWidget {
                     .padding(Padding::new(1, 1, 0, 0))
                     .title(Span::styled(
                         state.date_selector.format_date_border_title(),
-                        Style::default().fg(Color::Black).bg(Color::Blue),
+                        selected_style(),
                     )),
             )
-            .row_highlight_style(selected_style);
+            .row_highlight_style(selected_style());
 
         StatefulWidget::render(t, area, buf, &mut state.state);
     }

@@ -1,6 +1,6 @@
 use crate::components::schedule::{Record, ScheduleRow, ScheduleState};
 use crate::state::app_state::HomeOrAway;
-use crate::ui::color::{border_style, dim_style, header_style};
+use crate::ui::color::{border_style, dim_style, header_style, selected_style};
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
@@ -105,7 +105,6 @@ impl StatefulWidget for ScheduleWidget {
             Constraint::Length(12), // game time
             Constraint::Fill(1),    // game status
         ];
-        let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
 
         let t = Table::new(rows, widths)
             .header(header)
@@ -117,10 +116,10 @@ impl StatefulWidget for ScheduleWidget {
                     .padding(Padding::new(1, 1, 0, 0))
                     .title(Span::styled(
                         state.date_selector.format_date_border_title(),
-                        Style::default().fg(Color::Black).bg(Color::Blue),
+                        selected_style(),
                     )),
             )
-            .row_highlight_style(selected_style);
+            .row_highlight_style(selected_style());
 
         StatefulWidget::render(t, area, buf, &mut state.state);
     }
