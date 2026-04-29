@@ -2,7 +2,7 @@ use crate::app::MenuItem;
 use crate::components::game::live_game::{AtBatIndex, GameState};
 use crate::components::game::win_probability::WinProbabilityAtBat;
 use crate::components::standings::Team;
-use crate::components::util::TEXT_COLOR;
+use crate::ui::color::{TEXT_COLOR, selected_style};
 use crate::ui::gameday::plays::{BLUE, GREEN};
 use indexmap::IndexMap;
 use tui::prelude::*;
@@ -155,8 +155,8 @@ impl<'a> WinProbabilityData<'a> {
                 Constraint::Min(6), // win %
             ],
         )
-        .style(Style::default().fg(Color::White))
-        .row_highlight_style(Style::default().bg(BLUE).add_modifier(Modifier::BOLD))
+        .style(Style::default())
+        .row_highlight_style(selected_style())
         .header(header);
 
         StatefulWidget::render(table, area, buf, &mut table_state);
@@ -171,15 +171,16 @@ impl<'a> WinProbabilityData<'a> {
     }
 
     fn create_header_bar(&self, width: u16) -> Bar<'_> {
+        let underline_color = TEXT_COLOR;
         Bar::default()
             .value(100)
             // use the width of the the area to ensure underline goes all the way across
             .text_value(format!("{: <1$}", "", width as usize))
             .value_style(
                 Style::default()
-                    .fg(Color::Gray)
                     .underlined()
-                    .underline_color(Color::White),
+                    .underline_color(underline_color)
+                    .fg(underline_color), // needs to be set for underline to work
             )
             .style(Style::default().fg(Color::Black))
     }
@@ -206,7 +207,6 @@ impl<'a> WinProbabilityData<'a> {
             .direction(Direction::Horizontal)
             .bar_width(1)
             .bar_gap(0)
-            .value_style(Style::default().fg(BLUE).add_modifier(Modifier::BOLD))
             .max(100);
 
         Widget::render(chart, area, buf);

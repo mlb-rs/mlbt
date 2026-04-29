@@ -84,7 +84,7 @@ impl Widget for GamedayWidget<'_> {
 
 impl GamedayWidget<'_> {
     fn draw_border(area: Rect, buf: &mut Buffer) {
-        let block = draw::default_border(Color::White);
+        let block = draw::default_border(Color::Reset);
         Widget::render(block, area, buf);
     }
 }

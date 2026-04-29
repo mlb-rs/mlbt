@@ -1,4 +1,5 @@
 pub(crate) mod boxscore;
+pub mod color;
 pub(crate) mod date_selector;
 pub(crate) mod debug;
 pub(crate) mod decision_pitchers;

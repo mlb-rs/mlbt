@@ -1,5 +1,6 @@
 use crate::components::stats::player_profile::PlayerProfile;
 use crate::state::player_profile::PlayerProfileState;
+use crate::ui::color::{dim_style, selected_style};
 use crate::ui::scroll::{ScrollParams, adjust_area_for_scroll, render_scrollbar};
 use mlbt_api::client::StatGroup;
 use mlbt_api::season::GameType;
@@ -117,8 +118,8 @@ impl PlayerProfileWidget<'_> {
     }
 
     fn render_game_type_selector(&self, area: Rect, buf: &mut Buffer) {
-        let selected = Style::default().fg(Color::Black).bg(Color::Blue);
-        let normal = Style::default().fg(Color::DarkGray);
+        let selected = selected_style();
+        let normal = dim_style();
 
         let (reg_style, st_style) = match self.state.game_type {
             GameType::RegularSeason => (selected, normal),
@@ -195,11 +196,7 @@ fn render_stat_table(
             let [title_area, msg_area] =
                 Layout::vertical([Constraint::Length(1), Constraint::Length(1)]).areas(area);
             render_section_title(title, title_area, buf);
-            Paragraph::new(Span::styled(
-                "  No data",
-                Style::default().fg(Color::DarkGray),
-            ))
-            .render(msg_area, buf);
+            Paragraph::new(Span::styled("  No data", dim_style())).render(msg_area, buf);
         }
         return;
     }

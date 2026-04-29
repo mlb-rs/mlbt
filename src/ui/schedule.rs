@@ -1,5 +1,6 @@
 use crate::components::schedule::{Record, ScheduleRow, ScheduleState};
 use crate::state::app_state::HomeOrAway;
+use crate::ui::color::dim_style;
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
@@ -29,7 +30,7 @@ impl ScheduleRow {
 
     fn get_styles(&self, team: HomeOrAway) -> (Style, Style) {
         let winning_team = self.winning_team();
-        let lose_style = Style::default().fg(Color::DarkGray);
+        let lose_style = dim_style();
         match winning_team {
             Some(winner) if winner == team => (Style::default(), Style::default()),
             None => (Style::default(), Style::default()),

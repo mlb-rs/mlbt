@@ -1,3 +1,4 @@
+use crate::ui::color::dim_style;
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Clear, Paragraph};
 
@@ -30,7 +31,7 @@ impl Widget for InputPopup<'_> {
             if inp.width > info_width + input_width {
                 Paragraph::new(format!("{} ", info))
                     .alignment(Alignment::Right)
-                    .style(Style::default().fg(Color::DarkGray))
+                    .style(dim_style())
                     .render(inp, buf);
             }
         }

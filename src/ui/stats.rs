@@ -1,7 +1,7 @@
 use crate::components::stats::table::TeamOrPlayer;
 use crate::components::stats::{STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH};
-use crate::components::util::{DIM_COLOR, DimColor, avg_color_or_default, era_color_or_default};
 use crate::state::stats::{ActivePane, StatsState};
+use crate::ui::color::{DimStyle, avg_style, dim_style, era_style};
 use mlbt_api::client::{Qualification, StatGroup};
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Table};
@@ -60,14 +60,14 @@ impl StatefulWidget for StatsDataWidget {
                 row.iter()
                     .enumerate()
                     .map(|(i, cell)| {
-                        let color = if Some(i) == avg_idx {
-                            avg_color_or_default(cell)
+                        let style = if Some(i) == avg_idx {
+                            avg_style(cell)
                         } else if Some(i) == era_idx {
-                            era_color_or_default(cell)
+                            era_style(cell)
                         } else {
                             cell.as_str().dim_or_default()
                         };
-                        Cell::from(cell.as_str()).fg(color)
+                        Cell::from(cell.as_str()).style(style)
                     })
                     .collect::<Row>()
             })
@@ -132,7 +132,7 @@ impl StatefulWidget for StatsOptionsWidget {
 
         let is_team = state.stat_type.team_player == TeamOrPlayer::Team;
         let dim_if_team = if is_team {
-            Style::default().fg(DIM_COLOR)
+            dim_style()
         } else {
             Style::default()
         };

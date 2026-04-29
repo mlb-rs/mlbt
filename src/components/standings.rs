@@ -1,7 +1,8 @@
 use crate::components::constants::{DIVISION_ORDERS, DIVISIONS, lookup_team, lookup_team_by_id};
 use crate::components::date_selector::DateSelector;
-use crate::components::util::{TEXT_COLOR, win_pct_color_or_default};
 use crate::state::team_page::TeamPageState;
+use crate::ui::color::TEXT_COLOR;
+use crate::ui::color::win_pct_color;
 use chrono::NaiveDate;
 use chrono_tz::Tz;
 use mlbt_api::player::PeopleResponse;
@@ -497,7 +498,7 @@ impl Standing {
             -1 => ("", Color::Red),
             _ => ("", TEXT_COLOR),
         };
-        let pct_color = win_pct_color_or_default(&self.winning_percentage);
+        let pct_color = win_pct_color(&self.winning_percentage);
         let streak_color = match self.streak.chars().next() {
             Some('W') => Color::Green,
             Some('L') => Color::Red,

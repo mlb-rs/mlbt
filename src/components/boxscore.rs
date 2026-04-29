@@ -1,15 +1,12 @@
 use crate::components::game::player::Player;
-use crate::components::util::{DimColor, TEXT_COLOR, avg_color, era_color};
 use crate::state::app_state::HomeOrAway;
+use crate::ui::color::{DimStyle, TEXT_COLOR, avg_style, dim_style, era_style};
 use mlbt_api::boxscore::{LabelValue, Player as ApiPlayer, Team};
 use mlbt_api::live::LiveResponse;
 use std::collections::HashMap;
 use tui::prelude::{Line, Stylize};
-use tui::style::Color;
 use tui::text::Span;
 use tui::widgets::Cell;
-
-const SECONDARY_COLOR: Color = Color::DarkGray;
 
 #[derive(Default)]
 pub struct Boxscore {
@@ -108,33 +105,32 @@ impl BatterBoxscore {
             true => "  ".to_string(),
             false => "".to_string(),
         };
-        let (name, color) = if self.name == "Totals" {
-            (
-                Span::from("Totals").fg(SECONDARY_COLOR).into(),
-                SECONDARY_COLOR,
-            )
+        let name = if self.name == "Totals" {
+            Span::from("Totals").style(dim_style()).into()
         } else {
-            (
-                Line::from(vec![
-                    Span::from(format!("{prefix}{note}{} ", self.name)),
-                    Span::from(self.position.clone()).fg(SECONDARY_COLOR),
-                ]),
-                TEXT_COLOR,
-            )
+            Line::from(vec![
+                Span::from(format!("{prefix}{note}{} ", self.name)),
+                Span::from(self.position.clone()).style(dim_style()),
+            ])
         };
 
-        vec![
+        let cells = vec![
             Cell::from(name),
-            Cell::from(self.at_bats.to_string()).fg(self.at_bats.dim_or(color)),
-            Cell::from(self.runs.to_string()).fg(self.runs.dim_or(color)),
-            Cell::from(self.hits.to_string()).fg(self.hits.dim_or(color)),
-            Cell::from(self.rbis.to_string()).fg(self.rbis.dim_or(color)),
-            Cell::from(self.walks.to_string()).fg(self.walks.dim_or(color)),
-            Cell::from(self.strike_outs.to_string()).fg(self.strike_outs.dim_or(color)),
-            Cell::from(self.left_on.to_string()).fg(self.left_on.dim_or(color)),
-            Cell::from(self.batting_average.as_str())
-                .fg(avg_color(&self.batting_average).unwrap_or(color)),
-        ]
+            Cell::from(self.at_bats.to_string()).style(self.at_bats.dim_or_default()),
+            Cell::from(self.runs.to_string()).style(self.runs.dim_or_default()),
+            Cell::from(self.hits.to_string()).style(self.hits.dim_or_default()),
+            Cell::from(self.rbis.to_string()).style(self.rbis.dim_or_default()),
+            Cell::from(self.walks.to_string()).style(self.walks.dim_or_default()),
+            Cell::from(self.strike_outs.to_string()).style(self.strike_outs.dim_or_default()),
+            Cell::from(self.left_on.to_string()).style(self.left_on.dim_or_default()),
+            Cell::from(self.batting_average.as_str()).style(avg_style(&self.batting_average)),
+        ];
+
+        if self.name == "Totals" {
+            cells.into_iter().map(|c| c.style(dim_style())).collect()
+        } else {
+            cells
+        }
     }
 }
 
@@ -173,34 +169,34 @@ impl PitcherBoxscore {
 
     pub fn to_cells(&self) -> Vec<Cell<'_>> {
         let note = self.note.as_deref().unwrap_or_default();
-        let (name, color) = if self.name == "Totals" {
-            (
-                Span::from("Totals").fg(SECONDARY_COLOR).into(),
-                SECONDARY_COLOR,
-            )
+        let name = if self.name == "Totals" {
+            Span::from("Totals").style(dim_style()).into()
         } else if !note.is_empty() {
-            (
-                Line::from(vec![
-                    Span::from(format!("{} ", self.name)),
-                    Span::from(note).fg(SECONDARY_COLOR),
-                ]),
-                TEXT_COLOR,
-            )
+            Line::from(vec![
+                Span::from(format!("{} ", self.name)),
+                Span::from(note).style(dim_style()),
+            ])
         } else {
-            (self.name.clone().into(), TEXT_COLOR)
+            self.name.clone().into()
         };
 
-        vec![
+        let cells = vec![
             Cell::from(name),
-            Cell::from(self.innings_pitched.clone()).fg(color),
-            Cell::from(self.hits.to_string()).fg(self.hits.dim_or(color)),
-            Cell::from(self.runs.to_string()).fg(self.runs.dim_or(color)),
-            Cell::from(self.earned_runs.to_string()).fg(self.earned_runs.dim_or(color)),
-            Cell::from(self.walks.to_string()).fg(self.walks.dim_or(color)),
-            Cell::from(self.strikeouts.to_string()).fg(self.strikeouts.dim_or(color)),
-            Cell::from(self.home_runs.to_string()).fg(self.home_runs.dim_or(color)),
-            Cell::from(self.era.clone()).fg(era_color(&self.era).unwrap_or(color)),
-        ]
+            Cell::from(self.innings_pitched.clone()).fg(TEXT_COLOR),
+            Cell::from(self.hits.to_string()).style(self.hits.dim_or_default()),
+            Cell::from(self.runs.to_string()).style(self.runs.dim_or_default()),
+            Cell::from(self.earned_runs.to_string()).style(self.earned_runs.dim_or_default()),
+            Cell::from(self.walks.to_string()).style(self.walks.dim_or_default()),
+            Cell::from(self.strikeouts.to_string()).style(self.strikeouts.dim_or_default()),
+            Cell::from(self.home_runs.to_string()).style(self.home_runs.dim_or_default()),
+            Cell::from(self.era.clone()).style(era_style(&self.era)),
+        ];
+
+        if self.name == "Totals" {
+            cells.into_iter().map(|c| c.style(dim_style())).collect()
+        } else {
+            cells
+        }
     }
 }
 
@@ -439,9 +435,7 @@ impl GameNote {
     pub fn to_line<'a>(&self) -> Option<Line<'a>> {
         match (self.label.is_empty(), self.value.is_empty()) {
             (false, false) if self.value == Boxscore::HEADER_SENTINEL => Some(Line::from(vec![
-                Span::from(self.label.to_string())
-                    .bold()
-                    .fg(SECONDARY_COLOR),
+                Span::from(self.label.to_string()).bold().style(dim_style()),
             ])),
             (false, false) => Some(Line::from(vec![
                 Span::from(format!("{}: ", self.label)).bold(),
