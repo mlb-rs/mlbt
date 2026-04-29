@@ -21,8 +21,12 @@ pub fn header_style() -> Style {
         .underline_color(UNDERLINER_COLOR)
 }
 
+pub fn text_style() -> Style {
+    Style::new().fg(TEXT_COLOR)
+}
+
 pub fn dim_style() -> Style {
-    Style::new().fg(TEXT_COLOR).dim()
+    text_style().dim()
 }
 
 pub fn selected_style() -> Style {

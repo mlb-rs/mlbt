@@ -1,10 +1,9 @@
 use crate::components::linescore::LineScore;
 use crate::state::app_state::HomeOrAway;
-use crate::ui::color::{TEXT_COLOR, header_style};
+use crate::ui::color::{header_style, text_style};
 use tui::{
     buffer::Buffer,
     layout::{Constraint, Rect},
-    style::Style,
     widgets::{Block, Borders, Row, Table, Widget},
 };
 // TODO depending on the terminal size the number of columns display should be changed. Only two columns *need* to be shown, the current inning and the run totals - eveything else can get chopped off.
@@ -39,7 +38,7 @@ impl Widget for LineScoreWidget<'_> {
             widths.as_slice(),
         )
         .column_spacing(0)
-        .style(Style::default().fg(TEXT_COLOR))
+        .style(text_style())
         .header(header)
         .block(Block::default().borders(Borders::NONE));
 
