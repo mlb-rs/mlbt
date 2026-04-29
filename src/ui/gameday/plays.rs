@@ -1,5 +1,6 @@
 use crate::components::game::live_game::GameState;
 use crate::components::game::plays::PlayResult;
+use crate::components::util::TEXT_COLOR;
 use std::vec;
 use tui::prelude::*;
 use tui::widgets::{Paragraph, Wrap};
@@ -110,7 +111,7 @@ fn format_runs(play: &PlayResult, selected_at_bat: Option<u8>) -> Span<'_> {
         };
         Span::styled(text.to_string(), Style::default().fg(BLUE))
     } else {
-        let mut color = Color::White;
+        let mut color = TEXT_COLOR;
         if play.is_out {
             color = RED;
         }

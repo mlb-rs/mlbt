@@ -1,5 +1,5 @@
 use crate::components::game::player::Player;
-use crate::components::util::{DimColor, avg_color, era_color};
+use crate::components::util::{DimColor, TEXT_COLOR, avg_color, era_color};
 use crate::state::app_state::HomeOrAway;
 use mlbt_api::boxscore::{LabelValue, Player as ApiPlayer, Team};
 use mlbt_api::live::LiveResponse;
@@ -119,7 +119,7 @@ impl BatterBoxscore {
                     Span::from(format!("{prefix}{note}{} ", self.name)),
                     Span::from(self.position.clone()).fg(SECONDARY_COLOR),
                 ]),
-                Color::White,
+                TEXT_COLOR,
             )
         };
 
@@ -184,10 +184,10 @@ impl PitcherBoxscore {
                     Span::from(format!("{} ", self.name)),
                     Span::from(note).fg(SECONDARY_COLOR),
                 ]),
-                Color::White,
+                TEXT_COLOR,
             )
         } else {
-            (self.name.clone().into(), Color::White)
+            (self.name.clone().into(), TEXT_COLOR)
         };
 
         vec![

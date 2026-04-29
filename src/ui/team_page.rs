@@ -1,4 +1,5 @@
 use crate::components::team_page::TeamGame;
+use crate::components::util::TEXT_COLOR;
 use crate::state::team_page::{TeamPageState, TeamSection};
 use chrono::{Datelike, NaiveDate};
 use mlbt_api::team::RosterType;
@@ -11,7 +12,7 @@ const ROSTER_HEADER: &[&str] = &["Pos", "B/T", "Ht", "Wt", "DOB"];
 
 const TITLE_STYLE: Style = Style::new().bold().underlined();
 const HOME_STYLE: Style = Style::new().fg(Color::Blue);
-const AWAY_STYLE: Style = Style::new().fg(Color::White);
+const AWAY_STYLE: Style = Style::new().fg(TEXT_COLOR);
 const TODAY_STYLE: Style = Style::new().fg(Color::Green).bold();
 const PAST_STYLE: Style = Style::new().fg(Color::DarkGray);
 

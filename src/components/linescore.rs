@@ -108,7 +108,7 @@ impl LineScoreLine {
         let scores = self
             .inning_score
             .iter()
-            .map(|&s| Cell::from(s.to_string()).fg(s.dim_or(Color::White)))
+            .map(|&s| Cell::from(s.to_string()).fg(s.dim_or_default()))
             .collect::<Vec<_>>();
         row.extend(scores);
 

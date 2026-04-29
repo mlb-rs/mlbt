@@ -2,6 +2,7 @@ use crate::app::MenuItem;
 use crate::components::game::live_game::{AtBatIndex, GameState};
 use crate::components::game::win_probability::WinProbabilityAtBat;
 use crate::components::standings::Team;
+use crate::components::util::TEXT_COLOR;
 use crate::ui::gameday::plays::{BLUE, GREEN};
 use indexmap::IndexMap;
 use tui::prelude::*;
@@ -90,7 +91,7 @@ impl<'a> WinProbabilityData<'a> {
             99.0..=100.0 => Color::Blue,
             45.0..=55.0 => GREEN,
             0.0..=0.99 => Color::Red,
-            _ => Color::White,
+            _ => TEXT_COLOR,
         };
 
         let leverage = at_bat.leverage_index;
@@ -102,7 +103,7 @@ impl<'a> WinProbabilityData<'a> {
         let leverage_color = if leverage > 2.0 {
             Color::Red
         } else {
-            Color::White
+            TEXT_COLOR
         };
 
         // -10.0 is the longest wpa possible because the smallest wpa possible is -99.9.

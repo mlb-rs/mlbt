@@ -1,6 +1,6 @@
 use crate::components::constants::{DIVISION_ORDERS, DIVISIONS, lookup_team, lookup_team_by_id};
 use crate::components::date_selector::DateSelector;
-use crate::components::util::win_pct_color;
+use crate::components::util::{TEXT_COLOR, win_pct_color_or_default};
 use crate::state::team_page::TeamPageState;
 use chrono::NaiveDate;
 use chrono_tz::Tz;
@@ -495,13 +495,13 @@ impl Standing {
         let (prefix, rdiff_color) = match self.run_differential.signum() {
             1 => ("+", Color::Green),
             -1 => ("", Color::Red),
-            _ => ("", Color::White),
+            _ => ("", TEXT_COLOR),
         };
-        let pct_color = win_pct_color(&self.winning_percentage).unwrap_or(Color::White);
+        let pct_color = win_pct_color_or_default(&self.winning_percentage);
         let streak_color = match self.streak.chars().next() {
             Some('W') => Color::Green,
             Some('L') => Color::Red,
-            _ => Color::White,
+            _ => TEXT_COLOR,
         };
         vec![
             self.team.name.to_string().into(),
