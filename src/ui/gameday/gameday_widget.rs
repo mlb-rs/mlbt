@@ -10,7 +10,7 @@ use crate::ui::gameday::plays::InningPlaysWidget;
 use crate::ui::gameday::win_probability::WinProbabilityWidget;
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
-use tui::prelude::{Buffer, Color, Rect, Widget};
+use tui::prelude::{Buffer, Rect, Widget};
 
 pub struct GamedayWidget<'a> {
     pub state: &'a GamedayState,
@@ -84,7 +84,7 @@ impl Widget for GamedayWidget<'_> {
 
 impl GamedayWidget<'_> {
     fn draw_border(area: Rect, buf: &mut Buffer) {
-        let block = draw::default_border(Color::Reset);
+        let block = draw::default_border();
         Widget::render(block, area, buf);
     }
 }

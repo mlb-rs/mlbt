@@ -1,5 +1,6 @@
 use crate::components::probable_pitchers::ProbablePitcherMatchup;
 use crate::components::schedule::ScheduleRow;
+use crate::ui::color::border_style;
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Padding, Row, Table};
 
@@ -52,6 +53,7 @@ impl Widget for ProbablePitchersWidget<'_> {
                 Block::default()
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded)
+                    .border_style(border_style())
                     .padding(Padding::new(1, 1, 0, 0))
                     .title(Span::styled(
                         " Probable Pitchers ",

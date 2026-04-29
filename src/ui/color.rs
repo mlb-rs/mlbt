@@ -5,6 +5,15 @@ use tui::style::Style;
 /// Default text color which allows the terminal theme to supply the color.
 pub const TEXT_COLOR: Color = Color::Reset;
 
+/// Default border color which allows the terminal theme to supply the color.
+const BORDER_COLOR: Color = Color::Reset;
+
+pub const UNDERLINER_COLOR: Color = Color::Reset;
+
+pub fn border_style() -> Style {
+    Style::new().fg(BORDER_COLOR)
+}
+
 pub fn dim_style() -> Style {
     Style::new().fg(TEXT_COLOR).dim()
 }

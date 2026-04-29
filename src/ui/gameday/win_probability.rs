@@ -2,7 +2,7 @@ use crate::app::MenuItem;
 use crate::components::game::live_game::{AtBatIndex, GameState};
 use crate::components::game::win_probability::WinProbabilityAtBat;
 use crate::components::standings::Team;
-use crate::ui::color::{TEXT_COLOR, selected_style};
+use crate::ui::color::{TEXT_COLOR, border_style, selected_style};
 use crate::ui::gameday::plays::{BLUE, GREEN};
 use indexmap::IndexMap;
 use tui::prelude::*;
@@ -269,8 +269,13 @@ impl<'a> WinProbabilityData<'a> {
         Chart::new(datasets)
             .block(
                 Block::default()
-                    .title(Line::from(" Game Win Probability ").centered())
-                    .borders(Borders::TOP),
+                    .title(
+                        Line::from(" Game Win Probability ")
+                            .centered()
+                            .fg(TEXT_COLOR),
+                    )
+                    .borders(Borders::TOP)
+                    .border_style(border_style()),
             )
             .x_axis(
                 Axis::default()

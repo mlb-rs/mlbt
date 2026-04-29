@@ -2,6 +2,7 @@ use crate::components::game::live_game::GameState;
 use crate::components::game::strikezone::{
     DEFAULT_SZ_BOT, DEFAULT_SZ_TOP, HOME_PLATE_WIDTH, StrikeZone,
 };
+use crate::ui::color::border_style;
 use tui::prelude::*;
 use tui::widgets::canvas::{Canvas, Rectangle};
 use tui::widgets::{Block, Borders, Paragraph, Wrap};
@@ -89,9 +90,11 @@ impl Widget for AtBatWidget<'_> {
             .flatten()
             .collect();
 
-        let paragraph = Paragraph::new(events)
-            .wrap(Wrap { trim: false })
-            .block(Block::default().borders(Borders::TOP));
+        let paragraph = Paragraph::new(events).wrap(Wrap { trim: false }).block(
+            Block::default()
+                .borders(Borders::TOP)
+                .border_style(border_style()),
+        );
         Widget::render(paragraph, pitch_info, buf);
 
         // display the hit information if available

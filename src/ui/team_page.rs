@@ -1,6 +1,6 @@
 use crate::components::team_page::TeamGame;
 use crate::state::team_page::{TeamPageState, TeamSection};
-use crate::ui::color::{TEXT_COLOR, dim_style, selected_style};
+use crate::ui::color::{TEXT_COLOR, border_style, dim_style, selected_style};
 use chrono::{Datelike, NaiveDate};
 use mlbt_api::team::RosterType;
 use time::{Date, Month};
@@ -27,6 +27,7 @@ impl Widget for TeamPageWidget<'_> {
         let block = Block::default()
             .borders(Borders::ALL)
             .border_type(BorderType::Rounded)
+            .border_style(border_style())
             .padding(Padding::new(1, 1, 0, 0))
             .title(Span::styled(
                 format!(" {} ", self.state.team.name),
@@ -64,6 +65,7 @@ impl Widget for TeamPageWidget<'_> {
         let sep_block = Block::default()
             .borders(Borders::LEFT)
             .border_type(BorderType::Rounded)
+            .border_style(border_style())
             .padding(Padding::new(1, 0, 0, 0));
         let right = sep_block.inner(right_with_border);
         sep_block.render(sep_render_area, buf);

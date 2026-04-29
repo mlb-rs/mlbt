@@ -1,6 +1,6 @@
 use crate::components::schedule::{Record, ScheduleRow, ScheduleState};
 use crate::state::app_state::HomeOrAway;
-use crate::ui::color::dim_style;
+use crate::ui::color::{border_style, dim_style};
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
@@ -115,6 +115,7 @@ impl StatefulWidget for ScheduleWidget {
                 Block::default()
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded)
+                    .border_style(border_style())
                     .padding(Padding::new(1, 1, 0, 0))
                     .title(Span::styled(
                         state.date_selector.format_date_border_title(),
