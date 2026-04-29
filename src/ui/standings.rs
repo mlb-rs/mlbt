@@ -1,5 +1,5 @@
 use crate::components::standings::{StandingsState, ViewMode};
-use crate::ui::color::border_style;
+use crate::ui::color::{border_style, header_style};
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
@@ -31,9 +31,7 @@ impl StatefulWidget for StandingsWidget {
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let header_cells = HEADER.iter().map(|h| Cell::from(*h));
-        let header = Row::new(header_cells)
-            .height(1)
-            .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
+        let header = Row::new(header_cells).height(1).style(header_style());
 
         let mut rows = Vec::with_capacity(36); // 30 teams + 6 divisions
 

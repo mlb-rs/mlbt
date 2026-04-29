@@ -2,7 +2,7 @@ use crate::app::MenuItem;
 use crate::components::game::live_game::{AtBatIndex, GameState};
 use crate::components::game::win_probability::WinProbabilityAtBat;
 use crate::components::standings::Team;
-use crate::ui::color::{TEXT_COLOR, border_style, selected_style};
+use crate::ui::color::{TEXT_COLOR, border_style, header_style, selected_style};
 use crate::ui::gameday::plays::{BLUE, GREEN};
 use indexmap::IndexMap;
 use tui::prelude::*;
@@ -130,7 +130,7 @@ impl<'a> WinProbabilityData<'a> {
             Cell::from(format!("{:^5}", "wpa")),
             Cell::from(format!("{:<6}", "win")),
         ])
-        .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
+        .style(header_style());
 
         let (start_idx, end_idx, selected_row_index) = self.calculate_visible_range();
 

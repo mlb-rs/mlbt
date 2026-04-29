@@ -4,7 +4,7 @@ use crate::components::help::{HEADER, RowType, build_docs, format_row};
 use crate::config::TomlFileStore;
 use crate::state::app_settings::AppSettings;
 use crate::state::settings_editor::{SettingsEditorState, SettingsFocus};
-use crate::ui::color::{dim_style, selected_style};
+use crate::ui::color::{dim_style, header_style, selected_style};
 use crate::ui::help::settings_panel::{render_picker, render_settings};
 use tui::layout::{Constraint, Flex, Layout};
 use tui::prelude::*;
@@ -22,7 +22,7 @@ impl StatefulWidget for HelpWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         // Create a one-column table to avoid flickering due to non-determinism when
         // resolving constraints on widths of table columns.
-        let header_style = Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED);
+        let header_style = header_style();
         let sub_header_style = Style::default().add_modifier(Modifier::BOLD);
         let help_menu_style = Style::default();
 

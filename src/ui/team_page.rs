@@ -1,6 +1,6 @@
 use crate::components::team_page::TeamGame;
 use crate::state::team_page::{TeamPageState, TeamSection};
-use crate::ui::color::{TEXT_COLOR, border_style, dim_style, selected_style};
+use crate::ui::color::{TEXT_COLOR, border_style, dim_style, header_style, selected_style};
 use chrono::{Datelike, NaiveDate};
 use mlbt_api::team::RosterType;
 use time::{Date, Month};
@@ -10,7 +10,6 @@ use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Ta
 
 const ROSTER_HEADER: &[&str] = &["Pos", "B/T", "Ht", "Wt", "DOB"];
 
-const TITLE_STYLE: Style = Style::new().bold().underlined();
 const HOME_STYLE: Style = Style::new().fg(Color::Blue);
 const AWAY_STYLE: Style = Style::new().fg(TEXT_COLOR);
 const TODAY_STYLE: Style = Style::new().fg(Color::Green).bold();
@@ -115,7 +114,7 @@ impl TeamPageWidget<'_> {
             widths.push(Constraint::Fill(1));
         }
 
-        let header = Row::new(header_cells).style(TITLE_STYLE);
+        let header = Row::new(header_cells).style(header_style());
 
         let mut rows: Vec<Row> = Vec::new();
         let mut current_group = None;
@@ -204,7 +203,7 @@ impl TeamPageWidget<'_> {
         .areas(area);
 
         let padded = format!("{:<width$}", "Schedule", width = header_area.width as usize);
-        Line::from(Span::styled(padded, TITLE_STYLE)).render(header_area, buf);
+        Line::from(Span::styled(padded, header_style())).render(header_area, buf);
 
         if self.state.show_calendar {
             self.render_calendar(cal_area, buf);
@@ -254,7 +253,7 @@ impl TeamPageWidget<'_> {
             "Transactions",
             width = header_area.width as usize
         );
-        Line::from(Span::styled(padded, TITLE_STYLE)).render(header_area, buf);
+        Line::from(Span::styled(padded, header_style())).render(header_area, buf);
 
         if self.state.transactions.is_empty() {
             Paragraph::new(Span::styled("  No recent transactions", dim_style()))

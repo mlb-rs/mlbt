@@ -2,7 +2,7 @@ use crate::components::stats::table::TeamOrPlayer;
 use crate::components::stats::{STATS_DEFAULT_COL_WIDTH, STATS_FIRST_COL_WIDTH};
 use crate::state::stats::{ActivePane, StatsState};
 use crate::ui::color::{
-    DimStyle, UNDERLINER_COLOR, avg_style, border_style, dim_style, era_style, selected_style,
+    DimStyle, avg_style, border_style, dim_style, era_style, header_style, selected_style,
 };
 use mlbt_api::client::{Qualification, StatGroup};
 use tui::prelude::*;
@@ -52,12 +52,7 @@ impl StatefulWidget for StatsDataWidget {
             })
             .collect::<Row>()
             .height(1)
-            .style(
-                Style::default()
-                    .bold()
-                    .underlined()
-                    .underline_color(UNDERLINER_COLOR),
-            );
+            .style(header_style());
 
         let rows: Vec<Row> = rows
             .iter()

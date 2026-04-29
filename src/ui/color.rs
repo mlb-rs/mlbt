@@ -8,10 +8,17 @@ pub const TEXT_COLOR: Color = Color::Reset;
 /// Default border color which allows the terminal theme to supply the color.
 const BORDER_COLOR: Color = Color::Reset;
 
-pub const UNDERLINER_COLOR: Color = Color::Reset;
+const UNDERLINER_COLOR: Color = Color::Reset;
 
 pub fn border_style() -> Style {
     Style::new().fg(BORDER_COLOR)
+}
+
+pub fn header_style() -> Style {
+    Style::new()
+        .bold()
+        .underlined()
+        .underline_color(UNDERLINER_COLOR)
 }
 
 pub fn dim_style() -> Style {

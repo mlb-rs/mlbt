@@ -3,11 +3,11 @@ use crate::components::datetime::format_numeric_date_or;
 use crate::components::standings::Team;
 use crate::components::stats::splits::{RecentSplit, RecentStats, StatSplits};
 use crate::components::util::{OptionDisplayExt, OptionMapDisplayExt};
-use crate::ui::color::{DimStyle, avg_style, era_style};
+use crate::ui::color::{DimStyle, avg_style, era_style, header_style};
 use mlbt_api::player::PersonFull;
 use mlbt_api::stats::{Split, StatSplit};
 use tui::layout::Constraint;
-use tui::prelude::{Line, Modifier, Style};
+use tui::prelude::Line;
 use tui::widgets::{Cell, Row};
 
 const STAT_COL_WIDTH: u16 = 6;
@@ -286,8 +286,7 @@ impl PlayerProfile {
         names.extend_from_slice(headers);
         widths.resize(names.len(), Constraint::Length(STAT_COL_WIDTH));
 
-        let header =
-            Row::new(names).style(Style::default().bold().add_modifier(Modifier::UNDERLINED));
+        let header = Row::new(names).style(header_style());
 
         let rows = splits
             .iter()
@@ -311,8 +310,7 @@ impl PlayerProfile {
         widths.extend_from_slice(GAME_LOG_PREFIX_WIDTHS);
         widths.resize(headers.len(), Constraint::Length(STAT_COL_WIDTH));
 
-        let header = Row::new(headers.to_vec())
-            .style(Style::default().bold().add_modifier(Modifier::UNDERLINED));
+        let header = Row::new(headers.to_vec()).style(header_style());
 
         let rows = splits
             .iter()
@@ -341,8 +339,7 @@ impl PlayerProfile {
         let mut widths = vec![Constraint::Length(SPLITS_DURATION_WIDTH)];
         widths.resize(headers.len(), Constraint::Length(STAT_COL_WIDTH));
 
-        let header = Row::new(headers.to_vec())
-            .style(Style::default().bold().add_modifier(Modifier::UNDERLINED));
+        let header = Row::new(headers.to_vec()).style(header_style());
 
         let rows = recent_splits
             .iter()

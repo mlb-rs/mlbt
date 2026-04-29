@@ -1,6 +1,6 @@
 use crate::components::schedule::{Record, ScheduleRow, ScheduleState};
 use crate::state::app_state::HomeOrAway;
-use crate::ui::color::{border_style, dim_style};
+use crate::ui::color::{border_style, dim_style, header_style};
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
@@ -75,9 +75,7 @@ impl StatefulWidget for ScheduleWidget {
             }
         });
 
-        let header = Row::new(header_cells)
-            .height(1)
-            .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
+        let header = Row::new(header_cells).height(1).style(header_style());
 
         let rows = state
             .schedule
