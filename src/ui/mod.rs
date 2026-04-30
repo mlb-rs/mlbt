@@ -14,4 +14,5 @@ pub(crate) mod schedule;
 pub(crate) mod scroll;
 pub(crate) mod standings;
 pub(crate) mod stats;
+pub mod styling;
 pub(crate) mod team_page;

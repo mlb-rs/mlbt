@@ -1,6 +1,7 @@
 use crate::components::stats::player_profile::PlayerProfile;
 use crate::state::player_profile::PlayerProfileState;
 use crate::ui::scroll::{ScrollParams, adjust_area_for_scroll, render_scrollbar};
+use crate::ui::styling::{border_style, dim_style, selected_style};
 use mlbt_api::client::StatGroup;
 use mlbt_api::season::GameType;
 use mlbt_api::stats::Split;
@@ -18,11 +19,12 @@ impl Widget for PlayerProfileWidget<'_> {
         let block = Block::default()
             .borders(Borders::ALL)
             .border_type(BorderType::Rounded)
+            .border_style(border_style())
             .padding(Padding::new(1, 1, 0, 0))
             .title(Line::from(vec![
                 Span::styled(
                     format!(" #{} {} ", profile.number, profile.name),
-                    Style::default().fg(Color::Black).bg(Color::Blue),
+                    selected_style(),
                 ),
                 Span::styled(
                     if profile.is_minor_league {
@@ -117,8 +119,8 @@ impl PlayerProfileWidget<'_> {
     }
 
     fn render_game_type_selector(&self, area: Rect, buf: &mut Buffer) {
-        let selected = Style::default().fg(Color::Black).bg(Color::Blue);
-        let normal = Style::default().fg(Color::DarkGray);
+        let selected = selected_style();
+        let normal = dim_style();
 
         let (reg_style, st_style) = match self.state.game_type {
             GameType::RegularSeason => (selected, normal),
@@ -195,11 +197,7 @@ fn render_stat_table(
             let [title_area, msg_area] =
                 Layout::vertical([Constraint::Length(1), Constraint::Length(1)]).areas(area);
             render_section_title(title, title_area, buf);
-            Paragraph::new(Span::styled(
-                "  No data",
-                Style::default().fg(Color::DarkGray),
-            ))
-            .render(msg_area, buf);
+            Paragraph::new(Span::styled("  No data", dim_style())).render(msg_area, buf);
         }
         return;
     }
@@ -242,7 +240,7 @@ fn render_table_with_title<'a>(
 fn render_section_title(title: &str, area: Rect, buf: &mut Buffer) {
     Paragraph::new(Line::from(Span::styled(
         format!(" {title} "),
-        Style::default().bg(Color::Blue).fg(Color::Black),
+        selected_style(),
     )))
     .render(area, buf);
 }

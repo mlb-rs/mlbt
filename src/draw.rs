@@ -23,6 +23,7 @@ use crate::ui::probable_pitchers::ProbablePitchersWidget;
 use crate::ui::schedule::ScheduleWidget;
 use crate::ui::standings::StandingsWidget;
 use crate::ui::stats::{STATS_OPTIONS_WIDTH, StatsDataWidget, StatsOptionsWidget};
+use crate::ui::styling::{TEXT_COLOR, border_style};
 use crate::ui::team_page::TeamPageWidget;
 
 static TABS: &[&str; 4] = &["Scoreboard", "Gameday", "Stats", "Standings"];
@@ -73,15 +74,15 @@ where
         .unwrap();
 }
 
-pub fn default_border<'a>(color: Color) -> Block<'a> {
+pub fn default_border<'a>() -> Block<'a> {
     Block::default()
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
-        .border_style(Style::default().fg(color))
+        .border_style(border_style())
 }
 
-fn draw_border(f: &mut Frame, rect: Rect, color: Color) {
-    let block = default_border(color);
+fn draw_border(f: &mut Frame, rect: Rect) {
+    let block = default_border();
     f.render_widget(block, rect);
 }
 
@@ -92,7 +93,7 @@ fn draw_loading_spinner(f: &mut Frame, area: Rect, app: &App, loading: LoadingSt
 
     let style = match loading.spinner_char {
         ERROR_CHAR => Style::default().fg(Color::Red),
-        _ => Style::default().fg(Color::White),
+        _ => Style::default().fg(Color::default()),
     };
 
     let spinner = Paragraph::new(loading.spinner_char.to_string())
@@ -115,8 +116,7 @@ fn draw_loading_spinner(f: &mut Frame, area: Rect, app: &App, loading: LoadingSt
 }
 
 fn draw_tabs(f: &mut Frame, top_bar: &[Rect], app: &App) {
-    let style = Style::default().fg(Color::White);
-    let border_style = Style::default();
+    let border_style = border_style();
     let border_type = BorderType::Rounded;
 
     let titles: Vec<Line> = TABS.iter().map(|t| Line::from(*t)).collect();
@@ -133,7 +133,7 @@ fn draw_tabs(f: &mut Frame, top_bar: &[Rect], app: &App) {
             Style::default().add_modifier(Modifier::UNDERLINED),
         )
         .select(app.state.active_tab as usize)
-        .style(style);
+        .style(TEXT_COLOR);
     f.render_widget(tabs, top_bar[0]);
 
     let help = Paragraph::new("Help: ? ")
@@ -144,7 +144,7 @@ fn draw_tabs(f: &mut Frame, top_bar: &[Rect], app: &App) {
                 .border_type(border_type)
                 .border_style(border_style),
         )
-        .style(style);
+        .style(TEXT_COLOR);
     f.render_widget(help, top_bar[1]);
 }
 
@@ -175,7 +175,7 @@ fn draw_scoreboard(f: &mut Frame, rect: Rect, app: &mut App) {
     if let Some(matchup) = app.state.schedule.get_probable_pitchers_opt() {
         f.render_widget(ProbablePitchersWidget { matchup }, boxscore);
     } else {
-        draw_border(f, boxscore, Color::White);
+        draw_border(f, boxscore);
         draw_linescore_boxscore(f, boxscore, app);
     }
 }
@@ -336,12 +336,12 @@ fn draw_help(f: &mut Frame, rect: Rect, app: &mut App) {
     f.render_widget(Clear, rect);
 
     if app.state.show_logs {
-        draw_border(f, rect, Color::White);
+        draw_border(f, rect);
         f.render_widget(LogWidget {}, rect);
         return;
     }
 
-    draw_border(f, rect, Color::White);
+    draw_border(f, rect);
     f.render_stateful_widget(
         HelpWidget {
             // use previous tab because help has been set to active at this point

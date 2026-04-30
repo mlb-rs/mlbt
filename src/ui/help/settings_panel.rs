@@ -3,7 +3,7 @@ use crate::state::settings_editor::{
     PickerState, SettingsEditorState, SettingsField, SettingsFocus, SettingsStatus,
     current_value_label, max_value_width,
 };
-use crate::ui::help::HIGHLIGHT_STYLE;
+use crate::ui::styling::{border_style, selected_style};
 use tui::layout::{Alignment, Constraint, Flex, Layout, Rect};
 use tui::prelude::*;
 use tui::widgets::{
@@ -42,7 +42,7 @@ pub fn render_settings(
         .map(|(field, value)| {
             let is_selected = editor.selected_field == *field;
             let style = if is_selected && settings_focused {
-                HIGHLIGHT_STYLE
+                selected_style()
             } else {
                 Style::default()
             };
@@ -78,6 +78,7 @@ pub fn render_settings(
             Block::default()
                 .borders(Borders::ALL)
                 .border_type(BorderType::Rounded)
+                .border_style(border_style())
                 .title(" Settings ")
                 .padding(Padding::horizontal(1)),
         ),
@@ -148,6 +149,7 @@ pub fn render_picker(picker: &PickerState, full_area: Rect, buf: &mut Buffer) {
             Block::default()
                 .borders(Borders::ALL)
                 .border_type(BorderType::Rounded)
+                .border_style(border_style())
                 .title(title),
         )
         .highlight_style(

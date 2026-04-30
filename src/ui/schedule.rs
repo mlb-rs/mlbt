@@ -1,5 +1,6 @@
 use crate::components::schedule::{Record, ScheduleRow, ScheduleState};
 use crate::state::app_state::HomeOrAway;
+use crate::ui::styling::{border_style, dim_style, header_style, selected_style};
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
@@ -29,7 +30,7 @@ impl ScheduleRow {
 
     fn get_styles(&self, team: HomeOrAway) -> (Style, Style) {
         let winning_team = self.winning_team();
-        let lose_style = Style::default().fg(Color::DarkGray);
+        let lose_style = dim_style();
         match winning_team {
             Some(winner) if winner == team => (Style::default(), Style::default()),
             None => (Style::default(), Style::default()),
@@ -74,9 +75,7 @@ impl StatefulWidget for ScheduleWidget {
             }
         });
 
-        let header = Row::new(header_cells)
-            .height(1)
-            .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
+        let header = Row::new(header_cells).height(1).style(header_style());
 
         let rows = state
             .schedule
@@ -106,7 +105,6 @@ impl StatefulWidget for ScheduleWidget {
             Constraint::Length(12), // game time
             Constraint::Fill(1),    // game status
         ];
-        let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
 
         let t = Table::new(rows, widths)
             .header(header)
@@ -114,13 +112,14 @@ impl StatefulWidget for ScheduleWidget {
                 Block::default()
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded)
+                    .border_style(border_style())
                     .padding(Padding::new(1, 1, 0, 0))
                     .title(Span::styled(
                         state.date_selector.format_date_border_title(),
-                        Style::default().fg(Color::Black).bg(Color::Blue),
+                        selected_style(),
                     )),
             )
-            .row_highlight_style(selected_style);
+            .row_highlight_style(selected_style());
 
         StatefulWidget::render(t, area, buf, &mut state.state);
     }

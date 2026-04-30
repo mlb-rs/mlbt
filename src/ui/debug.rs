@@ -1,5 +1,6 @@
 use crate::components::debug::DebugInfo;
 use crate::ui::logs::LogWidget;
+use crate::ui::styling::text_style;
 use tui::layout::Constraint::Percentage;
 use tui::prelude::*;
 use tui::widgets::{Block, Clear, Paragraph};
@@ -11,7 +12,7 @@ impl DebugInfo {
         let debug = Paragraph::new(self.to_string())
             .alignment(Alignment::Left)
             .block(Block::bordered().title("debug"))
-            .style(Style::default().fg(Color::White));
+            .style(text_style());
 
         f.render_widget(Clear, area); //this clears out the background
         if show_logs {

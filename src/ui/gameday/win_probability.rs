@@ -3,6 +3,7 @@ use crate::components::game::live_game::{AtBatIndex, GameState};
 use crate::components::game::win_probability::WinProbabilityAtBat;
 use crate::components::standings::Team;
 use crate::ui::gameday::plays::{BLUE, GREEN};
+use crate::ui::styling::{TEXT_COLOR, border_style, header_style, selected_style};
 use indexmap::IndexMap;
 use tui::prelude::*;
 use tui::widgets::{
@@ -90,7 +91,7 @@ impl<'a> WinProbabilityData<'a> {
             99.0..=100.0 => Color::Blue,
             45.0..=55.0 => GREEN,
             0.0..=0.99 => Color::Red,
-            _ => Color::White,
+            _ => TEXT_COLOR,
         };
 
         let leverage = at_bat.leverage_index;
@@ -102,7 +103,7 @@ impl<'a> WinProbabilityData<'a> {
         let leverage_color = if leverage > 2.0 {
             Color::Red
         } else {
-            Color::White
+            TEXT_COLOR
         };
 
         // -10.0 is the longest wpa possible because the smallest wpa possible is -99.9.
@@ -129,7 +130,7 @@ impl<'a> WinProbabilityData<'a> {
             Cell::from(format!("{:^5}", "wpa")),
             Cell::from(format!("{:<6}", "win")),
         ])
-        .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
+        .style(header_style());
 
         let (start_idx, end_idx, selected_row_index) = self.calculate_visible_range();
 
@@ -154,8 +155,8 @@ impl<'a> WinProbabilityData<'a> {
                 Constraint::Min(6), // win %
             ],
         )
-        .style(Style::default().fg(Color::White))
-        .row_highlight_style(Style::default().bg(BLUE).add_modifier(Modifier::BOLD))
+        .style(Style::default())
+        .row_highlight_style(selected_style())
         .header(header);
 
         StatefulWidget::render(table, area, buf, &mut table_state);
@@ -170,15 +171,16 @@ impl<'a> WinProbabilityData<'a> {
     }
 
     fn create_header_bar(&self, width: u16) -> Bar<'_> {
+        let underline_color = TEXT_COLOR;
         Bar::default()
             .value(100)
             // use the width of the the area to ensure underline goes all the way across
             .text_value(format!("{: <1$}", "", width as usize))
             .value_style(
                 Style::default()
-                    .fg(Color::Gray)
                     .underlined()
-                    .underline_color(Color::White),
+                    .underline_color(underline_color)
+                    .fg(underline_color), // needs to be set for underline to work
             )
             .style(Style::default().fg(Color::Black))
     }
@@ -205,7 +207,6 @@ impl<'a> WinProbabilityData<'a> {
             .direction(Direction::Horizontal)
             .bar_width(1)
             .bar_gap(0)
-            .value_style(Style::default().fg(BLUE).add_modifier(Modifier::BOLD))
             .max(100);
 
         Widget::render(chart, area, buf);
@@ -268,8 +269,13 @@ impl<'a> WinProbabilityData<'a> {
         Chart::new(datasets)
             .block(
                 Block::default()
-                    .title(Line::from(" Game Win Probability ").centered())
-                    .borders(Borders::TOP),
+                    .title(
+                        Line::from(" Game Win Probability ")
+                            .centered()
+                            .fg(TEXT_COLOR),
+                    )
+                    .borders(Borders::TOP)
+                    .border_style(border_style()),
             )
             .x_axis(
                 Axis::default()

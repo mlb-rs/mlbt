@@ -1,6 +1,7 @@
 use crate::state::app_state::HomeOrAway;
 use crate::state::boxscore::BoxscoreState;
 use crate::ui::scroll::{ScrollParams, adjust_area_for_scroll, render_scrollbar};
+use crate::ui::styling::{header_style, text_style};
 use tui::prelude::*;
 use tui::widgets::{Block, Borders, Cell, Row, Table};
 
@@ -180,8 +181,8 @@ where
 {
     Table::new(rows.into_iter().skip(skip_rows).map(Row::new), widths)
         .column_spacing(0)
-        .style(Style::default().fg(Color::White))
-        .header(Row::new(header.iter().copied()).bold().underlined())
+        .style(text_style())
+        .header(Row::new(header.iter().copied()).style(header_style()))
         .block(Block::default().borders(Borders::NONE))
 }
 

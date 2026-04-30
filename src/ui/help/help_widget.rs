@@ -4,8 +4,8 @@ use crate::components::help::{HEADER, RowType, build_docs, format_row};
 use crate::config::TomlFileStore;
 use crate::state::app_settings::AppSettings;
 use crate::state::settings_editor::{SettingsEditorState, SettingsFocus};
-use crate::ui::help::HIGHLIGHT_STYLE;
 use crate::ui::help::settings_panel::{render_picker, render_settings};
+use crate::ui::styling::{dim_style, header_style, selected_style};
 use tui::layout::{Constraint, Flex, Layout};
 use tui::prelude::*;
 use tui::widgets::{Paragraph, Row, Table, TableState};
@@ -22,7 +22,7 @@ impl StatefulWidget for HelpWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         // Create a one-column table to avoid flickering due to non-determinism when
         // resolving constraints on widths of table columns.
-        let header_style = Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED);
+        let header_style = header_style();
         let sub_header_style = Style::default().add_modifier(Modifier::BOLD);
         let help_menu_style = Style::default();
 
@@ -52,7 +52,7 @@ impl StatefulWidget for HelpWidget<'_> {
             .style(help_menu_style);
         // only show selected row if the docs table is focused.
         if self.editor.focus == SettingsFocus::Docs {
-            docs_table = docs_table.row_highlight_style(HIGHLIGHT_STYLE);
+            docs_table = docs_table.row_highlight_style(selected_style());
         }
         StatefulWidget::render(docs_table, table_area, buf, state);
 
@@ -74,7 +74,7 @@ impl StatefulWidget for HelpWidget<'_> {
             .unwrap_or_else(|| "config: not found".to_string());
         Paragraph::new(config_path)
             .alignment(Alignment::Center)
-            .style(Style::default().add_modifier(Modifier::DIM))
+            .style(dim_style())
             .render(config_area, buf);
 
         if let Some(picker) = &self.editor.picker {

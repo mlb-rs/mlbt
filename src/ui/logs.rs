@@ -1,3 +1,4 @@
+use crate::ui::styling::text_style;
 use tui::prelude::{Color, Line};
 use tui::widgets::Block;
 use tui::{buffer::Buffer, layout::Rect, style::Style, widgets::Widget};
@@ -20,7 +21,7 @@ impl Widget for LogWidget {
             .output_target(false)
             .output_file(false)
             .output_line(false)
-            .style(Style::default().fg(Color::White))
+            .style(text_style())
             .render(area, buf);
     }
 }

@@ -1,4 +1,5 @@
 use crate::components::game::live_game::GameState;
+use crate::ui::styling::border_style;
 use tui::prelude::*;
 use tui::widgets::{Block, Borders, Padding, Paragraph};
 
@@ -36,6 +37,7 @@ impl Widget for MatchupWidget<'_> {
             .block(
                 Block::default()
                     .borders(Borders::BOTTOM)
+                    .border_style(border_style())
                     .padding(Padding::new(0, 0, 1, 0)),
             ),
             away,
@@ -47,6 +49,7 @@ impl Widget for MatchupWidget<'_> {
                 .block(
                     Block::default()
                         .borders(Borders::BOTTOM)
+                        .border_style(border_style())
                         .padding(Padding::new(0, 0, 1, 0)),
                 ),
             scoreboard,
@@ -64,6 +67,7 @@ impl Widget for MatchupWidget<'_> {
             .block(
                 Block::default()
                     .borders(Borders::BOTTOM)
+                    .border_style(border_style())
                     .padding(Padding::new(0, 0, 1, 0)),
             ),
             home,

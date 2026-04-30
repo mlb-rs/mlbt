@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ended in the Schedule tab: [PR 138](https://github.com/mlb-rs/mlbt/pull/138)
 - Add `all | qualified` toggle to Stats and save sort + column preferences in
   memory: [PR 137](https://github.com/mlb-rs/mlbt/pull/137)
+
+### Fixed
+
+- Fix light themes and some dark themes by refactoring style handling so the TUI
+  respects the terminal colors: [PR 141](https://github.com/mlb-rs/mlbt/pull/141)
  
 ## [0.3.1] - 2026-04-16
 

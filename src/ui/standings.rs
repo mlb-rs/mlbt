@@ -1,4 +1,5 @@
 use crate::components::standings::{StandingsState, ViewMode};
+use crate::ui::styling::{border_style, header_style, selected_style};
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
 
@@ -30,9 +31,7 @@ impl StatefulWidget for StandingsWidget {
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let header_cells = HEADER.iter().map(|h| Cell::from(*h));
-        let header = Row::new(header_cells)
-            .height(1)
-            .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
+        let header = Row::new(header_cells).height(1).style(header_style());
 
         let mut rows = Vec::with_capacity(36); // 30 teams + 6 divisions
 
@@ -58,20 +57,20 @@ impl StatefulWidget for StandingsWidget {
             }
         }
 
-        let selected_style = Style::default().bg(Color::Blue).fg(Color::Black);
         let t = Table::new(rows, WIDTHS)
             .header(header)
             .block(
                 Block::default()
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded)
+                    .border_style(border_style())
                     .padding(Padding::new(1, 1, 0, 0))
                     .title(Span::styled(
                         state.date_selector.format_date_border_title(),
-                        Style::default().fg(Color::Black).bg(Color::Blue),
+                        selected_style(),
                     )),
             )
-            .row_highlight_style(selected_style);
+            .row_highlight_style(selected_style());
 
         StatefulWidget::render(t, area, buf, &mut state.state);
     }

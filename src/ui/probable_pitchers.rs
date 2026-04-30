@@ -1,5 +1,6 @@
 use crate::components::probable_pitchers::ProbablePitcherMatchup;
 use crate::components::schedule::ScheduleRow;
+use crate::ui::styling::{border_style, header_style, selected_style};
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Padding, Row, Table};
 
@@ -29,8 +30,7 @@ impl Widget for ProbablePitchersWidget<'_> {
             self.matchup.home_team.team_name
         };
 
-        let header = Row::new(HEADER)
-            .style(Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED));
+        let header = Row::new(HEADER).style(header_style());
 
         let away_row = Row::new(self.matchup.away_pitcher.to_row_cells(away_team));
         let home_row = Row::new(self.matchup.home_pitcher.to_row_cells(home_team));
@@ -52,11 +52,9 @@ impl Widget for ProbablePitchersWidget<'_> {
                 Block::default()
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded)
+                    .border_style(border_style())
                     .padding(Padding::new(1, 1, 0, 0))
-                    .title(Span::styled(
-                        " Probable Pitchers ",
-                        Style::default().fg(Color::Black).bg(Color::Blue),
-                    )),
+                    .title(Span::styled(" Probable Pitchers ", selected_style())),
             );
 
         Widget::render(table, area, buf);
