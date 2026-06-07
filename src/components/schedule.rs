@@ -358,7 +358,11 @@ fn sort_priority(
         let b_fav = favorite_team.is_some_and(|t| b.has_team(t));
 
         if a_fav != b_fav {
-            return if a_fav { Ordering::Less } else { Ordering::Greater };
+            return if a_fav {
+                Ordering::Less
+            } else {
+                Ordering::Greater
+            };
         }
 
         let a_cat = category(a);
@@ -368,9 +372,14 @@ fn sort_priority(
         }
 
         match a_cat {
-            0 => b.current_inning.unwrap_or(0).cmp(&a.current_inning.unwrap_or(0))
+            0 => b
+                .current_inning
+                .unwrap_or(0)
+                .cmp(&a.current_inning.unwrap_or(0))
                 .then(a.game_id.cmp(&b.game_id)),
-            1 => a.start_time_utc.cmp(&b.start_time_utc)
+            1 => a
+                .start_time_utc
+                .cmp(&b.start_time_utc)
                 .then(a.game_id.cmp(&b.game_id)),
             2 => a.game_id.cmp(&b.game_id),
             _ => Ordering::Equal,
@@ -495,11 +504,7 @@ mod tests {
 
     #[test]
     fn sort_priority_puts_favorite_team_first() {
-        let rows = vec![
-            row(30, 114, 115),
-            row(10, 108, 109),
-            row(20, 112, 113),
-        ];
+        let rows = vec![row(30, 114, 115), row(10, 108, 109), row(20, 112, 113)];
         let sorted = sort_priority(rows, lookup_team_by_id(112));
         assert_eq!(
             sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
@@ -601,11 +606,7 @@ mod tests {
 
     #[test]
     fn sort_time_matches_old_favorite_first_behavior() {
-        let rows = vec![
-            row(30, 114, 115),
-            row(10, 108, 109),
-            row(20, 112, 113),
-        ];
+        let rows = vec![row(30, 114, 115), row(10, 108, 109), row(20, 112, 113)];
         let sorted = sort_time(rows, lookup_team_by_id(112));
         assert_eq!(
             sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
@@ -615,11 +616,7 @@ mod tests {
 
     #[test]
     fn sort_time_no_favorite_sorts_by_game_id() {
-        let rows = vec![
-            row(30, 114, 115),
-            row(10, 108, 109),
-            row(20, 112, 113),
-        ];
+        let rows = vec![row(30, 114, 115), row(10, 108, 109), row(20, 112, 113)];
         let sorted = sort_time(rows, None);
         assert_eq!(
             sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
