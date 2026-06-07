@@ -115,7 +115,11 @@ impl StatefulWidget for ScheduleWidget {
                     .border_style(border_style())
                     .padding(Padding::new(1, 1, 0, 0))
                     .title(Span::styled(
-                        state.date_selector.format_date_border_title(),
+                        format!(
+                            "{} [{:?}]",
+                            state.date_selector.format_date_border_title(),
+                            state.sort_mode,
+                        ),
                         selected_style(),
                     )),
             )
