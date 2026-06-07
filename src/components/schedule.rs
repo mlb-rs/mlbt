@@ -19,6 +19,15 @@ pub enum SortMode {
     Time,
 }
 
+impl SortMode {
+    pub fn label(&self) -> &'static str {
+        match self {
+            SortMode::Priority => "Priority",
+            SortMode::Time => "Time",
+        }
+    }
+}
+
 /// ScheduleState is used to render the schedule as a `tui-rs` table.
 pub struct ScheduleState {
     pub state: TableState,
@@ -72,7 +81,8 @@ impl ScheduleState {
     /// Update the data from the API. It is assumed that the date is already updated, aka don't use
     /// a random date without first setting the `date` field. Use `set_date_from_input` for this.
     pub fn update(&mut self, settings: &AppSettings, schedule: &ScheduleResponse) {
-        self.schedule = ScheduleRow::create_table(settings, schedule);
+        let rows = ScheduleRow::create_rows(settings, schedule);
+        self.schedule = sort_schedule(rows, self.sort_mode, settings.favorite_team);
 
         // If schedule is empty, clear selection
         if self.is_empty() {
@@ -155,13 +165,23 @@ impl ScheduleState {
     /// set). Callers should refetch game data when this shifts the selection.
     pub fn apply_favorite_team(&mut self, favorite_team: Option<Team>) {
         let rows = std::mem::take(&mut self.schedule);
-        self.schedule = favorite_first(rows, favorite_team);
+        self.schedule = sort_schedule(rows, self.sort_mode, favorite_team);
 
         if self.schedule.is_empty() {
             self.state.select(None);
             return;
         }
 
+        self.state.select(Some(0));
+    }
+
+    pub fn toggle_sort_mode(&mut self, favorite_team: Option<Team>) {
+        self.sort_mode = match self.sort_mode {
+            SortMode::Priority => SortMode::Time,
+            SortMode::Time => SortMode::Priority,
+        };
+        let rows = std::mem::take(&mut self.schedule);
+        self.schedule = sort_schedule(rows, self.sort_mode, favorite_team);
         self.state.select(Some(0));
     }
 
@@ -291,7 +311,7 @@ impl ScheduleRow {
     }
 
     /// Transform the data from the API into a vector of ScheduleRows.
-    fn create_table(settings: &AppSettings, schedule: &ScheduleResponse) -> Vec<Self> {
+    fn create_rows(settings: &AppSettings, schedule: &ScheduleResponse) -> Vec<Self> {
         let mut todays_games: Vec<ScheduleRow> = Vec::with_capacity(schedule.dates.len());
         if let Some(games) = &schedule.dates.first()
             && let Some(game) = &games.games
@@ -300,7 +320,7 @@ impl ScheduleRow {
                 todays_games.push(ScheduleRow::create_matchup(g, settings.timezone));
             }
         }
-        favorite_first(todays_games, settings.favorite_team)
+        todays_games
     }
 
     fn has_team(&self, team: Team) -> bool {
@@ -308,7 +328,7 @@ impl ScheduleRow {
     }
 }
 
-fn favorite_first(
+fn sort_time(
     rows: impl IntoIterator<Item = ScheduleRow>,
     favorite_team: Option<Team>,
 ) -> Vec<ScheduleRow> {
@@ -327,6 +347,56 @@ fn favorite_first(
     other.sort_by_key(|row| row.game_id);
     favorite.extend(other);
     favorite
+}
+
+fn sort_priority(
+    rows: impl IntoIterator<Item = ScheduleRow>,
+    favorite_team: Option<Team>,
+) -> Vec<ScheduleRow> {
+    fn category(row: &ScheduleRow) -> u8 {
+        match row.abstract_game_state {
+            Some(AbstractGameState::Live) => 0,
+            Some(AbstractGameState::Preview) | Some(AbstractGameState::Other) | None => 1,
+            Some(AbstractGameState::Final) => 2,
+        }
+    }
+
+    let mut rows: Vec<ScheduleRow> = rows.into_iter().collect();
+    rows.sort_by(|a, b| {
+        let a_fav = favorite_team.is_some_and(|t| a.has_team(t));
+        let b_fav = favorite_team.is_some_and(|t| b.has_team(t));
+
+        if a_fav != b_fav {
+            return if a_fav { Ordering::Less } else { Ordering::Greater };
+        }
+
+        let a_cat = category(a);
+        let b_cat = category(b);
+        if a_cat != b_cat {
+            return a_cat.cmp(&b_cat);
+        }
+
+        match a_cat {
+            0 => b.current_inning.unwrap_or(0).cmp(&a.current_inning.unwrap_or(0))
+                .then(a.game_id.cmp(&b.game_id)),
+            1 => a.start_time_utc.cmp(&b.start_time_utc)
+                .then(a.game_id.cmp(&b.game_id)),
+            2 => a.game_id.cmp(&b.game_id),
+            _ => Ordering::Equal,
+        }
+    });
+    rows
+}
+
+fn sort_schedule(
+    rows: Vec<ScheduleRow>,
+    mode: SortMode,
+    favorite_team: Option<Team>,
+) -> Vec<ScheduleRow> {
+    match mode {
+        SortMode::Priority => sort_priority(rows, favorite_team),
+        SortMode::Time => sort_time(rows, favorite_team),
+    }
 }
 
 #[cfg(test)]
@@ -402,6 +472,182 @@ mod tests {
             vec![10, 20, 30]
         );
         assert_eq!(state.get_selected_game_opt(), Some(10));
+        assert_eq!(state.state.selected(), Some(0));
+    }
+
+    fn row_with_state(
+        game_id: u64,
+        home_team: u16,
+        away_team: u16,
+        state: Option<AbstractGameState>,
+        inning: Option<i64>,
+        start_time: DateTime<Utc>,
+    ) -> ScheduleRow {
+        ScheduleRow {
+            game_id,
+            home_team: lookup_team_by_id(home_team).unwrap(),
+            home_score: None,
+            home_record: None,
+            away_team: lookup_team_by_id(away_team).unwrap(),
+            away_score: None,
+            away_record: None,
+            start_time: String::new(),
+            start_time_utc: start_time,
+            game_status: String::new(),
+            home_probable_pitcher: ProbablePitcher::default(),
+            away_probable_pitcher: ProbablePitcher::default(),
+            decision_pitchers: None,
+            abstract_game_state: state,
+            current_inning: inning,
+        }
+    }
+
+    #[test]
+    fn sort_priority_puts_favorite_team_first() {
+        let rows = vec![
+            row(30, 114, 115),
+            row(10, 108, 109),
+            row(20, 112, 113),
+        ];
+        let sorted = sort_priority(rows, lookup_team_by_id(112));
+        assert_eq!(
+            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
+            vec![20, 10, 30]
+        );
+    }
+
+    #[test]
+    fn sort_priority_orders_live_before_upcoming_before_finished() {
+        let t = DateTime::<Utc>::UNIX_EPOCH;
+        let rows = vec![
+            row_with_state(1, 108, 109, Some(AbstractGameState::Final), None, t),
+            row_with_state(2, 112, 113, Some(AbstractGameState::Preview), None, t),
+            row_with_state(3, 114, 115, Some(AbstractGameState::Live), Some(5), t),
+        ];
+        let sorted = sort_priority(rows, None);
+        assert_eq!(
+            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
+            vec![3, 2, 1]
+        );
+    }
+
+    #[test]
+    fn sort_priority_orders_live_by_inning_descending() {
+        let t = DateTime::<Utc>::UNIX_EPOCH;
+        let rows = vec![
+            row_with_state(1, 108, 109, Some(AbstractGameState::Live), Some(3), t),
+            row_with_state(2, 112, 113, Some(AbstractGameState::Live), Some(7), t),
+            row_with_state(3, 114, 115, Some(AbstractGameState::Live), Some(1), t),
+        ];
+        let sorted = sort_priority(rows, None);
+        assert_eq!(
+            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
+            vec![2, 1, 3]
+        );
+    }
+
+    #[test]
+    fn sort_priority_orders_upcoming_by_start_time_ascending() {
+        let t1 = DateTime::<Utc>::UNIX_EPOCH;
+        let t2 = DateTime::from_timestamp(3600, 0).unwrap();
+        let t3 = DateTime::from_timestamp(7200, 0).unwrap();
+        let rows = vec![
+            row_with_state(3, 114, 115, Some(AbstractGameState::Preview), None, t3),
+            row_with_state(1, 108, 109, Some(AbstractGameState::Preview), None, t1),
+            row_with_state(2, 112, 113, Some(AbstractGameState::Preview), None, t2),
+        ];
+        let sorted = sort_priority(rows, None);
+        assert_eq!(
+            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
+            vec![1, 2, 3]
+        );
+    }
+
+    #[test]
+    fn sort_priority_orders_finished_by_game_id_ascending() {
+        let t = DateTime::<Utc>::UNIX_EPOCH;
+        let rows = vec![
+            row_with_state(30, 114, 115, Some(AbstractGameState::Final), None, t),
+            row_with_state(10, 108, 109, Some(AbstractGameState::Final), None, t),
+            row_with_state(20, 112, 113, Some(AbstractGameState::Final), None, t),
+        ];
+        let sorted = sort_priority(rows, None);
+        assert_eq!(
+            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
+            vec![10, 20, 30]
+        );
+    }
+
+    #[test]
+    fn sort_priority_treats_other_as_upcoming() {
+        let t1 = DateTime::<Utc>::UNIX_EPOCH;
+        let t2 = DateTime::from_timestamp(3600, 0).unwrap();
+        let rows = vec![
+            row_with_state(2, 112, 113, Some(AbstractGameState::Other), None, t2),
+            row_with_state(1, 108, 109, Some(AbstractGameState::Preview), None, t1),
+        ];
+        let sorted = sort_priority(rows, None);
+        assert_eq!(
+            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
+            vec![1, 2]
+        );
+    }
+
+    #[test]
+    fn sort_priority_treats_none_as_upcoming() {
+        let t1 = DateTime::<Utc>::UNIX_EPOCH;
+        let t2 = DateTime::from_timestamp(3600, 0).unwrap();
+        let rows = vec![
+            row_with_state(2, 112, 113, None, None, t2),
+            row_with_state(1, 108, 109, Some(AbstractGameState::Preview), None, t1),
+        ];
+        let sorted = sort_priority(rows, None);
+        assert_eq!(
+            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
+            vec![1, 2]
+        );
+    }
+
+    #[test]
+    fn sort_time_matches_old_favorite_first_behavior() {
+        let rows = vec![
+            row(30, 114, 115),
+            row(10, 108, 109),
+            row(20, 112, 113),
+        ];
+        let sorted = sort_time(rows, lookup_team_by_id(112));
+        assert_eq!(
+            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
+            vec![20, 10, 30]
+        );
+    }
+
+    #[test]
+    fn sort_time_no_favorite_sorts_by_game_id() {
+        let rows = vec![
+            row(30, 114, 115),
+            row(10, 108, 109),
+            row(20, 112, 113),
+        ];
+        let sorted = sort_time(rows, None);
+        assert_eq!(
+            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
+            vec![10, 20, 30]
+        );
+    }
+
+    #[test]
+    fn toggle_sort_mode_switches_and_reselects() {
+        let mut state = ScheduleState {
+            state: TableState::default(),
+            schedule: vec![row(30, 114, 115), row(10, 108, 109), row(20, 112, 113)],
+            date_selector: DateSelector::default(),
+            show_win_probability: true,
+            sort_mode: SortMode::Time,
+        };
+        state.state.select(Some(1));
+        state.toggle_sort_mode(lookup_team_by_id(112));
+        assert_eq!(state.sort_mode, SortMode::Priority);
         assert_eq!(state.state.selected(), Some(0));
     }
 }
