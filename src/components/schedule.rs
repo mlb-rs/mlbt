@@ -9,9 +9,15 @@ use crate::state::app_state::HomeOrAway;
 use chrono::{DateTime, NaiveDate, Utc};
 use chrono_tz::Tz;
 use core::option::Option::{None, Some};
-use mlbt_api::schedule::{Game, LeagueRecord, ScheduleResponse};
+use mlbt_api::schedule::{AbstractGameState, Game, LeagueRecord, ScheduleResponse};
 use std::cmp::Ordering;
 use tui::widgets::TableState;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SortMode {
+    Priority,
+    Time,
+}
 
 /// ScheduleState is used to render the schedule as a `tui-rs` table.
 pub struct ScheduleState {
@@ -19,6 +25,7 @@ pub struct ScheduleState {
     pub schedule: Vec<ScheduleRow>,
     pub date_selector: DateSelector,
     pub show_win_probability: bool,
+    pub sort_mode: SortMode,
 }
 
 impl Default for ScheduleState {
@@ -28,6 +35,7 @@ impl Default for ScheduleState {
             schedule: Vec::new(),
             date_selector: DateSelector::default(),
             show_win_probability: true,
+            sort_mode: SortMode::Priority,
         }
     }
 }
@@ -50,6 +58,8 @@ pub struct ScheduleRow {
     pub home_probable_pitcher: ProbablePitcher,
     pub away_probable_pitcher: ProbablePitcher,
     pub decision_pitchers: Option<GameDecisionPitchers>,
+    pub abstract_game_state: Option<AbstractGameState>,
+    pub current_inning: Option<i64>,
 }
 
 #[derive(Default, Copy, Clone)]
@@ -275,6 +285,8 @@ impl ScheduleRow {
             home_probable_pitcher: ProbablePitcher::from_team(&game.teams.home).unwrap_or_default(),
             away_probable_pitcher: ProbablePitcher::from_team(&game.teams.away).unwrap_or_default(),
             decision_pitchers: GameDecisionPitchers::from_game(game),
+            abstract_game_state: game.status.abstract_game_state,
+            current_inning: game.linescore.as_ref().and_then(|l| l.current_inning),
         }
     }
 
@@ -338,6 +350,8 @@ mod tests {
             home_probable_pitcher: ProbablePitcher::default(),
             away_probable_pitcher: ProbablePitcher::default(),
             decision_pitchers: None,
+            abstract_game_state: None,
+            current_inning: None,
         }
     }
 
@@ -348,6 +362,7 @@ mod tests {
             schedule: vec![row(30, 114, 115), row(10, 108, 109), row(20, 112, 113)],
             date_selector: DateSelector::default(),
             show_win_probability: true,
+            sort_mode: SortMode::Time,
         };
         state.state.select(Some(2));
 
@@ -372,6 +387,7 @@ mod tests {
             schedule: vec![row(30, 114, 115), row(10, 108, 109), row(20, 112, 113)],
             date_selector: DateSelector::default(),
             show_win_probability: true,
+            sort_mode: SortMode::Time,
         };
         state.state.select(Some(0));
 
