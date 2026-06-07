@@ -19,15 +19,6 @@ pub enum SortMode {
     Time,
 }
 
-impl SortMode {
-    pub fn label(&self) -> &'static str {
-        match self {
-            SortMode::Priority => "Priority",
-            SortMode::Time => "Time",
-        }
-    }
-}
-
 /// ScheduleState is used to render the schedule as a `tui-rs` table.
 pub struct ScheduleState {
     pub state: TableState,
