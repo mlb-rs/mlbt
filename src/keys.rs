@@ -113,6 +113,11 @@ pub async fn handle_key_bindings(
         }
         (MenuItem::Scoreboard, Char(':'), _) => guard.update_tab(MenuItem::DatePicker),
         (MenuItem::Scoreboard, Char('w'), _) => guard.state.schedule.toggle_win_probability(),
+        (MenuItem::Scoreboard, Char('s'), _) => {
+            let favorite_team = guard.settings.favorite_team;
+            guard.state.schedule.toggle_sort_mode(favorite_team);
+            load_game_data(guard, network_requests, false).await;
+        }
         (MenuItem::Scoreboard, KeyCode::Enter, _) => {
             guard.update_tab(MenuItem::Gameday);
             load_game_data(guard, network_requests, false).await;
