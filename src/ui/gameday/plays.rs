@@ -18,12 +18,13 @@ pub const SELECTION_SYMBOL: char = '>';
 pub struct InningPlaysWidget<'a> {
     pub game: &'a GameState,
     pub selected_at_bat: Option<u8>,
+    pub scoring_only: bool,
 }
 
 impl Widget for InningPlaysWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         // TODO this doesn't scroll properly. needs to be a list for that
-        let inning_plays = format_plays(self.game, self.selected_at_bat);
+        let inning_plays = format_plays(self.game, self.selected_at_bat, self.scoring_only);
         let paragraph = Paragraph::new(inning_plays).wrap(Wrap { trim: false });
 
         Widget::render(paragraph, area, buf);
@@ -31,7 +32,11 @@ impl Widget for InningPlaysWidget<'_> {
 }
 
 /// Format the plays for the current inning as TUI Lines.
-fn format_plays(game: &GameState, selected_at_bat: Option<u8>) -> Vec<Line<'_>> {
+fn format_plays(
+    game: &GameState,
+    selected_at_bat: Option<u8>,
+    scoring_only: bool,
+) -> Vec<Line<'_>> {
     let (at_bat, _is_current) = game.get_at_bat_by_index_or_current(selected_at_bat);
     let inning = at_bat.inning;
 
@@ -46,7 +51,11 @@ fn format_plays(game: &GameState, selected_at_bat: Option<u8>) -> Vec<Line<'_>> 
 
     for play in game.at_bats.values().rev() {
         let current_inning = (play.is_top_inning, play.inning);
-        if play.inning != inning {
+        if scoring_only {
+            if !play.play_result.is_scoring_play {
+                continue;
+            }
+        } else if play.inning != inning {
             continue;
         }
 

@@ -5,6 +5,7 @@ use mlbt_api::schedule::AbstractGameState;
 pub struct GamedayState {
     pub panels: GamedayPanels,
     pub game: GameState,
+    pub scoring_plays_only: bool,
     selected_at_bat: Option<usize>,
 }
 
@@ -85,6 +86,10 @@ impl GamedayState {
 
     pub fn toggle_win_probability(&mut self) {
         self.panels.win_probability = !self.panels.win_probability;
+    }
+
+    pub fn toggle_scoring_plays_only(&mut self) {
+        self.scoring_plays_only = !self.scoring_plays_only;
     }
 }
 
