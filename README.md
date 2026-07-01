@@ -204,6 +204,7 @@ To view different at bats in the game, use:
 | `k` / `↑` | move to next at bat                            |
 | `l`       | move to the "live" at bat, or latest available |
 | `s`       | move to first at bat of the game               |
+| `!`       | toggle scoring-plays-only filter               |
 
 To interact with the box score, use:
 

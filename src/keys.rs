@@ -212,6 +212,7 @@ pub async fn handle_key_bindings(
         (MenuItem::Gameday, Char('k') | KeyCode::Up, _) => guard.state.gameday.next_at_bat(),
         (MenuItem::Gameday, Char('l'), _) => guard.state.gameday.live(),
         (MenuItem::Gameday, Char('s'), _) => guard.state.gameday.start(),
+        (MenuItem::Gameday, Char('!'), _) => guard.state.gameday.toggle_scoring_plays_only(),
 
         (MenuItem::Gameday, Char('h'), _) => guard.state.box_score.set_home_active(),
         (MenuItem::Gameday, Char('a'), _) => guard.state.box_score.set_away_active(),

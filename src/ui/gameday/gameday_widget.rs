@@ -67,6 +67,7 @@ impl Widget for GamedayWidget<'_> {
             let innings_widget = InningPlaysWidget {
                 game: &self.state.game,
                 selected_at_bat: self.state.selected_at_bat(),
+                scoring_only: self.state.scoring_plays_only,
             };
             Widget::render(innings_widget, chunks[0], buf);
 
