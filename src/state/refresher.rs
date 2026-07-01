@@ -18,6 +18,7 @@ impl PeriodicRefresher {
         let mut schedule_interval = interval(Duration::from_secs(30)); // Schedule every 30s
         let mut standings_interval = interval(Duration::from_secs(1800)); // Standings every 30 minutes
         let mut stats_interval = interval(Duration::from_secs(1800)); // Stats every 30 minutes
+        let mut rollover_interval = interval(Duration::from_secs(60)); // Check for a new day every minute
 
         loop {
             tokio::select! {
@@ -73,6 +74,17 @@ impl PeriodicRefresher {
 
                     if active_tab == MenuItem::Stats {
                         let _ = self.network_requests.send(RefreshableRequest::force(NetworkRequest::Stats { date, stat_type })).await;
+                    }
+                }
+
+                // Roll date-driven tabs over to the new day when the system date changes
+                _ = rollover_interval.tick() => {
+                    let requests = {
+                        let mut app = app.lock().await;
+                        app.advance_dates_on_rollover()
+                    };
+                    for request in requests {
+                        let _ = self.network_requests.send(RefreshableRequest::force(request)).await;
                     }
                 }
             }

@@ -379,6 +379,9 @@ The config file is located at:
   [tz database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 - `log_level`: one of `off`, `error`, `warn`, `info`, `debug`, `trace`.
   Default is `error`.
+- `auto_advance_date`: when `true`, any date-driven tab sitting on today rolls
+  over to the new day automatically while the app is open. Tabs on a past date
+  are left untouched. Default is `true`.
 
 ### Example config
 
@@ -387,6 +390,7 @@ The config file is located at:
 favorite_team = "Chicago Cubs"
 timezone = "US/Pacific"
 log_level = "error"
+auto_advance_date = true
 ```
 
 ## Shout out

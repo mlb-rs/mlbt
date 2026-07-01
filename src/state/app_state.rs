@@ -7,6 +7,7 @@ use crate::state::gameday::GamedayState;
 use crate::state::help::HelpState;
 use crate::state::settings_editor::SettingsEditorState;
 use crate::state::stats::StatsState;
+use chrono::NaiveDate;
 
 /// A team must be either Home or Away.
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
@@ -30,4 +31,7 @@ pub struct AppState {
     pub stats: StatsState,
     pub help: HelpState,
     pub settings_editor: SettingsEditorState,
+    /// The system date as of the last rollover check, used to detect a new day. `None` until the
+    /// first check seeds it.
+    pub last_known_today: Option<NaiveDate>,
 }
