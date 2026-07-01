@@ -132,10 +132,6 @@ impl GameState {
         }
     }
 
-    pub fn count_events(&self) -> usize {
-        self.at_bats.len()
-    }
-
     fn get_current_play_ab_index(live_data: &LiveResponse) -> AtBatIndex {
         live_data
             .live_data
