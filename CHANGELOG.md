@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add auto-advance date logic if app is open overnight: [PR 147](https://github.com/mlb-rs/mlbt/pull/147)
+- Add auto-advance date logic if app is open overnight: [PR 146](https://github.com/mlb-rs/mlbt/pull/146)
 
 ## [0.4.0] - 2026-04-29
 
