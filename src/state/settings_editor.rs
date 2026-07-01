@@ -20,6 +20,7 @@ pub enum SettingsField {
     FavoriteTeam,
     Timezone,
     LogLevel,
+    AutoAdvanceDate,
 }
 
 /// Transient status shown below the settings form. Cleared on any input that interacts with the
@@ -47,10 +48,11 @@ pub struct PickerState {
 }
 
 impl SettingsField {
-    pub const ALL: [SettingsField; 3] = [
+    pub const ALL: [SettingsField; 4] = [
         SettingsField::FavoriteTeam,
         SettingsField::Timezone,
         SettingsField::LogLevel,
+        SettingsField::AutoAdvanceDate,
     ];
 
     pub fn label(self) -> &'static str {
@@ -58,6 +60,7 @@ impl SettingsField {
             SettingsField::FavoriteTeam => "Team",
             SettingsField::Timezone => "Timezone",
             SettingsField::LogLevel => "Log",
+            SettingsField::AutoAdvanceDate => "Auto-date",
         }
     }
 
@@ -65,15 +68,17 @@ impl SettingsField {
         match self {
             SettingsField::FavoriteTeam => SettingsField::Timezone,
             SettingsField::Timezone => SettingsField::LogLevel,
-            SettingsField::LogLevel => SettingsField::FavoriteTeam,
+            SettingsField::LogLevel => SettingsField::AutoAdvanceDate,
+            SettingsField::AutoAdvanceDate => SettingsField::FavoriteTeam,
         }
     }
 
     pub fn previous(self) -> Self {
         match self {
-            SettingsField::FavoriteTeam => SettingsField::LogLevel,
+            SettingsField::FavoriteTeam => SettingsField::AutoAdvanceDate,
             SettingsField::Timezone => SettingsField::FavoriteTeam,
             SettingsField::LogLevel => SettingsField::Timezone,
+            SettingsField::AutoAdvanceDate => SettingsField::LogLevel,
         }
     }
 
@@ -82,6 +87,7 @@ impl SettingsField {
             SettingsField::FavoriteTeam => TEAM_OPTIONS.len(),
             SettingsField::Timezone => TIMEZONE_OPTIONS.len(),
             SettingsField::LogLevel => LOG_LEVEL_OPTIONS.len(),
+            SettingsField::AutoAdvanceDate => TOGGLE_OPTIONS.len(),
         }
     }
 
@@ -90,6 +96,7 @@ impl SettingsField {
             SettingsField::FavoriteTeam => TEAM_OPTIONS.get(index).map(|o| team_option_label(*o)),
             SettingsField::Timezone => TIMEZONE_OPTIONS.get(index).map(|o| o.picker_label),
             SettingsField::LogLevel => LOG_LEVEL_OPTIONS.get(index).map(|o| o.label),
+            SettingsField::AutoAdvanceDate => TOGGLE_OPTIONS.get(index).map(|o| o.label),
         }
     }
 
@@ -112,6 +119,10 @@ impl SettingsField {
                 .iter()
                 .position(|o| o.value == settings.log_level)
                 .unwrap_or(0),
+            SettingsField::AutoAdvanceDate => TOGGLE_OPTIONS
+                .iter()
+                .position(|o| o.value == settings.auto_advance_date)
+                .unwrap_or(0),
         }
     }
 
@@ -132,6 +143,11 @@ impl SettingsField {
             SettingsField::LogLevel => {
                 if let Some(opt) = LOG_LEVEL_OPTIONS.get(index) {
                     settings.log_level = opt.value;
+                }
+            }
+            SettingsField::AutoAdvanceDate => {
+                if let Some(opt) = TOGGLE_OPTIONS.get(index) {
+                    settings.auto_advance_date = opt.value;
                 }
             }
         }
@@ -234,6 +250,11 @@ pub fn current_value_label(field: SettingsField, settings: &AppSettings) -> Stri
             .find(|o| o.value == settings.log_level)
             .map(|o| o.label.to_string())
             .unwrap_or_else(|| "<unset>".to_string()),
+        SettingsField::AutoAdvanceDate => TOGGLE_OPTIONS
+            .iter()
+            .find(|o| o.value == settings.auto_advance_date)
+            .map(|o| o.label.to_string())
+            .unwrap_or_else(|| "<unset>".to_string()),
     }
 }
 
@@ -277,6 +298,18 @@ pub const LOG_LEVEL_OPTIONS: &[LogLevelOption] = &[
     LogLevelOption {label: "Trace", value: LogLevel::Trace},
 ];
 
+#[derive(Debug, Clone, Copy)]
+pub struct ToggleOption {
+    pub label: &'static str,
+    pub value: bool,
+}
+
+#[rustfmt::skip]
+pub const TOGGLE_OPTIONS: &[ToggleOption] = &[
+    ToggleOption {label: "On", value: true},
+    ToggleOption {label: "Off", value: false},
+];
+
 /// Team picker list: `<none>` sentinel first, then all current MLB teams sorted by name.
 pub static TEAM_OPTIONS: LazyLock<Vec<Option<Team>>> = LazyLock::new(|| {
     let mut v: Vec<Option<Team>> = vec![None];
@@ -304,6 +337,11 @@ pub fn max_value_width(field: SettingsField) -> usize {
             .max()
             .unwrap_or(0),
         SettingsField::LogLevel => LOG_LEVEL_OPTIONS
+            .iter()
+            .map(|o| o.label.chars().count())
+            .max()
+            .unwrap_or(0),
+        SettingsField::AutoAdvanceDate => TOGGLE_OPTIONS
             .iter()
             .map(|o| o.label.chars().count())
             .max()

@@ -1,23 +1,30 @@
 use crate::app::{App, MenuItem};
 use crate::state::messages::{NetworkRequest, RefreshableRequest};
+use chrono::NaiveDate;
 use std::time::Duration;
 use tokio::sync::mpsc;
 use tokio::time::interval;
 
 pub struct PeriodicRefresher {
     network_requests: mpsc::Sender<RefreshableRequest>,
+    /// Day seen on the last rollover check. `None` until the first check.
+    prev_today: Option<NaiveDate>,
 }
 
 impl PeriodicRefresher {
     pub fn new(network_requests: mpsc::Sender<RefreshableRequest>) -> Self {
-        Self { network_requests }
+        Self {
+            network_requests,
+            prev_today: None,
+        }
     }
 
-    pub async fn run(self, app: std::sync::Arc<tokio::sync::Mutex<App>>) {
+    pub async fn run(mut self, app: std::sync::Arc<tokio::sync::Mutex<App>>) {
         let mut live_interval = interval(Duration::from_secs(10)); // Live data every 10s
         let mut schedule_interval = interval(Duration::from_secs(30)); // Schedule every 30s
         let mut standings_interval = interval(Duration::from_secs(1800)); // Standings every 30 minutes
         let mut stats_interval = interval(Duration::from_secs(1800)); // Stats every 30 minutes
+        let mut rollover_interval = interval(Duration::from_secs(60)); // Check for a new day every minute
 
         loop {
             tokio::select! {
@@ -73,6 +80,18 @@ impl PeriodicRefresher {
 
                     if active_tab == MenuItem::Stats {
                         let _ = self.network_requests.send(RefreshableRequest::force(NetworkRequest::Stats { date, stat_type })).await;
+                    }
+                }
+
+                // Roll date-driven tabs over to the new day when the system date changes
+                _ = rollover_interval.tick() => {
+                    let (today, requests) = {
+                        let mut app = app.lock().await;
+                        app.advance_dates_on_rollover(self.prev_today)
+                    };
+                    self.prev_today = Some(today);
+                    for request in requests {
+                        let _ = self.network_requests.send(RefreshableRequest::force(request)).await;
                     }
                 }
             }

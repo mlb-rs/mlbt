@@ -121,6 +121,7 @@ pub fn render_picker(picker: &PickerState, full_area: Rect, buf: &mut Buffer) {
         SettingsField::FavoriteTeam => " Favorite team ",
         SettingsField::Timezone => " Timezone ",
         SettingsField::LogLevel => " Log level ",
+        SettingsField::AutoAdvanceDate => " Auto-advance date ",
     };
 
     // Size the popup: width wide enough for the longest label + borders + padding, height capped so
@@ -135,7 +136,7 @@ pub fn render_picker(picker: &PickerState, full_area: Rect, buf: &mut Buffer) {
         .min(full_area.width);
     let popup_height = (count as u16 + 2)
         .min(full_area.height.saturating_sub(2))
-        .max(5);
+        .max(4);
 
     let area = centered_rect(full_area, popup_width, popup_height);
 

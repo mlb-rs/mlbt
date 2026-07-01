@@ -12,6 +12,7 @@ use std::sync::OnceLock;
 static CONFIG_FILE_LOCATION: OnceLock<Option<PathBuf>> = OnceLock::new();
 pub const DEFAULT_TIMEZONE: Tz = US__Pacific;
 pub const DEFAULT_LOG_LEVEL: LogLevel = LogLevel::Error;
+pub const DEFAULT_AUTO_ADVANCE_DATE: bool = true;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
@@ -45,6 +46,10 @@ pub struct ConfigFile {
     /// Optional log level to use. If not present, the default is `Error`.
     /// Set the level using a lowercase string, e.g. "error".
     pub log_level: Option<LogLevel>,
+
+    /// Automatically advance any date-driven tab to the new day when the system date rolls over,
+    /// unless the tab selected a past date. Defaults to true.
+    pub auto_advance_date: Option<bool>,
 }
 
 impl Default for ConfigFile {
@@ -53,6 +58,7 @@ impl Default for ConfigFile {
             favorite_team: None,
             timezone: Some(DEFAULT_TIMEZONE),
             log_level: Some(DEFAULT_LOG_LEVEL),
+            auto_advance_date: Some(DEFAULT_AUTO_ADVANCE_DATE),
         }
     }
 }
@@ -66,12 +72,14 @@ impl From<ConfigFile> for AppSettings {
         let timezone = file.timezone.unwrap_or(DEFAULT_TIMEZONE);
         let timezone_abbreviation = compute_timezone_abbreviation(timezone);
         let log_level = file.log_level.unwrap_or(DEFAULT_LOG_LEVEL);
+        let auto_advance_date = file.auto_advance_date.unwrap_or(DEFAULT_AUTO_ADVANCE_DATE);
         Self {
             favorite_team,
             full_screen: false,
             timezone,
             timezone_abbreviation,
             log_level,
+            auto_advance_date,
         }
     }
 }
@@ -82,6 +90,7 @@ impl From<&AppSettings> for ConfigFile {
             favorite_team: s.favorite_team.map(|t| t.name.to_string()),
             timezone: Some(s.timezone),
             log_level: Some(s.log_level),
+            auto_advance_date: Some(s.auto_advance_date),
         }
     }
 }

@@ -11,6 +11,7 @@ pub struct AppSettings {
     pub timezone: Tz,
     pub timezone_abbreviation: String,
     pub log_level: LogLevel,
+    pub auto_advance_date: bool,
 }
 
 impl AppSettings {
