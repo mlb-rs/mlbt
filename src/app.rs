@@ -133,29 +133,30 @@ impl App {
         self.state.schedule.date_selector.date = today;
         self.state.stats.date_selector.date = today;
         self.state.standings.date_selector.date = today;
-        self.state.last_known_today = Some(today);
     }
 
-    /// Advance any date selector sitting on the current day to the new day when the system date
-    /// rolls over. A selector parked on a past date is left alone so the user keeps their place.
-    /// Returns a force refresh request for each tab that advanced so its data reloads.
-    pub fn advance_dates_on_rollover(&mut self) -> Vec<NetworkRequest> {
-        if !self.settings.auto_advance_date {
-            return Vec::new();
-        }
-
+    /// Advance any date selector still on the current day to the new day after the system date
+    /// rolls over. Selectors parked on a past date are left untouched. `previous` is the day seen
+    /// on the last check (`None` on the first). Returns today plus a force refresh request for each
+    /// tab that advanced.
+    pub fn advance_dates_on_rollover(
+        &mut self,
+        previous: Option<NaiveDate>,
+    ) -> (NaiveDate, Vec<NetworkRequest>) {
         let today = Utc::now()
             .with_timezone(&self.settings.timezone)
             .date_naive();
-        // None means this is the first check, so just record today and wait for the next day.
-        let Some(previous) = self.state.last_known_today else {
-            self.state.last_known_today = Some(today);
-            return Vec::new();
+
+        if !self.settings.auto_advance_date {
+            return (today, Vec::new());
+        }
+        // None means this is the first check, so just report today and wait for the next day.
+        let Some(previous) = previous else {
+            return (today, Vec::new());
         };
         if today == previous {
-            return Vec::new();
+            return (today, Vec::new());
         }
-        self.state.last_known_today = Some(today);
 
         let mut requests = Vec::new();
         if self.state.schedule.date_selector.date == previous {
@@ -173,7 +174,7 @@ impl App {
                 stat_type: self.state.stats.stat_type,
             });
         }
-        requests
+        (today, requests)
     }
 
     /// Update the schedule and return the selected game.
@@ -486,17 +487,16 @@ mod tests {
 
         // schedule and stats are sitting on "today" (the previous reference day), standings is
         // pinned to a past date the user navigated to
-        app.state.last_known_today = Some(previous);
         app.state.schedule.date_selector.date = previous;
         app.state.stats.date_selector.date = previous;
         app.state.standings.date_selector.date = pinned;
 
-        let requests = app.advance_dates_on_rollover();
+        let (reported, requests) = app.advance_dates_on_rollover(Some(previous));
 
         assert_eq!(app.state.schedule.date_selector.date, today);
         assert_eq!(app.state.stats.date_selector.date, today);
         assert_eq!(app.state.standings.date_selector.date, pinned);
-        assert_eq!(app.state.last_known_today, Some(today));
+        assert_eq!(reported, today);
         // one request each for the two advanced tabs, none for the pinned standings
         assert_eq!(requests.len(), 2);
         assert!(
@@ -516,31 +516,36 @@ mod tests {
 
         // disabled: nothing advances even though the day changed
         app.settings.auto_advance_date = false;
-        app.state.last_known_today = Some(previous);
         app.state.schedule.date_selector.date = previous;
-        assert!(app.advance_dates_on_rollover().is_empty());
+        let (reported, requests) = app.advance_dates_on_rollover(Some(previous));
+        assert_eq!(reported, today);
+        assert!(requests.is_empty());
         assert_eq!(app.state.schedule.date_selector.date, previous);
 
         // enabled but already on today: no work to do
         app.settings.auto_advance_date = true;
-        app.state.last_known_today = Some(today);
         app.state.schedule.date_selector.date = today;
-        assert!(app.advance_dates_on_rollover().is_empty());
+        let (reported, requests) = app.advance_dates_on_rollover(Some(today));
+        assert_eq!(reported, today);
+        assert!(requests.is_empty());
         assert_eq!(app.state.schedule.date_selector.date, today);
     }
 
     #[test]
-    fn rollover_seeds_last_known_today_on_first_check() {
+    fn rollover_reports_today_without_advancing_on_first_check() {
         let mut app = test_app();
-        assert_eq!(app.state.last_known_today, None);
         let today = Utc::now()
             .with_timezone(&app.settings.timezone)
             .date_naive();
+        let previous = today - chrono::Duration::days(1);
+        app.state.schedule.date_selector.date = previous;
 
-        let requests = app.advance_dates_on_rollover();
+        // previous is None on the very first check: report today but advance nothing yet
+        let (reported, requests) = app.advance_dates_on_rollover(None);
 
+        assert_eq!(reported, today);
         assert!(requests.is_empty());
-        assert_eq!(app.state.last_known_today, Some(today));
+        assert_eq!(app.state.schedule.date_selector.date, previous);
     }
 
     #[test]
