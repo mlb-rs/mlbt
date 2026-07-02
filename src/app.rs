@@ -203,7 +203,7 @@ impl App {
         // only update gameday if the selected game is the same as the game being updated
         // this prevents gameday from showing incorrect data if the user scrolls through games quickly
         if Some(live_data.game_pk) == self.state.schedule.get_selected_game_opt() {
-            self.state.gameday.game.update(live_data, win_probability);
+            self.state.gameday.update(live_data, win_probability);
             // update this after the gameday so the players are correct
             self.state
                 .box_score
