@@ -10,7 +10,8 @@ use crate::ui::gameday::plays::InningPlaysWidget;
 use crate::ui::gameday::win_probability::WinProbabilityWidget;
 use crate::ui::layout::LayoutAreas;
 use crate::ui::linescore::LineScoreWidget;
-use tui::prelude::{Buffer, Rect, Widget};
+use crate::ui::styling::selected_style;
+use tui::prelude::{Buffer, Rect, Span, Widget};
 
 pub struct GamedayWidget<'a> {
     pub state: &'a GamedayState,
@@ -61,7 +62,11 @@ impl Widget for GamedayWidget<'_> {
         }
         if self.state.panels.info {
             let p = panels.pop().unwrap();
-            Self::draw_border(p, buf);
+            if self.state.scoring_plays_only {
+                Self::draw_border_with_title(p, buf, " Scoring Plays ");
+            } else {
+                Self::draw_border(p, buf);
+            };
             let chunks = LayoutAreas::for_info(p, self.state.panels.win_probability);
 
             let innings_widget = InningPlaysWidget {
@@ -86,6 +91,11 @@ impl Widget for GamedayWidget<'_> {
 impl GamedayWidget<'_> {
     fn draw_border(area: Rect, buf: &mut Buffer) {
         let block = draw::default_border();
+        Widget::render(block, area, buf);
+    }
+
+    fn draw_border_with_title(area: Rect, buf: &mut Buffer, title: &str) {
+        let block = draw::default_border().title(Span::styled(title, selected_style()));
         Widget::render(block, area, buf);
     }
 }
