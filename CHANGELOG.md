@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add auto-advance date logic if app is open overnight: [PR 146](https://github.com/mlb-rs/mlbt/pull/146)
+- Add toggle (`!`) to display scoring plays only in Gameday. Thanks @tjweir! [PR 145](https://github.com/mlb-rs/mlbt/pull/145)
 
 ## [0.4.0] - 2026-04-29
 
