@@ -53,6 +53,15 @@ impl TeamGame {
                 continue;
             };
             for game in date_games {
+                // Postponed and cancelled games still report abstractGameState "Final".
+                // Skip them, a rescheduled game gets its own entry on the makeup date.
+                if matches!(
+                    game.status.coded_game_state.as_deref(),
+                    Some("D") | Some("C")
+                ) {
+                    continue;
+                }
+
                 let is_home = game.teams.home.team.id == team_id;
                 let opponent_team = if is_home {
                     &game.teams.away.team
