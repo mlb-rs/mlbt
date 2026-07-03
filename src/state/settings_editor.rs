@@ -19,8 +19,8 @@ pub enum SettingsField {
     #[default]
     FavoriteTeam,
     Timezone,
-    LogLevel,
     AutoAdvanceDate,
+    LogLevel,
 }
 
 /// Transient status shown below the settings form. Cleared on any input that interacts with the
@@ -51,34 +51,34 @@ impl SettingsField {
     pub const ALL: [SettingsField; 4] = [
         SettingsField::FavoriteTeam,
         SettingsField::Timezone,
-        SettingsField::LogLevel,
         SettingsField::AutoAdvanceDate,
+        SettingsField::LogLevel,
     ];
 
     pub fn label(self) -> &'static str {
         match self {
             SettingsField::FavoriteTeam => "Team",
             SettingsField::Timezone => "Timezone",
-            SettingsField::LogLevel => "Log",
             SettingsField::AutoAdvanceDate => "Auto-date",
+            SettingsField::LogLevel => "Log",
         }
     }
 
     pub fn next(self) -> Self {
         match self {
             SettingsField::FavoriteTeam => SettingsField::Timezone,
-            SettingsField::Timezone => SettingsField::LogLevel,
-            SettingsField::LogLevel => SettingsField::AutoAdvanceDate,
-            SettingsField::AutoAdvanceDate => SettingsField::FavoriteTeam,
+            SettingsField::Timezone => SettingsField::AutoAdvanceDate,
+            SettingsField::AutoAdvanceDate => SettingsField::LogLevel,
+            SettingsField::LogLevel => SettingsField::FavoriteTeam,
         }
     }
 
     pub fn previous(self) -> Self {
         match self {
-            SettingsField::FavoriteTeam => SettingsField::AutoAdvanceDate,
+            SettingsField::FavoriteTeam => SettingsField::LogLevel,
             SettingsField::Timezone => SettingsField::FavoriteTeam,
-            SettingsField::LogLevel => SettingsField::Timezone,
-            SettingsField::AutoAdvanceDate => SettingsField::LogLevel,
+            SettingsField::AutoAdvanceDate => SettingsField::Timezone,
+            SettingsField::LogLevel => SettingsField::AutoAdvanceDate,
         }
     }
 
@@ -115,13 +115,13 @@ impl SettingsField {
                 .iter()
                 .position(|o| o.tz == settings.timezone)
                 .unwrap_or(0),
-            SettingsField::LogLevel => LOG_LEVEL_OPTIONS
-                .iter()
-                .position(|o| o.value == settings.log_level)
-                .unwrap_or(0),
             SettingsField::AutoAdvanceDate => TOGGLE_OPTIONS
                 .iter()
                 .position(|o| o.value == settings.auto_advance_date)
+                .unwrap_or(0),
+            SettingsField::LogLevel => LOG_LEVEL_OPTIONS
+                .iter()
+                .position(|o| o.value == settings.log_level)
                 .unwrap_or(0),
         }
     }

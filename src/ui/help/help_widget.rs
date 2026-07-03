@@ -57,13 +57,13 @@ impl StatefulWidget for HelpWidget<'_> {
         StatefulWidget::render(docs_table, table_area, buf, state);
 
         let [banner_area, settings_area, config_area] = Layout::vertical([
-            Constraint::Length(8),
+            Constraint::Length(7),
             Constraint::Min(6),
-            Constraint::Length(1),
+            Constraint::Length(2),
         ])
         .areas(right);
 
-        Paragraph::new(format!("{}\nv {}", BANNER, env!("CARGO_PKG_VERSION")))
+        Paragraph::new(BANNER)
             .alignment(Alignment::Center)
             .render(banner_area, buf);
 
@@ -72,7 +72,7 @@ impl StatefulWidget for HelpWidget<'_> {
         let config_path = TomlFileStore::default_path()
             .map(|p| tilde_path(&p))
             .unwrap_or_else(|| "config: not found".to_string());
-        Paragraph::new(config_path)
+        Paragraph::new(format!("v{}\n{config_path}", env!("CARGO_PKG_VERSION")))
             .alignment(Alignment::Center)
             .style(dim_style())
             .render(config_area, buf);
