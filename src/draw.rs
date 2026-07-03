@@ -227,7 +227,7 @@ fn draw_gameday(f: &mut Frame, rect: Rect, app: &mut App) {
     f.render_widget(
         GamedayWidget {
             active: app.state.box_score.active_team,
-            state: &app.state.gameday,
+            state: &mut app.state.gameday,
             boxscore_state: &mut app.state.box_score,
         },
         rect,

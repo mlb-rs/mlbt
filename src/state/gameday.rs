@@ -2,6 +2,7 @@ use crate::components::game::live_game::GameState;
 use mlbt_api::live::LiveResponse;
 use mlbt_api::schedule::AbstractGameState;
 use mlbt_api::win_probability::WinProbabilityResponse;
+use tui::widgets::ScrollbarState;
 
 #[derive(Default)]
 pub struct GamedayState {
@@ -13,6 +14,8 @@ pub struct GamedayState {
     /// Snap to a scoring play when the next update arrives. Set when switching games with the
     /// scoring play filter on, since the new game's at bats load asynchronously.
     snap_pending: bool,
+    pub plays_scroll_offset: u16,
+    pub plays_scroll_state: ScrollbarState,
 }
 
 impl GamedayState {
