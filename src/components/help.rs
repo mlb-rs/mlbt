@@ -22,7 +22,7 @@ const GENERAL_DOCS: &[&[&str; 2]; 9] = &[
     &["Focus settings", "Tab"],
     &["Change setting", "Enter"],
 ];
-const SCOREBOARD_DOCS: &[&[&str; 2]; 9] = &[
+const SCOREBOARD_DOCS: &[&[&str; 2]; 10] = &[
     &["Scoreboard", "1"],
     &["Move down", "j/↓"],
     &["Move up", "k/↑"],
@@ -32,6 +32,7 @@ const SCOREBOARD_DOCS: &[&[&str; 2]; 9] = &[
     &["Scroll boxscore down", "Shift + j/↓"],
     &["Scroll boxscore up", "Shift + k/↑"],
     &["Toggle win probability", "w"],
+    &["Toggle sort mode", "s"],
 ];
 const GAMEDAY_DOCS: &[&[&str; 2]; 13] = &[
     &["Gameday", "2"],

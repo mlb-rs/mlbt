@@ -1,4 +1,4 @@
-use crate::components::schedule::{Record, ScheduleRow, ScheduleState};
+use crate::components::schedule::{Record, ScheduleRow, ScheduleState, SortMode};
 use crate::state::app_state::HomeOrAway;
 use crate::ui::styling::{border_style, dim_style, header_style, selected_style};
 use tui::prelude::*;
@@ -106,6 +106,14 @@ impl StatefulWidget for ScheduleWidget {
             Constraint::Fill(1),    // game status
         ];
 
+        let title = if state.sort_mode == SortMode::GameStatus {
+            format!(
+                "{} [status] ",
+                state.date_selector.format_date_border_title(),
+            )
+        } else {
+            state.date_selector.format_date_border_title()
+        };
         let t = Table::new(rows, widths)
             .header(header)
             .block(
@@ -114,10 +122,7 @@ impl StatefulWidget for ScheduleWidget {
                     .border_type(BorderType::Rounded)
                     .border_style(border_style())
                     .padding(Padding::new(1, 1, 0, 0))
-                    .title(Span::styled(
-                        state.date_selector.format_date_border_title(),
-                        selected_style(),
-                    )),
+                    .title(Span::styled(title, selected_style())),
             )
             .row_highlight_style(selected_style());
 

@@ -456,6 +456,8 @@ mod tests {
             home_probable_pitcher: ProbablePitcher::default(),
             away_probable_pitcher: ProbablePitcher::default(),
             decision_pitchers: None,
+            abstract_game_state: None,
+            current_inning: None,
         }
     }
 
