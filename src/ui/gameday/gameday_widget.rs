@@ -14,7 +14,7 @@ use crate::ui::styling::selected_style;
 use tui::prelude::{Buffer, Rect, Span, Widget};
 
 pub struct GamedayWidget<'a> {
-    pub state: &'a GamedayState,
+    pub state: &'a mut GamedayState,
     pub boxscore_state: &'a mut BoxscoreState,
     pub active: HomeOrAway,
 }
@@ -73,6 +73,8 @@ impl Widget for GamedayWidget<'_> {
                 game: &self.state.game,
                 selected_at_bat: self.state.selected_at_bat(),
                 scoring_only: self.state.scoring_plays_only,
+                scroll_offset: &mut self.state.plays_scroll_offset,
+                scroll_state: &mut self.state.plays_scroll_state,
             };
             Widget::render(innings_widget, chunks[0], buf);
 

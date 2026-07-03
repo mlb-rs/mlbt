@@ -81,6 +81,7 @@ impl LayoutAreas {
         Layout::vertical(constraints)
             .horizontal_margin(2)
             .vertical_margin(1)
+            .spacing(1) // one row of padding between the plays and the win probability chart
             .split(rect)
             .to_vec()
     }
