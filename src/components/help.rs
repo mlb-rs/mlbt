@@ -33,7 +33,7 @@ const SCOREBOARD_DOCS: &[&[&str; 2]; 9] = &[
     &["Scroll boxscore up", "Shift + k/↑"],
     &["Toggle win probability", "w"],
 ];
-const GAMEDAY_DOCS: &[&[&str; 2]; 12] = &[
+const GAMEDAY_DOCS: &[&[&str; 2]; 13] = &[
     &["Gameday", "2"],
     &["Toggle game info", "i"],
     &["Toggle pitches", "p"],
@@ -46,6 +46,7 @@ const GAMEDAY_DOCS: &[&[&str; 2]; 12] = &[
     &["Move up at bat", "k/↑"],
     &["Go to live at bat", "l"],
     &["Go to first at bat", "s"],
+    &["Toggle scoring plays only", "!"],
 ];
 const STATS_DOCS: &[&[&str; 2]; 17] = &[
     &["Stats", "3"],

@@ -243,11 +243,16 @@ async fn load_team(guard: AppGuard<'_>, network_requests: &mpsc::Sender<Refresha
 }
 
 async fn load_game_data(
-    guard: AppGuard<'_>,
+    mut guard: AppGuard<'_>,
     network_requests: &mpsc::Sender<RefreshableRequest>,
     force: bool,
 ) {
     let game_id = guard.state.schedule.get_selected_game_opt();
+    // No-ops when the game hasn't actually changed, so this is safe on every call site. Clearing
+    // stale data from the previous game up front avoids it lingering on screen while the new
+    // game's data loads.
+    guard.state.gameday.reset(game_id);
+    guard.state.box_score.reset(game_id);
     drop(guard);
 
     if let Some(game_id) = game_id {
