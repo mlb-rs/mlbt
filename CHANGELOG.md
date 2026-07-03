@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Scrolling plays in the Gameday view now works correctly: [PR 148](https://github.com/mlb-rs/mlbt/pull/148)
+- On the Team page the schedule now handles rainouts correctly: [PR 149](https://github.com/mlb-rs/mlbt/pull/149)
 
 ## [0.4.0] - 2026-04-29
 
