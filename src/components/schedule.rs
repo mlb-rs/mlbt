@@ -15,7 +15,7 @@ use tui::widgets::TableState;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SortMode {
-    Priority,
+    GameStatus,
     Time,
 }
 
@@ -35,7 +35,7 @@ impl Default for ScheduleState {
             schedule: Vec::new(),
             date_selector: DateSelector::default(),
             show_win_probability: true,
-            sort_mode: SortMode::Priority,
+            sort_mode: SortMode::Time,
         }
     }
 }
@@ -72,6 +72,8 @@ impl ScheduleState {
     /// Update the data from the API. It is assumed that the date is already updated, aka don't use
     /// a random date without first setting the `date` field. Use `set_date_from_input` for this.
     pub fn update(&mut self, settings: &AppSettings, schedule: &ScheduleResponse) {
+        let selected_game_id = self.get_selected_game_opt();
+
         let rows = ScheduleRow::create_rows(settings, schedule);
         self.schedule = sort_schedule(rows, self.sort_mode, settings.favorite_team);
 
@@ -84,11 +86,13 @@ impl ScheduleState {
         if self.date_selector.date_changed {
             self.date_selector.date_changed = false;
             self.state.select(Some(0));
-        } else if self.state.selected().is_none() {
-            self.state.select(Some(0));
-        } else if let Some(selected) = self.state.selected()
-            && selected >= self.schedule.len()
+        } else if let Some(new_index) = selected_game_id
+            .and_then(|game_id| self.schedule.iter().position(|row| row.game_id == game_id))
         {
+            // Re-find the previously selected game by id, since a re-sort (e.g. `GameStatus` mode
+            // reacting to a game going live) can move it to a different index.
+            self.state.select(Some(new_index));
+        } else {
             self.state.select(Some(0));
         }
     }
@@ -168,8 +172,8 @@ impl ScheduleState {
 
     pub fn toggle_sort_mode(&mut self, favorite_team: Option<Team>) {
         self.sort_mode = match self.sort_mode {
-            SortMode::Priority => SortMode::Time,
-            SortMode::Time => SortMode::Priority,
+            SortMode::GameStatus => SortMode::Time,
+            SortMode::Time => SortMode::GameStatus,
         };
         let rows = std::mem::take(&mut self.schedule);
         self.schedule = sort_schedule(rows, self.sort_mode, favorite_team);
@@ -334,13 +338,15 @@ fn sort_time(
         }
     }
 
-    favorite.sort_by_key(|row| row.game_id);
-    other.sort_by_key(|row| row.game_id);
+    // Break start-time ties by game id so the order matches `sort_game_status` and stays stable
+    // across re-sorts, rather than depending on the order the API returned games in.
+    favorite.sort_by_key(|row| (row.start_time_utc, row.game_id));
+    other.sort_by_key(|row| (row.start_time_utc, row.game_id));
     favorite.extend(other);
     favorite
 }
 
-fn sort_priority(
+fn sort_game_status(
     rows: impl IntoIterator<Item = ScheduleRow>,
     favorite_team: Option<Team>,
 ) -> Vec<ScheduleRow> {
@@ -377,11 +383,10 @@ fn sort_priority(
                 .unwrap_or(0)
                 .cmp(&a.current_inning.unwrap_or(0))
                 .then(a.game_id.cmp(&b.game_id)),
-            1 => a
+            1 | 2 => a
                 .start_time_utc
                 .cmp(&b.start_time_utc)
                 .then(a.game_id.cmp(&b.game_id)),
-            2 => a.game_id.cmp(&b.game_id),
             _ => Ordering::Equal,
         }
     });
@@ -394,7 +399,7 @@ fn sort_schedule(
     favorite_team: Option<Team>,
 ) -> Vec<ScheduleRow> {
     match mode {
-        SortMode::Priority => sort_priority(rows, favorite_team),
+        SortMode::GameStatus => sort_game_status(rows, favorite_team),
         SortMode::Time => sort_time(rows, favorite_team),
     }
 }
@@ -415,7 +420,7 @@ mod tests {
             away_score: None,
             away_record: None,
             start_time: String::new(),
-            start_time_utc: DateTime::<Utc>::UNIX_EPOCH,
+            start_time_utc: DateTime::from_timestamp(game_id as i64, 0).unwrap(),
             game_status: String::new(),
             home_probable_pitcher: ProbablePitcher::default(),
             away_probable_pitcher: ProbablePitcher::default(),
@@ -502,126 +507,68 @@ mod tests {
         }
     }
 
-    #[test]
-    fn sort_priority_puts_favorite_team_first() {
-        let rows = vec![row(30, 114, 115), row(10, 108, 109), row(20, 112, 113)];
-        let sorted = sort_priority(rows, lookup_team_by_id(112));
-        assert_eq!(
-            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
-            vec![20, 10, 30]
-        );
+    fn ts(secs: i64) -> DateTime<Utc> {
+        DateTime::from_timestamp(secs, 0).unwrap()
+    }
+
+    fn ids(rows: Vec<ScheduleRow>) -> Vec<u64> {
+        rows.iter().map(|r| r.game_id).collect()
     }
 
     #[test]
-    fn sort_priority_orders_live_before_upcoming_before_finished() {
-        let t = DateTime::<Utc>::UNIX_EPOCH;
+    fn sort_game_status_orders_by_favorite_then_category() {
+        // Favorite team is pinned first even when its game is Final, then live games, then the
+        // upcoming bucket (Preview/Other/None) by start time, then remaining finished games.
         let rows = vec![
-            row_with_state(1, 108, 109, Some(AbstractGameState::Final), None, t),
-            row_with_state(2, 112, 113, Some(AbstractGameState::Preview), None, t),
-            row_with_state(3, 114, 115, Some(AbstractGameState::Live), Some(5), t),
+            row_with_state(1, 108, 109, Some(AbstractGameState::Final), None, ts(0)),
+            row_with_state(2, 112, 113, Some(AbstractGameState::Final), None, ts(0)),
+            row_with_state(3, 114, 115, Some(AbstractGameState::Live), Some(5), ts(0)),
+            row_with_state(4, 116, 117, Some(AbstractGameState::Preview), None, ts(10)),
+            row_with_state(5, 118, 119, Some(AbstractGameState::Other), None, ts(20)),
+            row_with_state(6, 120, 121, None, None, ts(30)),
         ];
-        let sorted = sort_priority(rows, None);
-        assert_eq!(
-            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
-            vec![3, 2, 1]
-        );
+        let sorted = sort_game_status(rows, lookup_team_by_id(112));
+        assert_eq!(ids(sorted), vec![2, 3, 4, 5, 6, 1]);
     }
 
     #[test]
-    fn sort_priority_orders_live_by_inning_descending() {
-        let t = DateTime::<Utc>::UNIX_EPOCH;
+    fn sort_game_status_tiebreaks_within_category() {
+        // Live games sort by current inning descending.
+        let live = vec![
+            row_with_state(1, 108, 109, Some(AbstractGameState::Live), Some(3), ts(0)),
+            row_with_state(2, 112, 113, Some(AbstractGameState::Live), Some(7), ts(0)),
+            row_with_state(3, 114, 115, Some(AbstractGameState::Live), Some(1), ts(0)),
+        ];
+        assert_eq!(ids(sort_game_status(live, None)), vec![2, 1, 3]);
+
+        // Finished games sort by game id ascending.
+        let finished = vec![
+            row_with_state(30, 114, 115, Some(AbstractGameState::Final), None, ts(0)),
+            row_with_state(10, 108, 109, Some(AbstractGameState::Final), None, ts(0)),
+            row_with_state(20, 112, 113, Some(AbstractGameState::Final), None, ts(0)),
+        ];
+        assert_eq!(ids(sort_game_status(finished, None)), vec![10, 20, 30]);
+    }
+
+    #[test]
+    fn sort_time_orders_by_start_time_then_game_id_favorite_first() {
+        // Games 3 and 4 share a start time and are given in reverse game-id order to prove ties
+        // break by game id (matching sort_game_status), not by input/API order.
         let rows = vec![
-            row_with_state(1, 108, 109, Some(AbstractGameState::Live), Some(3), t),
-            row_with_state(2, 112, 113, Some(AbstractGameState::Live), Some(7), t),
-            row_with_state(3, 114, 115, Some(AbstractGameState::Live), Some(1), t),
+            row_with_state(1, 108, 109, None, None, ts(300)),
+            row_with_state(4, 116, 117, None, None, ts(200)),
+            row_with_state(2, 112, 113, None, None, ts(100)),
+            row_with_state(3, 114, 115, None, None, ts(200)),
         ];
-        let sorted = sort_priority(rows, None);
-        assert_eq!(
-            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
-            vec![2, 1, 3]
-        );
-    }
+        assert_eq!(ids(sort_time(rows, None)), vec![2, 3, 4, 1]);
 
-    #[test]
-    fn sort_priority_orders_upcoming_by_start_time_ascending() {
-        let t1 = DateTime::<Utc>::UNIX_EPOCH;
-        let t2 = DateTime::from_timestamp(3600, 0).unwrap();
-        let t3 = DateTime::from_timestamp(7200, 0).unwrap();
         let rows = vec![
-            row_with_state(3, 114, 115, Some(AbstractGameState::Preview), None, t3),
-            row_with_state(1, 108, 109, Some(AbstractGameState::Preview), None, t1),
-            row_with_state(2, 112, 113, Some(AbstractGameState::Preview), None, t2),
+            row_with_state(1, 108, 109, None, None, ts(300)),
+            row_with_state(2, 112, 113, None, None, ts(100)),
+            row_with_state(3, 114, 115, None, None, ts(200)),
         ];
-        let sorted = sort_priority(rows, None);
-        assert_eq!(
-            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
-            vec![1, 2, 3]
-        );
-    }
-
-    #[test]
-    fn sort_priority_orders_finished_by_game_id_ascending() {
-        let t = DateTime::<Utc>::UNIX_EPOCH;
-        let rows = vec![
-            row_with_state(30, 114, 115, Some(AbstractGameState::Final), None, t),
-            row_with_state(10, 108, 109, Some(AbstractGameState::Final), None, t),
-            row_with_state(20, 112, 113, Some(AbstractGameState::Final), None, t),
-        ];
-        let sorted = sort_priority(rows, None);
-        assert_eq!(
-            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
-            vec![10, 20, 30]
-        );
-    }
-
-    #[test]
-    fn sort_priority_treats_other_as_upcoming() {
-        let t1 = DateTime::<Utc>::UNIX_EPOCH;
-        let t2 = DateTime::from_timestamp(3600, 0).unwrap();
-        let rows = vec![
-            row_with_state(2, 112, 113, Some(AbstractGameState::Other), None, t2),
-            row_with_state(1, 108, 109, Some(AbstractGameState::Preview), None, t1),
-        ];
-        let sorted = sort_priority(rows, None);
-        assert_eq!(
-            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
-            vec![1, 2]
-        );
-    }
-
-    #[test]
-    fn sort_priority_treats_none_as_upcoming() {
-        let t1 = DateTime::<Utc>::UNIX_EPOCH;
-        let t2 = DateTime::from_timestamp(3600, 0).unwrap();
-        let rows = vec![
-            row_with_state(2, 112, 113, None, None, t2),
-            row_with_state(1, 108, 109, Some(AbstractGameState::Preview), None, t1),
-        ];
-        let sorted = sort_priority(rows, None);
-        assert_eq!(
-            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
-            vec![1, 2]
-        );
-    }
-
-    #[test]
-    fn sort_time_matches_old_favorite_first_behavior() {
-        let rows = vec![row(30, 114, 115), row(10, 108, 109), row(20, 112, 113)];
-        let sorted = sort_time(rows, lookup_team_by_id(112));
-        assert_eq!(
-            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
-            vec![20, 10, 30]
-        );
-    }
-
-    #[test]
-    fn sort_time_no_favorite_sorts_by_game_id() {
-        let rows = vec![row(30, 114, 115), row(10, 108, 109), row(20, 112, 113)];
-        let sorted = sort_time(rows, None);
-        assert_eq!(
-            sorted.iter().map(|r| r.game_id).collect::<Vec<_>>(),
-            vec![10, 20, 30]
-        );
+        // Favorite (team 108, game 1) is pinned first despite its latest start time.
+        assert_eq!(ids(sort_time(rows, lookup_team_by_id(108))), vec![1, 2, 3]);
     }
 
     #[test]
@@ -635,7 +582,7 @@ mod tests {
         };
         state.state.select(Some(1));
         state.toggle_sort_mode(lookup_team_by_id(112));
-        assert_eq!(state.sort_mode, SortMode::Priority);
+        assert_eq!(state.sort_mode, SortMode::GameStatus);
         assert_eq!(state.state.selected(), Some(0));
     }
 }
