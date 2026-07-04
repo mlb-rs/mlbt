@@ -446,6 +446,7 @@ impl NetworkWorker {
 mod tests {
     use super::*;
     use chrono::NaiveDate;
+    use std::assert_matches;
 
     fn worker() -> NetworkWorker {
         let (_request_tx, request_rx) = mpsc::channel(32);
@@ -506,10 +507,10 @@ mod tests {
 
         assert_eq!(latest, 9);
         assert_eq!(overflow.len(), 1);
-        assert!(matches!(
+        assert_matches!(
             overflow[0].request,
             NetworkRequest::Schedule { date: d } if d == date
-        ));
+        );
     }
 
     #[test]
@@ -526,12 +527,12 @@ mod tests {
 
         assert_eq!(latest, 42);
         assert_eq!(overflow.len(), 1);
-        assert!(matches!(
+        assert_matches!(
             overflow[0],
             RefreshableRequest {
                 request: NetworkRequest::GameData { game_id: 99 },
                 force_refresh: true,
             }
-        ));
+        );
     }
 }
