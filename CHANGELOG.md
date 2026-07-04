@@ -5,16 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.5.0] - 2026-07-03
 
 ### Added
 
 - Add auto-advance date logic if app is open overnight: [PR 146](https://github.com/mlb-rs/mlbt/pull/146)
 - Add toggle (`!`) to display scoring plays only in Gameday. Thanks @tjweir! [PR 145](https://github.com/mlb-rs/mlbt/pull/145)
+- Add toggle (`s`) to change the sorting in the Schedule to sort by game status.
+  Thanks @bsdlp!: [PR 144](https://github.com/mlb-rs/mlbt/pull/144)
 
 ### Changed
 
 - Update help page UI: [PR 150](https://github.com/mlb-rs/mlbt/pull/150)
+- Update Rust to 1.96.1
+- Update `ratatui` to 0.30.2
 
 ### Fixed
 
