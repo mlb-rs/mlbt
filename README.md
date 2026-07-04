@@ -181,6 +181,7 @@ Press `1` to activate this tab.
 | `a`                 | switch to away team in box score                       |
 | `Shift` +  `j`/ `↓` | scroll box score down                                  |
 | `Shift` +  `k`/ `↑` | scroll box score up                                    |
+| `s`                 | toggle sort by game status                             |
 
 ### Gameday
 
