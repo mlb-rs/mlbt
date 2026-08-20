@@ -35,9 +35,22 @@ impl StatefulWidget for StandingsWidget {
 
         let mut rows = Vec::with_capacity(36); // 30 teams + 6 divisions
 
+        // shown in the border so a three-way cycle isn't ambiguous
+        let mode = match state.view_mode {
+            ViewMode::ByDivision => "division",
+            ViewMode::Overall => "league",
+            ViewMode::WildCard => "wild card",
+        };
+
         match state.view_mode {
-            ViewMode::ByDivision => {
-                for d in &state.standings {
+            // the wild card race is grouped by league instead of division
+            ViewMode::ByDivision | ViewMode::WildCard => {
+                let groups = if state.view_mode == ViewMode::WildCard {
+                    &state.wild_card_standings
+                } else {
+                    &state.standings
+                };
+                for d in groups {
                     // create a row for the division name
                     let division = Row::new(vec![d.name.clone()])
                         .height(1)
@@ -66,7 +79,11 @@ impl StatefulWidget for StandingsWidget {
                     .border_style(border_style())
                     .padding(Padding::new(1, 1, 0, 0))
                     .title(Span::styled(
-                        state.date_selector.format_date_border_title(),
+                        format!(
+                            "{}[{}] ",
+                            state.date_selector.format_date_border_title(),
+                            mode
+                        ),
                         selected_style(),
                     )),
             )
