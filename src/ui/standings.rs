@@ -35,11 +35,12 @@ impl StatefulWidget for StandingsWidget {
 
         let mut rows = Vec::with_capacity(36); // 30 teams + 6 divisions
 
-        // shown in the border so a three-way cycle isn't ambiguous
-        let mode = match state.view_mode {
-            ViewMode::ByDivision => "division",
-            ViewMode::Overall => "league",
-            ViewMode::WildCard => "wild card",
+        // division is the default view, so only label the other two
+        let date = state.date_selector.format_date_border_title();
+        let title = match state.view_mode {
+            ViewMode::ByDivision => date,
+            ViewMode::Overall => format!("{date}[league] "),
+            ViewMode::WildCard => format!("{date}[wild card] "),
         };
 
         match state.view_mode {
@@ -78,14 +79,7 @@ impl StatefulWidget for StandingsWidget {
                     .border_type(BorderType::Rounded)
                     .border_style(border_style())
                     .padding(Padding::new(1, 1, 0, 0))
-                    .title(Span::styled(
-                        format!(
-                            "{}[{}] ",
-                            state.date_selector.format_date_border_title(),
-                            mode
-                        ),
-                        selected_style(),
-                    )),
+                    .title(Span::styled(title, selected_style())),
             )
             .row_highlight_style(selected_style());
 

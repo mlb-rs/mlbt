@@ -40,6 +40,16 @@ pub struct StandingsState {
     pub team_page: Option<TeamPageState>,
 }
 
+/// Map a division id to its league id. Pre-1969 standings have no divisions and are already grouped
+/// by league, and historical teams predating divisions have an id of `0`.
+fn league_id(division_id: u16) -> u16 {
+    match division_id {
+        200..=202 => 103,
+        203..=205 => 104,
+        id => id,
+    }
+}
+
 /// Groups teams into their divisions.
 pub struct Division {
     pub name: String,
@@ -210,13 +220,7 @@ impl StandingsState {
     fn get_wild_card_teams(&self) -> Vec<Division> {
         let mut leagues: BTreeMap<u16, Vec<Standing>> = BTreeMap::new();
         for division in &self.standings {
-            // pre-1969 standings have no divisions and are already grouped by league
-            let league = match division.id {
-                200..=202 => 103,
-                203..=205 => 104,
-                id => id,
-            };
-            leagues.entry(league).or_default().extend(
+            leagues.entry(league_id(division.id)).or_default().extend(
                 division
                     .standings
                     .iter()
@@ -225,7 +229,7 @@ impl StandingsState {
             );
         }
 
-        leagues
+        let mut leagues: Vec<Division> = leagues
             .into_iter()
             .map(|(id, mut standings)| {
                 standings.sort_by_key(|s| s.wild_card_rank);
@@ -235,7 +239,15 @@ impl StandingsState {
                     standings,
                 }
             })
-            .collect()
+            .collect();
+
+        // show the favorite team's league first, matching how the division view is ordered
+        if let Some(team) = self.favorite_team {
+            let favorite = league_id(team.division_id);
+            leagues.sort_by_key(|league| league.id != favorite);
+        }
+
+        leagues
     }
 
     /// Get all teams sorted by record (for overall view)
@@ -677,6 +689,29 @@ mod tests {
             vec![(103, vec![114, 111]), (104, vec![112])]
         );
 
+        // an NL favorite team puts the NL first
+        state.apply_favorite_team(lookup_team_by_id(112));
+        assert_eq!(
+            state
+                .wild_card_standings
+                .iter()
+                .map(|l| l.id)
+                .collect::<Vec<u16>>(),
+            vec![104, 103]
+        );
+
+        // and an AL favorite team puts the AL first
+        state.apply_favorite_team(lookup_team_by_id(111));
+        assert_eq!(
+            state
+                .wild_card_standings
+                .iter()
+                .map(|l| l.id)
+                .collect::<Vec<u16>>(),
+            vec![103, 104]
+        );
+
+        state.favorite_team = None;
         state.view_mode = ViewMode::WildCard;
         state.team_ids = state.generate_ids();
         state.reset_selection();
