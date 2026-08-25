@@ -10,7 +10,7 @@ use mlbt_api::schedule::ScheduleResponse;
 use mlbt_api::season::GameType;
 use mlbt_api::standings::{RecordElement, StandingsResponse, TeamRecord};
 use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 use std::string::ToString;
 use std::sync::Arc;
 use tui::prelude::{Color, Stylize};
@@ -20,6 +20,7 @@ use tui::widgets::{Cell, TableState};
 pub enum ViewMode {
     ByDivision,
     Overall,
+    WildCard,
 }
 
 /// Stores the state for rendering the standings. The `standings` field is a nested Vec to make
@@ -29,12 +30,24 @@ pub struct StandingsState {
     pub favorite_team: Option<Team>,
     pub standings: Vec<Division>,
     pub league_standings: Vec<Standing>,
+    /// The wild card race, grouped by league.
+    pub wild_card_standings: Vec<Division>,
     pub team_ids: Vec<u16>,
     pub date_selector: DateSelector,
     pub view_mode: ViewMode,
     /// Used to skip selecting division names in the table.
     division_row_indices: HashSet<usize>,
     pub team_page: Option<TeamPageState>,
+}
+
+/// Map a division id to its league id. Pre-1969 standings have no divisions and are already grouped
+/// by league, and historical teams predating divisions have an id of `0`.
+fn league_id(division_id: u16) -> u16 {
+    match division_id {
+        200..=202 => 103,
+        203..=205 => 104,
+        id => id,
+    }
 }
 
 /// Groups teams into their divisions.
@@ -104,6 +117,8 @@ pub struct Standing {
     pub winning_percentage: String,
     pub games_back: String,
     pub wild_card_games_back: String,
+    /// The API only ranks teams in the wild card race, so division leaders are `None`.
+    pub wild_card_rank: Option<u8>,
     pub last_10: String,
     pub streak: String,
     pub runs_scored: u16,
@@ -120,6 +135,7 @@ impl Default for StandingsState {
             state: TableState::default(),
             standings: Division::create_divisions(),
             league_standings: vec![],
+            wild_card_standings: vec![],
             team_ids: vec![200, 201, 202, 203, 204, 205],
             date_selector: DateSelector::default(),
             view_mode: ViewMode::ByDivision,
@@ -135,6 +151,7 @@ impl StandingsState {
     pub fn update(&mut self, standings: &StandingsResponse) {
         self.standings = Division::create_table(standings, self.favorite_team);
         self.league_standings = self.get_teams_by_record();
+        self.wild_card_standings = self.get_wild_card_teams();
         self.team_ids = self.generate_ids();
 
         if self.standings.is_empty() {
@@ -150,6 +167,7 @@ impl StandingsState {
         } else if !self.team_ids.is_empty() {
             let offset = match self.view_mode {
                 ViewMode::ByDivision => 1, // Skip first division header
+                ViewMode::WildCard => 1,   // Skip first league header
                 ViewMode::Overall => 0,    // No division headers to skip
             };
             self.state.select(Some(offset));
@@ -170,6 +188,7 @@ impl StandingsState {
 
         Division::sort_by_favorite(&mut self.standings, favorite_team);
         self.league_standings = self.get_teams_by_record();
+        self.wild_card_standings = self.get_wild_card_teams();
         self.team_ids = self.generate_ids();
         self.reset_selection();
     }
@@ -184,14 +203,51 @@ impl StandingsState {
         self.date_selector.set_date_with_arrows(forward)
     }
 
-    /// Toggle between division view and overall view
+    /// Cycle through the division, league, and wild card views.
     pub fn toggle_view_mode(&mut self) {
         self.view_mode = match self.view_mode {
             ViewMode::ByDivision => ViewMode::Overall,
-            ViewMode::Overall => ViewMode::ByDivision,
+            ViewMode::Overall => ViewMode::WildCard,
+            ViewMode::WildCard => ViewMode::ByDivision,
         };
         self.team_ids = self.generate_ids();
         self.reset_selection();
+    }
+
+    /// The wild card race: teams not leading their division, grouped by league and ordered by the
+    /// rank the API already computed, which resolves tiebreakers for us. Only division leaders lack
+    /// a rank, so seasons before the wild card era yield an empty view.
+    fn get_wild_card_teams(&self) -> Vec<Division> {
+        let mut leagues: BTreeMap<u16, Vec<Standing>> = BTreeMap::new();
+        for division in &self.standings {
+            leagues.entry(league_id(division.id)).or_default().extend(
+                division
+                    .standings
+                    .iter()
+                    .filter(|s| s.wild_card_rank.is_some())
+                    .cloned(),
+            );
+        }
+
+        let mut leagues: Vec<Division> = leagues
+            .into_iter()
+            .map(|(id, mut standings)| {
+                standings.sort_by_key(|s| s.wild_card_rank);
+                Division {
+                    name: DIVISIONS.get(&id).unwrap_or(&"Unknown").to_string(),
+                    id,
+                    standings,
+                }
+            })
+            .collect();
+
+        // show the favorite team's league first, matching how the division view is ordered
+        if let Some(team) = self.favorite_team {
+            let favorite = league_id(team.division_id);
+            leagues.sort_by_key(|league| league.id != favorite);
+        }
+
+        leagues
     }
 
     /// Get all teams sorted by record (for overall view)
@@ -215,10 +271,15 @@ impl StandingsState {
         self.division_row_indices.clear(); // clear previous indices in case they change, e.g. historical standings
 
         match self.view_mode {
-            ViewMode::ByDivision => {
+            ViewMode::ByDivision | ViewMode::WildCard => {
+                let groups = if self.view_mode == ViewMode::WildCard {
+                    &self.wild_card_standings
+                } else {
+                    &self.standings
+                };
                 let mut ids = Vec::with_capacity(36); // 30 teams, 6 divisions
                 let mut count = 0;
-                for division in &self.standings {
+                for division in groups {
                     ids.push(division.id);
                     self.division_row_indices.insert(count);
                     for team in &division.standings {
@@ -255,6 +316,9 @@ impl StandingsState {
                 }
                 None
             }
+            // group ids never collide with team ids, so the row ids are enough to find the team.
+            // A division leader isn't in the wild card race, so it may not be there at all.
+            ViewMode::WildCard => self.team_ids.iter().position(|&id| id == team.id),
             ViewMode::Overall => {
                 // Find team position in sorted list
                 self.league_standings
@@ -331,8 +395,8 @@ impl StandingsState {
     }
 
     fn skip_division(&self, index: usize) -> bool {
-        // Only skip division rows in division view mode
-        self.view_mode == ViewMode::ByDivision && self.division_row_indices.contains(&index)
+        // the overall view is the only one without group header rows
+        self.view_mode != ViewMode::Overall && self.division_row_indices.contains(&index)
     }
 
     fn move_forward(&self, current: usize) -> usize {
@@ -481,6 +545,7 @@ impl Standing {
             winning_percentage: team.winning_percentage.clone(),
             games_back: team.games_back.clone(),
             wild_card_games_back: team.wild_card_games_back.clone(),
+            wild_card_rank: team.wild_card_rank.as_deref().and_then(|r| r.parse().ok()),
             last_10,
             streak,
             runs_scored: team.runs_scored,
@@ -559,6 +624,7 @@ mod tests {
                 },
             ],
             league_standings: vec![],
+            wild_card_standings: vec![],
             team_ids: vec![],
             date_selector: DateSelector::default(),
             view_mode: ViewMode::ByDivision,
@@ -580,5 +646,81 @@ mod tests {
                 .collect::<Vec<_>>()
         );
         assert_eq!(state.get_selected(), 147);
+    }
+
+    #[test]
+    fn wild_card_view_groups_by_league_without_division_leaders() {
+        // division leaders get no wild card rank from the API
+        let leader = |id| standing(id, 20, 5);
+        let contender = |id, rank| Standing {
+            wild_card_rank: Some(rank),
+            ..standing(id, 10, 10)
+        };
+
+        let mut state = StandingsState {
+            standings: vec![
+                Division {
+                    id: 201,
+                    name: "AL East".to_string(),
+                    standings: vec![leader(147), contender(111, 2)],
+                },
+                Division {
+                    id: 202,
+                    name: "AL Central".to_string(),
+                    standings: vec![leader(145), contender(114, 1)],
+                },
+                Division {
+                    id: 205,
+                    name: "NL Central".to_string(),
+                    standings: vec![leader(158), contender(112, 1)],
+                },
+            ],
+            ..StandingsState::default()
+        };
+        state.apply_favorite_team(None);
+
+        // leaders dropped, AL and NL split, each ordered by the API's wild card rank
+        assert_eq!(
+            state
+                .wild_card_standings
+                .iter()
+                .map(|l| (l.id, l.standings.iter().map(|s| s.team.id).collect()))
+                .collect::<Vec<(u16, Vec<u16>)>>(),
+            vec![(103, vec![114, 111]), (104, vec![112])]
+        );
+
+        // an NL favorite team puts the NL first
+        state.apply_favorite_team(lookup_team_by_id(112));
+        assert_eq!(
+            state
+                .wild_card_standings
+                .iter()
+                .map(|l| l.id)
+                .collect::<Vec<u16>>(),
+            vec![104, 103]
+        );
+
+        // and an AL favorite team puts the AL first
+        state.apply_favorite_team(lookup_team_by_id(111));
+        assert_eq!(
+            state
+                .wild_card_standings
+                .iter()
+                .map(|l| l.id)
+                .collect::<Vec<u16>>(),
+            vec![103, 104]
+        );
+
+        state.favorite_team = None;
+        state.view_mode = ViewMode::WildCard;
+        state.team_ids = state.generate_ids();
+        state.reset_selection();
+
+        // the league name rows aren't selectable
+        assert_eq!(state.get_selected(), 114);
+        state.next();
+        assert_eq!(state.get_selected(), 111);
+        state.next();
+        assert_eq!(state.get_selected(), 112);
     }
 }

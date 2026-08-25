@@ -286,7 +286,7 @@ Press `4` to activate this tab.
 | `k` / `↑` | move up                                                |
 | `Enter`   | view [team page](#team-page)                           |
 | `:`       | activate date picker (see [Date Picker](#date-picker)) |
-| `l`       | toggle division/league view                            |
+| `l`       | cycle division/league/wildcard view                    |
 
 ### Player Profile
 
