@@ -8,7 +8,7 @@ use chrono_tz::Tz;
 use mlbt_api::player::PeopleResponse;
 use mlbt_api::schedule::ScheduleResponse;
 use mlbt_api::season::GameType;
-use mlbt_api::standings::{RecordElement, StandingsResponse, TeamRecord};
+use mlbt_api::standings::{ClinchIndicator, RecordElement, StandingsResponse, TeamRecord};
 use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
 use std::collections::{BTreeMap, HashSet};
 use std::string::ToString;
@@ -108,6 +108,25 @@ impl Team {
     }
 }
 
+/// A team's position in the postseason race. The API reports magic and elimination numbers as
+/// strings that carry sentinels (`-` when not applicable, `E` once eliminated), so they are parsed
+/// to numbers here and the sentinels become `None` or `eliminated`.
+#[derive(Debug, Default, Clone)]
+pub struct ClinchStatus {
+    /// Set once a team clinches and cleared after the regular season ends.
+    pub indicator: Option<ClinchIndicator>,
+    /// The division magic number, only set for the division leader.
+    pub magic_number: Option<u8>,
+    /// The division elimination number, only set for teams not leading their division.
+    pub elimination_number: Option<u8>,
+    /// The wild card elimination number.
+    pub wild_card_elimination_number: Option<u8>,
+    /// Out of the division race but not playoffs (wildcard).
+    pub division_eliminated: bool,
+    /// Out of the postseason entirely, which needs both elimination numbers to be `E`.
+    pub eliminated: bool,
+}
+
 /// Standing information per team.
 #[derive(Debug, Default, Clone)]
 pub struct Standing {
@@ -127,6 +146,7 @@ pub struct Standing {
     pub xwl: String,
     pub home: String,
     pub away: String,
+    pub clinch: ClinchStatus,
 }
 
 impl Default for StandingsState {
@@ -325,6 +345,15 @@ impl StandingsState {
         (0..self.team_ids.len()).find(|i| !self.skip_division(*i))
     }
 
+    /// Whether the clinch column has anything worth showing. Magic and elimination numbers are
+    /// populated from opening day, but they only become interesting when the season winds down.
+    pub fn show_clinch_column(&self) -> bool {
+        self.standings
+            .iter()
+            .flat_map(|division| &division.standings)
+            .any(|standing| standing.clinch.division_eliminated)
+    }
+
     pub fn has_team_page(&self) -> bool {
         self.team_page.is_some()
     }
@@ -507,6 +536,53 @@ impl Division {
     }
 }
 
+impl ClinchStatus {
+    /// The API reports these as strings with `-` and `E` sentinels, so anything that isn't a
+    /// number becomes `None`.
+    fn parse_number(value: Option<&String>) -> Option<u8> {
+        value.and_then(|v| v.parse().ok())
+    }
+
+    fn from_team_record(team: &TeamRecord) -> Self {
+        // eliminationNumber alone is the division race, so a wild card team reads as `E` there
+        // while still being in the postseason
+        let division_eliminated = team.elimination_number.as_deref() == Some("E");
+        let eliminated =
+            division_eliminated && team.wild_card_elimination_number.as_deref() == Some("E");
+
+        Self {
+            indicator: team.clinch_indicator,
+            magic_number: Self::parse_number(team.magic_number.as_ref()),
+            elimination_number: Self::parse_number(team.elimination_number.as_ref()),
+            wild_card_elimination_number: Self::parse_number(
+                team.wild_card_elimination_number.as_ref(),
+            ),
+            division_eliminated,
+            eliminated,
+        }
+    }
+
+    /// The letter shown next to a team name, or `None` while a team is still in the race.
+    pub fn marker(&self) -> Option<char> {
+        match self.indicator {
+            Some(ClinchIndicator::Z) => Some('z'),
+            Some(ClinchIndicator::Y) => Some('y'),
+            Some(ClinchIndicator::X) => Some('x'),
+            Some(ClinchIndicator::W) => Some('w'),
+            // a letter the API added that this version doesn't know how to label
+            Some(ClinchIndicator::Unknown) => None,
+            None if self.eliminated => Some('e'),
+            None => None,
+        }
+    }
+
+    /// The magic or elimination number to display. The API only ever sets one of the two, so
+    /// whichever is present is the number for this team's division race.
+    pub fn race_number(&self) -> Option<u8> {
+        self.magic_number.or(self.elimination_number)
+    }
+}
+
 impl Standing {
     fn find_record(records: &[RecordElement], record_type: &str) -> String {
         records
@@ -548,6 +624,7 @@ impl Standing {
             xwl,
             home,
             away,
+            clinch: ClinchStatus::from_team_record(team),
         }
     }
 

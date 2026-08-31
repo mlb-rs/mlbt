@@ -24,12 +24,31 @@ pub struct IdLink {
     pub link: String,
 }
 
+/// Postseason clinch status, from the API's `clinchIndicator`.
+/// Absent until a team clinches, and cleared once the regular season ends.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ClinchIndicator {
+    /// clinched the best record
+    Z,
+    /// clinched the division
+    Y,
+    /// clinched a playoff berth
+    X,
+    /// clinched a wild card
+    W,
+    /// a value the API added that isn't modeled here
+    #[serde(other)]
+    Unknown,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TeamRecord {
     pub team: IdNameLink,
     pub season: String,
     pub streak: Option<Streak>,
+    pub clinch_indicator: Option<ClinchIndicator>,
     pub division_rank: Option<String>,
     pub league_rank: String,
     pub sport_rank: Option<String>,
@@ -87,4 +106,25 @@ pub struct Streak {
     pub streak_type: Option<String>,
     pub streak_number: Option<u8>,
     pub streak_code: String,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn clinch_indicator_maps_api_values() {
+        let parse = |s: &str| serde_json::from_str::<Option<ClinchIndicator>>(s).unwrap();
+
+        assert_eq!(parse("\"z\""), Some(ClinchIndicator::Z));
+        assert_eq!(parse("\"y\""), Some(ClinchIndicator::Y));
+        assert_eq!(parse("\"x\""), Some(ClinchIndicator::X));
+        assert_eq!(parse("\"w\""), Some(ClinchIndicator::W));
+
+        // a letter the API adds later must not fail the whole standings response
+        assert_eq!(parse("\"e\""), Some(ClinchIndicator::Unknown));
+
+        // absent until a team clinches, and cleared once the season ends
+        assert_eq!(parse("null"), None);
+    }
 }
