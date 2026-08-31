@@ -272,7 +272,7 @@ mod tests {
     use super::*;
     use mlbt_api::client::StatGroup;
     use mlbt_api::schedule::ScheduleResponse;
-    use mlbt_api::season::GameType;
+    use mlbt_api::season::ProfileGameType;
     use std::sync::Arc;
 
     fn test_date() -> NaiveDate {
@@ -329,7 +329,7 @@ mod tests {
             player_id: 1,
             group: StatGroup::Hitting,
             date: NaiveDate::from_ymd_opt(2026, 4, 13).unwrap(),
-            game_type: GameType::RegularSeason,
+            game_type: ProfileGameType::RegularSeason,
         };
         assert!(NetworkCache::key_for(&req).is_none());
     }

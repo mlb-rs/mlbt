@@ -6,7 +6,7 @@ use mlbt_api::client::StatGroup;
 use mlbt_api::live::LiveResponse;
 use mlbt_api::player::PeopleResponse;
 use mlbt_api::schedule::ScheduleResponse;
-use mlbt_api::season::GameType;
+use mlbt_api::season::ProfileGameType;
 use mlbt_api::standings::StandingsResponse;
 use mlbt_api::stats::StatsResponse;
 use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
@@ -33,7 +33,7 @@ pub enum NetworkRequest {
         player_id: u64,
         group: StatGroup,
         date: NaiveDate,
-        game_type: GameType,
+        game_type: ProfileGameType,
     },
     TeamPage {
         team_id: u16,
@@ -98,7 +98,7 @@ pub enum NetworkResponse {
     },
     PlayerProfileLoaded {
         data: Arc<PeopleResponse>,
-        game_type: GameType,
+        game_type: ProfileGameType,
     },
     TeamPageLoaded {
         team_id: u16,

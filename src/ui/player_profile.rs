@@ -3,7 +3,7 @@ use crate::state::player_profile::PlayerProfileState;
 use crate::ui::scroll::{ScrollParams, adjust_area_for_scroll, render_scrollbar};
 use crate::ui::styling::{border_style, dim_style, selected_style};
 use mlbt_api::client::StatGroup;
-use mlbt_api::season::GameType;
+use mlbt_api::season::ProfileGameType;
 use mlbt_api::stats::Split;
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Padding, Paragraph, Row, Table};
@@ -122,13 +122,15 @@ impl PlayerProfileWidget<'_> {
         let selected = selected_style();
         let normal = dim_style();
 
-        let (reg_style, st_style) = match self.state.game_type {
-            GameType::RegularSeason => (selected, normal),
-            GameType::SpringTraining => (normal, selected),
+        let (reg_style, post_style, st_style) = match self.state.game_type {
+            ProfileGameType::RegularSeason => (selected, normal, normal),
+            ProfileGameType::PostSeason => (normal, selected, normal),
+            ProfileGameType::SpringTraining => (normal, normal, selected),
         };
 
         Paragraph::new(vec![
             Line::from(Span::styled(" Regular Season  ", reg_style)),
+            Line::from(Span::styled(" Postseason      ", post_style)),
             Line::from(Span::styled(" Spring Training ", st_style)),
         ])
         .alignment(Alignment::Right)
@@ -136,7 +138,12 @@ impl PlayerProfileWidget<'_> {
     }
 
     fn render_season(&self, area: Rect, skip: u16, buf: &mut Buffer) {
-        let title = format!("{} Season", self.state.season_year);
+        let label = match self.state.game_type {
+            ProfileGameType::RegularSeason => "Season",
+            ProfileGameType::PostSeason => "Postseason",
+            ProfileGameType::SpringTraining => "Spring Training",
+        };
+        let title = format!("{} {label}", self.state.season_year);
         let splits = &self.state.profile.splits.season;
         render_stat_table(&title, splits, None, false, area, skip, buf);
     }

@@ -1,7 +1,7 @@
 use crate::live::LiveResponse;
 use crate::player::PeopleResponse;
 use crate::schedule::ScheduleResponse;
-use crate::season::{GameType, SeasonInfo, SeasonsResponse};
+use crate::season::{GameType, ProfileGameType, SeasonInfo, SeasonsResponse};
 use crate::standings::StandingsResponse;
 use crate::stats::StatsResponse;
 use crate::team::{RosterResponse, RosterType, TransactionsResponse};
@@ -284,11 +284,12 @@ impl MLBApi {
         person_id: u64,
         group: StatGroup,
         season: i32,
-        game_type: GameType,
+        game_type: ProfileGameType,
     ) -> ApiResult<PeopleResponse> {
         let game_type_param = match game_type {
-            GameType::SpringTraining => ",gameType=S",
-            GameType::RegularSeason => "",
+            ProfileGameType::SpringTraining => ",gameType=S",
+            ProfileGameType::PostSeason => ",gameType=P",
+            ProfileGameType::RegularSeason => "",
         };
         let url = format!(
             "{}v1/people/{}?hydrate=currentTeam,draft,stats(group=[{}],type=[season,yearByYear,career,gameLog],season={}{})",

@@ -6,7 +6,7 @@ use chrono::NaiveDate;
 use chrono_tz::Tz;
 use mlbt_api::player::PeopleResponse;
 use mlbt_api::schedule::ScheduleResponse;
-use mlbt_api::season::GameType;
+use mlbt_api::season::ProfileGameType;
 use mlbt_api::standings::StandingsResponse;
 use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
 use std::collections::{BTreeMap, HashSet};
@@ -323,7 +323,11 @@ impl StandingsState {
         }
     }
 
-    pub fn update_team_player_profile(&mut self, data: Arc<PeopleResponse>, game_type: GameType) {
+    pub fn update_team_player_profile(
+        &mut self,
+        data: Arc<PeopleResponse>,
+        game_type: ProfileGameType,
+    ) {
         if let Some(tp) = &mut self.team_page {
             tp.update_player_profile(data, game_type);
         }

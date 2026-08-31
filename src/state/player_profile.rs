@@ -2,7 +2,7 @@ use crate::components::stats::player_profile::PlayerProfile;
 use crate::state::messages::NetworkRequest;
 use mlbt_api::client::StatGroup;
 use mlbt_api::player::PeopleResponse;
-use mlbt_api::season::GameType;
+use mlbt_api::season::ProfileGameType;
 use std::sync::Arc;
 use tui::widgets::ScrollbarState;
 
@@ -10,7 +10,7 @@ use tui::widgets::ScrollbarState;
 pub struct PlayerProfileState {
     pub profile: PlayerProfile,
     pub stat_group: StatGroup,
-    pub game_type: GameType,
+    pub game_type: ProfileGameType,
     pub season_year: i32,
     pub scroll_offset: u16,
     pub scroll_state: ScrollbarState,
@@ -26,7 +26,7 @@ impl PlayerProfileState {
     pub fn from_response(
         data: Arc<PeopleResponse>,
         stat_group: StatGroup,
-        game_type: GameType,
+        game_type: ProfileGameType,
         season_year: i32,
     ) -> Option<Self> {
         // only one player was requested so there should only be one person in the response vec.
@@ -44,10 +44,12 @@ impl PlayerProfileState {
         })
     }
 
+    /// Cycle to the next game type: regular season -> postseason -> spring training -> ...
     pub fn game_type_toggle_request(&self, date: chrono::NaiveDate) -> NetworkRequest {
         let game_type = match self.game_type {
-            GameType::RegularSeason => GameType::SpringTraining,
-            GameType::SpringTraining => GameType::RegularSeason,
+            ProfileGameType::RegularSeason => ProfileGameType::PostSeason,
+            ProfileGameType::PostSeason => ProfileGameType::SpringTraining,
+            ProfileGameType::SpringTraining => ProfileGameType::RegularSeason,
         };
         NetworkRequest::PlayerProfile {
             player_id: self.profile.id,

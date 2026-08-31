@@ -8,7 +8,7 @@ use log::{error, info};
 use mlbt_api::live::LiveResponse;
 use mlbt_api::player::PeopleResponse;
 use mlbt_api::schedule::ScheduleResponse;
-use mlbt_api::season::GameType;
+use mlbt_api::season::ProfileGameType;
 use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
 use mlbt_api::win_probability::WinProbabilityResponse;
 use std::sync::Arc;
@@ -302,7 +302,7 @@ impl App {
         self.settings.full_screen = !self.settings.full_screen;
     }
 
-    pub fn update_player_profile(&mut self, data: Arc<PeopleResponse>, game_type: GameType) {
+    pub fn update_player_profile(&mut self, data: Arc<PeopleResponse>, game_type: ProfileGameType) {
         match self.state.active_tab {
             MenuItem::Standings if self.state.standings.has_team_page() => {
                 self.state

@@ -1,6 +1,6 @@
 use chrono::NaiveDate;
 use mlbt_api::client::{MLBApi, MLBApiBuilder, StatGroup};
-use mlbt_api::season::GameType;
+use mlbt_api::season::{GameType, ProfileGameType};
 use mlbt_api::team::RosterType;
 use mlbt_api::teams::SportId;
 use mockito::{Matcher, ServerGuard};
@@ -29,6 +29,7 @@ mod tests {
     use super::*;
     use chrono::{DateTime, Datelike, Local};
     use mlbt_api::client::Qualification;
+    use mlbt_api::stats::StatSplit;
 
     /// Test the schedule for the All Star Game 2021
     #[tokio::test]
@@ -550,7 +551,7 @@ mod tests {
                 .create();
 
             let resp = client
-                .get_player_profile(660271, group, 2025, GameType::RegularSeason)
+                .get_player_profile(660271, group, 2025, ProfileGameType::RegularSeason)
                 .await
                 .unwrap();
             m.assert();
@@ -565,5 +566,47 @@ mod tests {
             }
             assert_eq!(person.stats.len(), 4);
         }
+    }
+
+    #[tokio::test]
+    async fn test_player_profile_postseason() {
+        let (client, mut server) = generate_mock_client().await;
+
+        let url = "/v1/people/660271?hydrate=currentTeam,draft,stats(group=[hitting],type=[season,yearByYear,career,gameLog],season=2024,gameType=P)";
+        let m = server
+            .mock("GET", Matcher::Exact(url.to_string()))
+            .with_status(200)
+            .with_header("content-type", "application/json;charset=UTF-8")
+            .with_body_from_file("./tests/responses/player-profile-postseason-hitting.json")
+            .create();
+
+        let resp = client
+            .get_player_profile(
+                660271,
+                StatGroup::Hitting,
+                2024,
+                ProfileGameType::PostSeason,
+            )
+            .await
+            .unwrap();
+        m.assert();
+
+        let person = &resp.people[0];
+        assert_eq!(person.full_name, "Shohei Ohtani");
+        assert_eq!(person.stats.len(), 4);
+
+        let season = person
+            .stats
+            .iter()
+            .find(|s| s.stat_type.display_name == "season")
+            .unwrap();
+        let split = &season.splits[0];
+        assert_eq!(split.season.as_deref(), Some("2024"));
+        let StatSplit::Hitting(stat) = &split.stat else {
+            panic!("expected hitting stats");
+        };
+        assert_eq!(stat.games_played, 16);
+        assert_eq!(stat.home_runs, 3);
+        assert_eq!(stat.avg, ".230");
     }
 }
