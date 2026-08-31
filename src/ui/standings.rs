@@ -1,4 +1,6 @@
-use crate::components::standings::{StandingsState, ViewMode};
+use crate::components::standings::Standing;
+use crate::state::standings::{StandingsState, ViewMode};
+use crate::ui::styling::{TEXT_COLOR, win_pct_color};
 use crate::ui::styling::{border_style, header_style, selected_style};
 use tui::prelude::*;
 use tui::widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table};
@@ -59,14 +61,14 @@ impl StatefulWidget for StandingsWidget {
                     rows.push(division);
                     // then add all the teams in the division
                     for s in &d.standings {
-                        rows.push(Row::new(s.to_cells()).height(1))
+                        rows.push(Row::new(standing_cells(s)).height(1))
                     }
                 }
             }
             ViewMode::Overall => {
                 // Show all teams sorted by record without division headers
                 for t in &state.league_standings {
-                    rows.push(Row::new(t.to_cells()).height(1));
+                    rows.push(Row::new(standing_cells(t)).height(1));
                 }
             }
         }
@@ -85,4 +87,35 @@ impl StatefulWidget for StandingsWidget {
 
         StatefulWidget::render(t, area, buf, &mut state.state);
     }
+}
+
+/// Build the table cells for one team's standings row.
+fn standing_cells(standing: &Standing) -> Vec<Cell<'_>> {
+    let (prefix, rdiff_color) = match standing.run_differential.signum() {
+        1 => ("+", Color::Green),
+        -1 => ("", Color::Red),
+        _ => ("", TEXT_COLOR),
+    };
+    let pct_color = win_pct_color(&standing.winning_percentage);
+    let streak_color = match standing.streak.chars().next() {
+        Some('W') => Color::Green,
+        Some('L') => Color::Red,
+        _ => TEXT_COLOR,
+    };
+    vec![
+        standing.team.name.to_string().into(),
+        standing.wins.to_string().into(),
+        standing.losses.to_string().into(),
+        Cell::from(standing.winning_percentage.clone()).fg(pct_color),
+        standing.games_back.clone().into(),
+        standing.wild_card_games_back.clone().into(),
+        standing.last_10.clone().into(),
+        Cell::from(standing.streak.clone()).fg(streak_color),
+        standing.runs_scored.to_string().into(),
+        standing.runs_allowed.to_string().into(),
+        Cell::from(format!("{}{}", prefix, standing.run_differential)).fg(rdiff_color),
+        standing.xwl.clone().into(),
+        standing.home.clone().into(),
+        standing.away.clone().into(),
+    ]
 }
