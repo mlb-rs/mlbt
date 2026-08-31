@@ -1,5 +1,5 @@
 use crate::components::standings::{ClinchStatus, Standing};
-use crate::state::standings::{StandingsState, ViewMode};
+use crate::state::standings::{StandingsState, ViewMode, is_eliminated};
 use crate::ui::styling::{TEXT_COLOR, dim_style, win_pct_color};
 use crate::ui::styling::{border_style, header_style, selected_style};
 use tui::prelude::*;
@@ -113,14 +113,6 @@ impl StatefulWidget for StandingsWidget {
             .row_highlight_style(selected_style());
 
         StatefulWidget::render(t, area, buf, &mut state.state);
-    }
-}
-
-/// Whether the given view considers this team out of the race it is showing.
-fn is_eliminated(clinch: &ClinchStatus, view: ViewMode) -> bool {
-    match view {
-        ViewMode::WildCard => clinch.eliminated,
-        _ => clinch.division_eliminated,
     }
 }
 
@@ -241,6 +233,25 @@ mod tests {
         let cells = standing_cells(&standing, Some(ViewMode::ByDivision));
         assert_eq!(cells.len(), HEADER.len() + 1);
         assert_eq!(cells[ELIMINATION_INDEX], Cell::from("-"));
+    }
+
+    #[test]
+    fn each_view_reads_its_own_elimination() {
+        // out of the wild card, but a weak division keeps them alive there
+        let clinch = ClinchStatus {
+            elimination_number: Some(1),
+            wild_card_eliminated: true,
+            ..ClinchStatus::default()
+        };
+
+        assert_eq!(
+            elimination_cell(&clinch, ViewMode::WildCard),
+            Cell::from("E").style(dim_style())
+        );
+        assert_eq!(
+            elimination_cell(&clinch, ViewMode::ByDivision),
+            Cell::from("1")
+        );
     }
 
     #[test]

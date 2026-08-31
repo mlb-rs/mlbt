@@ -30,10 +30,10 @@ pub struct ClinchStatus {
     pub elimination_number: Option<u8>,
     /// The wild card elimination number.
     pub wild_card_elimination_number: Option<u8>,
-    /// Out of the division race but not playoffs (wildcard).
+    /// Out of the division race.
     pub division_eliminated: bool,
-    /// Out of the postseason entirely, which needs both elimination numbers to be `E`.
-    pub eliminated: bool,
+    /// Out of the wild card race.
+    pub wild_card_eliminated: bool,
 }
 
 /// Standing information per team.
@@ -177,15 +177,12 @@ impl ClinchStatus {
         elimination: Option<&str>,
         wild_card_elimination: Option<&str>,
     ) -> Self {
-        let division_eliminated = elimination == Some("E");
-        let eliminated = division_eliminated && wild_card_elimination == Some("E");
-
         Self {
             indicator,
             elimination_number: Self::parse_number(elimination),
             wild_card_elimination_number: Self::parse_number(wild_card_elimination),
-            division_eliminated,
-            eliminated,
+            division_eliminated: elimination == Some("E"),
+            wild_card_eliminated: wild_card_elimination == Some("E"),
         }
     }
 
@@ -267,25 +264,30 @@ mod tests {
         let out = ClinchStatus::from_parts(None, Some("E"), Some("E"));
         assert_eq!(out.elimination_number, None);
         assert!(out.division_eliminated);
-        assert!(out.eliminated);
+        assert!(out.wild_card_eliminated);
     }
 
     #[test]
-    fn eliminated_requires_being_out_of_the_wild_card_too() {
+    fn the_two_races_are_eliminated_independently() {
         // clinched a wild card, so out of the division race but playing in October
         let wild_card = ClinchStatus::from_parts(Some(ClinchIndicator::W), Some("E"), Some("-"));
         assert!(wild_card.division_eliminated);
-        assert!(!wild_card.eliminated);
+        assert!(!wild_card.wild_card_eliminated);
         assert_eq!(wild_card.marker(), Some('w'));
 
         // still chasing a wild card
         let contender = ClinchStatus::from_parts(None, Some("E"), Some("5"));
         assert!(contender.division_eliminated);
-        assert!(!contender.eliminated);
+        assert!(!contender.wild_card_eliminated);
 
-        // out of both races
+        // flip side: a weak division keeps them alive there while the wild card is gone.
+        let division_only = ClinchStatus::from_parts(None, Some("1"), Some("E"));
+        assert!(!division_only.division_eliminated);
+        assert!(division_only.wild_card_eliminated);
+
         let out = ClinchStatus::from_parts(None, Some("E"), Some("E"));
-        assert!(out.eliminated);
+        assert!(out.division_eliminated);
+        assert!(out.wild_card_eliminated);
         assert_eq!(out.marker(), None);
     }
 

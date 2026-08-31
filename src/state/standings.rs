@@ -1,6 +1,6 @@
 use crate::components::constants::{DIVISIONS, lookup_team_by_id};
 use crate::components::date_selector::DateSelector;
-use crate::components::standings::{Division, Standing, Team};
+use crate::components::standings::{ClinchStatus, Division, Standing, Team};
 use crate::state::team_page::TeamPageState;
 use chrono::NaiveDate;
 use chrono_tz::Tz;
@@ -35,6 +35,15 @@ pub struct StandingsState {
     /// Used to skip selecting division names in the table.
     division_row_indices: HashSet<usize>,
     pub team_page: Option<TeamPageState>,
+}
+
+/// Whether the given view considers this team out of the race it is showing. The division and
+/// wild card races are eliminated independently.
+pub fn is_eliminated(clinch: &ClinchStatus, view: ViewMode) -> bool {
+    match view {
+        ViewMode::WildCard => clinch.wild_card_eliminated,
+        _ => clinch.division_eliminated,
+    }
 }
 
 /// Map a division id to its league id. Pre-1969 standings have no divisions and are already grouped
@@ -243,12 +252,17 @@ impl StandingsState {
         (0..self.team_ids.len()).find(|i| !self.skip_division(*i))
     }
 
-    /// Check if any team has been eliminated from their division.
+    /// Check if any team on screen is out of the race the current view is showing.
     fn any_team_eliminated(&self) -> bool {
-        self.standings
+        let groups = match self.view_mode {
+            ViewMode::WildCard => &self.wild_card_standings,
+            _ => &self.standings,
+        };
+
+        groups
             .iter()
             .flat_map(|division| &division.standings)
-            .any(|standing| standing.clinch.division_eliminated)
+            .any(|standing| is_eliminated(&standing.clinch, self.view_mode))
     }
 
     /// The view mode that should show an elimination # column, or `None` to leave the column off.
@@ -572,7 +586,7 @@ mod tests {
     }
 
     #[test]
-    fn elimination_column_waits_until_a_team_is_out_of_the_division_race() {
+    fn elimination_column_waits_until_a_team_is_out_of_the_race_on_screen() {
         let mut state = wild_card_state();
         state.apply_favorite_team(None);
 
@@ -585,6 +599,17 @@ mod tests {
 
         state.view_mode = ViewMode::Overall;
         assert_eq!(state.elimination_column(), None);
+
+        // each view asks about its own race, so a division elimination alone doesn't open the
+        // column in the wild card view
+        state.view_mode = ViewMode::WildCard;
+        state.apply_favorite_team(None);
+        assert_eq!(state.elimination_column(), None);
+
+        state.wild_card_standings[0].standings[0]
+            .clinch
+            .wild_card_eliminated = true;
+        assert_eq!(state.elimination_column(), Some(ViewMode::WildCard));
     }
 
     #[test]
