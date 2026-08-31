@@ -132,7 +132,7 @@ docker run -it --rm --name mlbt mlbt:latest
 
 - standings
     - sorted by favorite team
-    - division/league view
+    - division/league/wildcard view
     - selectable date
 
 - team page
