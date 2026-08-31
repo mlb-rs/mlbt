@@ -32,7 +32,7 @@ impl Default for StatType {
         Self {
             group: StatGroup::Hitting,
             team_player: TeamOrPlayer::Player,
-            qualification: Qualification::All,
+            qualification: Qualification::Qualified,
         }
     }
 }
