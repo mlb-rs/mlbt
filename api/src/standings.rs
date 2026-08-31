@@ -123,8 +123,6 @@ mod tests {
 
         // a letter the API adds later must not fail the whole standings response
         assert_eq!(parse("\"e\""), Some(ClinchIndicator::Unknown));
-
-        // absent until a team clinches, and cleared once the season ends
         assert_eq!(parse("null"), None);
     }
 }

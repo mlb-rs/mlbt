@@ -21,15 +21,11 @@ pub struct Team {
     pub abbreviation: &'static str,
 }
 
-/// A team's position in the postseason race. The API reports magic and elimination numbers as
-/// strings that carry sentinels (`-` when not applicable, `E` once eliminated), so they are parsed
-/// to numbers here and the sentinels become `None` or `eliminated`.
+/// A team's position in the postseason race. The API sends the numbers as strings carrying `-`
+/// and `E` sentinels, which become `None` plus the two flags here.
 #[derive(Debug, Default, Clone)]
 pub struct ClinchStatus {
-    /// Set once a team clinches and cleared after the regular season ends.
     pub indicator: Option<ClinchIndicator>,
-    /// The division magic number, only set for the division leader.
-    pub magic_number: Option<u8>,
     /// The division elimination number, only set for teams not leading their division.
     pub elimination_number: Option<u8>,
     /// The wild card elimination number.
@@ -164,49 +160,45 @@ impl Division {
 }
 
 impl ClinchStatus {
-    /// The API reports these as strings with `-` and `E` sentinels, so anything that isn't a
-    /// number becomes `None`.
-    fn parse_number(value: Option<&String>) -> Option<u8> {
+    fn parse_number(value: Option<&str>) -> Option<u8> {
         value.and_then(|v| v.parse().ok())
     }
 
     fn from_team_record(team: &TeamRecord) -> Self {
-        // eliminationNumber alone is the division race, so a wild card team reads as `E` there
-        // while still being in the postseason
-        let division_eliminated = team.elimination_number.as_deref() == Some("E");
-        let eliminated =
-            division_eliminated && team.wild_card_elimination_number.as_deref() == Some("E");
+        Self::from_parts(
+            team.clinch_indicator,
+            team.elimination_number.as_deref(),
+            team.wild_card_elimination_number.as_deref(),
+        )
+    }
+
+    fn from_parts(
+        indicator: Option<ClinchIndicator>,
+        elimination: Option<&str>,
+        wild_card_elimination: Option<&str>,
+    ) -> Self {
+        let division_eliminated = elimination == Some("E");
+        let eliminated = division_eliminated && wild_card_elimination == Some("E");
 
         Self {
-            indicator: team.clinch_indicator,
-            magic_number: Self::parse_number(team.magic_number.as_ref()),
-            elimination_number: Self::parse_number(team.elimination_number.as_ref()),
-            wild_card_elimination_number: Self::parse_number(
-                team.wild_card_elimination_number.as_ref(),
-            ),
+            indicator,
+            elimination_number: Self::parse_number(elimination),
+            wild_card_elimination_number: Self::parse_number(wild_card_elimination),
             division_eliminated,
             eliminated,
         }
     }
 
-    /// The letter shown next to a team name, or `None` while a team is still in the race.
+    /// The letter shown next to a team name once it clinches. Elimination is not a marker, it
+    /// shows up as `E` in the elimination number column instead.
     pub fn marker(&self) -> Option<char> {
-        match self.indicator {
-            Some(ClinchIndicator::Z) => Some('z'),
-            Some(ClinchIndicator::Y) => Some('y'),
-            Some(ClinchIndicator::X) => Some('x'),
-            Some(ClinchIndicator::W) => Some('w'),
-            // a letter the API added that this version doesn't know how to label
-            Some(ClinchIndicator::Unknown) => None,
-            None if self.eliminated => Some('e'),
-            None => None,
+        match self.indicator? {
+            ClinchIndicator::Z => Some('z'),
+            ClinchIndicator::Y => Some('y'),
+            ClinchIndicator::X => Some('x'),
+            ClinchIndicator::W => Some('w'),
+            ClinchIndicator::Unknown => None,
         }
-    }
-
-    /// The magic or elimination number to display. The API only ever sets one of the two, so
-    /// whichever is present is the number for this team's division race.
-    pub fn race_number(&self) -> Option<u8> {
-        self.magic_number.or(self.elimination_number)
     }
 }
 
@@ -253,5 +245,63 @@ impl Standing {
             away,
             clinch: ClinchStatus::from_team_record(team),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn clinch_status_reads_the_api_sentinels() {
+        // a division leader has nothing to be eliminated from, so the API sends `-`
+        let leader = ClinchStatus::from_parts(None, Some("-"), Some("-"));
+        assert_eq!(leader.elimination_number, None);
+        assert!(!leader.division_eliminated);
+
+        let chaser = ClinchStatus::from_parts(None, Some("26"), Some("30"));
+        assert_eq!(chaser.elimination_number, Some(26));
+        assert_eq!(chaser.wild_card_elimination_number, Some(30));
+
+        // `-` and `E` are sentinels, not numbers
+        let out = ClinchStatus::from_parts(None, Some("E"), Some("E"));
+        assert_eq!(out.elimination_number, None);
+        assert!(out.division_eliminated);
+        assert!(out.eliminated);
+    }
+
+    #[test]
+    fn eliminated_requires_being_out_of_the_wild_card_too() {
+        // clinched a wild card, so out of the division race but playing in October
+        let wild_card = ClinchStatus::from_parts(Some(ClinchIndicator::W), Some("E"), Some("-"));
+        assert!(wild_card.division_eliminated);
+        assert!(!wild_card.eliminated);
+        assert_eq!(wild_card.marker(), Some('w'));
+
+        // still chasing a wild card
+        let contender = ClinchStatus::from_parts(None, Some("E"), Some("5"));
+        assert!(contender.division_eliminated);
+        assert!(!contender.eliminated);
+
+        // out of both races
+        let out = ClinchStatus::from_parts(None, Some("E"), Some("E"));
+        assert!(out.eliminated);
+        assert_eq!(out.marker(), None);
+    }
+
+    #[test]
+    fn marker_comes_from_the_clinch_indicator() {
+        let marker =
+            |indicator| ClinchStatus::from_parts(Some(indicator), Some("-"), Some("-")).marker();
+
+        assert_eq!(marker(ClinchIndicator::Z), Some('z'));
+        assert_eq!(marker(ClinchIndicator::Y), Some('y'));
+        assert_eq!(marker(ClinchIndicator::X), Some('x'));
+        assert_eq!(marker(ClinchIndicator::W), Some('w'));
+
+        assert_eq!(marker(ClinchIndicator::Unknown), None);
+
+        // still in the race
+        assert_eq!(ClinchStatus::default().marker(), None);
     }
 }

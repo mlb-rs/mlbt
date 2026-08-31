@@ -243,21 +243,29 @@ impl StandingsState {
         (0..self.team_ids.len()).find(|i| !self.skip_division(*i))
     }
 
-    /// Whether the clinch column has anything worth showing. Magic and elimination numbers are
-    /// populated from opening day, but they only become interesting when the season winds down.
-    pub fn show_clinch_column(&self) -> bool {
+    /// Check if any team has been eliminated from their division.
+    fn any_team_eliminated(&self) -> bool {
         self.standings
             .iter()
             .flat_map(|division| &division.standings)
             .any(|standing| standing.clinch.division_eliminated)
     }
 
+    /// The view mode that should show an elimination # column, or `None` to leave the column off.
+    pub fn elimination_column(&self) -> Option<ViewMode> {
+        // overall mixes both leagues, so a division number means nothing there
+        if self.view_mode == ViewMode::Overall || !self.any_team_eliminated() {
+            return None;
+        }
+
+        Some(self.view_mode)
+    }
+
     pub fn has_team_page(&self) -> bool {
         self.team_page.is_some()
     }
 
-    /// Close the top layer overlay. If the overlay is a player profile, close it. Otherwise,
-    /// close the team page.
+    /// Close the top layer overlay.
     pub fn close_overlay(&mut self) {
         if let Some(tp) = &mut self.team_page {
             if tp.player_profile.is_some() {
@@ -561,6 +569,22 @@ mod tests {
         // its league sorts first, so the fallback is that league's top ranked contender
         assert_eq!(state.team_ids, vec![103, 114, 111, 104, 112]);
         assert_eq!(state.get_selected(), Some(114));
+    }
+
+    #[test]
+    fn elimination_column_waits_until_a_team_is_out_of_the_division_race() {
+        let mut state = wild_card_state();
+        state.apply_favorite_team(None);
+
+        // early season, everyone still has a live number
+        assert_eq!(state.elimination_column(), None);
+
+        // the first elimination lands weeks before the first clinch
+        state.standings[0].standings[0].clinch.division_eliminated = true;
+        assert_eq!(state.elimination_column(), Some(ViewMode::ByDivision));
+
+        state.view_mode = ViewMode::Overall;
+        assert_eq!(state.elimination_column(), None);
     }
 
     #[test]
