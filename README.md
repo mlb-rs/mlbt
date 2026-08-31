@@ -296,7 +296,7 @@ opened from [Stats](#stats) or from a [team page](#team-page) roster by pressing
 
 | Key                 | Description          |
 |---------------------|----------------------|
-| `s`                 | toggle stat category |
+| `s`                 | cycle stat category  |
 | `j` / `↓`           | scroll down          |
 | `k` / `↑`           | scroll up            |
 | `Shift` + `j` / `↓` | page down            |
