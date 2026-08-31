@@ -13,6 +13,15 @@ pub enum GameType {
     RegularSeason,
 }
 
+/// Which slice of a player's stats to show on the Player Profile view.
+/// Separate from [`GameType`] since postseason doesn't apply to standings or team/league stats.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum ProfileGameType {
+    RegularSeason,
+    PostSeason,
+    SpringTraining,
+}
+
 #[derive(Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct SeasonsResponse {

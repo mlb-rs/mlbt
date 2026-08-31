@@ -12,7 +12,7 @@ use chrono_tz::Tz;
 use mlbt_api::client::StatGroup;
 use mlbt_api::player::PeopleResponse;
 use mlbt_api::schedule::ScheduleResponse;
-use mlbt_api::season::GameType;
+use mlbt_api::season::ProfileGameType;
 use mlbt_api::stats::StatsResponse;
 use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
 use std::collections::HashMap;
@@ -205,13 +205,17 @@ impl StatsState {
         }
     }
 
-    pub fn update_team_player_profile(&mut self, data: Arc<PeopleResponse>, game_type: GameType) {
+    pub fn update_team_player_profile(
+        &mut self,
+        data: Arc<PeopleResponse>,
+        game_type: ProfileGameType,
+    ) {
         if let Some(tp) = &mut self.team_page {
             tp.update_player_profile(data, game_type);
         }
     }
 
-    pub fn update_player_profile(&mut self, data: Arc<PeopleResponse>, game_type: GameType) {
+    pub fn update_player_profile(&mut self, data: Arc<PeopleResponse>, game_type: ProfileGameType) {
         let season_year = self.date_selector.date.year();
         self.player_profile =
             PlayerProfileState::from_response(data, self.stat_type.group, game_type, season_year);
@@ -231,7 +235,7 @@ impl StatsState {
             player_id,
             group: self.stat_type.group,
             date: self.date_selector.date,
-            game_type: GameType::RegularSeason,
+            game_type: ProfileGameType::RegularSeason,
         })
     }
 

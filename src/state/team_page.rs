@@ -6,7 +6,7 @@ use chrono::Datelike;
 use chrono_tz::Tz;
 use mlbt_api::client::StatGroup;
 use mlbt_api::schedule::ScheduleResponse;
-use mlbt_api::season::GameType;
+use mlbt_api::season::ProfileGameType;
 use mlbt_api::team::{RosterResponse, RosterType, TransactionsResponse};
 use std::collections::HashSet;
 use std::sync::Arc;
@@ -245,7 +245,7 @@ impl TeamPageState {
             player_id: row.player_id,
             group: row.position_group.stat_group(),
             date: self.date,
-            game_type: GameType::RegularSeason,
+            game_type: ProfileGameType::RegularSeason,
         })
     }
 
@@ -264,7 +264,7 @@ impl TeamPageState {
     pub fn update_player_profile(
         &mut self,
         data: Arc<mlbt_api::player::PeopleResponse>,
-        game_type: GameType,
+        game_type: ProfileGameType,
     ) {
         let group = self
             .selected_roster_row()

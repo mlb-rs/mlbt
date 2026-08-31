@@ -5,7 +5,7 @@ use crate::state::messages::{NetworkRequest, NetworkResponse, RefreshableRequest
 use chrono::{Datelike, NaiveDate};
 use log::{debug, error, warn};
 use mlbt_api::client::{ApiResult, MLBApi, MLBApiBuilder, StatGroup};
-use mlbt_api::season::{SeasonInfo, game_type_for_date};
+use mlbt_api::season::{ProfileGameType, SeasonInfo, game_type_for_date};
 use mlbt_api::team::RosterType;
 use mlbt_api::teams::SportId;
 use std::pin::Pin;
@@ -283,7 +283,7 @@ impl NetworkWorker {
         player_id: u64,
         group: StatGroup,
         date: NaiveDate,
-        game_type: mlbt_api::season::GameType,
+        game_type: ProfileGameType,
     ) -> ApiResult<NetworkResponse> {
         debug!("loading player profile for {player_id} ({group}) on {date}");
         let data = self
